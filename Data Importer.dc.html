@@ -27,6 +27,7 @@
 
 <sc-if value="{{hasResult}}" hint-placeholder-val="{{false}}">
 <h3 style="font-family:var(--font-heading);font-size:17px;margin:0 0 var(--space-3)">Updated files — download and replace in your repo's <code>data/</code> folder</h3>
+<button class="btn btn-primary btn-block" onClick="{{downloadAll}}" style="margin-bottom:var(--space-3)">Download all files</button>
 <div style="display:flex;flex-direction:column;gap:var(--space-2)">
 <sc-for list="{{downloads}}" as="f" hint-placeholder-count="7">
 <button class="btn btn-secondary btn-block" onClick="{{f.onClick}}" style="justify-content:space-between">
@@ -94,11 +95,12 @@ class Component extends DCLogic {
           const date = this.excelDateToISO(r[idx['Date']]);
           touchedDates.add(date);
           const receipt = r[idx['Receipt No.']];
-          const qty = Number(r[idx['Quantity']]) || 0;
-          const net = Number(r[idx['Net Amount']]) || 0;
+          // raw export convention is inverted: negative = normal sale, positive = return — flip so sales are positive (discount amount is left as-is)
+          const qty = -(Number(r[idx['Quantity']]) || 0);
+          const net = -(Number(r[idx['Net Amount']]) || 0);
           const disc = Number(r[idx['Discount Amount']]) || 0;
-          const cost = Number(r[idx['Cost Amount']]) || 0;
-          const refundQty = Number(r[idx['Refund Qty.']]) || 0;
+          const cost = -(Number(r[idx['Cost Amount']]) || 0);
+          const refundQty = -(Number(r[idx['Refund Qty.']]) || 0);
           const itemNo = r[idx['Item No.']];
           const division = r[idx['Division Code']];
           const category = r[idx['Item Category Code']];
@@ -121,8 +123,9 @@ class Component extends DCLogic {
           const id = byStoreDateItem[itemKey]; id.netSales += net; id.qty += qty; id.invoices.add(receipt);
 
           const rgKey = sdKey + '|' + receipt;
-          if (!receiptGroups[rgKey]) receiptGroups[rgKey] = { store, date, lines: [] };
-          receiptGroups[rgKey].lines.push(qty);
+          if (!receiptGroups[rgKey]) receiptGroups[rgKey] = { store, date, qtySum: 0, items: new Set() };
+          receiptGroups[rgKey].qtySum += qty;
+          receiptGroups[rgKey].items.add(itemNo);
         });
 
         Object.values(byStoreDate).forEach(sd => {
@@ -142,7 +145,7 @@ class Component extends DCLogic {
         });
         const singleMap = {};
         Object.values(receiptGroups).forEach(g => {
-          if (g.lines.length === 1 && Math.abs(g.lines[0]) === 1) {
+          if (g.items.size === 1 && Math.abs(g.qtySum) === 1) {
             const key = g.store + '|' + g.date;
             singleMap[key] = (singleMap[key] || 0) + 1;
           }
@@ -236,8 +239,12 @@ class Component extends DCLogic {
     }
   }
 
+  downloadAll() {
+    this.state.downloads.forEach((f, i) => setTimeout(() => f.onClick(), i * 350));
+  }
+
   renderVals() {
-    return { status: this.state.status, hasResult: this.state.hasResult, downloads: this.state.downloads, onFiles: e => this.onFiles(e) };
+    return { status: this.state.status, hasResult: this.state.hasResult, downloads: this.state.downloads, onFiles: e => this.onFiles(e), downloadAll: () => this.downloadAll() };
   }
 }
 </script>

@@ -153,10 +153,10 @@ a:hover{color:var(--color-accent-300)}
 <h3 style="font-family:var(--font-heading);font-size:16px;margin:0 0 var(--space-3)">Top categories</h3>
 <div style="overflow-x:auto">
 <table class="table">
-<thead><tr><th>Category</th><th>Net sales</th><th>Qty</th></tr></thead>
+<thead><tr><th>Category</th><th>Net sales</th><th>Qty</th><th>Invoices</th></tr></thead>
 <tbody>
 <sc-for list="{{topCategories}}" as="c" hint-placeholder-count="5">
-<tr><td style="font-weight:600;white-space:nowrap">{{c.category}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.qtyLabel}}</td></tr>
+<tr><td style="font-weight:600;white-space:nowrap">{{c.category}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.invoicesLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -228,10 +228,11 @@ a:hover{color:var(--color-accent-300)}
 <th class="rl-th" onClick="{{sortHandlers.discDiscount}}">Discount value {{sortArrow.discDiscount}}</th>
 <th class="rl-th" onClick="{{sortHandlers.discQty}}">Sold qty {{sortArrow.discQty}}</th>
 <th class="rl-th" onClick="{{sortHandlers.discRatio}}">Discount% {{sortArrow.discRatio}}</th>
+<th>Invoices</th>
 </tr></thead>
 <tbody>
 <sc-for list="{{discountsSorted}}" as="d" hint-placeholder-count="10">
-<tr><td style="font-weight:600;white-space:nowrap">{{d.rank}}</td><td style="font-weight:600;white-space:nowrap">{{d.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{d.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.discountLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.ratioLabel}}</td></tr>
+<tr><td style="font-weight:600;white-space:nowrap">{{d.rank}}</td><td style="font-weight:600;white-space:nowrap">{{d.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{d.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.discountLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.ratioLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.invoicesLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -253,7 +254,6 @@ a:hover{color:var(--color-accent-300)}
 <th class="rl-th" onClick="{{sortHandlers.invRegion}}">Region {{sortArrow.invRegion}}</th>
 <th class="rl-th" onClick="{{sortHandlers.invNetSales}}">Net sales {{sortArrow.invNetSales}}</th>
 <th class="rl-th" onClick="{{sortHandlers.invQty}}">Qty {{sortArrow.invQty}}</th>
-<th class="rl-th" onClick="{{sortHandlers.invDiscount}}">Discount {{sortArrow.invDiscount}}</th>
 <th class="rl-th" onClick="{{sortHandlers.invInvoices}}">Invoices {{sortArrow.invInvoices}}</th>
 <th class="rl-th" onClick="{{sortHandlers.invAtv}}">ATV {{sortArrow.invAtv}}</th>
 <th class="rl-th" onClick="{{sortHandlers.invUpt}}">UPT {{sortArrow.invUpt}}</th>
@@ -261,7 +261,7 @@ a:hover{color:var(--color-accent-300)}
 </tr></thead>
 <tbody>
 <sc-for list="{{invoicesSorted}}" as="iv" hint-placeholder-count="12">
-<tr><td style="font-weight:600;white-space:nowrap">{{iv.rank}}</td><td style="font-weight:600;white-space:nowrap">{{iv.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{iv.region}}</td><td style="font-weight:600;white-space:nowrap">{{iv.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.discountLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.aspLabel}}</td></tr>
+<tr><td style="font-weight:600;white-space:nowrap">{{iv.rank}}</td><td style="font-weight:600;white-space:nowrap">{{iv.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{iv.region}}</td><td style="font-weight:600;white-space:nowrap">{{iv.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.aspLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -304,10 +304,10 @@ a:hover{color:var(--color-accent-300)}
 <div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4)">"Single-item invoices" (exactly 1 SKU, 1 unit) shows "—" for dates without a raw transaction import — see Data Importer.</div>
 <div style="overflow-x:auto">
 <table class="table">
-<thead><tr><th>Date</th><th>Net sales</th><th>Sold qty</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Discounted items %</th><th>Single-item invoices</th></tr></thead>
+<thead><tr><th>Date</th><th>Net sales</th><th>Sold qty</th><th>Invoices</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Discounted items %</th><th>Single-item invoices</th><th>Single-item %</th></tr></thead>
 <tbody>
 <sc-for list="{{dailySorted}}" as="d" hint-placeholder-count="10">
-<tr><td style="font-weight:600;white-space:nowrap">{{d.date}}</td><td style="font-weight:600;white-space:nowrap">{{d.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.discountedPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.singleItemInvoicesLabel}}</td></tr>
+<tr><td style="font-weight:600;white-space:nowrap">{{d.date}}</td><td style="font-weight:600;white-space:nowrap">{{d.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.discountedPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.singleItemInvoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.singleItemPctLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -380,8 +380,8 @@ class Component extends DCLogic {
     this.setState({ storeMaster, buckets, categoriesRaw, overview, itemsRaw, categoriesByStoreDate, itemsByStoreDate, receiptDay, loading: false });
   }
 
-  fmtMoney(n) { return Math.round(n).toLocaleString('en-US'); }
-  fmtNum(n) { return Math.round(n).toLocaleString('en-US'); }
+  fmtMoney(n) { return Math.round(Math.abs(n)).toLocaleString('en-US'); }
+  fmtNum(n) { return Math.round(Math.abs(n)).toLocaleString('en-US'); }
 
   goTo(page) { return () => this.setState({ page }); }
 
@@ -468,12 +468,12 @@ class Component extends DCLogic {
     }
 
     // aggregate totals from filtered buckets
-    const netSales = filteredBuckets.reduce((a, b) => a + b.netSales, 0);
-    const qty = filteredBuckets.reduce((a, b) => a + b.qty, 0);
-    const discount = filteredBuckets.reduce((a, b) => a + b.discount, 0);
-    const invoiceCount = filteredBuckets.reduce((a, b) => a + b.invoices, 0);
-    const returnQty = filteredBuckets.reduce((a, b) => a + b.returnQty, 0);
-    const returnValue = filteredBuckets.reduce((a, b) => a + (b.returnValue || 0), 0);
+    const netSales = Math.abs(filteredBuckets.reduce((a, b) => a + b.netSales, 0));
+    const qty = Math.abs(filteredBuckets.reduce((a, b) => a + b.qty, 0));
+    const discount = Math.abs(filteredBuckets.reduce((a, b) => a + b.discount, 0));
+    const invoiceCount = Math.abs(filteredBuckets.reduce((a, b) => a + b.invoices, 0));
+    const returnQty = Math.abs(filteredBuckets.reduce((a, b) => a + b.returnQty, 0));
+    const returnValue = Math.abs(filteredBuckets.reduce((a, b) => a + (b.returnValue || 0), 0));
     const atv = invoiceCount ? netSales / invoiceCount : 0;
     const upt = invoiceCount ? qty / invoiceCount : 0;
     const discountPct = (netSales + discount) ? (100 * discount / (netSales + discount)) : 0;
@@ -482,11 +482,11 @@ class Component extends DCLogic {
     const kpiCards = [
       { label: 'Net Sales', value: this.fmtMoney(netSales), sub: invoiceCount + ' invoices' },
       { label: 'ATV', value: this.fmtMoney(atv), sub: 'avg. transaction value' },
-      { label: 'UPT', value: upt.toFixed(2), sub: 'units per transaction' },
+      { label: 'UPT', value: Math.abs(upt).toFixed(2), sub: 'units per transaction' },
       { label: 'Distinct Invoices', value: this.fmtNum(invoiceCount), sub: 'unique transactions' },
       { label: 'Sold Qty', value: this.fmtNum(qty), sub: 'units sold' },
-      { label: 'Discount %', value: discountPct.toFixed(1) + '%', sub: this.fmtMoney(discount) + ' given' },
-      { label: 'Return Rate', value: returnRate.toFixed(1) + '%', sub: this.fmtMoney(returnValue) + ' · ' + this.fmtNum(returnQty) + ' units returned' }
+      { label: 'Discount %', value: Math.abs(discountPct).toFixed(1) + '%', sub: this.fmtMoney(discount) + ' given' },
+      { label: 'Return Rate', value: Math.abs(returnRate).toFixed(1) + '%', sub: this.fmtMoney(returnValue) + ' · ' + this.fmtNum(returnQty) + ' units returned' }
     ];
 
     // daily bars
@@ -522,7 +522,7 @@ class Component extends DCLogic {
       onClick: () => this.setState({ page: 'invoices', filters: { ...st.filters, store: a.code } })
     }));
     const ssort = st.sort.stores;
-    storeRows = this.sortRows(storeRows, ssort.col, ssort.dir).map(s => ({ ...s, netSalesLabel: this.fmtMoney(s.netSales), atvLabel: this.fmtMoney(s.atv), uptLabel: s.upt.toFixed(2), aspLabel: this.fmtMoney(s.asp), qtyLabel: this.fmtNum(s.qty), invoicesLabel: this.fmtNum(s.invoices) }));
+    storeRows = this.sortRows(storeRows, ssort.col, ssort.dir).map(s => ({ ...s, netSalesLabel: this.fmtMoney(s.netSales), atvLabel: this.fmtMoney(s.atv), uptLabel: Math.abs(s.upt).toFixed(2), aspLabel: this.fmtMoney(s.asp), qtyLabel: this.fmtNum(s.qty), invoicesLabel: this.fmtNum(s.invoices) }));
 
     const topStores = [...storeRows].sort((a, b) => b.netSales - a.netSales).slice(0, 5);
 
@@ -551,7 +551,7 @@ class Component extends DCLogic {
       categoriesForPeriod = st.categoriesRaw;
     }
     const withCatMeasures = c => ({ ...c, atv: c.invoices ? c.netSales / c.invoices : 0, upt: c.invoices ? c.qty / c.invoices : 0, asp: c.qty ? c.netSales / c.qty : 0 });
-    const labelCat = c => ({ ...c, netSalesLabel: this.fmtMoney(c.netSales), qtyLabel: this.fmtNum(c.qty), invoicesLabel: this.fmtNum(c.invoices), atvLabel: this.fmtMoney(c.atv), uptLabel: c.upt.toFixed(2), aspLabel: this.fmtMoney(c.asp) });
+    const labelCat = c => ({ ...c, netSalesLabel: this.fmtMoney(c.netSales), qtyLabel: this.fmtNum(c.qty), invoicesLabel: this.fmtNum(c.invoices), atvLabel: this.fmtMoney(c.atv), uptLabel: Math.abs(c.upt).toFixed(2), aspLabel: this.fmtMoney(c.asp) });
     let catRows = categoriesForPeriod.map(withCatMeasures);
     const csort = st.sort.categories;
     catRows = this.sortRows(catRows, csort.col, csort.dir).map(labelCat);
@@ -593,9 +593,9 @@ class Component extends DCLogic {
     // discount detail — per store, respects all filters
     const byStoreDisc = {};
     filteredBuckets.forEach(b => {
-      if (!byStoreDisc[b.store]) byStoreDisc[b.store] = { storeName: b.storeName, netSales: 0, discount: 0, qty: 0, discountedValue: 0, regularValue: 0 };
+      if (!byStoreDisc[b.store]) byStoreDisc[b.store] = { storeName: b.storeName, netSales: 0, discount: 0, qty: 0, invoices: 0, discountedValue: 0, regularValue: 0 };
       const d = byStoreDisc[b.store];
-      d.netSales += b.netSales; d.discount += b.discount; d.qty += b.qty; d.discountedValue += (b.discountedValue || 0); d.regularValue += (b.regularValue || 0);
+      d.netSales += b.netSales; d.discount += b.discount; d.qty += b.qty; d.invoices += b.invoices; d.discountedValue += (b.discountedValue || 0); d.regularValue += (b.regularValue || 0);
     });
     let discRows = Object.values(byStoreDisc);
     const discRankMap = {};
@@ -603,9 +603,9 @@ class Component extends DCLogic {
     [...discRowsWithRatio].sort((a, b) => b.ratio - a.ratio).forEach((r, i) => { discRankMap[r.storeName] = i + 1; });
     const dsort = st.sort.discounts;
     discRows = this.sortRows(discRowsWithRatio, dsort.col, dsort.dir)
-      .map(d => ({ ...d, rank: discRankMap[d.storeName], netSalesLabel: this.fmtMoney(d.netSales), discountLabel: this.fmtMoney(d.discount), qtyLabel: this.fmtNum(d.qty), ratioLabel: d.ratio.toFixed(1) + '%' }));
+      .map(d => ({ ...d, rank: discRankMap[d.storeName], netSalesLabel: this.fmtMoney(d.netSales), discountLabel: this.fmtMoney(d.discount), qtyLabel: this.fmtNum(d.qty), invoicesLabel: this.fmtNum(d.invoices), ratioLabel: Math.abs(d.ratio).toFixed(1) + '%' }));
     const isort = st.sort.invoices;
-    invRows = this.sortRows(invRows, isort.col, isort.dir).map(iv => ({ ...iv, rank: rankByStore[iv.storeName], netSalesLabel: this.fmtMoney(iv.netSales), discountLabel: this.fmtMoney(iv.discount), atvLabel: this.fmtMoney(iv.atv), uptLabel: iv.upt.toFixed(2), aspLabel: this.fmtMoney(iv.asp), qtyLabel: this.fmtNum(iv.qty), invoicesLabel: this.fmtNum(iv.invoices) }));
+    invRows = this.sortRows(invRows, isort.col, isort.dir).map(iv => ({ ...iv, rank: rankByStore[iv.storeName], netSalesLabel: this.fmtMoney(iv.netSales), discountLabel: this.fmtMoney(iv.discount), atvLabel: this.fmtMoney(iv.atv), uptLabel: Math.abs(iv.upt).toFixed(2), aspLabel: this.fmtMoney(iv.asp), qtyLabel: this.fmtNum(iv.qty), invoicesLabel: this.fmtNum(iv.invoices) }));
 
     // items — respects region/city/store/date filters, top 100
     let itemsForPeriod;
@@ -627,15 +627,18 @@ class Component extends DCLogic {
     const itemsWithMeasures = itemsFiltered.map(it => ({ ...it, upt: it.invoices ? it.qty / it.invoices : 0 }));
     const itsort = st.sort.items;
     let itemsRows = this.sortRows(itemsWithMeasures, itsort.col, itsort.dir).slice(0, 100);
-    itemsRows = itemsRows.map((it, i) => ({ ...it, rank: i + 1, netSalesLabel: this.fmtMoney(it.netSales), qtyLabel: this.fmtNum(it.qty), invoicesLabel: this.fmtNum(it.invoices), uptLabel: it.upt.toFixed(2) }));
+    itemsRows = itemsRows.map((it, i) => ({ ...it, rank: i + 1, netSalesLabel: this.fmtMoney(it.netSales), qtyLabel: this.fmtNum(it.qty), invoicesLabel: this.fmtNum(it.invoices), uptLabel: Math.abs(it.upt).toFixed(2) }));
 
     // daily sales table — respects all filters, aggregated across stores per date
     const singleItemByDate = {};
     (st.receiptDay || []).forEach(r => {
-      if (!bucketMatchesForReceipt(r.store)) return;
+      const sm = this.storeIndex[r.store] || {};
+      if (f.region !== 'All' && sm.region !== f.region) return;
+      if (f.city !== 'All' && sm.city !== f.city) return;
+      if (f.store !== 'All' && r.store !== f.store) return;
+      if (f.dateRange && (r.date < f.dateRange.start || r.date > f.dateRange.end)) return;
       singleItemByDate[r.date] = (singleItemByDate[r.date] || 0) + r.singleItemInvoices;
     });
-    function bucketMatchesForReceipt(storeCode) { return true; }
     const dailyAgg = {};
     filteredBuckets.forEach(b => {
       if (!dailyAgg[b.date]) dailyAgg[b.date] = { date: b.date, netSales: 0, qty: 0, invoices: 0, discountedQty: 0 };
@@ -648,12 +651,14 @@ class Component extends DCLogic {
       upt: d.invoices ? d.qty / d.invoices : 0,
       asp: d.qty ? d.netSales / d.qty : 0,
       discountedPct: d.qty ? 100 * d.discountedQty / d.qty : 0,
-      singleItemInvoices: singleItemByDate.hasOwnProperty(d.date) ? singleItemByDate[d.date] : null
+      singleItemInvoices: singleItemByDate.hasOwnProperty(d.date) ? singleItemByDate[d.date] : null,
+      singleItemPct: (singleItemByDate.hasOwnProperty(d.date) && d.invoices) ? 100 * singleItemByDate[d.date] / d.invoices : null
     })).sort((a, b) => a.date.localeCompare(b.date));
     dailyRows = dailyRows.map(d => ({
       ...d, netSalesLabel: this.fmtMoney(d.netSales), qtyLabel: this.fmtNum(d.qty), invoicesLabel: this.fmtNum(d.invoices),
-      atvLabel: this.fmtMoney(d.atv), uptLabel: d.upt.toFixed(2), aspLabel: this.fmtMoney(d.asp), discountedPctLabel: d.discountedPct.toFixed(1) + '%',
-      singleItemInvoicesLabel: d.singleItemInvoices === null ? '—' : this.fmtNum(d.singleItemInvoices)
+      atvLabel: this.fmtMoney(d.atv), uptLabel: Math.abs(d.upt).toFixed(2), aspLabel: this.fmtMoney(d.asp), discountedPctLabel: Math.abs(d.discountedPct).toFixed(1) + '%',
+      singleItemInvoicesLabel: d.singleItemInvoices === null ? '—' : this.fmtNum(d.singleItemInvoices),
+      singleItemPctLabel: d.singleItemPct === null ? '—' : Math.abs(d.singleItemPct).toFixed(1) + '%'
     }));
 
     const titles = { overview: 'Executive Overview', stores: 'Branch Comparison', regions: 'Region & City Drilldown', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', daily: 'Daily Sales' };
