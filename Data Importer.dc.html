@@ -76,6 +76,10 @@ class Component extends DCLogic {
       const warnings = [];
       const touchedDates = new Set();
 
+      // pass 1: parse all files, then resolve one canonical division/category per item
+      // (raw rows sometimes carry blank or "Uncategorized" division for an item that has a
+      // real division on other rows — majority-vote across all rows fixes the split/duplicate categories)
+      const parsedFiles = [];
       for (const file of files) {
         this.setState({ status: `Parsing ${file.name}…` });
         const buf = await file.arrayBuffer();
@@ -87,8 +91,36 @@ class Component extends DCLogic {
         header.forEach((h, i) => { idx[h] = i; });
         const need = ['Store No.', 'Receipt No.', 'Item No.', 'Date', 'Quantity', 'Net Amount', 'Discount Amount', 'Cost Amount', 'Refund Qty.', 'Item Category Code', 'Division Code', 'Item Description'];
         for (const col of need) if (idx[col] === undefined) warnings.push(`${file.name}: missing column "${col}"`);
-
         const dataRows = rows.slice(1).filter(r => r[idx['Store No.']]);
+        parsedFiles.push({ idx, dataRows });
+      }
+      const itemVotes = {};
+      const isUsableDivCat = d => d && d !== 'Uncategorized';
+      parsedFiles.forEach(({ idx, dataRows }) => {
+        dataRows.forEach(r => {
+          const itemNo = r[idx['Item No.']];
+          const division = r[idx['Division Code']];
+          const category = r[idx['Item Category Code']];
+          if (!isUsableDivCat(division)) return;
+          if (!itemVotes[itemNo]) itemVotes[itemNo] = {};
+          const key = division + '\u0001' + category;
+          itemVotes[itemNo][key] = (itemVotes[itemNo][key] || 0) + 1;
+        });
+      });
+      const itemMetaExisting0 = {}; items.forEach(it => itemMetaExisting0[it.itemNo] = it);
+      const resolveDivCat = (itemNo, rawDivision, rawCategory) => {
+        const votes = itemVotes[itemNo];
+        if (votes) {
+          let best = null, bestCount = -1;
+          Object.entries(votes).forEach(([k, c]) => { if (c > bestCount) { bestCount = c; best = k; } });
+          if (best) { const [d, c] = best.split('\u0001'); return { division: d, category: c }; }
+        }
+        const existing = itemMetaExisting0[itemNo];
+        if (existing && isUsableDivCat(existing.division)) return { division: existing.division, category: existing.category };
+        return { division: rawDivision || 'Uncategorized', category: rawCategory };
+      };
+
+      for (const { idx, dataRows } of parsedFiles) {
         const byStoreDate = {}, byStoreDateCat = {}, byStoreDateItem = {}, receiptGroups = {};
         dataRows.forEach(r => {
           const store = r[idx['Store No.']];
@@ -102,8 +134,7 @@ class Component extends DCLogic {
           const cost = -(Number(r[idx['Cost Amount']]) || 0);
           const refundQty = -(Number(r[idx['Refund Qty.']]) || 0);
           const itemNo = r[idx['Item No.']];
-          const division = r[idx['Division Code']];
-          const category = r[idx['Item Category Code']];
+          const { division, category } = resolveDivCat(itemNo, r[idx['Division Code']], r[idx['Item Category Code']]);
           const itemDesc = r[idx['Item Description']];
           const isDiscounted = disc > 0;
 
