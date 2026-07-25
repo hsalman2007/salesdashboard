@@ -20,7 +20,7 @@ a:hover{color:var(--color-accent-900)}
 </style>
 </helmet>
 <div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);display:flex">
-<nav style="width:196px;flex:none;padding:var(--space-6) var(--space-4) var(--space-6) var(--space-6);display:flex;flex-direction:column;gap:var(--space-6)">
+<nav style="width:196px;flex:none;padding:var(--space-6) var(--space-4) var(--space-6) var(--space-6);display:{{navDisplay}};flex-direction:column;gap:var(--space-6)">
 <div>
 <div style="font-family:var(--font-heading);font-weight:700;font-size:22px;line-height:1.15">Retail Ledger</div>
 <div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-neutral-700);margin-top:4px">Sales Dashboard</div>
@@ -35,33 +35,33 @@ a:hover{color:var(--color-accent-900)}
 {{meta.storeCount}} branches tracked
 </div>
 </nav>
-<main style="flex:1;padding:var(--space-6) var(--space-7) var(--space-8) var(--space-5);max-width:1180px">
+<main style="flex:1;padding:{{mainPadding}};max-width:{{mainMaxWidth}}">
 
 <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:var(--space-2)">
 <h1 style="font-family:var(--font-heading);font-size:30px;margin:0">{{pageTitle}}</h1>
 <div style="font-size:12px;color:var(--color-neutral-600)">{{meta.sampleNote}}</div>
 </div>
 
-<div style="display:flex;gap:var(--space-4);align-items:flex-end;flex-wrap:wrap;margin:var(--space-5) 0 var(--space-6)">
-<div class="field" style="min-width:130px">
+<div style="display:flex;gap:var(--space-4);align-items:{{filtersAlign}};flex-wrap:wrap;flex-direction:{{filtersDirection}};margin:var(--space-5) 0 var(--space-6)">
+<div class="field" style="min-width:130px;width:{{filtersItemWidth}}">
 <label>Region</label>
 <select class="input" value="{{filters.region}}" onChange="{{setRegion}}">
 <sc-for list="{{regionOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
 </select>
 </div>
-<div class="field" style="min-width:150px">
+<div class="field" style="min-width:150px;width:{{filtersItemWidth}}">
 <label>City</label>
 <select class="input" value="{{filters.city}}" onChange="{{setCity}}">
 <sc-for list="{{cityOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
 </select>
 </div>
-<div class="field" style="min-width:180px">
+<div class="field" style="min-width:180px;width:{{filtersItemWidth}}">
 <label>Store</label>
 <select class="input" value="{{filters.store}}" onChange="{{setStore}}">
 <sc-for list="{{storeOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt.code}}">{{opt.label}}</option></sc-for>
 </select>
 </div>
-<div class="field" style="min-width:150px;position:relative">
+<div class="field" style="min-width:150px;position:relative;width:{{filtersItemWidth}}">
 <label>Date</label>
 <button class="input" onClick="{{toggleDateMenu}}" style="text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
 <span>{{dateButtonLabel}}</span><span style="font-size:10px">▾</span>
@@ -93,11 +93,11 @@ a:hover{color:var(--color-accent-900)}
 
 <sc-if value="{{isOverview}}" hint-placeholder-val="{{true}}">
 <section>
-<div style="display:flex;gap:var(--space-4);flex-wrap:wrap;margin-bottom:var(--space-7)">
+<div style="display:flex;gap:{{kpiGap}};flex-wrap:wrap;margin-bottom:var(--space-7)">
 <sc-for list="{{kpiCards}}" as="k" hint-placeholder-count="7">
-<div class="card elev-sm" style="flex:1;min-width:148px">
+<div class="card elev-sm" style="flex:{{kpiFlex}};min-width:0">
 <div class="card-kicker">{{k.label}}</div>
-<div class="card-title" style="font-size:26px;margin-top:2px">{{k.value}}</div>
+<div class="card-title" style="font-size:{{kpiValueSize}};margin-top:2px">{{k.value}}</div>
 <div class="card-meta">{{k.sub}}</div>
 </div>
 </sc-for>
@@ -133,6 +133,7 @@ a:hover{color:var(--color-accent-900)}
 <div style="display:flex;gap:var(--space-7);flex-wrap:wrap">
 <div style="flex:1;min-width:320px">
 <h3 style="font-family:var(--font-heading);font-size:16px;margin:0 0 var(--space-3)">Top branches</h3>
+<div style="overflow-x:auto">
 <table class="table">
 <thead><tr><th>Store</th><th>Net sales</th><th>Invoices</th></tr></thead>
 <tbody>
@@ -142,8 +143,10 @@ a:hover{color:var(--color-accent-900)}
 </tbody>
 </table>
 </div>
+</div>
 <div style="flex:1;min-width:320px">
 <h3 style="font-family:var(--font-heading);font-size:16px;margin:0 0 var(--space-3)">Top categories</h3>
+<div style="overflow-x:auto">
 <table class="table">
 <thead><tr><th>Category</th><th>Net sales</th><th>Qty</th></tr></thead>
 <tbody>
@@ -152,6 +155,7 @@ a:hover{color:var(--color-accent-900)}
 </sc-for>
 </tbody>
 </table>
+</div>
 </div>
 </div>
 </section>
@@ -167,6 +171,7 @@ a:hover{color:var(--color-accent-900)}
 <div style="font-size:13px;color:var(--color-neutral-700)">{{rg.storeCount}} stores · {{rg.netSalesLabel}} · {{rg.invoices}} invoices</div>
 </div>
 <sc-if value="{{rg.expanded}}" hint-placeholder-val="{{false}}">
+<div style="overflow-x:auto">
 <table class="table" style="margin-bottom:var(--space-4)">
 <thead><tr><th>Store</th><th>City</th><th>Net sales</th><th>Invoices</th></tr></thead>
 <tbody>
@@ -175,6 +180,7 @@ a:hover{color:var(--color-accent-900)}
 </sc-for>
 </tbody>
 </table>
+</div>
 </sc-if>
 </div>
 </sc-for>
@@ -184,6 +190,7 @@ a:hover{color:var(--color-accent-900)}
 <sc-if value="{{isCategories}}" hint-placeholder-val="{{false}}">
 <section>
 <div style="font-size:12px;color:var(--color-neutral-600);margin-bottom:var(--space-4)">Category mix — respects region, city, store and date filters</div>
+<div style="overflow-x:auto">
 <table class="table">
 <thead><tr>
 <th class="rl-th" onClick="{{sortHandlers.catDivision}}">Division {{sortArrow.catDivision}}</th>
@@ -201,11 +208,13 @@ a:hover{color:var(--color-accent-900)}
 </sc-for>
 </tbody>
 </table>
+</div>
 </section>
 </sc-if>
 
 <sc-if value="{{isDiscounts}}" hint-placeholder-val="{{false}}">
 <section>
+<div style="overflow-x:auto">
 <table class="table">
 <thead><tr>
 <th>Rank</th>
@@ -221,6 +230,7 @@ a:hover{color:var(--color-accent-900)}
 </sc-for>
 </tbody>
 </table>
+</div>
 </section>
 </sc-if>
 
@@ -230,6 +240,7 @@ a:hover{color:var(--color-accent-900)}
 <label>Search store</label>
 <input class="input" type="text" placeholder="e.g. Abha" value="{{search}}" onChange="{{setSearch}}">
 </div>
+<div style="overflow-x:auto">
 <table class="table">
 <thead><tr>
 <th>Rank</th>
@@ -249,6 +260,7 @@ a:hover{color:var(--color-accent-900)}
 </sc-for>
 </tbody>
 </table>
+</div>
 <div style="font-size:12px;color:var(--color-neutral-600);margin-top:var(--space-3)">Showing {{invoicesSorted.length}} day(s) · {{meta.totalInvoices}} invoices total</div>
 </section>
 </sc-if>
@@ -260,6 +272,7 @@ a:hover{color:var(--color-accent-900)}
 <label>Search item</label>
 <input class="input" type="text" placeholder="e.g. shirt" value="{{itemSearch}}" onChange="{{setItemSearch}}">
 </div>
+<div style="overflow-x:auto">
 <table class="table">
 <thead><tr>
 <th>Rank</th>
@@ -276,11 +289,18 @@ a:hover{color:var(--color-accent-900)}
 </sc-for>
 </tbody>
 </table>
+</div>
 <div style="font-size:12px;color:var(--color-neutral-600);margin-top:var(--space-3)">Showing top {{itemsSorted.length}} of {{itemsTotalCount}} items</div>
 </section>
 </sc-if>
 
 </main>
+</div>
+
+<div style="display:{{bottomNavDisplay}};position:fixed;left:0;right:0;bottom:0;background:var(--color-surface);border-top:1px solid var(--color-divider);padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:30;box-shadow:var(--shadow-md)">
+<sc-for list="{{bottomNavItems}}" as="b" hint-placeholder-count="6">
+<div onClick="{{b.onClick}}" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;cursor:pointer;min-height:44px;font-size:11px;font-weight:{{b.weight}};color:{{b.color}}">{{b.label}}</div>
+</sc-for>
 </div>
 
 </x-dc>
@@ -302,10 +322,22 @@ class Component extends DCLogic {
       discounts: { col: 'ratio', dir: 'desc' }
     },
     search: '',
-    expandedRegions: {}
+    expandedRegions: {},
+    mobileNavOpen: false,
+    isMobile: typeof window !== 'undefined' && window.innerWidth <= 768
   };
 
-  async componentDidMount() {
+  componentDidMount() {
+    this._onResize = () => this.setState({ isMobile: window.innerWidth <= 768 });
+    window.addEventListener('resize', this._onResize);
+    this._loadData();
+  }
+
+  componentWillUnmount() {
+    if (this._onResize) window.removeEventListener('resize', this._onResize);
+  }
+
+  async _loadData() {
     const [storeMaster, buckets, categoriesRaw, overview, itemsRaw, categoriesByStoreDate, itemsByStoreDate] = await Promise.all([
       fetch('data/store-master.json').then(r => r.json()),
       fetch('data/store-day.json').then(r => r.json()),
@@ -362,7 +394,7 @@ class Component extends DCLogic {
   renderVals() {
     const st = this.state;
     if (st.loading) {
-      return { pageTitle: 'Loading…', navItems: [], meta: {}, filters: { ...st.filters, isDirty: false }, regionOptions: ['All'], cityOptions: ['All'], storeOptions: [{ code: 'All', label: 'All' }], dateMenuOpen: false, dateButtonLabel: 'All dates', calendarCells: [], toggleDateMenu: () => {}, clearDate: () => {}, isOverview: false, isStores: false, isRegions: false, isCategories: false, isInvoices: false, isItems: false, isDiscounts: false, kpiCards: [], dailyBars: [], regionBars: [], topStores: [], topCategories: [], storesSorted: [], categoriesSorted: [], invoicesSorted: [], regionGroups: [], discountsSorted: [], itemsSorted: [], itemsTotalCount: 0, itemSearch: '', setItemSearch: () => {}, sortArrow: {}, sortHandlers: {}, search: '' };
+      return { pageTitle: 'Loading…', isMobile: st.isMobile, navDisplay: st.isMobile ? 'none' : 'flex', bottomNavDisplay: st.isMobile ? 'flex' : 'none', mainMaxWidth: st.isMobile ? 'none' : '1180px', mainPadding: st.isMobile ? '16px 16px 88px 16px' : 'var(--space-6) var(--space-7) var(--space-8) var(--space-5)', filtersDirection: st.isMobile ? 'column' : 'row', filtersAlign: st.isMobile ? 'stretch' : 'flex-end', filtersItemWidth: st.isMobile ? '100%' : 'auto', kpiBasis: st.isMobile ? 'calc(50% - 8px)' : '148px', kpiFlex: st.isMobile ? '0 1 calc(50% - 5px)' : '1 1 148px', kpiValueSize: st.isMobile ? '20px' : '26px', kpiGap: st.isMobile ? '10px' : 'var(--space-4)', bottomNavItems: [], mobileNavOpen: false, toggleMobileNav: () => {}, navItems: [], meta: {}, filters: { ...st.filters, isDirty: false }, regionOptions: ['All'], cityOptions: ['All'], storeOptions: [{ code: 'All', label: 'All' }], dateMenuOpen: false, dateButtonLabel: 'All dates', calendarCells: [], toggleDateMenu: () => {}, clearDate: () => {}, isOverview: false, isStores: false, isRegions: false, isCategories: false, isInvoices: false, isItems: false, isDiscounts: false, kpiCards: [], dailyBars: [], regionBars: [], topStores: [], topCategories: [], storesSorted: [], categoriesSorted: [], invoicesSorted: [], regionGroups: [], discountsSorted: [], itemsSorted: [], itemsTotalCount: 0, itemSearch: '', setItemSearch: () => {}, sortArrow: {}, sortHandlers: {}, search: '' };
     }
 
     const filteredBuckets = st.buckets.filter(b => this.matchesFilters(b));
@@ -572,15 +604,37 @@ class Component extends DCLogic {
     itemsRows = itemsRows.map((it, i) => ({ ...it, rank: i + 1, netSalesLabel: this.fmtMoney(it.netSales), qtyLabel: this.fmtNum(it.qty), invoicesLabel: this.fmtNum(it.invoices), uptLabel: it.upt.toFixed(2) }));
 
     const titles = { overview: 'Executive Overview', stores: 'Branch Comparison', regions: 'Region & City Drilldown', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail' };
+    const shortTitles = { overview: 'Overview', regions: 'Regions', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores' };
+    const pageOrder = ['overview', 'regions', 'categories', 'items', 'discounts', 'invoices'];
+    const isMobile = st.isMobile;
 
     return {
       pageTitle: titles[st.page],
-      navItems: ['overview', 'regions', 'categories', 'items', 'discounts', 'invoices'].map(p => ({
-        label: titles[p], onClick: this.goTo(p),
+      isMobile,
+      navDisplay: isMobile ? 'none' : 'flex',
+      bottomNavDisplay: isMobile ? 'flex' : 'none',
+      mainMaxWidth: isMobile ? 'none' : '1180px',
+      mainPadding: isMobile ? '16px 16px 88px 16px' : 'var(--space-6) var(--space-7) var(--space-8) var(--space-5)',
+      filtersDirection: isMobile ? 'column' : 'row',
+      filtersAlign: isMobile ? 'stretch' : 'flex-end',
+      filtersItemWidth: isMobile ? '100%' : 'auto',
+      kpiBasis: isMobile ? 'calc(50% - 8px)' : '148px',
+      kpiFlex: isMobile ? '0 1 calc(50% - 5px)' : '1 1 148px',
+      kpiValueSize: isMobile ? '20px' : '26px',
+      kpiGap: isMobile ? '10px' : 'var(--space-4)',
+      navItems: pageOrder.map(p => ({
+        label: titles[p], onClick: () => { this.goTo(p)(); this.setState({ mobileNavOpen: false }); },
         weight: st.page === p ? 700 : 400,
         color: st.page === p ? 'var(--color-accent-700)' : 'var(--color-text)',
         rule: st.page === p ? '2px solid var(--color-accent-500)' : '2px solid transparent'
       })),
+      bottomNavItems: pageOrder.map(p => ({
+        label: shortTitles[p], onClick: this.goTo(p),
+        color: st.page === p ? 'var(--color-accent-700)' : 'var(--color-neutral-600)',
+        weight: st.page === p ? 700 : 500
+      })),
+      mobileNavOpen: st.mobileNavOpen,
+      toggleMobileNav: () => this.setState({ mobileNavOpen: !st.mobileNavOpen }),
       meta: {
         dateLabel: st.overview ? st.overview.dateRange.start + ' – ' + st.overview.dateRange.end : '',
         storeCount: storesWithSales.size,
