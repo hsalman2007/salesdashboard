@@ -97,7 +97,7 @@ a:hover{color:var(--color-accent-900)}
 <sc-for list="{{kpiCards}}" as="k" hint-placeholder-count="7">
 <div class="card elev-sm" style="flex:{{kpiFlex}};min-width:0">
 <div class="card-kicker">{{k.label}}</div>
-<div class="card-title" style="font-size:{{kpiValueSize}};margin-top:2px">{{k.value}}</div>
+<div class="card-title" style="font-size:{{kpiValueSize}};margin-top:2px;white-space:nowrap">{{k.value}}</div>
 <div class="card-meta">{{k.sub}}</div>
 </div>
 </sc-for>
@@ -120,7 +120,7 @@ a:hover{color:var(--color-accent-900)}
 <div style="display:flex;flex-direction:column;gap:var(--space-3)">
 <sc-for list="{{regionBars}}" as="r" hint-placeholder-count="4">
 <div>
-<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>{{r.label}}</span><span style="color:var(--color-neutral-700)">{{r.valueLabel}}</span></div>
+<div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;margin-bottom:4px"><span style="white-space:nowrap">{{r.label}}</span><span style="color:var(--color-neutral-700);white-space:nowrap">{{r.valueLabel}}</span></div>
 <div style="height:10px;background:var(--color-neutral-200);border-radius:var(--radius-sm)">
 <div style="height:100%;width:{{r.pct}}%;background:var(--color-accent-2-500);border-radius:var(--radius-sm)"></div>
 </div>
@@ -138,7 +138,7 @@ a:hover{color:var(--color-accent-900)}
 <thead><tr><th>Store</th><th>Net sales</th><th>Invoices</th></tr></thead>
 <tbody>
 <sc-for list="{{topStores}}" as="s" hint-placeholder-count="5">
-<tr onClick="{{s.onClick}}" style="cursor:pointer"><td style="font-weight:600">{{s.name}}</td><td style="font-weight:600">{{s.netSalesLabel}}</td><td style="font-weight:600">{{s.invoicesLabel}}</td></tr>
+<tr onClick="{{s.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap">{{s.name}}</td><td style="font-weight:600;white-space:nowrap">{{s.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.invoicesLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -151,7 +151,7 @@ a:hover{color:var(--color-accent-900)}
 <thead><tr><th>Category</th><th>Net sales</th><th>Qty</th></tr></thead>
 <tbody>
 <sc-for list="{{topCategories}}" as="c" hint-placeholder-count="5">
-<tr><td style="font-weight:600">{{c.category}}</td><td style="font-weight:600">{{c.netSalesLabel}}</td><td style="font-weight:600">{{c.qtyLabel}}</td></tr>
+<tr><td style="font-weight:600;white-space:nowrap">{{c.category}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.qtyLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -176,7 +176,7 @@ a:hover{color:var(--color-accent-900)}
 <thead><tr><th>Store</th><th>City</th><th>Net sales</th><th>Invoices</th></tr></thead>
 <tbody>
 <sc-for list="{{rg.stores}}" as="s" hint-placeholder-count="3">
-<tr onClick="{{s.onClick}}" style="cursor:pointer"><td style="font-weight:600">{{s.name}}</td><td style="font-weight:600">{{s.city}}</td><td style="font-weight:600">{{s.netSalesLabel}}</td><td style="font-weight:600">{{s.invoicesLabel}}</td></tr>
+<tr onClick="{{s.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap">{{s.name}}</td><td style="font-weight:600;white-space:nowrap">{{s.city}}</td><td style="font-weight:600;white-space:nowrap">{{s.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.invoicesLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -204,7 +204,7 @@ a:hover{color:var(--color-accent-900)}
 </tr></thead>
 <tbody>
 <sc-for list="{{categoriesSorted}}" as="c" hint-placeholder-count="10">
-<tr><td style="font-weight:600">{{c.division}}</td><td style="font-weight:600">{{c.category}}</td><td style="font-weight:600">{{c.netSalesLabel}}</td><td style="font-weight:600">{{c.qtyLabel}}</td><td style="font-weight:600">{{c.invoicesLabel}}</td><td style="font-weight:600">{{c.atvLabel}}</td><td style="font-weight:600">{{c.uptLabel}}</td><td style="font-weight:600">{{c.aspLabel}}</td></tr>
+<tr><td style="font-weight:600;white-space:nowrap">{{c.division}}</td><td style="font-weight:600;white-space:nowrap">{{c.category}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.aspLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -226,7 +226,7 @@ a:hover{color:var(--color-accent-900)}
 </tr></thead>
 <tbody>
 <sc-for list="{{discountsSorted}}" as="d" hint-placeholder-count="10">
-<tr><td style="font-weight:600">{{d.rank}}</td><td style="font-weight:600">{{d.storeName}}</td><td style="font-weight:600">{{d.netSalesLabel}}</td><td style="font-weight:600">{{d.discountLabel}}</td><td style="font-weight:600">{{d.qtyLabel}}</td><td style="font-weight:600">{{d.ratioLabel}}</td></tr>
+<tr><td style="font-weight:600;white-space:nowrap">{{d.rank}}</td><td style="font-weight:600;white-space:nowrap">{{d.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{d.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.discountLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.ratioLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -256,7 +256,7 @@ a:hover{color:var(--color-accent-900)}
 </tr></thead>
 <tbody>
 <sc-for list="{{invoicesSorted}}" as="iv" hint-placeholder-count="12">
-<tr><td style="font-weight:600">{{iv.rank}}</td><td style="font-weight:600">{{iv.storeName}}</td><td style="font-weight:600">{{iv.region}}</td><td style="font-weight:600">{{iv.netSalesLabel}}</td><td style="font-weight:600">{{iv.qtyLabel}}</td><td style="font-weight:600">{{iv.discountLabel}}</td><td style="font-weight:600">{{iv.invoicesLabel}}</td><td style="font-weight:600">{{iv.atvLabel}}</td><td style="font-weight:600">{{iv.uptLabel}}</td><td style="font-weight:600">{{iv.aspLabel}}</td></tr>
+<tr><td style="font-weight:600;white-space:nowrap">{{iv.rank}}</td><td style="font-weight:600;white-space:nowrap">{{iv.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{iv.region}}</td><td style="font-weight:600;white-space:nowrap">{{iv.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.discountLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.aspLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -285,7 +285,7 @@ a:hover{color:var(--color-accent-900)}
 </tr></thead>
 <tbody>
 <sc-for list="{{itemsSorted}}" as="it" hint-placeholder-count="15">
-<tr><td style="font-weight:600">{{it.rank}}</td><td style="font-weight:600">{{it.itemNo}}</td><td style="font-weight:600">{{it.itemDesc}}</td><td style="font-weight:600">{{it.netSalesLabel}}</td><td style="font-weight:600">{{it.qtyLabel}}</td><td style="font-weight:600">{{it.invoicesLabel}}</td><td style="font-weight:600">{{it.uptLabel}}</td></tr>
+<tr><td style="font-weight:600;white-space:nowrap">{{it.rank}}</td><td style="font-weight:600;white-space:nowrap">{{it.itemNo}}</td><td style="font-weight:600;white-space:nowrap">{{it.itemDesc}}</td><td style="font-weight:600;white-space:nowrap">{{it.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.uptLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -354,7 +354,7 @@ class Component extends DCLogic {
     this.setState({ storeMaster, buckets, categoriesRaw, overview, itemsRaw, categoriesByStoreDate, itemsByStoreDate, loading: false });
   }
 
-  fmtMoney(n) { return 'SAR ' + Math.round(n).toLocaleString('en-US'); }
+  fmtMoney(n) { return Math.round(n).toLocaleString('en-US'); }
   fmtNum(n) { return Math.round(n).toLocaleString('en-US'); }
 
   goTo(page) { return () => this.setState({ page }); }
