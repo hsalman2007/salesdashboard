@@ -292,7 +292,7 @@ a:hover{color:var(--color-accent-300)}
 <tbody>
 <sc-for list="{{itemsSorted}}" as="it" hint-placeholder-count="15">
 <tr><td style="font-weight:600;white-space:nowrap">{{it.rank}}</td>
-<td><sc-if value="{{it.image}}" hint-placeholder-val="{{true}}"><img src="{{it.image}}" style="width:40px;height:40px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block"></sc-if><sc-if value="{{it.hasNoImage}}" hint-placeholder-val="{{false}}"><div style="width:40px;height:40px;border-radius:var(--radius-sm);background:var(--color-neutral-800)"></div></sc-if></td>
+<td><img src="{{it.imageSrc}}" style="width:40px;height:40px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block"></td>
 <td style="font-weight:600;white-space:nowrap">{{it.itemNo}}</td><td style="font-weight:600;white-space:nowrap">{{it.itemDesc}}</td><td style="font-weight:600;white-space:nowrap">{{it.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.uptLabel}}</td></tr>
 </sc-for>
 </tbody>
@@ -361,25 +361,32 @@ class Component extends DCLogic {
     if (this._mql.addEventListener) this._mql.addEventListener('change', this._onResize);
     else this._mql.addListener(this._onResize);
     this._loadData();
-    this._bottomNavEl = null;
+    this._natHeight = null;
     this.bottomNavRef = el => {
       this._bottomNavEl = el;
+      if (el && this._natHeight == null) { el.style.transform = 'none'; this._natHeight = el.offsetHeight; }
       this._layoutBottomNav();
     };
     this._layoutBottomNav = () => {
       const el = this._bottomNavEl;
-      const vv = window.visualViewport;
       if (!el) return;
+      const vv = window.visualViewport;
       if (!vv) { el.style.transform = 'none'; el.style.width = '100%'; return; }
+      const h = this._natHeight || el.offsetHeight;
       const scale = 1 / vv.scale;
-      el.style.width = vv.width + 'px';
+      el.style.width = (vv.width * vv.scale) + 'px';
       el.style.transformOrigin = 'top left';
-      el.style.transform = `translate(${vv.offsetLeft}px, ${vv.offsetTop + vv.height - el.offsetHeight / vv.scale}px) scale(${scale})`;
+      el.style.transform = `translate(${vv.offsetLeft}px, ${vv.offsetTop + vv.height - h}px) scale(${scale})`;
+    };
+    this._rafPending = false;
+    this._scheduleLayout = () => {
+      if (this._rafPending) return;
+      this._rafPending = true;
+      requestAnimationFrame(() => { this._rafPending = false; this._layoutBottomNav(); });
     };
     if (window.visualViewport) {
-      this._onVV = () => this._layoutBottomNav();
-      window.visualViewport.addEventListener('resize', this._onVV);
-      window.visualViewport.addEventListener('scroll', this._onVV);
+      window.visualViewport.addEventListener('resize', this._scheduleLayout);
+      window.visualViewport.addEventListener('scroll', this._scheduleLayout);
     }
   }
 
@@ -388,9 +395,9 @@ class Component extends DCLogic {
       if (this._mql.removeEventListener) this._mql.removeEventListener('change', this._onResize);
       else this._mql.removeListener(this._onResize);
     }
-    if (window.visualViewport && this._onVV) {
-      window.visualViewport.removeEventListener('resize', this._onVV);
-      window.visualViewport.removeEventListener('scroll', this._onVV);
+    if (window.visualViewport) {
+      window.visualViewport.removeEventListener('resize', this._scheduleLayout);
+      window.visualViewport.removeEventListener('scroll', this._scheduleLayout);
     }
   }
 
@@ -671,7 +678,8 @@ class Component extends DCLogic {
     const itemsWithMeasures = itemsFiltered.map(it => ({ ...it, upt: it.invoices ? it.qty / it.invoices : 0 }));
     const itsort = st.sort.items;
     let itemsRows = this.sortRows(itemsWithMeasures, itsort.col, itsort.dir).slice(0, 100);
-    itemsRows = itemsRows.map((it, i) => ({ ...it, rank: i + 1, hasNoImage: !it.image, netSalesLabel: this.fmtMoney(it.netSales), qtyLabel: this.fmtNum(it.qty), invoicesLabel: this.fmtNum(it.invoices), uptLabel: Math.abs(it.upt).toFixed(2) }));
+    const blankImg = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect width="40" height="40" fill="%23252b3a"/%3E%3C/svg%3E';
+    itemsRows = itemsRows.map((it, i) => ({ ...it, rank: i + 1, imageSrc: it.image || blankImg, netSalesLabel: this.fmtMoney(it.netSales), qtyLabel: this.fmtNum(it.qty), invoicesLabel: this.fmtNum(it.invoices), uptLabel: Math.abs(it.upt).toFixed(2) }));
 
     // daily sales table — respects all filters, aggregated across stores per date
     const singleItemByDate = {};
