@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="./support.js"></script>
 </head>
 <body>
@@ -319,7 +319,7 @@ a:hover{color:var(--color-accent-300)}
 </main>
 </div>
 
-<div style="display:{{bottomNavDisplay}};position:fixed;left:0;right:0;bottom:0;background:var(--color-surface);border-top:1px solid var(--color-divider);padding:10px 6px calc(10px + env(safe-area-inset-bottom));gap:5px;z-index:30;box-shadow:0 -6px 18px rgba(0,0,0,0.55)">
+<div ref="{{bottomNavRef}}" style="display:{{bottomNavDisplay}};position:fixed;left:0;top:0;background:var(--color-surface);border-top:1px solid var(--color-divider);padding:10px 6px calc(10px + env(safe-area-inset-bottom));gap:5px;z-index:30;box-shadow:0 -6px 18px rgba(0,0,0,0.55)">
 <sc-for list="{{bottomNavItems}}" as="b" hint-placeholder-count="6">
 <div onClick="{{b.onClick}}" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:9px 2px;border-radius:var(--radius-md);cursor:pointer;min-height:60px;background:{{b.bg}}">
 <div style="font-size:22px;line-height:1;color:{{b.color}}">{{b.icon}}</div>
@@ -359,6 +359,26 @@ class Component extends DCLogic {
     if (this._mql.addEventListener) this._mql.addEventListener('change', this._onResize);
     else this._mql.addListener(this._onResize);
     this._loadData();
+    this._bottomNavEl = null;
+    this.bottomNavRef = el => {
+      this._bottomNavEl = el;
+      this._layoutBottomNav();
+    };
+    this._layoutBottomNav = () => {
+      const el = this._bottomNavEl;
+      const vv = window.visualViewport;
+      if (!el) return;
+      if (!vv) { el.style.transform = 'none'; el.style.width = '100%'; return; }
+      const scale = 1 / vv.scale;
+      el.style.width = vv.width + 'px';
+      el.style.transformOrigin = 'top left';
+      el.style.transform = `translate(${vv.offsetLeft}px, ${vv.offsetTop + vv.height - el.offsetHeight / vv.scale}px) scale(${scale})`;
+    };
+    if (window.visualViewport) {
+      this._onVV = () => this._layoutBottomNav();
+      window.visualViewport.addEventListener('resize', this._onVV);
+      window.visualViewport.addEventListener('scroll', this._onVV);
+    }
   }
 
   componentWillUnmount() {
@@ -366,6 +386,14 @@ class Component extends DCLogic {
       if (this._mql.removeEventListener) this._mql.removeEventListener('change', this._onResize);
       else this._mql.removeListener(this._onResize);
     }
+    if (window.visualViewport && this._onVV) {
+      window.visualViewport.removeEventListener('resize', this._onVV);
+      window.visualViewport.removeEventListener('scroll', this._onVV);
+    }
+  }
+
+  componentDidUpdate() {
+    if (this._layoutBottomNav) this._layoutBottomNav();
   }
 
   async _loadData() {
@@ -426,7 +454,7 @@ class Component extends DCLogic {
   renderVals() {
     const st = this.state;
     if (st.loading) {
-      return { pageTitle: 'Loading…', isMobile: st.isMobile, navDisplay: st.isMobile ? 'none' : 'flex', bottomNavDisplay: st.isMobile ? 'flex' : 'none', mainMaxWidth: st.isMobile ? 'none' : '1180px', mainPadding: st.isMobile ? '16px 16px 88px 16px' : 'var(--space-6) var(--space-8) var(--space-8) var(--space-6)', filtersDirection: st.isMobile ? 'column' : 'row', filtersAlign: st.isMobile ? 'stretch' : 'flex-end', filtersItemWidth: st.isMobile ? '100%' : 'auto', kpiBasis: st.isMobile ? 'calc(50% - 8px)' : '148px', kpiFlex: st.isMobile ? '0 1 calc(50% - 5px)' : '1 1 148px', kpiValueSize: st.isMobile ? '20px' : '26px', kpiGap: st.isMobile ? '10px' : 'var(--space-4)', bottomNavItems: [], mobileNavOpen: false, toggleMobileNav: () => {}, navItems: [], meta: {}, filters: { ...st.filters, isDirty: false }, regionOptions: ['All'], cityOptions: ['All'], storeOptions: [{ code: 'All', label: 'All' }], dateMenuOpen: false, dateButtonLabel: 'All dates', calendarCells: [], toggleDateMenu: () => {}, clearDate: () => {}, isOverview: false, isStores: false, isRegions: false, isCategories: false, isInvoices: false, isItems: false, isDiscounts: false, kpiCards: [], dailyBars: [], regionBars: [], topStores: [], topCategories: [], storesSorted: [], categoriesSorted: [], invoicesSorted: [], regionGroups: [], discountsSorted: [], itemsSorted: [], itemsTotalCount: 0, itemSearch: '', setItemSearch: () => {}, sortArrow: {}, sortHandlers: {}, search: '' };
+      return { pageTitle: 'Loading…', isMobile: st.isMobile, navDisplay: st.isMobile ? 'none' : 'flex', bottomNavDisplay: st.isMobile ? 'flex' : 'none', bottomNavRef: this.bottomNavRef, mainMaxWidth: st.isMobile ? 'none' : '1180px', mainPadding: st.isMobile ? '16px 16px 88px 16px' : 'var(--space-6) var(--space-8) var(--space-8) var(--space-6)', filtersDirection: st.isMobile ? 'column' : 'row', filtersAlign: st.isMobile ? 'stretch' : 'flex-end', filtersItemWidth: st.isMobile ? '100%' : 'auto', kpiBasis: st.isMobile ? 'calc(50% - 8px)' : '148px', kpiFlex: st.isMobile ? '0 1 calc(50% - 5px)' : '1 1 148px', kpiValueSize: st.isMobile ? '20px' : '26px', kpiGap: st.isMobile ? '10px' : 'var(--space-4)', bottomNavItems: [], mobileNavOpen: false, toggleMobileNav: () => {}, navItems: [], meta: {}, filters: { ...st.filters, isDirty: false }, regionOptions: ['All'], cityOptions: ['All'], storeOptions: [{ code: 'All', label: 'All' }], dateMenuOpen: false, dateButtonLabel: 'All dates', calendarCells: [], toggleDateMenu: () => {}, clearDate: () => {}, isOverview: false, isStores: false, isRegions: false, isCategories: false, isInvoices: false, isItems: false, isDiscounts: false, kpiCards: [], dailyBars: [], regionBars: [], topStores: [], topCategories: [], storesSorted: [], categoriesSorted: [], invoicesSorted: [], regionGroups: [], discountsSorted: [], itemsSorted: [], itemsTotalCount: 0, itemSearch: '', setItemSearch: () => {}, sortArrow: {}, sortHandlers: {}, search: '' };
     }
 
     const filteredBuckets = st.buckets.filter(b => this.matchesFilters(b));
@@ -679,6 +707,7 @@ class Component extends DCLogic {
       isMobile,
       navDisplay: isMobile ? 'none' : 'flex',
       bottomNavDisplay: isMobile ? 'flex' : 'none',
+      bottomNavRef: this.bottomNavRef,
       mainMaxWidth: isMobile ? 'none' : '1180px',
       mainPadding: isMobile ? '16px 16px 88px 16px' : 'var(--space-6) var(--space-8) var(--space-8) var(--space-6)',
       filtersDirection: isMobile ? 'column' : 'row',
