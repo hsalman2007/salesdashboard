@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <script src="./support.js"></script>
 </head>
 <body>
@@ -153,10 +153,10 @@ a:hover{color:var(--color-accent-300)}
 <h3 style="font-family:var(--font-heading);font-size:16px;margin:0 0 var(--space-3)">Top categories</h3>
 <div style="overflow-x:auto">
 <table class="table">
-<thead><tr><th>Category</th><th>Net sales</th><th>Qty</th><th>Invoices</th></tr></thead>
+<thead><tr><th>Category</th><th>Net sales</th><th>% of sales</th><th>Qty</th><th>Invoices</th></tr></thead>
 <tbody>
 <sc-for list="{{topCategories}}" as="c" hint-placeholder-count="5">
-<tr><td style="font-weight:600;white-space:nowrap">{{c.category}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.invoicesLabel}}</td></tr>
+<tr><td style="font-weight:600;white-space:nowrap">{{c.category}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.pctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.invoicesLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -201,6 +201,7 @@ a:hover{color:var(--color-accent-300)}
 <th class="rl-th" onClick="{{sortHandlers.catDivision}}">Division {{sortArrow.catDivision}}</th>
 <th class="rl-th" onClick="{{sortHandlers.catCategory}}">Category {{sortArrow.catCategory}}</th>
 <th class="rl-th" onClick="{{sortHandlers.catNetSales}}">Net sales {{sortArrow.catNetSales}}</th>
+<th class="rl-th" onClick="{{sortHandlers.catPct}}">% of sales {{sortArrow.catPct}}</th>
 <th class="rl-th" onClick="{{sortHandlers.catQty}}">Qty {{sortArrow.catQty}}</th>
 <th class="rl-th" onClick="{{sortHandlers.catInvoices}}">Invoices {{sortArrow.catInvoices}}</th>
 <th class="rl-th" onClick="{{sortHandlers.catAtv}}">ATV {{sortArrow.catAtv}}</th>
@@ -209,7 +210,7 @@ a:hover{color:var(--color-accent-300)}
 </tr></thead>
 <tbody>
 <sc-for list="{{categoriesSorted}}" as="c" hint-placeholder-count="10">
-<tr><td style="font-weight:600;white-space:nowrap">{{c.division}}</td><td style="font-weight:600;white-space:nowrap">{{c.category}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.aspLabel}}</td></tr>
+<tr><td style="font-weight:600;white-space:nowrap">{{c.division}}</td><td style="font-weight:600;white-space:nowrap">{{c.category}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.pctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.aspLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -318,11 +319,11 @@ a:hover{color:var(--color-accent-300)}
 </main>
 </div>
 
-<div style="display:{{bottomNavDisplay}};position:fixed;left:0;right:0;bottom:0;background:var(--color-surface);border-top:1px solid var(--color-divider);padding:8px 6px calc(8px + env(safe-area-inset-bottom));gap:4px;z-index:30;box-shadow:0 -6px 18px rgba(0,0,0,0.55)">
+<div style="display:{{bottomNavDisplay}};position:fixed;left:0;right:0;bottom:0;background:var(--color-surface);border-top:1px solid var(--color-divider);padding:10px 6px calc(10px + env(safe-area-inset-bottom));gap:5px;z-index:30;box-shadow:0 -6px 18px rgba(0,0,0,0.55)">
 <sc-for list="{{bottomNavItems}}" as="b" hint-placeholder-count="6">
-<div onClick="{{b.onClick}}" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;border-radius:var(--radius-md);cursor:pointer;min-height:48px;background:{{b.bg}}">
-<div style="font-size:17px;line-height:1;color:{{b.color}}">{{b.icon}}</div>
-<div style="font-size:10.5px;font-weight:{{b.weight}};color:{{b.color}}">{{b.label}}</div>
+<div onClick="{{b.onClick}}" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:9px 2px;border-radius:var(--radius-md);cursor:pointer;min-height:60px;background:{{b.bg}}">
+<div style="font-size:22px;line-height:1;color:{{b.color}}">{{b.icon}}</div>
+<div style="font-size:12.5px;font-weight:{{b.weight}};color:{{b.color}}">{{b.label}}</div>
 </div>
 </sc-for>
 </div>
@@ -555,8 +556,9 @@ class Component extends DCLogic {
     } else {
       categoriesForPeriod = st.categoriesRaw;
     }
-    const withCatMeasures = c => ({ ...c, atv: c.invoices ? c.netSales / c.invoices : 0, upt: c.invoices ? c.qty / c.invoices : 0, asp: c.qty ? c.netSales / c.qty : 0 });
-    const labelCat = c => ({ ...c, netSalesLabel: this.fmtMoney(c.netSales), qtyLabel: this.fmtNum(c.qty), invoicesLabel: this.fmtNum(c.invoices), atvLabel: this.fmtMoney(c.atv), uptLabel: Math.abs(c.upt).toFixed(2), aspLabel: this.fmtMoney(c.asp) });
+    const totalCatNetSales = categoriesForPeriod.reduce((s, c) => s + c.netSales, 0);
+    const withCatMeasures = c => ({ ...c, atv: c.invoices ? c.netSales / c.invoices : 0, upt: c.invoices ? c.qty / c.invoices : 0, asp: c.qty ? c.netSales / c.qty : 0, pct: totalCatNetSales ? (c.netSales / totalCatNetSales) * 100 : 0 });
+    const labelCat = c => ({ ...c, netSalesLabel: this.fmtMoney(c.netSales), qtyLabel: this.fmtNum(c.qty), invoicesLabel: this.fmtNum(c.invoices), atvLabel: this.fmtMoney(c.atv), uptLabel: Math.abs(c.upt).toFixed(2), aspLabel: this.fmtMoney(c.asp), pctLabel: c.pct.toFixed(1) + '%' });
     let catRows = categoriesForPeriod.map(withCatMeasures);
     const csort = st.sort.categories;
     catRows = this.sortRows(catRows, csort.col, csort.dir).map(labelCat);
@@ -727,7 +729,7 @@ class Component extends DCLogic {
         storesNetSales: this.makeSortHandler('stores', 'netSales'), storesQty: this.makeSortHandler('stores', 'qty'), storesInvoices: this.makeSortHandler('stores', 'invoices'),
         storesAtv: this.makeSortHandler('stores', 'atv'), storesUpt: this.makeSortHandler('stores', 'upt'),
         catDivision: this.makeSortHandler('categories', 'division'), catCategory: this.makeSortHandler('categories', 'category'), catNetSales: this.makeSortHandler('categories', 'netSales'), catQty: this.makeSortHandler('categories', 'qty'),
-        catInvoices: this.makeSortHandler('categories', 'invoices'), catAtv: this.makeSortHandler('categories', 'atv'), catUpt: this.makeSortHandler('categories', 'upt'), catAsp: this.makeSortHandler('categories', 'asp'),
+        catInvoices: this.makeSortHandler('categories', 'invoices'), catAtv: this.makeSortHandler('categories', 'atv'), catUpt: this.makeSortHandler('categories', 'upt'), catAsp: this.makeSortHandler('categories', 'asp'), catPct: this.makeSortHandler('categories', 'pct'),
         invStoreName: this.makeSortHandler('invoices', 'storeName'), invRegion: this.makeSortHandler('invoices', 'region'), invNetSales: this.makeSortHandler('invoices', 'netSales'), invQty: this.makeSortHandler('invoices', 'qty'), invDiscount: this.makeSortHandler('invoices', 'discount'), invInvoices: this.makeSortHandler('invoices', 'invoices'), invAtv: this.makeSortHandler('invoices', 'atv'), invUpt: this.makeSortHandler('invoices', 'upt'), invAsp: this.makeSortHandler('invoices', 'asp'),
         discStoreName: this.makeSortHandler('discounts', 'storeName'), discNetSales: this.makeSortHandler('discounts', 'netSales'), discDiscount: this.makeSortHandler('discounts', 'discount'), discQty: this.makeSortHandler('discounts', 'qty'), discRatio: this.makeSortHandler('discounts', 'ratio'),
         itemNo: this.makeSortHandler('items', 'itemNo'), itemDesc: this.makeSortHandler('items', 'itemDesc'), itemDivision: this.makeSortHandler('items', 'division'), itemCategory: this.makeSortHandler('items', 'category'), itemNetSales: this.makeSortHandler('items', 'netSales'), itemQty: this.makeSortHandler('items', 'qty'), itemInvoices: this.makeSortHandler('items', 'invoices'), itemUpt: this.makeSortHandler('items', 'upt')
