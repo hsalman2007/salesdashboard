@@ -42,7 +42,7 @@ a:hover{color:var(--color-accent-900)}
 <div style="font-size:12px;color:var(--color-neutral-600)">{{meta.sampleNote}}</div>
 </div>
 
-<div style="display:flex;gap:var(--space-4);align-items:{{filtersAlign}};flex-wrap:wrap;flex-direction:{{filtersDirection}};margin:var(--space-5) 0 var(--space-6)">
+<div style="display:flex;gap:var(--space-4);align-items:{{filtersAlign}};flex-wrap:wrap;flex-direction:{{filtersDirection}};margin:var(--space-6) 0 var(--space-6)">
 <div class="field" style="min-width:130px;width:{{filtersItemWidth}}">
 <label>Region</label>
 <select class="input" value="{{filters.region}}" onChange="{{setRegion}}">
@@ -93,7 +93,7 @@ a:hover{color:var(--color-accent-900)}
 
 <sc-if value="{{isOverview}}" hint-placeholder-val="{{true}}">
 <section>
-<div style="display:flex;gap:{{kpiGap}};flex-wrap:wrap;margin-bottom:var(--space-7)">
+<div style="display:flex;gap:{{kpiGap}};flex-wrap:wrap;margin-bottom:var(--space-8)">
 <sc-for list="{{kpiCards}}" as="k" hint-placeholder-count="7">
 <div class="card elev-sm" style="flex:{{kpiFlex}};min-width:0">
 <div class="card-kicker">{{k.label}}</div>
@@ -103,7 +103,7 @@ a:hover{color:var(--color-accent-900)}
 </sc-for>
 </div>
 
-<div style="display:flex;gap:var(--space-7);flex-wrap:wrap;margin-bottom:var(--space-7)">
+<div style="display:flex;gap:var(--space-6);flex-wrap:wrap;margin-bottom:var(--space-8)">
 <div style="flex:1;min-width:0">
 <h3 style="font-family:var(--font-heading);font-size:16px;margin:0 0 var(--space-4)">Daily net sales</h3>
 <div style="display:flex;align-items:flex-end;gap:6px;height:150px;overflow-x:auto;padding-bottom:2px">
@@ -130,7 +130,7 @@ a:hover{color:var(--color-accent-900)}
 </div>
 </div>
 
-<div style="display:flex;gap:var(--space-7);flex-wrap:wrap">
+<div style="display:flex;gap:var(--space-6);flex-wrap:wrap">
 <div style="flex:1;min-width:320px">
 <h3 style="font-family:var(--font-heading);font-size:16px;margin:0 0 var(--space-3)">Top branches</h3>
 <div style="overflow-x:auto">
@@ -297,9 +297,12 @@ a:hover{color:var(--color-accent-900)}
 </main>
 </div>
 
-<div style="display:{{bottomNavDisplay}};position:fixed;left:0;right:0;bottom:0;background:var(--color-surface);border-top:1px solid var(--color-divider);padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:30;box-shadow:var(--shadow-md)">
+<div style="display:{{bottomNavDisplay}};position:fixed;left:0;right:0;bottom:0;background:var(--color-bg);border-top:1px solid var(--color-divider);padding:8px 6px calc(8px + env(safe-area-inset-bottom));gap:4px;z-index:30;box-shadow:0 -4px 16px rgba(0,0,0,0.12)">
 <sc-for list="{{bottomNavItems}}" as="b" hint-placeholder-count="6">
-<div onClick="{{b.onClick}}" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;cursor:pointer;min-height:44px;font-size:11px;font-weight:{{b.weight}};color:{{b.color}}">{{b.label}}</div>
+<div onClick="{{b.onClick}}" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;border-radius:var(--radius-md);cursor:pointer;min-height:48px;background:{{b.bg}}">
+<div style="font-size:17px;line-height:1;color:{{b.color}}">{{b.icon}}</div>
+<div style="font-size:10.5px;font-weight:{{b.weight}};color:{{b.color}}">{{b.label}}</div>
+</div>
 </sc-for>
 </div>
 
@@ -394,7 +397,7 @@ class Component extends DCLogic {
   renderVals() {
     const st = this.state;
     if (st.loading) {
-      return { pageTitle: 'Loading…', isMobile: st.isMobile, navDisplay: st.isMobile ? 'none' : 'flex', bottomNavDisplay: st.isMobile ? 'flex' : 'none', mainMaxWidth: st.isMobile ? 'none' : '1180px', mainPadding: st.isMobile ? '16px 16px 88px 16px' : 'var(--space-6) var(--space-7) var(--space-8) var(--space-5)', filtersDirection: st.isMobile ? 'column' : 'row', filtersAlign: st.isMobile ? 'stretch' : 'flex-end', filtersItemWidth: st.isMobile ? '100%' : 'auto', kpiBasis: st.isMobile ? 'calc(50% - 8px)' : '148px', kpiFlex: st.isMobile ? '0 1 calc(50% - 5px)' : '1 1 148px', kpiValueSize: st.isMobile ? '20px' : '26px', kpiGap: st.isMobile ? '10px' : 'var(--space-4)', bottomNavItems: [], mobileNavOpen: false, toggleMobileNav: () => {}, navItems: [], meta: {}, filters: { ...st.filters, isDirty: false }, regionOptions: ['All'], cityOptions: ['All'], storeOptions: [{ code: 'All', label: 'All' }], dateMenuOpen: false, dateButtonLabel: 'All dates', calendarCells: [], toggleDateMenu: () => {}, clearDate: () => {}, isOverview: false, isStores: false, isRegions: false, isCategories: false, isInvoices: false, isItems: false, isDiscounts: false, kpiCards: [], dailyBars: [], regionBars: [], topStores: [], topCategories: [], storesSorted: [], categoriesSorted: [], invoicesSorted: [], regionGroups: [], discountsSorted: [], itemsSorted: [], itemsTotalCount: 0, itemSearch: '', setItemSearch: () => {}, sortArrow: {}, sortHandlers: {}, search: '' };
+      return { pageTitle: 'Loading…', isMobile: st.isMobile, navDisplay: st.isMobile ? 'none' : 'flex', bottomNavDisplay: st.isMobile ? 'flex' : 'none', mainMaxWidth: st.isMobile ? 'none' : '1180px', mainPadding: st.isMobile ? '16px 16px 88px 16px' : 'var(--space-6) var(--space-8) var(--space-8) var(--space-6)', filtersDirection: st.isMobile ? 'column' : 'row', filtersAlign: st.isMobile ? 'stretch' : 'flex-end', filtersItemWidth: st.isMobile ? '100%' : 'auto', kpiBasis: st.isMobile ? 'calc(50% - 8px)' : '148px', kpiFlex: st.isMobile ? '0 1 calc(50% - 5px)' : '1 1 148px', kpiValueSize: st.isMobile ? '20px' : '26px', kpiGap: st.isMobile ? '10px' : 'var(--space-4)', bottomNavItems: [], mobileNavOpen: false, toggleMobileNav: () => {}, navItems: [], meta: {}, filters: { ...st.filters, isDirty: false }, regionOptions: ['All'], cityOptions: ['All'], storeOptions: [{ code: 'All', label: 'All' }], dateMenuOpen: false, dateButtonLabel: 'All dates', calendarCells: [], toggleDateMenu: () => {}, clearDate: () => {}, isOverview: false, isStores: false, isRegions: false, isCategories: false, isInvoices: false, isItems: false, isDiscounts: false, kpiCards: [], dailyBars: [], regionBars: [], topStores: [], topCategories: [], storesSorted: [], categoriesSorted: [], invoicesSorted: [], regionGroups: [], discountsSorted: [], itemsSorted: [], itemsTotalCount: 0, itemSearch: '', setItemSearch: () => {}, sortArrow: {}, sortHandlers: {}, search: '' };
     }
 
     const filteredBuckets = st.buckets.filter(b => this.matchesFilters(b));
@@ -605,6 +608,7 @@ class Component extends DCLogic {
 
     const titles = { overview: 'Executive Overview', stores: 'Branch Comparison', regions: 'Region & City Drilldown', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail' };
     const shortTitles = { overview: 'Overview', regions: 'Regions', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores' };
+    const navIcons = { overview: '▣', regions: '◈', categories: '▤', items: '◫', discounts: '%', invoices: '⌂' };
     const pageOrder = ['overview', 'regions', 'categories', 'items', 'discounts', 'invoices'];
     const isMobile = st.isMobile;
 
@@ -614,7 +618,7 @@ class Component extends DCLogic {
       navDisplay: isMobile ? 'none' : 'flex',
       bottomNavDisplay: isMobile ? 'flex' : 'none',
       mainMaxWidth: isMobile ? 'none' : '1180px',
-      mainPadding: isMobile ? '16px 16px 88px 16px' : 'var(--space-6) var(--space-7) var(--space-8) var(--space-5)',
+      mainPadding: isMobile ? '16px 16px 88px 16px' : 'var(--space-6) var(--space-8) var(--space-8) var(--space-6)',
       filtersDirection: isMobile ? 'column' : 'row',
       filtersAlign: isMobile ? 'stretch' : 'flex-end',
       filtersItemWidth: isMobile ? '100%' : 'auto',
@@ -629,8 +633,10 @@ class Component extends DCLogic {
         rule: st.page === p ? '2px solid var(--color-accent-500)' : '2px solid transparent'
       })),
       bottomNavItems: pageOrder.map(p => ({
-        label: shortTitles[p], onClick: this.goTo(p),
+        label: shortTitles[p], icon: navIcons[p], onClick: this.goTo(p),
+        active: st.page === p,
         color: st.page === p ? 'var(--color-accent-700)' : 'var(--color-neutral-600)',
+        bg: st.page === p ? 'var(--color-accent-100)' : 'transparent',
         weight: st.page === p ? 700 : 500
       })),
       mobileNavOpen: st.mobileNavOpen,
