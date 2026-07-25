@@ -153,10 +153,10 @@ a:hover{color:var(--color-accent-300)}
 <h3 style="font-family:var(--font-heading);font-size:16px;margin:0 0 var(--space-3)">Top categories</h3>
 <div style="overflow-x:auto">
 <table class="table">
-<thead><tr><th>Category</th><th>Net sales</th><th>% of sales</th><th>Qty</th><th>Invoices</th></tr></thead>
+<thead><tr><th>Category</th><th>Net sales</th><th>Qty</th><th>Invoices</th></tr></thead>
 <tbody>
 <sc-for list="{{topCategories}}" as="c" hint-placeholder-count="5">
-<tr><td style="font-weight:600;white-space:nowrap">{{c.category}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.pctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.invoicesLabel}}</td></tr>
+<tr><td style="font-weight:600;white-space:nowrap">{{c.category}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.invoicesLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -198,9 +198,9 @@ a:hover{color:var(--color-accent-300)}
 <div style="overflow-x:auto">
 <table class="table">
 <thead><tr>
+<th class="rl-th" onClick="{{sortHandlers.catDivision}}">Division {{sortArrow.catDivision}}</th>
 <th class="rl-th" onClick="{{sortHandlers.catCategory}}">Category {{sortArrow.catCategory}}</th>
 <th class="rl-th" onClick="{{sortHandlers.catNetSales}}">Net sales {{sortArrow.catNetSales}}</th>
-<th class="rl-th" onClick="{{sortHandlers.catPct}}">% of sales {{sortArrow.catPct}}</th>
 <th class="rl-th" onClick="{{sortHandlers.catQty}}">Qty {{sortArrow.catQty}}</th>
 <th class="rl-th" onClick="{{sortHandlers.catInvoices}}">Invoices {{sortArrow.catInvoices}}</th>
 <th class="rl-th" onClick="{{sortHandlers.catAtv}}">ATV {{sortArrow.catAtv}}</th>
@@ -209,7 +209,7 @@ a:hover{color:var(--color-accent-300)}
 </tr></thead>
 <tbody>
 <sc-for list="{{categoriesSorted}}" as="c" hint-placeholder-count="10">
-<tr><td style="font-weight:600;white-space:nowrap">{{c.category}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.pctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.aspLabel}}</td></tr>
+<tr><td style="font-weight:600;white-space:nowrap">{{c.division}}</td><td style="font-weight:600;white-space:nowrap">{{c.category}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.aspLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -281,7 +281,6 @@ a:hover{color:var(--color-accent-300)}
 <table class="table">
 <thead><tr>
 <th>Rank</th>
-<th>Image</th>
 <th class="rl-th" onClick="{{sortHandlers.itemNo}}">SKU {{sortArrow.itemNo}}</th>
 <th class="rl-th" onClick="{{sortHandlers.itemDesc}}">Item {{sortArrow.itemDesc}}</th>
 <th class="rl-th" onClick="{{sortHandlers.itemNetSales}}">Net sales {{sortArrow.itemNetSales}}</th>
@@ -291,9 +290,7 @@ a:hover{color:var(--color-accent-300)}
 </tr></thead>
 <tbody>
 <sc-for list="{{itemsSorted}}" as="it" hint-placeholder-count="15">
-<tr><td style="font-weight:600;white-space:nowrap">{{it.rank}}</td>
-<td><img src="{{it.imageSrc}}" style="width:40px;height:40px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block"></td>
-<td style="font-weight:600;white-space:nowrap">{{it.itemNo}}</td><td style="font-weight:600;white-space:nowrap">{{it.itemDesc}}</td><td style="font-weight:600;white-space:nowrap">{{it.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.uptLabel}}</td></tr>
+<tr><td style="font-weight:600;white-space:nowrap">{{it.rank}}</td><td style="font-weight:600;white-space:nowrap">{{it.itemNo}}</td><td style="font-weight:600;white-space:nowrap">{{it.itemDesc}}</td><td style="font-weight:600;white-space:nowrap">{{it.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.uptLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -307,7 +304,7 @@ a:hover{color:var(--color-accent-300)}
 <div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4)">"Single-item invoices" (exactly 1 SKU, 1 unit) shows "—" for dates without a raw transaction import — see Data Importer.</div>
 <div style="overflow-x:auto">
 <table class="table">
-<thead><tr><th>Date</th><th>Net sales</th><th>Sold qty</th><th>Invoices</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Promo%</th><th>Single Inv</th><th>Single Inv%</th></tr></thead>
+<thead><tr><th>Date</th><th>Net sales</th><th>Sold qty</th><th>Invoices</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Discounted items %</th><th>Single-item invoices</th><th>Single-item %</th></tr></thead>
 <tbody>
 <sc-for list="{{dailySorted}}" as="d" hint-placeholder-count="10">
 <tr><td style="font-weight:600;white-space:nowrap">{{d.date}}</td><td style="font-weight:600;white-space:nowrap">{{d.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.discountedPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.singleItemInvoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.singleItemPctLabel}}</td></tr>
@@ -321,11 +318,11 @@ a:hover{color:var(--color-accent-300)}
 </main>
 </div>
 
-<div ref="{{bottomNavRef}}" style="display:{{bottomNavDisplay}};position:fixed;left:0;top:0;background:var(--color-surface);border-top:1px solid var(--color-divider);padding:10px 6px calc(10px + env(safe-area-inset-bottom));gap:5px;z-index:30;box-shadow:0 -6px 18px rgba(0,0,0,0.55)">
+<div style="display:{{bottomNavDisplay}};position:fixed;left:0;right:0;bottom:0;background:var(--color-surface);border-top:1px solid var(--color-divider);padding:8px 6px calc(8px + env(safe-area-inset-bottom));gap:4px;z-index:30;box-shadow:0 -6px 18px rgba(0,0,0,0.55)">
 <sc-for list="{{bottomNavItems}}" as="b" hint-placeholder-count="6">
-<div onClick="{{b.onClick}}" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:9px 2px;border-radius:var(--radius-md);cursor:pointer;min-height:60px;background:{{b.bg}}">
-<div style="font-size:22px;line-height:1;color:{{b.color}}">{{b.icon}}</div>
-<div style="font-size:12.5px;font-weight:{{b.weight}};color:{{b.color}}">{{b.label}}</div>
+<div onClick="{{b.onClick}}" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;border-radius:var(--radius-md);cursor:pointer;min-height:48px;background:{{b.bg}}">
+<div style="font-size:17px;line-height:1;color:{{b.color}}">{{b.icon}}</div>
+<div style="font-size:10.5px;font-weight:{{b.weight}};color:{{b.color}}">{{b.label}}</div>
 </div>
 </sc-for>
 </div>
@@ -351,62 +348,22 @@ class Component extends DCLogic {
     search: '',
     expandedRegions: {},
     mobileNavOpen: false,
-    isMobile: typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches,
+    isMobile: typeof window !== 'undefined' && window.innerWidth <= 768,
     receiptDay: []
   };
 
   componentDidMount() {
-    this._mql = window.matchMedia('(max-width: 768px)');
-    this._onResize = e => this.setState({ isMobile: e.matches });
-    if (this._mql.addEventListener) this._mql.addEventListener('change', this._onResize);
-    else this._mql.addListener(this._onResize);
+    this._onResize = () => this.setState({ isMobile: window.innerWidth <= 768 });
+    window.addEventListener('resize', this._onResize);
     this._loadData();
-    this._natHeight = null;
-    this.bottomNavRef = el => {
-      this._bottomNavEl = el;
-      if (el && this._natHeight == null) { el.style.transform = 'none'; this._natHeight = el.offsetHeight; }
-      this._layoutBottomNav();
-    };
-    this._layoutBottomNav = () => {
-      const el = this._bottomNavEl;
-      if (!el) return;
-      const vv = window.visualViewport;
-      if (!vv) { el.style.transform = 'none'; el.style.width = '100%'; return; }
-      const h = this._natHeight || el.offsetHeight;
-      const scale = 1 / vv.scale;
-      el.style.width = (vv.width * vv.scale) + 'px';
-      el.style.transformOrigin = 'top left';
-      el.style.transform = `translate(${vv.offsetLeft}px, ${vv.offsetTop + vv.height - h}px) scale(${scale})`;
-    };
-    this._rafPending = false;
-    this._scheduleLayout = () => {
-      if (this._rafPending) return;
-      this._rafPending = true;
-      requestAnimationFrame(() => { this._rafPending = false; this._layoutBottomNav(); });
-    };
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', this._scheduleLayout);
-      window.visualViewport.addEventListener('scroll', this._scheduleLayout);
-    }
   }
 
   componentWillUnmount() {
-    if (this._mql) {
-      if (this._mql.removeEventListener) this._mql.removeEventListener('change', this._onResize);
-      else this._mql.removeListener(this._onResize);
-    }
-    if (window.visualViewport) {
-      window.visualViewport.removeEventListener('resize', this._scheduleLayout);
-      window.visualViewport.removeEventListener('scroll', this._scheduleLayout);
-    }
-  }
-
-  componentDidUpdate() {
-    if (this._layoutBottomNav) this._layoutBottomNav();
+    if (this._onResize) window.removeEventListener('resize', this._onResize);
   }
 
   async _loadData() {
-    let [storeMaster, buckets, categoriesRaw, overview, itemsRaw, categoriesByStoreDate, itemsByStoreDate, receiptDay, itemMaster] = await Promise.all([
+    const [storeMaster, buckets, categoriesRaw, overview, itemsRaw, categoriesByStoreDate, itemsByStoreDate, receiptDay] = await Promise.all([
       fetch('data/store-master.json').then(r => r.json()),
       fetch('data/store-day.json').then(r => r.json()),
       fetch('data/categories.json').then(r => r.json()),
@@ -414,24 +371,17 @@ class Component extends DCLogic {
       fetch('data/items.json').then(r => r.json()),
       fetch('data/categories-by-store-date.json').then(r => r.json()),
       fetch('data/items-by-store-date.json').then(r => r.json()),
-      fetch('data/receipt-day.json').then(r => r.ok ? r.json() : []).catch(() => []),
-      fetch('data/item-master.json').then(r => r.ok ? r.json() : []).catch(() => [])
+      fetch('data/receipt-day.json').then(r => r.ok ? r.json() : []).catch(() => [])
     ]);
     this.storeIndex = {};
     storeMaster.forEach(s => this.storeIndex[s.code] = s);
-    const masterIndex = {};
-    itemMaster.forEach(m => masterIndex[m.sku] = m);
-    itemsRaw = itemsRaw.map(it => {
-      const m = masterIndex[it.itemNo];
-      return m ? { ...it, itemDesc: m.descEn || it.itemDesc, image: m.image || '' } : { ...it, image: '' };
-    });
     this.itemMeta = {};
     itemsRaw.forEach(it => this.itemMeta[it.itemNo] = it);
     this.setState({ storeMaster, buckets, categoriesRaw, overview, itemsRaw, categoriesByStoreDate, itemsByStoreDate, receiptDay, loading: false });
   }
 
-  fmtMoney(n) { const v = Math.round(n || 0); return (v < 0 ? '-' : '') + Math.abs(v).toLocaleString('en-US'); }
-  fmtNum(n) { const v = Math.round(n || 0); return (v < 0 ? '-' : '') + Math.abs(v).toLocaleString('en-US'); }
+  fmtMoney(n) { return Math.round(Math.abs(n)).toLocaleString('en-US'); }
+  fmtNum(n) { return Math.round(Math.abs(n)).toLocaleString('en-US'); }
 
   goTo(page) { return () => this.setState({ page }); }
 
@@ -470,7 +420,7 @@ class Component extends DCLogic {
   renderVals() {
     const st = this.state;
     if (st.loading) {
-      return { pageTitle: 'Loading…', isMobile: st.isMobile, navDisplay: st.isMobile ? 'none' : 'flex', bottomNavDisplay: st.isMobile ? 'flex' : 'none', bottomNavRef: this.bottomNavRef, mainMaxWidth: st.isMobile ? 'none' : '1180px', mainPadding: st.isMobile ? '16px 16px 88px 16px' : 'var(--space-6) var(--space-8) var(--space-8) var(--space-6)', filtersDirection: st.isMobile ? 'column' : 'row', filtersAlign: st.isMobile ? 'stretch' : 'flex-end', filtersItemWidth: st.isMobile ? '100%' : 'auto', kpiBasis: st.isMobile ? 'calc(50% - 8px)' : '148px', kpiFlex: st.isMobile ? '0 1 calc(50% - 5px)' : '1 1 148px', kpiValueSize: st.isMobile ? '20px' : '26px', kpiGap: st.isMobile ? '10px' : 'var(--space-4)', bottomNavItems: [], mobileNavOpen: false, toggleMobileNav: () => {}, navItems: [], meta: {}, filters: { ...st.filters, isDirty: false }, regionOptions: ['All'], cityOptions: ['All'], storeOptions: [{ code: 'All', label: 'All' }], dateMenuOpen: false, dateButtonLabel: 'All dates', calendarCells: [], toggleDateMenu: () => {}, clearDate: () => {}, isOverview: false, isStores: false, isRegions: false, isCategories: false, isInvoices: false, isItems: false, isDiscounts: false, kpiCards: [], dailyBars: [], regionBars: [], topStores: [], topCategories: [], storesSorted: [], categoriesSorted: [], invoicesSorted: [], regionGroups: [], discountsSorted: [], itemsSorted: [], itemsTotalCount: 0, itemSearch: '', setItemSearch: () => {}, sortArrow: {}, sortHandlers: {}, search: '' };
+      return { pageTitle: 'Loading…', isMobile: st.isMobile, navDisplay: st.isMobile ? 'none' : 'flex', bottomNavDisplay: st.isMobile ? 'flex' : 'none', mainMaxWidth: st.isMobile ? 'none' : '1180px', mainPadding: st.isMobile ? '16px 16px 88px 16px' : 'var(--space-6) var(--space-8) var(--space-8) var(--space-6)', filtersDirection: st.isMobile ? 'column' : 'row', filtersAlign: st.isMobile ? 'stretch' : 'flex-end', filtersItemWidth: st.isMobile ? '100%' : 'auto', kpiBasis: st.isMobile ? 'calc(50% - 8px)' : '148px', kpiFlex: st.isMobile ? '0 1 calc(50% - 5px)' : '1 1 148px', kpiValueSize: st.isMobile ? '20px' : '26px', kpiGap: st.isMobile ? '10px' : 'var(--space-4)', bottomNavItems: [], mobileNavOpen: false, toggleMobileNav: () => {}, navItems: [], meta: {}, filters: { ...st.filters, isDirty: false }, regionOptions: ['All'], cityOptions: ['All'], storeOptions: [{ code: 'All', label: 'All' }], dateMenuOpen: false, dateButtonLabel: 'All dates', calendarCells: [], toggleDateMenu: () => {}, clearDate: () => {}, isOverview: false, isStores: false, isRegions: false, isCategories: false, isInvoices: false, isItems: false, isDiscounts: false, kpiCards: [], dailyBars: [], regionBars: [], topStores: [], topCategories: [], storesSorted: [], categoriesSorted: [], invoicesSorted: [], regionGroups: [], discountsSorted: [], itemsSorted: [], itemsTotalCount: 0, itemSearch: '', setItemSearch: () => {}, sortArrow: {}, sortHandlers: {}, search: '' };
     }
 
     const filteredBuckets = st.buckets.filter(b => this.matchesFilters(b));
@@ -600,9 +550,8 @@ class Component extends DCLogic {
     } else {
       categoriesForPeriod = st.categoriesRaw;
     }
-    const totalCatNetSales = categoriesForPeriod.reduce((s, c) => s + c.netSales, 0);
-    const withCatMeasures = c => ({ ...c, atv: c.invoices ? c.netSales / c.invoices : 0, upt: c.invoices ? c.qty / c.invoices : 0, asp: c.qty ? c.netSales / c.qty : 0, pct: totalCatNetSales ? (c.netSales / totalCatNetSales) * 100 : 0 });
-    const labelCat = c => ({ ...c, netSalesLabel: this.fmtMoney(c.netSales), qtyLabel: this.fmtNum(c.qty), invoicesLabel: this.fmtNum(c.invoices), atvLabel: this.fmtMoney(c.atv), uptLabel: Math.abs(c.upt).toFixed(2), aspLabel: this.fmtMoney(c.asp), pctLabel: c.pct.toFixed(1) + '%' });
+    const withCatMeasures = c => ({ ...c, atv: c.invoices ? c.netSales / c.invoices : 0, upt: c.invoices ? c.qty / c.invoices : 0, asp: c.qty ? c.netSales / c.qty : 0 });
+    const labelCat = c => ({ ...c, netSalesLabel: this.fmtMoney(c.netSales), qtyLabel: this.fmtNum(c.qty), invoicesLabel: this.fmtNum(c.invoices), atvLabel: this.fmtMoney(c.atv), uptLabel: Math.abs(c.upt).toFixed(2), aspLabel: this.fmtMoney(c.asp) });
     let catRows = categoriesForPeriod.map(withCatMeasures);
     const csort = st.sort.categories;
     catRows = this.sortRows(catRows, csort.col, csort.dir).map(labelCat);
@@ -666,7 +615,7 @@ class Component extends DCLogic {
         const [store, date, itemNo, netSales, qty, invoices] = row;
         if (!inDateRange(date)) return;
         if (!bucketMatches(store)) return;
-        if (!agg[itemNo]) { const meta = this.itemMeta[itemNo] || {}; agg[itemNo] = { itemNo, itemDesc: meta.itemDesc || itemNo, division: meta.division, category: meta.category, image: meta.image || '', netSales: 0, qty: 0, invoices: 0 }; }
+        if (!agg[itemNo]) { const meta = this.itemMeta[itemNo] || {}; agg[itemNo] = { itemNo, itemDesc: meta.itemDesc || itemNo, division: meta.division, category: meta.category, netSales: 0, qty: 0, invoices: 0 }; }
         agg[itemNo].netSales += netSales; agg[itemNo].qty += qty; agg[itemNo].invoices += invoices;
       });
       itemsForPeriod = Object.values(agg);
@@ -674,12 +623,11 @@ class Component extends DCLogic {
       itemsForPeriod = st.itemsRaw;
     }
     const itemSearch = st.itemSearch.trim().toLowerCase();
-    const itemsFiltered = itemsForPeriod.filter(it => !it.itemNo.startsWith('SRV-') && (!itemSearch || it.itemDesc.toLowerCase().includes(itemSearch)));
+    const itemsFiltered = itemsForPeriod.filter(it => !itemSearch || it.itemDesc.toLowerCase().includes(itemSearch));
     const itemsWithMeasures = itemsFiltered.map(it => ({ ...it, upt: it.invoices ? it.qty / it.invoices : 0 }));
     const itsort = st.sort.items;
     let itemsRows = this.sortRows(itemsWithMeasures, itsort.col, itsort.dir).slice(0, 100);
-    const blankImg = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect width="40" height="40" fill="%23252b3a"/%3E%3C/svg%3E';
-    itemsRows = itemsRows.map((it, i) => ({ ...it, rank: i + 1, imageSrc: it.image || blankImg, netSalesLabel: this.fmtMoney(it.netSales), qtyLabel: this.fmtNum(it.qty), invoicesLabel: this.fmtNum(it.invoices), uptLabel: Math.abs(it.upt).toFixed(2) }));
+    itemsRows = itemsRows.map((it, i) => ({ ...it, rank: i + 1, netSalesLabel: this.fmtMoney(it.netSales), qtyLabel: this.fmtNum(it.qty), invoicesLabel: this.fmtNum(it.invoices), uptLabel: Math.abs(it.upt).toFixed(2) }));
 
     // daily sales table — respects all filters, aggregated across stores per date
     const singleItemByDate = {};
@@ -724,7 +672,6 @@ class Component extends DCLogic {
       isMobile,
       navDisplay: isMobile ? 'none' : 'flex',
       bottomNavDisplay: isMobile ? 'flex' : 'none',
-      bottomNavRef: this.bottomNavRef,
       mainMaxWidth: isMobile ? 'none' : '1180px',
       mainPadding: isMobile ? '16px 16px 88px 16px' : 'var(--space-6) var(--space-8) var(--space-8) var(--space-6)',
       filtersDirection: isMobile ? 'column' : 'row',
@@ -775,7 +722,7 @@ class Component extends DCLogic {
         storesNetSales: this.makeSortHandler('stores', 'netSales'), storesQty: this.makeSortHandler('stores', 'qty'), storesInvoices: this.makeSortHandler('stores', 'invoices'),
         storesAtv: this.makeSortHandler('stores', 'atv'), storesUpt: this.makeSortHandler('stores', 'upt'),
         catDivision: this.makeSortHandler('categories', 'division'), catCategory: this.makeSortHandler('categories', 'category'), catNetSales: this.makeSortHandler('categories', 'netSales'), catQty: this.makeSortHandler('categories', 'qty'),
-        catInvoices: this.makeSortHandler('categories', 'invoices'), catAtv: this.makeSortHandler('categories', 'atv'), catUpt: this.makeSortHandler('categories', 'upt'), catAsp: this.makeSortHandler('categories', 'asp'), catPct: this.makeSortHandler('categories', 'pct'),
+        catInvoices: this.makeSortHandler('categories', 'invoices'), catAtv: this.makeSortHandler('categories', 'atv'), catUpt: this.makeSortHandler('categories', 'upt'), catAsp: this.makeSortHandler('categories', 'asp'),
         invStoreName: this.makeSortHandler('invoices', 'storeName'), invRegion: this.makeSortHandler('invoices', 'region'), invNetSales: this.makeSortHandler('invoices', 'netSales'), invQty: this.makeSortHandler('invoices', 'qty'), invDiscount: this.makeSortHandler('invoices', 'discount'), invInvoices: this.makeSortHandler('invoices', 'invoices'), invAtv: this.makeSortHandler('invoices', 'atv'), invUpt: this.makeSortHandler('invoices', 'upt'), invAsp: this.makeSortHandler('invoices', 'asp'),
         discStoreName: this.makeSortHandler('discounts', 'storeName'), discNetSales: this.makeSortHandler('discounts', 'netSales'), discDiscount: this.makeSortHandler('discounts', 'discount'), discQty: this.makeSortHandler('discounts', 'qty'), discRatio: this.makeSortHandler('discounts', 'ratio'),
         itemNo: this.makeSortHandler('items', 'itemNo'), itemDesc: this.makeSortHandler('items', 'itemDesc'), itemDivision: this.makeSortHandler('items', 'division'), itemCategory: this.makeSortHandler('items', 'category'), itemNetSales: this.makeSortHandler('items', 'netSales'), itemQty: this.makeSortHandler('items', 'qty'), itemInvoices: this.makeSortHandler('items', 'invoices'), itemUpt: this.makeSortHandler('items', 'upt')
