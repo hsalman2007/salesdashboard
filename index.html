@@ -8,29 +8,26 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="ds-assets/broadsheet-d3d835df-cd97-403a-9a3b-51e83117828e/styles.css">
-<script src="ds-assets/broadsheet-d3d835df-cd97-403a-9a3b-51e83117828e/_ds_bundle.js"></script>
+<link rel="stylesheet" href="nocturne/styles.css">
 <style>
 body{margin:0}
-a{color:var(--color-accent-700)}
-a:hover{color:var(--color-accent-900)}
-::selection{background:var(--color-accent-200)}
+a:hover{color:var(--color-accent-300)}
 .rl-th{cursor:pointer;user-select:none;white-space:nowrap}
-.rl-th:hover{color:var(--color-accent-700)}
+.rl-th:hover{color:var(--color-accent-300)}
 </style>
 </helmet>
 <div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);display:flex">
 <nav style="width:196px;flex:none;padding:var(--space-6) var(--space-4) var(--space-6) var(--space-6);display:{{navDisplay}};flex-direction:column;gap:var(--space-6)">
 <div>
-<div style="font-family:var(--font-heading);font-weight:700;font-size:22px;line-height:1.15">Retail Ledger</div>
-<div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-neutral-700);margin-top:4px">Sales Dashboard</div>
+<div style="font-family:var(--font-heading);font-weight:500;font-size:22px;line-height:1.15">Retail Ledger</div>
+<div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-neutral-500);margin-top:4px">Sales Dashboard</div>
 </div>
 <div style="display:flex;flex-direction:column;gap:var(--space-1)">
 <sc-for list="{{navItems}}" as="item" hint-placeholder-count="5">
 <div onClick="{{item.onClick}}" style="cursor:pointer;padding:7px 0;font-size:15px;font-family:var(--font-heading);font-weight:{{item.weight}};color:{{item.color}};border-bottom:{{item.rule}}">{{item.label}}</div>
 </sc-for>
 </div>
-<div style="font-size:12px;color:var(--color-neutral-600);line-height:1.5;margin-top:auto">
+<div style="font-size:12px;color:var(--color-neutral-500);line-height:1.5;margin-top:auto">
 <em>{{meta.dateLabel}}</em><br>
 {{meta.storeCount}} branches tracked
 </div>
@@ -38,8 +35,8 @@ a:hover{color:var(--color-accent-900)}
 <main style="flex:1;padding:{{mainPadding}};max-width:{{mainMaxWidth}}">
 
 <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:var(--space-2)">
-<h1 style="font-family:var(--font-heading);font-size:30px;margin:0">{{pageTitle}}</h1>
-<div style="font-size:12px;color:var(--color-neutral-600)">{{meta.sampleNote}}</div>
+<h1 style="font-family:var(--font-heading);font-size:30px;font-weight:500;margin:0">{{pageTitle}}</h1>
+<div style="font-size:12px;color:var(--color-neutral-500)">{{meta.sampleNote}}</div>
 </div>
 
 <div style="display:flex;gap:var(--space-4);align-items:{{filtersAlign}};flex-wrap:wrap;flex-direction:{{filtersDirection}};margin:var(--space-6) 0 var(--space-6)">
@@ -68,7 +65,7 @@ a:hover{color:var(--color-accent-900)}
 </button>
 <sc-if value="{{dateMenuOpen}}" hint-placeholder-val="{{false}}">
 <div class="card elev-md" style="position:absolute;top:100%;left:0;z-index:20;margin-top:4px;padding:var(--space-3);width:240px">
-<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;font-size:11px;text-align:center;color:var(--color-neutral-600);margin-bottom:4px">
+<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;font-size:11px;text-align:center;color:var(--color-neutral-500);margin-bottom:4px">
 <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
 </div>
 <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">
@@ -80,8 +77,8 @@ a:hover{color:var(--color-accent-900)}
 </sc-for>
 </div>
 <div style="display:flex;justify-content:space-between;margin-top:var(--space-3)">
-<button class="btn-ghost" onClick="{{clearDate}}" style="font-size:12px;padding:4px 8px">Clear</button>
-<button class="btn-ghost" onClick="{{toggleDateMenu}}" style="font-size:12px;padding:4px 8px">Done</button>
+<button class="btn btn-ghost" onClick="{{clearDate}}" style="font-size:12px;padding:4px 8px">Clear</button>
+<button class="btn btn-ghost" onClick="{{toggleDateMenu}}" style="font-size:12px;padding:4px 8px">Done</button>
 </div>
 </div>
 </sc-if>
@@ -106,12 +103,18 @@ a:hover{color:var(--color-accent-900)}
 <div style="display:flex;gap:var(--space-6);flex-wrap:wrap;margin-bottom:var(--space-8)">
 <div style="flex:1;min-width:0">
 <h3 style="font-family:var(--font-heading);font-size:16px;margin:0 0 var(--space-4)">Daily net sales</h3>
-<div style="display:flex;align-items:flex-end;gap:6px;height:150px;overflow-x:auto;padding-bottom:2px">
+<div style="display:flex;gap:6px;height:150px;overflow-x:auto;overflow-y:hidden;padding-bottom:2px">
 <sc-for list="{{dailyBars}}" as="d" hint-placeholder-count="3">
-<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:0 0 auto;width:26px;height:100%;justify-content:flex-end" title="{{d.valueLabel}}">
-<div style="width:14px;flex:0 0 auto;background:var(--color-accent-500);height:{{d.heightPx}}px;border-radius:var(--radius-sm)"></div>
-<div style="font-size:10px;color:var(--color-neutral-600)">{{d.label}}</div>
+<div style="position:relative;flex:0 0 auto;width:26px;height:132px" title="{{d.valueLabel}}">
+<div style="position:absolute;left:3px;bottom:0;width:20px;background:var(--color-accent-500);height:{{d.heightPx}}px;border-radius:var(--radius-sm);display:flex;align-items:flex-end;justify-content:center;overflow:hidden">
+<span style="writing-mode:vertical-rl;transform:rotate(180deg);font-size:9px;color:var(--color-accent-900);font-weight:800;padding:3px 0;white-space:nowrap">{{d.valueLabel}}</span>
 </div>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;gap:6px">
+<sc-for list="{{dailyBars}}" as="d" hint-placeholder-count="3">
+<div style="flex:0 0 auto;width:26px;text-align:center;font-size:10px;color:var(--color-neutral-500)">{{d.label}}</div>
 </sc-for>
 </div>
 </div>
@@ -120,9 +123,11 @@ a:hover{color:var(--color-accent-900)}
 <div style="display:flex;flex-direction:column;gap:var(--space-3)">
 <sc-for list="{{regionBars}}" as="r" hint-placeholder-count="4">
 <div>
-<div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;margin-bottom:4px"><span style="white-space:nowrap">{{r.label}}</span><span style="color:var(--color-neutral-700);white-space:nowrap">{{r.valueLabel}}</span></div>
-<div style="height:10px;background:var(--color-neutral-200);border-radius:var(--radius-sm)">
-<div style="height:100%;width:{{r.pct}}%;background:var(--color-accent-2-500);border-radius:var(--radius-sm)"></div>
+<div style="font-size:13px;margin-bottom:4px;white-space:nowrap">{{r.label}}</div>
+<div style="position:relative;height:26px;background:var(--color-neutral-800);border-radius:var(--radius-sm)">
+<div style="position:absolute;left:0;top:0;height:100%;width:{{r.pct}}%;background:var(--color-accent-500);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:flex-end;padding-right:8px;overflow:hidden">
+<span style="font-size:13px;font-weight:700;color:var(--color-accent-900);white-space:nowrap">{{r.valueLabel}}</span>
+</div>
 </div>
 </div>
 </sc-for>
@@ -168,15 +173,15 @@ a:hover{color:var(--color-accent-900)}
 <div>
 <div onClick="{{rg.onToggle}}" style="cursor:pointer;display:flex;justify-content:space-between;align-items:baseline;padding:var(--space-3) 0">
 <div style="font-family:var(--font-heading);font-size:18px">{{rg.arrow}} {{rg.region}}</div>
-<div style="font-size:13px;color:var(--color-neutral-700)">{{rg.storeCount}} stores · {{rg.netSalesLabel}} · {{rg.invoices}} invoices</div>
+<div style="font-size:13px;color:var(--color-neutral-500)">{{rg.storeCount}} stores · {{rg.netSalesLabel}} · {{rg.invoices}} invoices</div>
 </div>
 <sc-if value="{{rg.expanded}}" hint-placeholder-val="{{false}}">
 <div style="overflow-x:auto">
 <table class="table" style="margin-bottom:var(--space-4)">
-<thead><tr><th>Store</th><th>City</th><th>Net sales</th><th>Invoices</th></tr></thead>
+<thead><tr><th>Store</th><th>City</th><th>Net sales</th><th>Sold qty</th><th>Invoices</th><th>ATV</th><th>UPT</th><th>ASP</th></tr></thead>
 <tbody>
 <sc-for list="{{rg.stores}}" as="s" hint-placeholder-count="3">
-<tr onClick="{{s.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap">{{s.name}}</td><td style="font-weight:600;white-space:nowrap">{{s.city}}</td><td style="font-weight:600;white-space:nowrap">{{s.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.invoicesLabel}}</td></tr>
+<tr onClick="{{s.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap">{{s.name}}</td><td style="font-weight:600;white-space:nowrap">{{s.city}}</td><td style="font-weight:600;white-space:nowrap">{{s.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.aspLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -189,7 +194,7 @@ a:hover{color:var(--color-accent-900)}
 
 <sc-if value="{{isCategories}}" hint-placeholder-val="{{false}}">
 <section>
-<div style="font-size:12px;color:var(--color-neutral-600);margin-bottom:var(--space-4)">Category mix — respects region, city, store and date filters</div>
+<div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4)">Category mix — respects region, city, store and date filters</div>
 <div style="overflow-x:auto">
 <table class="table">
 <thead><tr>
@@ -261,13 +266,13 @@ a:hover{color:var(--color-accent-900)}
 </tbody>
 </table>
 </div>
-<div style="font-size:12px;color:var(--color-neutral-600);margin-top:var(--space-3)">Showing {{invoicesSorted.length}} day(s) · {{meta.totalInvoices}} invoices total</div>
+<div style="font-size:12px;color:var(--color-neutral-500);margin-top:var(--space-3)">Showing {{invoicesSorted.length}} day(s) · {{meta.totalInvoices}} invoices total</div>
 </section>
 </sc-if>
 
 <sc-if value="{{isItems}}" hint-placeholder-val="{{false}}">
 <section>
-<div style="font-size:12px;color:var(--color-neutral-600);margin-bottom:var(--space-4)">Top 100 items by net sales — respects region, city, store and date filters</div>
+<div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4)">Top 100 items by net sales — respects region, city, store and date filters</div>
 <div class="field" style="max-width:280px;margin-bottom:var(--space-4)">
 <label>Search item</label>
 <input class="input" type="text" placeholder="e.g. shirt" value="{{itemSearch}}" onChange="{{setItemSearch}}">
@@ -290,14 +295,30 @@ a:hover{color:var(--color-accent-900)}
 </tbody>
 </table>
 </div>
-<div style="font-size:12px;color:var(--color-neutral-600);margin-top:var(--space-3)">Showing top {{itemsSorted.length}} of {{itemsTotalCount}} items</div>
+<div style="font-size:12px;color:var(--color-neutral-500);margin-top:var(--space-3)">Showing top {{itemsSorted.length}} of {{itemsTotalCount}} items</div>
+</section>
+</sc-if>
+
+<sc-if value="{{isDaily}}" hint-placeholder-val="{{false}}">
+<section>
+<div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4)">"Single-item invoices" (exactly 1 SKU, 1 unit) shows "—" for dates without a raw transaction import — see Data Importer.</div>
+<div style="overflow-x:auto">
+<table class="table">
+<thead><tr><th>Date</th><th>Net sales</th><th>Sold qty</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Discounted items %</th><th>Single-item invoices</th></tr></thead>
+<tbody>
+<sc-for list="{{dailySorted}}" as="d" hint-placeholder-count="10">
+<tr><td style="font-weight:600;white-space:nowrap">{{d.date}}</td><td style="font-weight:600;white-space:nowrap">{{d.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.discountedPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.singleItemInvoicesLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
 </section>
 </sc-if>
 
 </main>
 </div>
 
-<div style="display:{{bottomNavDisplay}};position:fixed;left:0;right:0;bottom:0;background:var(--color-bg);border-top:1px solid var(--color-divider);padding:8px 6px calc(8px + env(safe-area-inset-bottom));gap:4px;z-index:30;box-shadow:0 -4px 16px rgba(0,0,0,0.12)">
+<div style="display:{{bottomNavDisplay}};position:fixed;left:0;right:0;bottom:0;background:var(--color-surface);border-top:1px solid var(--color-divider);padding:8px 6px calc(8px + env(safe-area-inset-bottom));gap:4px;z-index:30;box-shadow:0 -6px 18px rgba(0,0,0,0.55)">
 <sc-for list="{{bottomNavItems}}" as="b" hint-placeholder-count="6">
 <div onClick="{{b.onClick}}" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;border-radius:var(--radius-md);cursor:pointer;min-height:48px;background:{{b.bg}}">
 <div style="font-size:17px;line-height:1;color:{{b.color}}">{{b.icon}}</div>
@@ -327,7 +348,8 @@ class Component extends DCLogic {
     search: '',
     expandedRegions: {},
     mobileNavOpen: false,
-    isMobile: typeof window !== 'undefined' && window.innerWidth <= 768
+    isMobile: typeof window !== 'undefined' && window.innerWidth <= 768,
+    receiptDay: []
   };
 
   componentDidMount() {
@@ -341,20 +363,21 @@ class Component extends DCLogic {
   }
 
   async _loadData() {
-    const [storeMaster, buckets, categoriesRaw, overview, itemsRaw, categoriesByStoreDate, itemsByStoreDate] = await Promise.all([
+    const [storeMaster, buckets, categoriesRaw, overview, itemsRaw, categoriesByStoreDate, itemsByStoreDate, receiptDay] = await Promise.all([
       fetch('data/store-master.json').then(r => r.json()),
       fetch('data/store-day.json').then(r => r.json()),
       fetch('data/categories.json').then(r => r.json()),
       fetch('data/overview.json').then(r => r.json()),
       fetch('data/items.json').then(r => r.json()),
       fetch('data/categories-by-store-date.json').then(r => r.json()),
-      fetch('data/items-by-store-date.json').then(r => r.json())
+      fetch('data/items-by-store-date.json').then(r => r.json()),
+      fetch('data/receipt-day.json').then(r => r.ok ? r.json() : []).catch(() => [])
     ]);
     this.storeIndex = {};
     storeMaster.forEach(s => this.storeIndex[s.code] = s);
     this.itemMeta = {};
     itemsRaw.forEach(it => this.itemMeta[it.itemNo] = it);
-    this.setState({ storeMaster, buckets, categoriesRaw, overview, itemsRaw, categoriesByStoreDate, itemsByStoreDate, loading: false });
+    this.setState({ storeMaster, buckets, categoriesRaw, overview, itemsRaw, categoriesByStoreDate, itemsByStoreDate, receiptDay, loading: false });
   }
 
   fmtMoney(n) { return Math.round(n).toLocaleString('en-US'); }
@@ -471,7 +494,7 @@ class Component extends DCLogic {
     filteredBuckets.forEach(b => { if (!dailyMap[b.date]) dailyMap[b.date] = 0; dailyMap[b.date] += b.netSales; });
     const dailyEntries = Object.entries(dailyMap).sort((a, b) => a[0].localeCompare(b[0]));
     const maxDaily = Math.max(1, ...dailyEntries.map(e => e[1]));
-    const dailyBars = dailyEntries.map(([date, val]) => ({ label: date.slice(5), valueLabel: this.fmtMoney(val), heightPx: Math.max(4, Math.round(128 * val / maxDaily)) }));
+    const dailyBars = dailyEntries.map(([date, val]) => ({ label: date.slice(5), valueLabel: this.fmtMoney(val), heightPx: Math.max(36, Math.round(128 * val / maxDaily)) }));
 
     // region bars (respect city/store/date filters, not region itself, so users can see comparison)
     const regionScopeBuckets = st.buckets.filter(b => {
@@ -495,11 +518,11 @@ class Component extends DCLogic {
     });
     let storeRows = Object.values(storeAggMap).map(a => ({
       ...a,
-      atv: a.invoices ? a.netSales / a.invoices : 0, upt: a.invoices ? a.qty / a.invoices : 0,
+      atv: a.invoices ? a.netSales / a.invoices : 0, upt: a.invoices ? a.qty / a.invoices : 0, asp: a.qty ? a.netSales / a.qty : 0,
       onClick: () => this.setState({ page: 'invoices', filters: { ...st.filters, store: a.code } })
     }));
     const ssort = st.sort.stores;
-    storeRows = this.sortRows(storeRows, ssort.col, ssort.dir).map(s => ({ ...s, netSalesLabel: this.fmtMoney(s.netSales), atvLabel: this.fmtMoney(s.atv), uptLabel: s.upt.toFixed(2), qtyLabel: this.fmtNum(s.qty), invoicesLabel: this.fmtNum(s.invoices) }));
+    storeRows = this.sortRows(storeRows, ssort.col, ssort.dir).map(s => ({ ...s, netSalesLabel: this.fmtMoney(s.netSales), atvLabel: this.fmtMoney(s.atv), uptLabel: s.upt.toFixed(2), aspLabel: this.fmtMoney(s.asp), qtyLabel: this.fmtNum(s.qty), invoicesLabel: this.fmtNum(s.invoices) }));
 
     const topStores = [...storeRows].sort((a, b) => b.netSales - a.netSales).slice(0, 5);
 
@@ -606,10 +629,37 @@ class Component extends DCLogic {
     let itemsRows = this.sortRows(itemsWithMeasures, itsort.col, itsort.dir).slice(0, 100);
     itemsRows = itemsRows.map((it, i) => ({ ...it, rank: i + 1, netSalesLabel: this.fmtMoney(it.netSales), qtyLabel: this.fmtNum(it.qty), invoicesLabel: this.fmtNum(it.invoices), uptLabel: it.upt.toFixed(2) }));
 
-    const titles = { overview: 'Executive Overview', stores: 'Branch Comparison', regions: 'Region & City Drilldown', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail' };
-    const shortTitles = { overview: 'Overview', regions: 'Regions', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores' };
-    const navIcons = { overview: '▣', regions: '◈', categories: '▤', items: '◫', discounts: '%', invoices: '⌂' };
-    const pageOrder = ['overview', 'regions', 'categories', 'items', 'discounts', 'invoices'];
+    // daily sales table — respects all filters, aggregated across stores per date
+    const singleItemByDate = {};
+    (st.receiptDay || []).forEach(r => {
+      if (!bucketMatchesForReceipt(r.store)) return;
+      singleItemByDate[r.date] = (singleItemByDate[r.date] || 0) + r.singleItemInvoices;
+    });
+    function bucketMatchesForReceipt(storeCode) { return true; }
+    const dailyAgg = {};
+    filteredBuckets.forEach(b => {
+      if (!dailyAgg[b.date]) dailyAgg[b.date] = { date: b.date, netSales: 0, qty: 0, invoices: 0, discountedQty: 0 };
+      const d = dailyAgg[b.date];
+      d.netSales += b.netSales; d.qty += b.qty; d.invoices += b.invoices; d.discountedQty += (b.discountedQty || 0);
+    });
+    let dailyRows = Object.values(dailyAgg).map(d => ({
+      ...d,
+      atv: d.invoices ? d.netSales / d.invoices : 0,
+      upt: d.invoices ? d.qty / d.invoices : 0,
+      asp: d.qty ? d.netSales / d.qty : 0,
+      discountedPct: d.qty ? 100 * d.discountedQty / d.qty : 0,
+      singleItemInvoices: singleItemByDate.hasOwnProperty(d.date) ? singleItemByDate[d.date] : null
+    })).sort((a, b) => a.date.localeCompare(b.date));
+    dailyRows = dailyRows.map(d => ({
+      ...d, netSalesLabel: this.fmtMoney(d.netSales), qtyLabel: this.fmtNum(d.qty), invoicesLabel: this.fmtNum(d.invoices),
+      atvLabel: this.fmtMoney(d.atv), uptLabel: d.upt.toFixed(2), aspLabel: this.fmtMoney(d.asp), discountedPctLabel: d.discountedPct.toFixed(1) + '%',
+      singleItemInvoicesLabel: d.singleItemInvoices === null ? '—' : this.fmtNum(d.singleItemInvoices)
+    }));
+
+    const titles = { overview: 'Executive Overview', stores: 'Branch Comparison', regions: 'Region & City Drilldown', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', daily: 'Daily Sales' };
+    const shortTitles = { overview: 'Overview', regions: 'Regions', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily' };
+    const navIcons = { overview: '▣', regions: '◈', categories: '▤', items: '◫', discounts: '%', invoices: '⌂', daily: '◷' };
+    const pageOrder = ['overview', 'regions', 'categories', 'items', 'discounts', 'invoices', 'daily'];
     const isMobile = st.isMobile;
 
     return {
@@ -628,16 +678,16 @@ class Component extends DCLogic {
       kpiGap: isMobile ? '10px' : 'var(--space-4)',
       navItems: pageOrder.map(p => ({
         label: titles[p], onClick: () => { this.goTo(p)(); this.setState({ mobileNavOpen: false }); },
-        weight: st.page === p ? 700 : 400,
-        color: st.page === p ? 'var(--color-accent-700)' : 'var(--color-text)',
-        rule: st.page === p ? '2px solid var(--color-accent-500)' : '2px solid transparent'
+        weight: st.page === p ? 600 : 400,
+        color: st.page === p ? 'var(--color-accent-300)' : 'var(--color-text)',
+        rule: st.page === p ? '2px solid var(--color-accent)' : '2px solid transparent'
       })),
       bottomNavItems: pageOrder.map(p => ({
         label: shortTitles[p], icon: navIcons[p], onClick: this.goTo(p),
         active: st.page === p,
-        color: st.page === p ? 'var(--color-accent-700)' : 'var(--color-neutral-600)',
-        bg: st.page === p ? 'var(--color-accent-100)' : 'transparent',
-        weight: st.page === p ? 700 : 500
+        color: st.page === p ? 'var(--color-accent-300)' : 'var(--color-neutral-500)',
+        bg: st.page === p ? 'var(--color-accent-800)' : 'transparent',
+        weight: st.page === p ? 600 : 500
       })),
       mobileNavOpen: st.mobileNavOpen,
       toggleMobileNav: () => this.setState({ mobileNavOpen: !st.mobileNavOpen }),
@@ -682,7 +732,8 @@ class Component extends DCLogic {
         discStoreName: this.arrow('discounts', 'storeName'), discNetSales: this.arrow('discounts', 'netSales'), discDiscount: this.arrow('discounts', 'discount'), discQty: this.arrow('discounts', 'qty'), discRatio: this.arrow('discounts', 'ratio'),
         itemNo: this.arrow('items', 'itemNo'), itemDesc: this.arrow('items', 'itemDesc'), itemDivision: this.arrow('items', 'division'), itemCategory: this.arrow('items', 'category'), itemNetSales: this.arrow('items', 'netSales'), itemQty: this.arrow('items', 'qty'), itemInvoices: this.arrow('items', 'invoices'), itemUpt: this.arrow('items', 'upt')
       },
-      isOverview: st.page === 'overview', isRegions: st.page === 'regions', isCategories: st.page === 'categories', isInvoices: st.page === 'invoices', isItems: st.page === 'items', isDiscounts: st.page === 'discounts',
+      isOverview: st.page === 'overview', isRegions: st.page === 'regions', isCategories: st.page === 'categories', isInvoices: st.page === 'invoices', isItems: st.page === 'items', isDiscounts: st.page === 'discounts', isDaily: st.page === 'daily',
+      dailySorted: dailyRows,
       kpiCards, dailyBars, regionBars, topStores, topCategories,
       storesSorted: storeRows, categoriesSorted: catRows, invoicesSorted: invRows, regionGroups, discountsSorted: discRows,
       itemsSorted: itemsRows, itemsTotalCount: itemsFiltered.length, itemSearch: st.itemSearch,
