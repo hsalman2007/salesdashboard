@@ -304,7 +304,7 @@ a:hover{color:var(--color-accent-300)}
 <div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4)">"Single-item invoices" (exactly 1 SKU, 1 unit) shows "—" for dates without a raw transaction import — see Data Importer.</div>
 <div style="overflow-x:auto">
 <table class="table">
-<thead><tr><th>Date</th><th>Net sales</th><th>Sold qty</th><th>Invoices</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Discounted items %</th><th>Single-item invoices</th><th>Single-item %</th></tr></thead>
+<thead><tr><th>Date</th><th>Net sales</th><th>Sold qty</th><th>Invoices</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Promo v Total</th><th>Single-item invoices</th><th>Single-item %</th></tr></thead>
 <tbody>
 <sc-for list="{{dailySorted}}" as="d" hint-placeholder-count="10">
 <tr><td style="font-weight:600;white-space:nowrap">{{d.date}}</td><td style="font-weight:600;white-space:nowrap">{{d.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.discountedPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.singleItemInvoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.singleItemPctLabel}}</td></tr>
