@@ -348,18 +348,23 @@ class Component extends DCLogic {
     search: '',
     expandedRegions: {},
     mobileNavOpen: false,
-    isMobile: typeof window !== 'undefined' && window.innerWidth <= 768,
+    isMobile: typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches,
     receiptDay: []
   };
 
   componentDidMount() {
-    this._onResize = () => this.setState({ isMobile: window.innerWidth <= 768 });
-    window.addEventListener('resize', this._onResize);
+    this._mql = window.matchMedia('(max-width: 768px)');
+    this._onResize = e => this.setState({ isMobile: e.matches });
+    if (this._mql.addEventListener) this._mql.addEventListener('change', this._onResize);
+    else this._mql.addListener(this._onResize);
     this._loadData();
   }
 
   componentWillUnmount() {
-    if (this._onResize) window.removeEventListener('resize', this._onResize);
+    if (this._mql) {
+      if (this._mql.removeEventListener) this._mql.removeEventListener('change', this._onResize);
+      else this._mql.removeListener(this._onResize);
+    }
   }
 
   async _loadData() {
