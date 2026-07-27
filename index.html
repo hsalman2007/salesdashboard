@@ -59,7 +59,6 @@ a:hover{color:var(--color-accent-300)}
 
 <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:var(--space-2)">
 <h1 style="font-family:var(--font-heading);font-size:30px;font-weight:500;margin:0">{{pageTitle}}</h1>
-<div style="font-size:12px;color:var(--color-neutral-500)">{{meta.sampleNote}}</div>
 </div>
 
 <sc-if value="{{showFilterToggle}}" hint-placeholder-val="{{false}}">
@@ -483,13 +482,10 @@ a:hover{color:var(--color-accent-300)}
 <sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
 <div style="display:flex;flex-direction:column;gap:10px">
 <sc-for list="{{itemsSorted}}" as="it" hint-placeholder-count="15">
-<div class="card elev-sm" style="display:flex;gap:12px">
-<img src="{{it.imageSrc}}" style="width:52px;height:52px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);flex:none">
-<div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:0">
-<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
-<div style="font-weight:700;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{it.itemDesc}}</div>
-<div style="font-weight:700;font-size:15px;color:var(--color-accent);white-space:nowrap">{{it.netSalesLabel}}</div>
-</div>
+<div class="card elev-sm" style="display:flex;gap:12px;position:relative">
+<img src="{{it.imageSrc}}" style="width:96px;height:96px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);flex:none">
+<div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:0;padding-right:64px">
+<div style="font-weight:700;font-size:14px">{{it.itemDesc}}</div>
 <div class="card-meta" style="margin-top:-4px">#{{it.rank}} · {{it.itemNo}}</div>
 <div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:12px">
 <div><div class="card-meta">Qty</div><div style="font-weight:600">{{it.qtyLabel}}</div></div>
@@ -498,6 +494,7 @@ a:hover{color:var(--color-accent-300)}
 <div><div class="card-meta">Markup%</div><div style="font-weight:600">{{it.markupLabel}}</div></div>
 </div>
 </div>
+<div style="position:absolute;top:12px;right:12px;font-weight:700;font-size:15px;color:var(--color-accent);white-space:nowrap">{{it.netSalesLabel}}</div>
 </div>
 </sc-for>
 </div>
@@ -565,6 +562,7 @@ a:hover{color:var(--color-accent-300)}
 <div class="card elev-sm" style="flex:1 1 130px;min-width:0">
 <div class="card-kicker">{{k.label}}</div>
 <div class="card-title" style="font-size:18px;margin-top:2px;white-space:nowrap">{{k.value}}</div>
+<div class="card-meta">{{k.pctLabel}}</div>
 </div>
 </sc-for>
 </div>
@@ -1041,7 +1039,8 @@ class Component extends DCLogic {
       const t = this.wholesaleEffType(w);
       wholesaleTypeMap[t] = (wholesaleTypeMap[t] || 0) + w.amount;
     });
-    const wholesaleTypeCards = Object.entries(wholesaleTypeMap).sort((a, b) => b[1] - a[1]).map(([label, val]) => ({ label, value: this.fmtMoney(val) }));
+    const wholesaleTypeTotal = Object.values(wholesaleTypeMap).reduce((a, b) => a + b, 0);
+    const wholesaleTypeCards = Object.entries(wholesaleTypeMap).sort((a, b) => b[1] - a[1]).map(([label, val]) => ({ label, value: this.fmtMoney(val), pctLabel: (wholesaleTypeTotal ? Math.abs(100 * val / wholesaleTypeTotal) : 0).toFixed(1) + '%' }));
     const wholesaleKpiCards = [
       { label: 'Net Sales', value: this.fmtMoney(wholesaleTotal), sub: wholesaleRows.length + ' accounts' },
       { label: 'Returns Rate', value: Math.abs(wholesaleReturnsRate).toFixed(1) + '%', sub: this.fmtMoney(wholesaleReturns) + ' returned' }
