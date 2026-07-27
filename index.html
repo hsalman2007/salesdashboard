@@ -512,6 +512,9 @@ a:hover{color:var(--color-accent-300)}
 
 <sc-if value="{{isDaily}}" hint-placeholder-val="{{false}}">
 <section>
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:var(--space-4)">
+<button class="btn btn-secondary" onClick="{{showCurrentMonthOnly}}">Current month only</button>
+</div>
 <div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4)">"Single-item invoices" (exactly 1 SKU, 1 unit)</div>
 <sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x:auto">
@@ -587,6 +590,11 @@ a:hover{color:var(--color-accent-300)}
 </select>
 </div>
 </div>
+<div style="display:flex;gap:8px;margin-bottom:var(--space-4)">
+<button class="btn {{wholesaleStoresBtnClass}}" onClick="{{setWholesaleViewStores}}">By Store</button>
+<button class="btn {{wholesaleDailyBtnClass}}" onClick="{{setWholesaleViewDaily}}">Day-wise</button>
+</div>
+<sc-if value="{{isWholesaleStores}}" hint-placeholder-val="{{true}}">
 <sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x:auto">
 <table class="table">
@@ -610,6 +618,27 @@ a:hover{color:var(--color-accent-300)}
 </div>
 </sc-if>
 <div style="font-size:12px;color:var(--color-neutral-500);margin-top:var(--space-3)">Total net sales: {{wholesaleTotalLabel}}</div>
+</sc-if>
+<sc-if value="{{isWholesaleDaily}}" hint-placeholder-val="{{false}}">
+<div style="overflow-x:auto">
+<table class="table">
+<thead><tr><th style="text-align:left;position:sticky;left:0;background:var(--color-surface)">Date</th>
+<sc-for list="{{wholesaleStoreCols}}" as="sc" hint-placeholder-count="6"><th>{{sc}}</th></sc-for>
+<th>Total</th>
+</tr></thead>
+<tbody>
+<sc-for list="{{wholesaleDailyRows}}" as="row" hint-placeholder-count="20">
+<tr><td style="font-weight:600;white-space:nowrap;text-align:left;position:sticky;left:0;background:var(--color-surface)">{{row.date}}</td>
+<sc-for list="{{row.cells}}" as="cell" hint-placeholder-count="6"><td style="font-weight:600;white-space:nowrap">{{cell.label}}</td></sc-for>
+<td style="font-weight:700;white-space:nowrap">{{row.totalLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<sc-if value="{{wholesaleUndatedLabel}}" hint-placeholder-val="{{false}}">
+<div style="font-size:12px;color:var(--color-neutral-500);margin-top:var(--space-3)">Plus {{wholesaleUndatedLabel}} from rows without a specific date (legacy import)</div>
+</sc-if>
+</sc-if>
 </section>
 </sc-if>
 
@@ -625,6 +654,7 @@ class Component extends DCLogic {
     storeMaster: [], buckets: [], categoriesRaw: [], overview: null, itemsRaw: [], categoriesByStoreDate: [], itemsByStoreDate: [],
     wholesale: [],
     wholesaleFilters: { month: 'All', type: 'All', store: 'All' },
+    wholesaleView: 'stores',
     itemSearch: '',
     itemsPage: 0,
     filters: { region: 'All', city: 'All', store: 'All', month: 'All', dateRange: null },
@@ -777,7 +807,7 @@ class Component extends DCLogic {
   renderVals() {
     const st = this.state;
     if (st.loading) {
-      return { pageTitle: 'Loading…', isMobile: st.isMobile, isDesktop: !st.isMobile, navDisplay: st.isMobile ? 'none' : 'flex', bottomNavDisplay: st.isMobile ? 'flex' : 'none', mainMaxWidth: st.isMobile ? 'none' : '1180px', mainPadding: st.isMobile ? '16px 16px 88px 16px' : 'var(--space-6) var(--space-8) var(--space-8) var(--space-6)', filtersDirection: st.isMobile ? 'column' : 'row', filtersAlign: st.isMobile ? 'stretch' : 'flex-end', filtersItemWidth: st.isMobile ? '100%' : 'auto', kpiBasis: st.isMobile ? 'calc(50% - 8px)' : '148px', kpiFlex: st.isMobile ? '0 1 calc(50% - 5px)' : '1 1 148px', kpiValueSize: st.isMobile ? '20px' : '26px', kpiGap: st.isMobile ? '10px' : 'var(--space-4)', bottomNavItems: [], mobileNavOpen: false, toggleMobileNav: () => {}, navItems: [], meta: {}, filters: { ...st.filters, isDirty: false }, regionOptions: ['All'], cityOptions: ['All'], storeOptions: [{ code: 'All', label: 'All' }], monthOptions: [{ value: 'All', label: 'All' }], setMonth: () => {}, dateMenuOpen: false, dateButtonLabel: 'All dates', calendarCells: [], toggleDateMenu: () => {}, clearDate: () => {}, isOverview: false, isStores: false, isRegionDetail: false, isCategories: false, isInvoices: false, isItems: false, isDiscounts: false, isWholesale: false, kpiCards: [], dailyBars: [], regionBars: [], topStores: [], topCategories: [], storesSorted: [], categoriesSorted: [], invoicesSorted: [], regionSorted: [], discountsSorted: [], itemsSorted: [], itemsTotalCount: 0, itemSearch: '', setItemSearch: () => {}, sortArrow: {}, sortHandlers: {}, search: '', globalFiltersDisplay: 'flex', showFilterToggle: false, toggleFilters: () => {}, filtersToggleArrow: '\u25be', filtersActiveCount: 0, wholesaleFilters: { month: 'All', type: 'All', store: 'All' }, wholesaleMonthOptions: ['All'], wholesaleTypeOptions: ['All'], wholesaleStoreOptions: ['All'], setWholesaleStore: () => {}, wholesaleSorted: [], wholesaleKpiCards: [], wholesaleTypeCards: [], wholesaleTotalLabel: '0', setWholesaleMonth: () => {}, setWholesaleType: () => {} };
+      return { pageTitle: 'Loading…', isMobile: st.isMobile, isDesktop: !st.isMobile, navDisplay: st.isMobile ? 'none' : 'flex', bottomNavDisplay: st.isMobile ? 'flex' : 'none', mainMaxWidth: st.isMobile ? 'none' : '1180px', mainPadding: st.isMobile ? '16px 16px 88px 16px' : 'var(--space-6) var(--space-8) var(--space-8) var(--space-6)', filtersDirection: st.isMobile ? 'column' : 'row', filtersAlign: st.isMobile ? 'stretch' : 'flex-end', filtersItemWidth: st.isMobile ? '100%' : 'auto', kpiBasis: st.isMobile ? 'calc(50% - 8px)' : '148px', kpiFlex: st.isMobile ? '0 1 calc(50% - 5px)' : '1 1 148px', kpiValueSize: st.isMobile ? '20px' : '26px', kpiGap: st.isMobile ? '10px' : 'var(--space-4)', bottomNavItems: [], mobileNavOpen: false, toggleMobileNav: () => {}, navItems: [], meta: {}, filters: { ...st.filters, isDirty: false }, regionOptions: ['All'], cityOptions: ['All'], storeOptions: [{ code: 'All', label: 'All' }], monthOptions: [{ value: 'All', label: 'All' }], setMonth: () => {}, showCurrentMonthOnly: () => {}, dateMenuOpen: false, dateButtonLabel: 'All dates', calendarCells: [], toggleDateMenu: () => {}, clearDate: () => {}, isOverview: false, isStores: false, isRegionDetail: false, isCategories: false, isInvoices: false, isItems: false, isDiscounts: false, isWholesale: false, kpiCards: [], dailyBars: [], regionBars: [], topStores: [], topCategories: [], storesSorted: [], categoriesSorted: [], invoicesSorted: [], regionSorted: [], discountsSorted: [], itemsSorted: [], itemsTotalCount: 0, itemSearch: '', setItemSearch: () => {}, sortArrow: {}, sortHandlers: {}, search: '', globalFiltersDisplay: 'flex', showFilterToggle: false, toggleFilters: () => {}, filtersToggleArrow: '\u25be', filtersActiveCount: 0, wholesaleFilters: { month: 'All', type: 'All', store: 'All' }, wholesaleMonthOptions: ['All'], wholesaleTypeOptions: ['All'], wholesaleStoreOptions: ['All'], setWholesaleStore: () => {}, wholesaleSorted: [], wholesaleKpiCards: [], wholesaleTypeCards: [], wholesaleTotalLabel: '0', isWholesaleStores: true, isWholesaleDaily: false, wholesaleStoresBtnClass: 'btn-primary', wholesaleDailyBtnClass: 'btn-secondary', setWholesaleViewStores: () => {}, setWholesaleViewDaily: () => {}, wholesaleStoreCols: [], wholesaleDailyRows: [], wholesaleUndatedLabel: '', setWholesaleMonth: () => {}, setWholesaleType: () => {} };
     }
 
     const filteredBuckets = st.buckets.filter(b => this.matchesFilters(b));
@@ -1042,6 +1072,25 @@ class Component extends DCLogic {
     });
     const wholesaleTypeTotal = Object.values(wholesaleTypeMap).reduce((a, b) => a + b, 0);
     const wholesaleTypeCards = Object.entries(wholesaleTypeMap).sort((a, b) => b[1] - a[1]).map(([label, val]) => ({ label, value: this.fmtMoney(val), pctLabel: (wholesaleTypeTotal ? Math.abs(100 * val / wholesaleTypeTotal) : 0).toFixed(1) + '%' }));
+
+    // day-wise x store pivot for the Wholesale sub-page
+    const wDates = [...new Set(wholesaleFiltered.map(w => w.date).filter(Boolean))].sort();
+    const wStoreNames = [...new Set(wholesaleFiltered.map(w => this.wholesaleName(w)))].sort();
+    const wPivot = {};
+    wholesaleFiltered.forEach(w => {
+      if (!w.date) return;
+      const name = this.wholesaleName(w);
+      if (!wPivot[w.date]) wPivot[w.date] = {};
+      wPivot[w.date][name] = (wPivot[w.date][name] || 0) + w.amount;
+    });
+    const wholesaleDailyRows = wDates.map(date => {
+      const rowTotal = wStoreNames.reduce((a, s) => a + (wPivot[date][s] || 0), 0);
+      return {
+        date, totalLabel: this.fmtMoney(rowTotal),
+        cells: wStoreNames.map(s => ({ store: s, value: wPivot[date][s] || 0, label: wPivot[date][s] ? this.fmtMoney(wPivot[date][s]) : '\u2014' }))
+      };
+    });
+    const wholesaleUndated = wholesaleFiltered.filter(w => !w.date).reduce((a, w) => a + w.amount, 0);
     const wholesaleKpiCards = [
       { label: 'Net Sales', value: this.fmtMoney(wholesaleTotal), sub: wholesaleRows.length + ' accounts' },
       { label: 'Returns Rate', value: Math.abs(wholesaleReturnsRate).toFixed(1) + '%', sub: this.fmtMoney(wholesaleReturns) + ' returned' }
@@ -1219,6 +1268,7 @@ class Component extends DCLogic {
       setCity: e => this.setState({ filters: { ...f, city: e.target.value, store: 'All' } }),
       setStore: e => this.setState({ filters: { ...f, store: e.target.value } }),
       setMonth: e => this.setState({ filters: { ...f, month: e.target.value } }),
+      showCurrentMonthOnly: () => this.setState({ filters: { ...f, month: currentMonth } }),
       monthOptions: [{ value: 'All', label: 'All' }, ...[...new Set(dates.map(d => d.slice(0, 7)))].sort().map(m => ({ value: m, label: new Date(m + '-02').toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) }))],
       toggleDateMenu: () => this.setState({ dateMenuOpen: !st.dateMenuOpen }),
       clearDate: () => this.setState({ filters: { ...f, dateRange: null }, rangeAnchor: null }),
@@ -1265,6 +1315,15 @@ class Component extends DCLogic {
       wholesaleKpiCards,
       wholesaleTypeCards,
       wholesaleTotalLabel: this.fmtMoney(wholesaleTotal),
+      isWholesaleStores: st.wholesaleView !== 'daily',
+      isWholesaleDaily: st.wholesaleView === 'daily',
+      wholesaleStoresBtnClass: st.wholesaleView !== 'daily' ? 'btn-primary' : 'btn-secondary',
+      wholesaleDailyBtnClass: st.wholesaleView === 'daily' ? 'btn-primary' : 'btn-secondary',
+      setWholesaleViewStores: () => this.setState({ wholesaleView: 'stores' }),
+      setWholesaleViewDaily: () => this.setState({ wholesaleView: 'daily' }),
+      wholesaleStoreCols: wStoreNames,
+      wholesaleDailyRows,
+      wholesaleUndatedLabel: wholesaleUndated ? this.fmtMoney(wholesaleUndated) : '',
       regionSorted: regionRows,
       dailySorted: dailyRows,
       kpiCards, dailyBars, dailyTrend, regionBars, topStores, topCategories,
