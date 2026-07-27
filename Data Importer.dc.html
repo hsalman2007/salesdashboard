@@ -22,8 +22,20 @@
 </div>
 
 <div class="card elev-sm" style="margin-bottom:var(--space-6)">
-<label style="display:block;font-size:13px;margin-bottom:8px;color:var(--color-neutral-500)">Wholesale export .xlsx file(s) — posted sales invoices (BOSales) and/or posted credit memos (BOReturns); auto-detected per file</label>
-<input type="file" accept=".xlsx" multiple onChange="{{onWholesaleFiles}}" style="font-size:14px;color:var(--color-text)">
+<label style="display:block;font-size:13px;margin-bottom:8px;color:var(--color-neutral-500)">Wholesale export — choose the posted sales invoices (BOSales) file and/or the posted credit memos (BOReturns) file, then merge</label>
+<div style="display:flex;flex-direction:column;gap:var(--space-3)">
+<div>
+<label style="display:block;font-size:12px;margin-bottom:4px;color:var(--color-neutral-500)">Sales invoices (BOSales) .xlsx</label>
+<input type="file" accept=".xlsx" onChange="{{onWholesaleSalesFile}}" style="font-size:14px;color:var(--color-text)">
+<span style="font-size:12px;color:var(--color-neutral-500);margin-left:8px">{{wholesaleSalesFileName}}</span>
+</div>
+<div>
+<label style="display:block;font-size:12px;margin-bottom:4px;color:var(--color-neutral-500)">Credit memos (BOReturns) .xlsx</label>
+<input type="file" accept=".xlsx" onChange="{{onWholesaleReturnsFile}}" style="font-size:14px;color:var(--color-text)">
+<span style="font-size:12px;color:var(--color-neutral-500);margin-left:8px">{{wholesaleReturnsFileName}}</span>
+</div>
+<button class="btn btn-primary" onClick="{{mergeWholesaleFiles}}" disabled="{{!canMergeWholesale}}" style="align-self:flex-start">Merge into wholesale.json</button>
+</div>
 </div>
 
 <sc-if value="{{wholesaleStatus}}" hint-placeholder-val="{{false}}">
@@ -54,7 +66,7 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
-  state = { status: '', hasResult: false, downloads: [], wholesaleStatus: '', hasWholesaleResult: false, wholesaleDownload: null, wholesaleCount: 0 };
+  state = { status: '', hasResult: false, downloads: [], wholesaleStatus: '', hasWholesaleResult: false, wholesaleDownload: null, wholesaleCount: 0, wholesaleSalesFile: null, wholesaleReturnsFile: null };
 
   fmtStatus(lines) { return lines.join('\n'); }
 
@@ -441,6 +453,22 @@ class Component extends DCLogic {
     return s.includes('-') ? s.split('-').pop() : s;
   }
 
+  onWholesaleSalesFile(e) {
+    const f = e.target.files && e.target.files[0];
+    this.setState({ wholesaleSalesFile: f || null });
+  }
+
+  onWholesaleReturnsFile(e) {
+    const f = e.target.files && e.target.files[0];
+    this.setState({ wholesaleReturnsFile: f || null });
+  }
+
+  async mergeWholesaleFiles() {
+    const files = [this.state.wholesaleSalesFile, this.state.wholesaleReturnsFile].filter(Boolean);
+    if (!files.length) return;
+    await this.onWholesaleFiles({ target: { files } });
+  }
+
   async onWholesaleFiles(e) {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
@@ -519,7 +547,11 @@ class Component extends DCLogic {
   renderVals() {
     return { status: this.state.status, hasResult: this.state.hasResult, downloads: this.state.downloads, onFiles: e => this.onFiles(e), downloadAll: () => this.downloadAll(),
       wholesaleStatus: this.state.wholesaleStatus, hasWholesaleResult: this.state.hasWholesaleResult, wholesaleCount: this.state.wholesaleCount,
-      onWholesaleFiles: e => this.onWholesaleFiles(e), downloadWholesale: () => this.downloadWholesale() };
+      onWholesaleSalesFile: e => this.onWholesaleSalesFile(e), onWholesaleReturnsFile: e => this.onWholesaleReturnsFile(e),
+      wholesaleSalesFileName: this.state.wholesaleSalesFile ? this.state.wholesaleSalesFile.name : 'no file chosen',
+      wholesaleReturnsFileName: this.state.wholesaleReturnsFile ? this.state.wholesaleReturnsFile.name : 'no file chosen',
+      canMergeWholesale: !!(this.state.wholesaleSalesFile || this.state.wholesaleReturnsFile),
+      mergeWholesaleFiles: () => this.mergeWholesaleFiles(), downloadWholesale: () => this.downloadWholesale() };
   }
 }
 </script>

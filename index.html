@@ -522,7 +522,8 @@ class Component extends DCLogic {
     const sm = this.storeIndex[w.storeCode];
     let name = codeOverride[w.storeCode] || nameMerge[w.storeName] || w.storeName;
     if (w.storeCode === 'RYWS05') name = 'Zuhair - 38850';
-    if (sm && sm.type === 'Store' && !codeOverride[w.storeCode]) name = 'Convenience Ret BO';
+    if (w.storeCode === 'HOEST') name = 'HO Sales - Intercompany';
+    if (w.storeName === 'Whole Sales Transfers') name = this.wholesaleEffType(w);
     if (w.salespersonCode === '27133') name = 'Shareif - 27133';
     if (w.storeCode === 'RYWH01' && w.salespersonCode === '30570') name = 'HO Sales - Shafi - 30570';
     return name;
@@ -799,7 +800,7 @@ class Component extends DCLogic {
 
     // wholesale — sales minus returns, grouped by store, filtered by month and customer type
     const wf = st.wholesaleFilters;
-    const storeTypeExceptions = ['Panda', 'SASCO', 'MEED'];
+    const storeTypeExceptions = [];
     const wholesaleMonthScope = st.wholesale.filter(w => {
       const sm = this.storeIndex[w.storeCode];
       if (sm && sm.type === 'Store' && !storeTypeExceptions.includes(w.type)) return false;
