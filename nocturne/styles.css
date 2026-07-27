@@ -245,13 +245,14 @@ textarea.input { min-height: 90px; resize: vertical; }
 /* — tables — */
 .table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .table th {
-  text-align: left; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  text-align: center; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
   color: color-mix(in srgb, var(--color-text) 60%, transparent);
   padding: var(--space-2); border-bottom: 1px solid transparent; /* keeps layout; the row paints the fading rule */
 }
 .table td {
   padding: var(--space-2);
   border-bottom: 1px solid transparent;
+  text-align: center;
 }
 /* Row rules as row-level strips so the end-fade spans the row, not each cell. */
 .table thead tr {

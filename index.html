@@ -155,10 +155,10 @@ a:hover{color:var(--color-accent-300)}
 <h3 style="font-family:var(--font-heading);font-size:16px;margin:0 0 var(--space-3)">Trending Branches</h3>
 <div style="overflow-x:auto">
 <table class="table">
-<thead><tr><th>Store</th><th>Net sales</th><th>Invoices</th></tr></thead>
+<thead><tr><th style="text-align:left">Store</th><th>Net sales</th><th>Invoices</th></tr></thead>
 <tbody>
 <sc-for list="{{topStores}}" as="s" hint-placeholder-count="5">
-<tr onClick="{{s.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap">{{s.name}}</td><td style="font-weight:600;white-space:nowrap">{{s.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.invoicesLabel}}</td></tr>
+<tr onClick="{{s.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;text-align:left">{{s.name}}</td><td style="font-weight:600;white-space:nowrap">{{s.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.invoicesLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -168,10 +168,10 @@ a:hover{color:var(--color-accent-300)}
 <h3 style="font-family:var(--font-heading);font-size:16px;margin:0 0 var(--space-3)">Trending Categories</h3>
 <div style="overflow-x:auto">
 <table class="table">
-<thead><tr><th>Category</th><th>Net sales</th><th>% of sales</th><th>Qty</th><th>Invoices</th></tr></thead>
+<thead><tr><th style="text-align:left">Category</th><th>Net sales</th><th>% of sales</th><th>Qty</th><th>Invoices</th></tr></thead>
 <tbody>
 <sc-for list="{{topCategories}}" as="c" hint-placeholder-count="5">
-<tr><td style="font-weight:600;white-space:nowrap">{{c.category}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.pctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.invoicesLabel}}</td></tr>
+<tr><td style="font-weight:600;white-space:nowrap;text-align:left">{{c.category}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.pctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.invoicesLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -186,17 +186,17 @@ a:hover{color:var(--color-accent-300)}
 <section>
 <div style="overflow-x:auto">
 <table class="table">
-<thead><tr><th>Region</th><th>Net sales</th><th>Sold qty</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Promo%</th><th>Invoices</th><th>Single Inv%</th><th>Markup%</th></tr></thead>
+<thead><tr><th style="text-align:left">Region</th><th>Net sales</th><th>Sold qty</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Promo%</th><th>Invoices</th><th>Single Inv%</th><th>Markup%</th></tr></thead>
 <tbody>
 <sc-for list="{{regionSorted}}" as="r" hint-placeholder-count="5">
-<tr onClick="{{r.onToggle}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;padding-right:32px">{{r.regionLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.promoLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.singleItemPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.markupLabel}}</td></tr>
+<tr onClick="{{r.onToggle}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;padding-right:32px;text-align:left">{{r.regionLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.promoLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.singleItemPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.markupLabel}}</td></tr>
 <sc-if value="{{r.expanded}}" hint-placeholder-val="{{false}}">
 <tr><td colspan="10" style="padding:0 0 var(--space-4) 0">
 <table class="table">
-<thead><tr><th>Store</th><th>Net sales</th><th>Sold qty</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Promo%</th><th>Invoices</th><th>Single Inv%</th><th>Markup%</th></tr></thead>
+<thead><tr><th style="text-align:left">Store</th><th>Net sales</th><th>Sold qty</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Promo%</th><th>Invoices</th><th>Single Inv%</th><th>Markup%</th></tr></thead>
 <tbody>
 <sc-for list="{{r.stores}}" as="s" hint-placeholder-count="3">
-<tr onClick="{{s.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;padding-left:28px;padding-right:32px">{{s.name}}</td><td style="font-weight:600;white-space:nowrap">{{s.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.promoLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.singleItemPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.markupLabel}}</td></tr>
+<tr onClick="{{s.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;padding-left:28px;padding-right:32px;text-align:left">{{s.name}}</td><td style="font-weight:600;white-space:nowrap">{{s.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.promoLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.singleItemPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.markupLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -215,7 +215,7 @@ a:hover{color:var(--color-accent-300)}
 <div style="overflow-x:auto">
 <table class="table">
 <thead><tr>
-<th class="rl-th" onClick="{{sortHandlers.catCategory}}">Category {{sortArrow.catCategory}}</th>
+<th class="rl-th" style="text-align:left" onClick="{{sortHandlers.catCategory}}">Category {{sortArrow.catCategory}}</th>
 <th class="rl-th" onClick="{{sortHandlers.catNetSales}}">Net sales {{sortArrow.catNetSales}}</th>
 <th class="rl-th" onClick="{{sortHandlers.catPct}}">% of sales {{sortArrow.catPct}}</th>
 <th class="rl-th" onClick="{{sortHandlers.catQty}}">Qty {{sortArrow.catQty}}</th>
@@ -227,7 +227,7 @@ a:hover{color:var(--color-accent-300)}
 </tr></thead>
 <tbody>
 <sc-for list="{{categoriesSorted}}" as="c" hint-placeholder-count="10">
-<tr><td style="font-weight:600;white-space:nowrap">{{c.category}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.pctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.markupLabel}}</td></tr>
+<tr><td style="font-weight:600;white-space:nowrap;text-align:left">{{c.category}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.pctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.markupLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -241,17 +241,18 @@ a:hover{color:var(--color-accent-300)}
 <table class="table">
 <thead><tr>
 <th>Rank</th>
-<th class="rl-th" onClick="{{sortHandlers.discStoreName}}">Store {{sortArrow.discStoreName}}</th>
+<th class="rl-th" style="text-align:left" onClick="{{sortHandlers.discStoreName}}">Store {{sortArrow.discStoreName}}</th>
 <th class="rl-th" onClick="{{sortHandlers.discNetSales}}">Net sales {{sortArrow.discNetSales}}</th>
 <th class="rl-th" onClick="{{sortHandlers.discDiscount}}">Discount value {{sortArrow.discDiscount}}</th>
 <th>Markup%</th>
 <th class="rl-th" onClick="{{sortHandlers.discQty}}">Sold qty {{sortArrow.discQty}}</th>
 <th class="rl-th" onClick="{{sortHandlers.discRatio}}">Discount% {{sortArrow.discRatio}}</th>
+<th>Promo%</th>
 <th>Invoices</th>
 </tr></thead>
 <tbody>
 <sc-for list="{{discountsSorted}}" as="d" hint-placeholder-count="10">
-<tr><td style="font-weight:600;white-space:nowrap">{{d.rank}}</td><td style="font-weight:600;white-space:nowrap">{{d.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{d.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.discountLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.markupLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.ratioLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.invoicesLabel}}</td></tr>
+<tr><td style="font-weight:600;white-space:nowrap">{{d.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{d.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{d.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.discountLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.markupLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.ratioLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.promoLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.invoicesLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -269,8 +270,8 @@ a:hover{color:var(--color-accent-300)}
 <table class="table">
 <thead><tr>
 <th>Rank</th>
-<th class="rl-th" onClick="{{sortHandlers.invStoreName}}">Store {{sortArrow.invStoreName}}</th>
-<th class="rl-th" onClick="{{sortHandlers.invRegion}}">Region {{sortArrow.invRegion}}</th>
+<th class="rl-th" style="text-align:left" onClick="{{sortHandlers.invStoreName}}">Store {{sortArrow.invStoreName}}</th>
+<th class="rl-th" style="text-align:left" onClick="{{sortHandlers.invRegion}}">Region {{sortArrow.invRegion}}</th>
 <th class="rl-th" onClick="{{sortHandlers.invNetSales}}">Net sales {{sortArrow.invNetSales}}</th>
 <th class="rl-th" onClick="{{sortHandlers.invQty}}">Qty {{sortArrow.invQty}}</th>
 <th class="rl-th" onClick="{{sortHandlers.invInvoices}}">Invoices {{sortArrow.invInvoices}}</th>
@@ -280,7 +281,7 @@ a:hover{color:var(--color-accent-300)}
 </tr></thead>
 <tbody>
 <sc-for list="{{invoicesSorted}}" as="iv" hint-placeholder-count="12">
-<tr><td style="font-weight:600;white-space:nowrap">{{iv.rank}}</td><td style="font-weight:600;white-space:nowrap">{{iv.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{iv.region}}</td><td style="font-weight:600;white-space:nowrap">{{iv.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.aspLabel}}</td></tr>
+<tr><td style="font-weight:600;white-space:nowrap">{{iv.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{iv.storeName}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{iv.region}}</td><td style="font-weight:600;white-space:nowrap">{{iv.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.aspLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -301,8 +302,8 @@ a:hover{color:var(--color-accent-300)}
 <thead><tr>
 <th>Rank</th>
 <th>Image</th>
-<th class="rl-th" onClick="{{sortHandlers.itemNo}}">SKU {{sortArrow.itemNo}}</th>
-<th class="rl-th" onClick="{{sortHandlers.itemDesc}}">Item {{sortArrow.itemDesc}}</th>
+<th class="rl-th" style="text-align:left" onClick="{{sortHandlers.itemNo}}">SKU {{sortArrow.itemNo}}</th>
+<th class="rl-th" style="text-align:left" onClick="{{sortHandlers.itemDesc}}">Item {{sortArrow.itemDesc}}</th>
 <th class="rl-th" onClick="{{sortHandlers.itemNetSales}}">Net sales {{sortArrow.itemNetSales}}</th>
 <th>Markup%</th>
 <th class="rl-th" onClick="{{sortHandlers.itemQty}}">Qty {{sortArrow.itemQty}}</th>
@@ -313,7 +314,7 @@ a:hover{color:var(--color-accent-300)}
 <sc-for list="{{itemsSorted}}" as="it" hint-placeholder-count="15">
 <tr><td style="font-weight:600;white-space:nowrap">{{it.rank}}</td>
 <td><img src="{{it.imageSrc}}" style="width:40px;height:40px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block"></td>
-<td style="font-weight:600;white-space:nowrap">{{it.itemNo}}</td><td style="font-weight:600;white-space:nowrap">{{it.itemDesc}}</td><td style="font-weight:600;white-space:nowrap">{{it.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.markupLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.uptLabel}}</td></tr>
+<td style="font-weight:600;white-space:nowrap;text-align:left">{{it.itemNo}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{it.itemDesc}}</td><td style="font-weight:600;white-space:nowrap">{{it.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.markupLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.uptLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -330,13 +331,13 @@ a:hover{color:var(--color-accent-300)}
 
 <sc-if value="{{isDaily}}" hint-placeholder-val="{{false}}">
 <section>
-<div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4)">"Single-item invoices" (exactly 1 SKU, 1 unit) shows "—" for dates without a raw transaction import — see Data Importer.</div>
+<div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4)">"Single-item invoices" (exactly 1 SKU, 1 unit)</div>
 <div style="overflow-x:auto">
 <table class="table">
-<thead><tr><th>Date</th><th>Net sales</th><th>Sold qty</th><th>Invoices</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Promo%</th><th>Single Inv</th><th>Single Inv%</th></tr></thead>
+<thead><tr><th>Date</th><th>Net sales</th><th>Sold qty</th><th>Invoices</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Single Inv</th><th>Single Inv%</th></tr></thead>
 <tbody>
 <sc-for list="{{dailySorted}}" as="d" hint-placeholder-count="10">
-<tr><td style="font-weight:600;white-space:nowrap">{{d.date}}</td><td style="font-weight:600;white-space:nowrap">{{d.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.discountedPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.singleItemInvoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.singleItemPctLabel}}</td></tr>
+<tr><td style="font-weight:600;white-space:nowrap">{{d.date}}</td><td style="font-weight:600;white-space:nowrap">{{d.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.singleItemInvoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.singleItemPctLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -389,28 +390,34 @@ class Component extends DCLogic {
   }
 
   async _loadData() {
-    let [storeMaster, buckets, categoriesRaw, overview, itemsRaw, categoriesByStoreDate, itemsByStoreDate, receiptDay, itemMaster] = await Promise.all([
-      fetch('data/store-master.json').then(r => r.json()),
-      fetch('data/store-day.json').then(r => r.json()),
-      fetch('data/categories.json').then(r => r.json()),
-      fetch('data/overview.json').then(r => r.json()),
-      fetch('data/items.json').then(r => r.json()),
-      fetch('data/categories-by-store-date.json').then(r => r.json()),
-      fetch('data/items-by-store-date.json').then(r => r.json()),
-      fetch('data/receipt-day.json').then(r => r.ok ? r.json() : []).catch(() => []),
-      fetch('data/item-master.json').then(r => r.ok ? r.json() : []).catch(() => [])
-    ]);
-    this.storeIndex = {};
-    storeMaster.forEach(s => this.storeIndex[s.code] = s);
-    const masterIndex = {};
-    itemMaster.forEach(m => masterIndex[m.sku] = m);
-    itemsRaw = itemsRaw.map(it => {
-      const m = masterIndex[it.itemNo];
-      return m ? { ...it, itemDesc: m.descEn || it.itemDesc, image: m.image || '', unitCost: m.unitCost || 0, division: m.category || it.division, category: m.subCategory || it.category } : { ...it, image: '', unitCost: 0 };
-    });
-    this.itemMeta = {};
-    itemsRaw.forEach(it => this.itemMeta[it.itemNo] = it);
-    this.setState({ storeMaster, buckets, categoriesRaw, overview, itemsRaw, categoriesByStoreDate, itemsByStoreDate, receiptDay, loading: false });
+    const safeJson = (path, fallback) => fetch(path).then(r => r.ok ? r.json() : fallback).catch(() => fallback);
+    try {
+      let [storeMaster, buckets, categoriesRaw, overview, itemsRaw, categoriesByStoreDate, itemsByStoreDate, receiptDay, itemMaster] = await Promise.all([
+        safeJson('data/store-master.json', []),
+        safeJson('data/store-day.json', []),
+        safeJson('data/categories.json', []),
+        safeJson('data/overview.json', null),
+        safeJson('data/items.json', []),
+        safeJson('data/categories-by-store-date.json', []),
+        safeJson('data/items-by-store-date.json', []),
+        safeJson('data/receipt-day.json', []),
+        safeJson('data/item-master.json', [])
+      ]);
+      this.storeIndex = {};
+      storeMaster.forEach(s => this.storeIndex[s.code] = s);
+      const masterIndex = {};
+      itemMaster.forEach(m => masterIndex[m.sku] = m);
+      itemsRaw = itemsRaw.map(it => {
+        const m = masterIndex[it.itemNo];
+        return m ? { ...it, itemDesc: m.descEn || it.itemDesc, image: m.image || '', unitCost: m.unitCost || 0, division: m.category || it.division, category: m.subCategory || it.category } : { ...it, image: '', unitCost: 0 };
+      });
+      this.itemMeta = {};
+      itemsRaw.forEach(it => this.itemMeta[it.itemNo] = it);
+      this.setState({ storeMaster, buckets, categoriesRaw, overview, itemsRaw, categoriesByStoreDate, itemsByStoreDate, receiptDay, loading: false });
+    } catch (e) {
+      console.error('Sales Dashboard data load failed', e);
+      this.setState({ loading: false, loadError: true });
+    }
   }
 
   fmtMoney(n) { const v = Math.round(n || 0); return (v < 0 ? '-' : '') + Math.abs(v).toLocaleString('en-US'); }
@@ -418,6 +425,12 @@ class Component extends DCLogic {
   fmtShort(n) {
     const v = n || 0; const sign = v < 0 ? '-' : ''; const a = Math.abs(v);
     if (a >= 1e6) return sign + Math.round(a / 1e6) + 'M';
+    if (a >= 1e3) return sign + Math.round(a / 1e3) + 'K';
+    return sign + Math.round(a).toLocaleString('en-US');
+  }
+  fmtShortPrecise(n) {
+    const v = n || 0; const sign = v < 0 ? '-' : ''; const a = Math.abs(v);
+    if (a >= 1e6) return sign + (a / 1e6).toFixed(1) + 'M';
     if (a >= 1e3) return sign + Math.round(a / 1e3) + 'K';
     return sign + Math.round(a).toLocaleString('en-US');
   }
@@ -519,13 +532,13 @@ class Component extends DCLogic {
     const returnRate = (qty + returnQty) ? (100 * returnQty / (qty + returnQty)) : 0;
 
     const kpiCards = [
-      { label: 'Net Sales', value: this.fmtMoney(netSales), sub: invoiceCount + ' invoices' },
+      { label: 'Net Sales', value: this.fmtMoney(netSales), sub: this.fmtNum(invoiceCount) + ' invoices' },
       { label: 'ATV', value: this.fmtMoney(atv), sub: 'avg. transaction value' },
       { label: 'UPT', value: Math.abs(upt).toFixed(2), sub: 'units per transaction' },
-      { label: 'No# of Invoices', value: this.fmtNum(invoiceCount), sub: 'unique transactions' },
-      { label: 'Sold Qty', value: this.fmtNum(qty), sub: 'units sold' },
+      { label: 'No# of Invoices', value: this.fmtNum(invoiceCount), sub: this.fmtNum(Math.round(dates.length ? invoiceCount / dates.length : 0)) + ' avg. per day' },
+      { label: 'Sold Qty', value: this.fmtNum(qty), sub: this.fmtNum(Math.round(dates.length ? qty / dates.length : 0)) + ' avg. per day' },
       { label: 'share of discounted items sold %', value: Math.abs(discountPct).toFixed(1) + '%', sub: this.fmtMoney(discount) + ' given' },
-      { label: 'Returns Rate', value: Math.abs(returnRate).toFixed(1) + '%', sub: this.fmtMoney(returnValue) + ' · ' + this.fmtNum(returnQty) + ' units returned' }
+      { label: 'Returns Rate', value: Math.abs(returnRate).toFixed(1) + '%', sub: this.fmtNum(Math.round(dates.length ? returnQty / dates.length : 0)) + ' avg. returns/day' }
     ];
 
     // daily bars
@@ -562,7 +575,7 @@ class Component extends DCLogic {
     const regionEntries = Object.entries(regionMap).sort((a, b) => b[1] - a[1]);
     const maxRegion = Math.max(1, ...regionEntries.map(e => e[1]));
     const totalRegion = regionEntries.reduce((s, [, v]) => s + v, 0);
-    const regionBars = regionEntries.map(([label, val]) => ({ label, valueLabel: this.fmtShort(val), contribLabel: (totalRegion ? Math.round(100 * val / totalRegion) : 0) + '%', pct: Math.round(100 * val / maxRegion) }));
+    const regionBars = regionEntries.map(([label, val]) => ({ label, valueLabel: this.fmtShortPrecise(val), contribLabel: (totalRegion ? Math.round(100 * val / totalRegion) : 0) + '%', pct: Math.round(100 * val / maxRegion) }));
 
     // per-store aggregation from filtered buckets
     const storeAggMap = {};
@@ -653,9 +666,9 @@ class Component extends DCLogic {
     // discount detail — per store, respects all filters
     const byStoreDisc = {};
     filteredBuckets.forEach(b => {
-      if (!byStoreDisc[b.store]) byStoreDisc[b.store] = { code: b.store, storeName: b.storeName, netSales: 0, discount: 0, qty: 0, invoices: 0, discountedValue: 0, regularValue: 0 };
+      if (!byStoreDisc[b.store]) byStoreDisc[b.store] = { code: b.store, storeName: b.storeName, netSales: 0, discount: 0, qty: 0, invoices: 0, discountedValue: 0, regularValue: 0, discountedQty: 0 };
       const d = byStoreDisc[b.store];
-      d.netSales += b.netSales; d.discount += b.discount; d.qty += b.qty; d.invoices += b.invoices; d.discountedValue += (b.discountedValue || 0); d.regularValue += (b.regularValue || 0);
+      d.netSales += b.netSales; d.discount += b.discount; d.qty += b.qty; d.invoices += b.invoices; d.discountedValue += (b.discountedValue || 0); d.regularValue += (b.regularValue || 0); d.discountedQty += (b.discountedQty || 0);
     });
     let discRows = Object.values(byStoreDisc);
     const storeCost = {};
@@ -678,12 +691,12 @@ class Component extends DCLogic {
     const discRankMap = {};
     const discRowsWithRatio = discRows.map(d => {
       const total = d.discountedValue + d.regularValue;
-      return { ...d, ratio: total ? 100 * d.discountedValue / total : 0, markupLabel: markupLabelFor(d.code, d.netSales) };
+      return { ...d, ratio: total ? 100 * d.discountedValue / total : 0, promoPct: d.qty ? 100 * d.discountedQty / d.qty : 0, markupLabel: markupLabelFor(d.code, d.netSales) };
     });
     [...discRowsWithRatio].sort((a, b) => b.ratio - a.ratio).forEach((r, i) => { discRankMap[r.storeName] = i + 1; });
     const dsort = st.sort.discounts;
     discRows = this.sortRows(discRowsWithRatio, dsort.col, dsort.dir)
-      .map(d => ({ ...d, rank: discRankMap[d.storeName], netSalesLabel: this.fmtMoney(d.netSales), discountLabel: this.fmtMoney(d.discount), qtyLabel: this.fmtNum(d.qty), invoicesLabel: this.fmtNum(d.invoices), ratioLabel: Math.abs(d.ratio).toFixed(1) + '%' }));
+      .map(d => ({ ...d, rank: discRankMap[d.storeName], netSalesLabel: this.fmtMoney(d.netSales), discountLabel: this.fmtMoney(d.discount), qtyLabel: this.fmtNum(d.qty), invoicesLabel: this.fmtNum(d.invoices), ratioLabel: Math.abs(d.ratio).toFixed(1) + '%', promoLabel: Math.abs(d.promoPct).toFixed(1) + '%' }));
     const isort = st.sort.invoices;
     invRows = this.sortRows(invRows, isort.col, isort.dir).map(iv => ({ ...iv, rank: rankByStore[iv.storeName], netSalesLabel: this.fmtMoney(iv.netSales), discountLabel: this.fmtMoney(iv.discount), atvLabel: this.fmtMoney(iv.atv), uptLabel: Math.abs(iv.upt).toFixed(2), aspLabel: this.fmtMoney(iv.asp), qtyLabel: this.fmtNum(iv.qty), invoicesLabel: this.fmtNum(iv.invoices) }));
 
