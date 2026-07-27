@@ -62,6 +62,13 @@ a:hover{color:var(--color-accent-300)}
 <div style="font-size:12px;color:var(--color-neutral-500)">{{meta.sampleNote}}</div>
 </div>
 
+<sc-if value="{{showFilterToggle}}" hint-placeholder-val="{{false}}">
+<button class="btn btn-secondary" onClick="{{toggleFilters}}" style="display:flex;align-items:center;gap:6px;margin-bottom:var(--space-3)">
+<span>\u2699 Filters</span>
+<sc-if value="{{filtersActiveCount}}" hint-placeholder-val="{{0}}"><span class="tag-accent" style="font-size:11px;padding:1px 7px;border-radius:var(--radius-pill)">{{filtersActiveCount}}</span></sc-if>
+<span style="font-size:11px;color:var(--color-neutral-500)">{{filtersToggleArrow}}</span>
+</button>
+</sc-if>
 <div style="display:{{globalFiltersDisplay}};gap:var(--space-4);align-items:{{filtersAlign}};flex-wrap:wrap;flex-direction:{{filtersDirection}};margin:var(--space-6) 0 var(--space-6)">
 <div class="field" style="min-width:130px;width:{{filtersItemWidth}}">
 <label>Region</label>
@@ -623,6 +630,7 @@ class Component extends DCLogic {
     itemsPage: 0,
     filters: { region: 'All', city: 'All', store: 'All', month: 'All', dateRange: null },
     dateMenuOpen: false,
+    filtersOpen: false,
     rangeAnchor: null,
     sort: {
       stores: { col: 'netSales', dir: 'desc' },
@@ -770,7 +778,7 @@ class Component extends DCLogic {
   renderVals() {
     const st = this.state;
     if (st.loading) {
-      return { pageTitle: 'Loading…', isMobile: st.isMobile, isDesktop: !st.isMobile, navDisplay: st.isMobile ? 'none' : 'flex', bottomNavDisplay: st.isMobile ? 'flex' : 'none', mainMaxWidth: st.isMobile ? 'none' : '1180px', mainPadding: st.isMobile ? '16px 16px 88px 16px' : 'var(--space-6) var(--space-8) var(--space-8) var(--space-6)', filtersDirection: st.isMobile ? 'column' : 'row', filtersAlign: st.isMobile ? 'stretch' : 'flex-end', filtersItemWidth: st.isMobile ? '100%' : 'auto', kpiBasis: st.isMobile ? 'calc(50% - 8px)' : '148px', kpiFlex: st.isMobile ? '0 1 calc(50% - 5px)' : '1 1 148px', kpiValueSize: st.isMobile ? '20px' : '26px', kpiGap: st.isMobile ? '10px' : 'var(--space-4)', bottomNavItems: [], mobileNavOpen: false, toggleMobileNav: () => {}, navItems: [], meta: {}, filters: { ...st.filters, isDirty: false }, regionOptions: ['All'], cityOptions: ['All'], storeOptions: [{ code: 'All', label: 'All' }], monthOptions: [{ value: 'All', label: 'All' }], setMonth: () => {}, dateMenuOpen: false, dateButtonLabel: 'All dates', calendarCells: [], toggleDateMenu: () => {}, clearDate: () => {}, isOverview: false, isStores: false, isRegionDetail: false, isCategories: false, isInvoices: false, isItems: false, isDiscounts: false, isWholesale: false, kpiCards: [], dailyBars: [], regionBars: [], topStores: [], topCategories: [], storesSorted: [], categoriesSorted: [], invoicesSorted: [], regionSorted: [], discountsSorted: [], itemsSorted: [], itemsTotalCount: 0, itemSearch: '', setItemSearch: () => {}, sortArrow: {}, sortHandlers: {}, search: '', globalFiltersDisplay: 'flex', wholesaleFilters: { month: 'All', type: 'All', store: 'All' }, wholesaleMonthOptions: ['All'], wholesaleTypeOptions: ['All'], wholesaleStoreOptions: ['All'], setWholesaleStore: () => {}, wholesaleSorted: [], wholesaleKpiCards: [], wholesaleTypeCards: [], wholesaleTotalLabel: '0', setWholesaleMonth: () => {}, setWholesaleType: () => {} };
+      return { pageTitle: 'Loading…', isMobile: st.isMobile, isDesktop: !st.isMobile, navDisplay: st.isMobile ? 'none' : 'flex', bottomNavDisplay: st.isMobile ? 'flex' : 'none', mainMaxWidth: st.isMobile ? 'none' : '1180px', mainPadding: st.isMobile ? '16px 16px 88px 16px' : 'var(--space-6) var(--space-8) var(--space-8) var(--space-6)', filtersDirection: st.isMobile ? 'column' : 'row', filtersAlign: st.isMobile ? 'stretch' : 'flex-end', filtersItemWidth: st.isMobile ? '100%' : 'auto', kpiBasis: st.isMobile ? 'calc(50% - 8px)' : '148px', kpiFlex: st.isMobile ? '0 1 calc(50% - 5px)' : '1 1 148px', kpiValueSize: st.isMobile ? '20px' : '26px', kpiGap: st.isMobile ? '10px' : 'var(--space-4)', bottomNavItems: [], mobileNavOpen: false, toggleMobileNav: () => {}, navItems: [], meta: {}, filters: { ...st.filters, isDirty: false }, regionOptions: ['All'], cityOptions: ['All'], storeOptions: [{ code: 'All', label: 'All' }], monthOptions: [{ value: 'All', label: 'All' }], setMonth: () => {}, dateMenuOpen: false, dateButtonLabel: 'All dates', calendarCells: [], toggleDateMenu: () => {}, clearDate: () => {}, isOverview: false, isStores: false, isRegionDetail: false, isCategories: false, isInvoices: false, isItems: false, isDiscounts: false, isWholesale: false, kpiCards: [], dailyBars: [], regionBars: [], topStores: [], topCategories: [], storesSorted: [], categoriesSorted: [], invoicesSorted: [], regionSorted: [], discountsSorted: [], itemsSorted: [], itemsTotalCount: 0, itemSearch: '', setItemSearch: () => {}, sortArrow: {}, sortHandlers: {}, search: '', globalFiltersDisplay: 'flex', showFilterToggle: false, toggleFilters: () => {}, filtersToggleArrow: '\u25be', filtersActiveCount: 0, wholesaleFilters: { month: 'All', type: 'All', store: 'All' }, wholesaleMonthOptions: ['All'], wholesaleTypeOptions: ['All'], wholesaleStoreOptions: ['All'], setWholesaleStore: () => {}, wholesaleSorted: [], wholesaleKpiCards: [], wholesaleTypeCards: [], wholesaleTotalLabel: '0', setWholesaleMonth: () => {}, setWholesaleType: () => {} };
     }
 
     const filteredBuckets = st.buckets.filter(b => this.matchesFilters(b));
@@ -1241,7 +1249,11 @@ class Component extends DCLogic {
         itemNo: this.arrow('items', 'itemNo'), itemDesc: this.arrow('items', 'itemDesc'), itemDivision: this.arrow('items', 'division'), itemCategory: this.arrow('items', 'category'), itemNetSales: this.arrow('items', 'netSales'), itemQty: this.arrow('items', 'qty'), itemInvoices: this.arrow('items', 'invoices'), itemUpt: this.arrow('items', 'upt')
       },
       isOverview: st.page === 'overview', isRegionDetail: st.page === 'regionDetail', isCategories: st.page === 'categories', isInvoices: st.page === 'invoices', isItems: st.page === 'items', isDiscounts: st.page === 'discounts', isDaily: st.page === 'daily', isWholesale: st.page === 'wholesale',
-      globalFiltersDisplay: st.page === 'wholesale' ? 'none' : 'flex',
+      globalFiltersDisplay: st.page === 'wholesale' ? 'none' : (isMobile && !st.filtersOpen ? 'none' : 'flex'),
+      showFilterToggle: isMobile && st.page !== 'wholesale',
+      toggleFilters: () => this.setState({ filtersOpen: !st.filtersOpen }),
+      filtersToggleArrow: st.filtersOpen ? '▴' : '▾',
+      filtersActiveCount: (f.region !== 'All' ? 1 : 0) + (f.city !== 'All' ? 1 : 0) + (f.store !== 'All' ? 1 : 0) + (f.month !== 'All' ? 1 : 0) + (f.dateRange ? 1 : 0),
       wholesaleFilters: st.wholesaleFilters,
       wholesaleMonthOptions: ['All', ...[...new Set(st.wholesale.map(w => w.month))].sort()],
       wholesaleTypeOptions: ['All', ...Object.keys(wholesaleTypeMap).sort()],
