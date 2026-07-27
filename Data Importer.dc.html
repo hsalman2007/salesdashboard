@@ -21,6 +21,20 @@
 <input type="file" accept=".xlsx" multiple onChange="{{onFiles}}" style="font-size:14px;color:var(--color-text)">
 </div>
 
+<div class="card elev-sm" style="margin-bottom:var(--space-6)">
+<label style="display:block;font-size:13px;margin-bottom:8px;color:var(--color-neutral-500)">Wholesale export .xlsx file(s) — posted sales invoices (BOSales) and/or posted credit memos (BOReturns); auto-detected per file</label>
+<input type="file" accept=".xlsx" multiple onChange="{{onWholesaleFiles}}" style="font-size:14px;color:var(--color-text)">
+</div>
+
+<sc-if value="{{wholesaleStatus}}" hint-placeholder-val="{{false}}">
+<div class="card elev-sm" style="margin-bottom:var(--space-6);white-space:pre-wrap;font-size:13px;line-height:1.6">{{wholesaleStatus}}</div>
+</sc-if>
+
+<sc-if value="{{hasWholesaleResult}}" hint-placeholder-val="{{false}}">
+<h3 style="font-family:var(--font-heading);font-size:17px;margin:0 0 var(--space-3)">Updated wholesale.json — download and replace in your repo's <code>data/</code> folder</h3>
+<button class="btn btn-primary btn-block" onClick="{{downloadWholesale}}" style="margin-bottom:var(--space-6)">Download wholesale.json ({{wholesaleCount}} rows)</button>
+</sc-if>
+
 <sc-if value="{{status}}" hint-placeholder-val="{{false}}">
 <div class="card elev-sm" style="margin-bottom:var(--space-6);white-space:pre-wrap;font-size:13px;line-height:1.6">{{status}}</div>
 </sc-if>
@@ -40,7 +54,7 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
-  state = { status: '', hasResult: false, downloads: [] };
+  state = { status: '', hasResult: false, downloads: [], wholesaleStatus: '', hasWholesaleResult: false, wholesaleDownload: null, wholesaleCount: 0 };
 
   fmtStatus(lines) { return lines.join('\n'); }
 
@@ -57,12 +71,132 @@ class Component extends DCLogic {
     return new Date(ms).toISOString().slice(0, 10);
   }
 
+  async unzipParts(buf) {
+    const dv = new DataView(buf);
+    let eocdOffset = -1;
+    for (let i = buf.byteLength - 22; i >= 0; i--) { if (dv.getUint32(i, true) === 0x06054b50) { eocdOffset = i; break; } }
+    const cdOffset = dv.getUint32(eocdOffset + 16, true);
+    let cdOffsetBig = BigInt(cdOffset);
+    let cdEntries = dv.getUint16(eocdOffset + 10, true);
+    // ZIP64: standard EOCD fields are 0xFFFF/0xFFFFFFFF sentinels — read the real values from the
+    // ZIP64 EOCD locator/record that precede the standard EOCD (large exports commonly need this)
+    if (cdEntries === 0xffff || cdOffset === 0xffffffff) {
+      const locatorOffset = eocdOffset - 20;
+      if (dv.getUint32(locatorOffset, true) === 0x07064b50) {
+        const zip64EocdOffset = dv.getBigUint64(locatorOffset + 8, true);
+        if (dv.getUint32(Number(zip64EocdOffset), true) === 0x06064b50) {
+          cdEntries = Number(dv.getBigUint64(Number(zip64EocdOffset) + 32, true));
+          cdOffsetBig = dv.getBigUint64(Number(zip64EocdOffset) + 48, true);
+        }
+      }
+    }
+    let offset = Number(cdOffsetBig);
+    const files = {};
+    for (let i = 0; i < cdEntries; i++) {
+      if (dv.getUint32(offset, true) !== 0x02014b50) break;
+      const compMethod = dv.getUint16(offset + 10, true);
+      let compSize = dv.getUint32(offset + 20, true);
+      const nameLen = dv.getUint16(offset + 28, true);
+      const extraLen = dv.getUint16(offset + 30, true);
+      const commentLen = dv.getUint16(offset + 32, true);
+      let localHeaderOffset = dv.getUint32(offset + 42, true);
+      const name = new TextDecoder().decode(new Uint8Array(buf, offset + 46, nameLen));
+      // per-entry ZIP64 extra field (id 0x0001) overrides sentinel 32-bit size/offset fields
+      if (compSize === 0xffffffff || localHeaderOffset === 0xffffffff) {
+        let ep = offset + 46 + nameLen;
+        const extraEnd = ep + extraLen;
+        while (ep < extraEnd) {
+          const id = dv.getUint16(ep, true), sz = dv.getUint16(ep + 2, true);
+          if (id === 0x0001) {
+            let p = ep + 4;
+            const uncompSize32 = dv.getUint32(offset + 24, true);
+            if (uncompSize32 === 0xffffffff) { p += 8; }
+            if (compSize === 0xffffffff) { compSize = Number(dv.getBigUint64(p, true)); p += 8; }
+            if (localHeaderOffset === 0xffffffff) { localHeaderOffset = Number(dv.getBigUint64(p, true)); p += 8; }
+          }
+          ep += 4 + sz;
+        }
+      }
+      files[name] = { compMethod, compSize, localHeaderOffset };
+      offset += 46 + nameLen + extraLen + commentLen;
+    }
+    const result = {};
+    for (const name in files) {
+      const f = files[name];
+      const lh = f.localHeaderOffset;
+      const lNameLen = dv.getUint16(lh + 26, true);
+      const lExtraLen = dv.getUint16(lh + 28, true);
+      const dataStart = lh + 30 + lNameLen + lExtraLen;
+      const compData = new Uint8Array(buf, dataStart, f.compSize);
+      result[name] = f.compMethod === 0 ? compData : new Uint8Array(await new Response(new Blob([compData]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer());
+    }
+    return result;
+  }
+
+  // fallback for OOXML exports that prefix every element with a custom namespace (e.g. "x:row") —
+  // SheetJS's fast-path parser can miss these; this walks the XML by local name instead of prefix
+  async parseXlsxFallback(buf) {
+    const parts = await this.unzipParts(buf);
+    const partNames = Object.keys(parts);
+    if (!partNames.length) throw new Error('zip listing came back empty (0 parts found — likely an unsupported zip variant)');
+    const parseXml = bytes => new DOMParser().parseFromString(new TextDecoder().decode(bytes), 'text/xml');
+    const byLocal = (doc, name) => doc.getElementsByTagNameNS('*', name);
+    if (!parts['xl/workbook.xml']) throw new Error('xl/workbook.xml missing from zip — parts found: ' + partNames.join(', '));
+    const wbDoc = parseXml(parts['xl/workbook.xml']);
+    const sheetEl = byLocal(wbDoc, 'sheet')[0];
+    if (!sheetEl) throw new Error('no <sheet> element found in workbook.xml (' + parts['xl/workbook.xml'].length + ' bytes)');
+    const rId = sheetEl && (sheetEl.getAttribute('r:id') || sheetEl.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships', 'id'));
+    const relsPath = partNames.find(p => p === 'xl/_rels/workbook.xml.rels') || 'xl/_rels/workbook.xml.rels';
+    if (!parts[relsPath]) throw new Error('xl/_rels/workbook.xml.rels missing — parts found: ' + partNames.join(', '));
+    const relsDoc = parseXml(parts[relsPath]);
+    const rels = relsDoc.getElementsByTagName('Relationship');
+    let target = null;
+    for (let i = 0; i < rels.length; i++) { if (rels[i].getAttribute('Id') === rId) { target = rels[i].getAttribute('Target'); break; } }
+    if (!target) target = 'worksheets/sheet1.xml';
+    target = target.replace(/^\//, '').replace(/^xl\//, '');
+    const sheetPath = 'xl/' + target;
+    if (!parts[sheetPath]) throw new Error('sheet part "' + sheetPath + '" missing — parts found: ' + partNames.join(', '));
+    const sheetDoc = parseXml(parts[sheetPath]);
+    let sharedStrings = [];
+    if (parts['xl/sharedStrings.xml']) {
+      const ssDoc = parseXml(parts['xl/sharedStrings.xml']);
+      const sis = byLocal(ssDoc, 'si');
+      for (let i = 0; i < sis.length; i++) {
+        const tNodes = byLocal(sis[i], 't');
+        let text = ''; for (let j = 0; j < tNodes.length; j++) text += tNodes[j].textContent;
+        sharedStrings.push(text);
+      }
+    }
+    const colToIndex = col => { let idx = 0; for (let i = 0; i < col.length; i++) idx = idx * 26 + (col.charCodeAt(i) - 64); return idx - 1; };
+    const rowEls = byLocal(sheetDoc, 'row');
+    const rows = [];
+    for (let r = 0; r < rowEls.length; r++) {
+      const cellEls = byLocal(rowEls[r], 'c');
+      const rowArr = [];
+      for (let c = 0; c < cellEls.length; c++) {
+        const cell = cellEls[c];
+        const ref = cell.getAttribute('r');
+        const colIdx = ref ? colToIndex(ref.match(/[A-Z]+/)[0]) : c;
+        const type = cell.getAttribute('t');
+        const vNode = byLocal(cell, 'v')[0];
+        const isNode = byLocal(cell, 'is')[0];
+        let val = '';
+        if (vNode) { val = vNode.textContent; if (type === 's') val = sharedStrings[parseInt(val)] || ''; else if (type !== 'str' && type !== 'b') val = val === '' ? '' : Number(val); }
+        else if (isNode) { const tN = byLocal(isNode, 't'); let t = ''; for (let j = 0; j < tN.length; j++) t += tN[j].textContent; val = t; }
+        rowArr[colIdx] = val;
+      }
+      for (let i = 0; i < rowArr.length; i++) if (rowArr[i] === undefined) rowArr[i] = '';
+      rows.push(rowArr);
+    }
+    return rows;
+  }
+
   async onFiles(e) {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
     this.setState({ status: 'Loading current project data…', hasResult: false });
     try {
-      const [storeMaster, storeDay, categoriesByStoreDate, itemsByStoreDate, categories, items, overview, receiptDay] = await Promise.all([
+      const [storeMaster, storeDay, categoriesByStoreDate, itemsByStoreDate, categories, items, overview, receiptDay, itemMaster] = await Promise.all([
         fetch('data/store-master.json').then(r => r.json()),
         fetch('data/store-day.json').then(r => r.json()),
         fetch('data/categories-by-store-date.json').then(r => r.json()),
@@ -70,9 +204,11 @@ class Component extends DCLogic {
         fetch('data/categories.json').then(r => r.json()),
         fetch('data/items.json').then(r => r.json()),
         fetch('data/overview.json').then(r => r.json()),
-        fetch('data/receipt-day.json').then(r => r.ok ? r.json() : []).catch(() => [])
+        fetch('data/receipt-day.json').then(r => r.ok ? r.json() : []).catch(() => []),
+        fetch('data/item-master.json').then(r => r.ok ? r.json() : []).catch(() => [])
       ]);
       const storeIndex = {}; storeMaster.forEach(s => storeIndex[s.code] = s);
+      const masterSkuMap = {}; itemMaster.forEach(m => { if (m.sku) masterSkuMap[m.sku] = { division: m.category, category: m.subCategory }; });
       const warnings = [];
       const touchedDates = new Set();
 
@@ -83,10 +219,24 @@ class Component extends DCLogic {
       for (const file of files) {
         this.setState({ status: `Parsing ${file.name}…` });
         const buf = await file.arrayBuffer();
-        const wb = window.XLSX.read(buf, { type: 'array', cellDates: false });
-        const sheetName = wb.SheetNames[0];
-        const rows = window.XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1, defval: '' });
+        let rows = [];
+        try {
+          const wb = window.XLSX.read(buf, { type: 'array', cellDates: false });
+          const sheetName = wb.SheetNames[0];
+          rows = sheetName ? window.XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1, defval: '' }) : [];
+        } catch (e1) {
+          warnings.push(`${file.name}: primary parser failed (${e1.message})`);
+        }
+        if (!rows.length || !rows[0] || !rows[0].length) {
+          try {
+            rows = await this.parseXlsxFallback(buf);
+          } catch (e2) {
+            warnings.push(`${file.name}: fallback parser failed (${e2.message})`);
+            rows = [];
+          }
+        }
         const header = rows[0];
+        if (!header) { warnings.push(`${file.name}: could not read any rows from this file`); continue; }
         const idx = {};
         header.forEach((h, i) => { idx[h] = i; });
         const need = ['Store No.', 'Receipt No.', 'Item No.', 'Date', 'Quantity', 'Net Amount', 'Discount Amount', 'Cost Amount', 'Refund Qty.', 'Item Category Code', 'Division Code', 'Item Description'];
@@ -108,7 +258,11 @@ class Component extends DCLogic {
         });
       });
       const itemMetaExisting0 = {}; items.forEach(it => itemMetaExisting0[it.itemNo] = it);
+      // item master (curated categories master) is the authoritative source now — only fall back to
+      // transaction-derived majority vote / existing items.json for SKUs the master doesn't cover
       const resolveDivCat = (itemNo, rawDivision, rawCategory) => {
+        const master = masterSkuMap[itemNo];
+        if (master && isUsableDivCat(master.division)) return master;
         const votes = itemVotes[itemNo];
         if (votes) {
           let best = null, bestCount = -1;
@@ -222,7 +376,8 @@ class Component extends DCLogic {
       itemDeduped.forEach(row => {}); // metadata captured below via byStoreDateItem loop across files isn't retained after loop; use existing items.json + first raw pass instead
       const itemsOut = Object.values(itemAgg).map(a => {
         const existing = itemMetaExisting[a.itemNo] || {};
-        return { itemNo: a.itemNo, itemDesc: existing.itemDesc || a.itemNo, division: existing.division || '', category: existing.category || '', netSales: a.netSales, qty: a.qty, invoices: a.invoices };
+        const master = masterSkuMap[a.itemNo];
+        return { itemNo: a.itemNo, itemDesc: existing.itemDesc || a.itemNo, division: (master && master.division) || existing.division || '', category: (master && master.category) || existing.category || '', netSales: a.netSales, qty: a.qty, invoices: a.invoices };
       });
       const categoriesOut = Object.values(catAgg);
 
@@ -274,8 +429,97 @@ class Component extends DCLogic {
     this.state.downloads.forEach((f, i) => setTimeout(() => f.onClick(), i * 350));
   }
 
+  findCol(idx, candidates) {
+    const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const normIdx = {}; Object.keys(idx).forEach(k => normIdx[norm(k)] = idx[k]);
+    for (const c of candidates) { const n = norm(c); if (normIdx[n] !== undefined) return normIdx[n]; }
+    return undefined;
+  }
+
+  storeCodeFromRegion(regionCode) {
+    const s = String(regionCode || '');
+    return s.includes('-') ? s.split('-').pop() : s;
+  }
+
+  async onWholesaleFiles(e) {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    this.setState({ wholesaleStatus: 'Loading current wholesale data…', hasWholesaleResult: false });
+    try {
+      const existing = await fetch('data/wholesale.json').then(r => r.ok ? r.json() : []).catch(() => []);
+      const storeMaster = await fetch('data/store-master.json').then(r => r.ok ? r.json() : []).catch(() => []);
+      const customerMaster = await fetch('data/customer-master.json').then(r => r.ok ? r.json() : []).catch(() => []);
+      const storeIdxMap = {}; storeMaster.forEach(s => storeIdxMap[s.code] = s);
+      const custTypeMap = {}; customerMaster.forEach(c => custTypeMap[c.name] = c.type);
+      const warnings = [];
+      let newRows = [];
+      for (const file of files) {
+        this.setState({ wholesaleStatus: `Parsing ${file.name}…` });
+        const buf = await file.arrayBuffer();
+        let rows = [];
+        try {
+          const wb = window.XLSX.read(buf, { type: 'array', cellDates: false });
+          const sheetName = wb.SheetNames[0];
+          rows = sheetName ? window.XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1, defval: '' }) : [];
+        } catch (e1) {
+          warnings.push(`${file.name}: primary parser failed (${e1.message})`);
+        }
+        if (!rows.length || !rows[0] || !rows[0].length) {
+          try { rows = await this.parseXlsxFallback(buf); } catch (e2) { warnings.push(`${file.name}: fallback parser failed (${e2.message})`); rows = []; }
+        }
+        const header = rows[0];
+        if (!header) { warnings.push(`${file.name}: could not read any rows from this file`); continue; }
+        const idx = {};
+        header.forEach((h, i) => { idx[h] = i; });
+        const noIdx = this.findCol(idx, ['No.']);
+        const custIdx = this.findCol(idx, ['Customer Name']);
+        const dateIdx = this.findCol(idx, ['Posting Date']);
+        const regionIdx = this.findCol(idx, ['Region Code']);
+        const amountIdx = this.findCol(idx, ['Amount']);
+        const spIdx = this.findCol(idx, ['Salesperson Code']);
+        // sales invoices (BOSales) carry a Salesperson Code column; credit memos (BOReturns) don't — auto-detect per file
+        const isReturns = spIdx === undefined;
+        if (noIdx === undefined || custIdx === undefined || dateIdx === undefined || regionIdx === undefined || amountIdx === undefined) {
+          warnings.push(`${file.name}: missing expected columns (No./Customer Name/Posting Date/Region Code/Amount)`); continue;
+        }
+        const dataRows = rows.slice(1).filter(r => r[noIdx]);
+        dataRows.forEach(r => {
+          const storeCode = this.storeCodeFromRegion(r[regionIdx]);
+          const sm = storeIdxMap[storeCode];
+          const rawDate = r[dateIdx];
+          const month = typeof rawDate === 'number' ? this.excelDateToISO(rawDate).slice(0, 7) : String(rawDate || '').slice(0, 7);
+          const customerName = r[custIdx];
+          const rawAmount = Number(r[amountIdx]) || 0;
+          const amount = isReturns ? -Math.abs(rawAmount) : rawAmount;
+          newRows.push({
+            docNo: r[noIdx], month, storeCode, storeName: sm ? (sm.nameEn || sm.shortName) : storeCode,
+            region: sm ? sm.region : 'Wholesale', customerName,
+            type: custTypeMap[customerName] || 'Wholesale', salespersonCode: spIdx !== undefined ? String(r[spIdx] || '') : '',
+            amount
+          });
+        });
+      }
+      const withoutDocNo = existing.filter(w => !w.docNo);
+      const byDocNo = new Map();
+      existing.filter(w => w.docNo).forEach(w => byDocNo.set(w.docNo, w));
+      newRows.forEach(w => byDocNo.set(w.docNo, w));
+      const wholesaleOut = [...withoutDocNo, ...byDocNo.values()];
+      const statusLines = [`Merged ${files.length} file(s) — ${newRows.length} row(s) parsed`];
+      if (warnings.length) statusLines.push('', 'Warnings:', ...warnings);
+      this.setState({ wholesaleStatus: this.fmtStatus(statusLines), hasWholesaleResult: true, wholesaleDownload: wholesaleOut, wholesaleCount: wholesaleOut.length });
+    } catch (err) {
+      this.setState({ wholesaleStatus: 'Error: ' + err.message, hasWholesaleResult: false });
+    }
+  }
+
+  downloadWholesale() {
+    if (this.state.wholesaleDownload) this.download('wholesale.json', this.state.wholesaleDownload);
+  }
+
   renderVals() {
-    return { status: this.state.status, hasResult: this.state.hasResult, downloads: this.state.downloads, onFiles: e => this.onFiles(e), downloadAll: () => this.downloadAll() };
+    return { status: this.state.status, hasResult: this.state.hasResult, downloads: this.state.downloads, onFiles: e => this.onFiles(e), downloadAll: () => this.downloadAll(),
+      wholesaleStatus: this.state.wholesaleStatus, hasWholesaleResult: this.state.hasWholesaleResult, wholesaleCount: this.state.wholesaleCount,
+      onWholesaleFiles: e => this.onWholesaleFiles(e), downloadWholesale: () => this.downloadWholesale() };
   }
 }
 </script>
