@@ -14,6 +14,20 @@ body{margin:0}
 a:hover{color:var(--color-accent-300)}
 .rl-th{cursor:pointer;user-select:none;white-space:nowrap}
 .rl-th:hover{color:var(--color-accent-300)}
+/* Light re-theme — same blurple accent family as Nocturne, flipped to a light ground */
+:root{
+  --color-bg:#f6f5fb;
+  --color-surface:#ffffff;
+  --color-text:#1e1c28;
+  --color-accent:#6a5ecf;
+  --color-accent-300:#5c4fc4;
+  --color-accent-2:#8f7fd9;
+  --color-divider:color-mix(in srgb, #1e1c28 14%, transparent);
+  --color-neutral-500:#6b6f80;
+  --shadow-sm:0 0 0 1px #e3e1ef;
+  --shadow-md:0 0 0 1px #d8d5e8, 0 6px 18px rgba(30,28,40,0.10);
+  --shadow-lg:0 0 0 1px #cac6df, 0 16px 40px rgba(30,28,40,0.16);
+}
 </style>
 </helmet>
 <div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);display:flex">
