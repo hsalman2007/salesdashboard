@@ -278,6 +278,7 @@ a:hover{color:var(--color-accent-300)}
 <div><div class="card-meta">ATV</div><div style="font-weight:600">{{r.atvLabel}}</div></div>
 <div><div class="card-meta">UPT</div><div style="font-weight:600">{{r.uptLabel}}</div></div>
 <div><div class="card-meta">Promo%</div><div style="font-weight:600">{{r.promoLabel}}</div></div>
+<div><div class="card-meta">Single Inv%</div><div style="font-weight:600">{{r.singleItemPctLabel}}</div></div>
 <div><div class="card-meta">Markup%</div><div style="font-weight:600">{{r.markupLabel}}</div></div>
 </div>
 <sc-if value="{{r.expanded}}" hint-placeholder-val="{{false}}">
@@ -289,7 +290,7 @@ a:hover{color:var(--color-accent-300)}
 <div style="font-weight:700;font-size:13px;color:var(--color-accent)">{{s.netSalesLabel}}</div>
 </div>
 <div style="display:flex;flex-wrap:wrap;gap:8px 12px;font-size:11px;color:var(--color-neutral-500)">
-<span>Qty {{s.qtyLabel}}</span><span>ATV {{s.atvLabel}}</span><span>UPT {{s.uptLabel}}</span><span>Markup {{s.markupLabel}}</span>
+<span>Qty {{s.qtyLabel}}</span><span>ATV {{s.atvLabel}}</span><span>UPT {{s.uptLabel}}</span><span>Single Inv% {{s.singleItemPctLabel}}</span><span>Markup {{s.markupLabel}}</span>
 </div>
 </div>
 </sc-for>
