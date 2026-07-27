@@ -48,11 +48,11 @@ a:hover{color:var(--color-accent-300)}
 </nav>
 <main style="flex:1;padding:{{mainPadding}};max-width:{{mainMaxWidth}}">
 
-<div style="display:{{bottomNavDisplay}};position:sticky;top:0;z-index:20;margin:-16px -16px var(--space-4);padding:8px 10px;background:var(--color-surface);border-bottom:1px solid var(--color-divider);overflow-x:auto;gap:8px">
+<div style="display:{{bottomNavDisplay}};position:fixed;left:0;right:0;bottom:0;z-index:30;padding:6px 4px calc(6px + env(safe-area-inset-bottom));background:var(--color-surface);border-top:1px solid var(--color-divider);box-shadow:var(--shadow-md)">
 <sc-for list="{{bottomNavItems}}" as="b" hint-placeholder-count="6">
-<div onClick="{{b.onClick}}" style="flex:none;display:flex;align-items:center;gap:7px;padding:10px 16px;border-radius:var(--radius-pill);cursor:pointer;min-height:44px;white-space:nowrap;background:{{b.bg}}">
+<div onClick="{{b.onClick}}" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;border-radius:var(--radius-sm);cursor:pointer;min-height:48px;background:{{b.bg}}">
 <div style="font-size:19px;line-height:1;color:{{b.color}}">{{b.icon}}</div>
-<div style="font-size:14px;font-weight:{{b.weight}};color:{{b.color}}">{{b.label}}</div>
+<div style="font-size:10px;font-weight:{{b.weight}};color:{{b.color}};white-space:nowrap">{{b.label}}</div>
 </div>
 </sc-for>
 </div>
@@ -173,6 +173,7 @@ a:hover{color:var(--color-accent-300)}
 <div style="display:flex;gap:var(--space-6);flex-wrap:wrap">
 <div style="flex:1;min-width:320px">
 <h3 style="font-family:var(--font-heading);font-size:16px;margin:0 0 var(--space-3)">Trending Branches</h3>
+<sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x:auto">
 <table class="table">
 <thead><tr><th style="text-align:left">Store</th><th>Net sales</th><th>Invoices</th></tr></thead>
@@ -183,9 +184,24 @@ a:hover{color:var(--color-accent-300)}
 </tbody>
 </table>
 </div>
+</sc-if>
+<sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{topStores}}" as="s" hint-placeholder-count="5">
+<div class="card elev-sm" onClick="{{s.onClick}}" style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;cursor:pointer">
+<div style="font-weight:700;font-size:14px">{{s.name}}</div>
+<div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+<div style="font-weight:700;font-size:14px;color:var(--color-accent)">{{s.netSalesLabel}}</div>
+<div class="card-meta">{{s.invoicesLabel}} inv.</div>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
 </div>
 <div style="flex:1;min-width:320px">
 <h3 style="font-family:var(--font-heading);font-size:16px;margin:0 0 var(--space-3)">Trending Categories</h3>
+<sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x:auto">
 <table class="table">
 <thead><tr><th style="text-align:left">Category</th><th>Net sales</th><th>% of sales</th><th>Qty</th><th>Invoices</th></tr></thead>
@@ -196,6 +212,20 @@ a:hover{color:var(--color-accent-300)}
 </tbody>
 </table>
 </div>
+</sc-if>
+<sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{topCategories}}" as="c" hint-placeholder-count="5">
+<div class="card elev-sm" style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+<div style="font-weight:700;font-size:14px">{{c.category}}</div>
+<div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+<div style="font-weight:700;font-size:14px;color:var(--color-accent)">{{c.netSalesLabel}}</div>
+<div class="card-meta">{{c.pctLabel}} · {{c.qtyLabel}} qty</div>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
 </div>
 </div>
 </section>
@@ -204,6 +234,7 @@ a:hover{color:var(--color-accent-300)}
 
 <sc-if value="{{isRegionDetail}}" hint-placeholder-val="{{false}}">
 <section>
+<sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x:auto">
 <table class="table">
 <thead><tr><th style="text-align:left">Region</th><th>Net sales</th><th>Sold qty</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Promo%</th><th>Invoices</th><th>Single Inv%</th><th>Markup%</th></tr></thead>
@@ -226,12 +257,49 @@ a:hover{color:var(--color-accent-300)}
 </tbody>
 </table>
 </div>
+</sc-if>
+<sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{regionSorted}}" as="r" hint-placeholder-count="5">
+<div class="card elev-sm" onClick="{{r.onToggle}}" style="display:flex;flex-direction:column;gap:10px;cursor:pointer">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+<div style="font-weight:700;font-size:15px">{{r.regionLabel}}</div>
+<div style="font-weight:700;font-size:16px;color:var(--color-accent);white-space:nowrap">{{r.netSalesLabel}}</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px 16px;font-size:13px">
+<div><div class="card-meta">Qty</div><div style="font-weight:600">{{r.qtyLabel}}</div></div>
+<div><div class="card-meta">Invoices</div><div style="font-weight:600">{{r.invoicesLabel}}</div></div>
+<div><div class="card-meta">ATV</div><div style="font-weight:600">{{r.atvLabel}}</div></div>
+<div><div class="card-meta">UPT</div><div style="font-weight:600">{{r.uptLabel}}</div></div>
+<div><div class="card-meta">Promo%</div><div style="font-weight:600">{{r.promoLabel}}</div></div>
+<div><div class="card-meta">Markup%</div><div style="font-weight:600">{{r.markupLabel}}</div></div>
+</div>
+<sc-if value="{{r.expanded}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:8px;padding-top:6px;border-top:1px solid var(--color-divider)">
+<sc-for list="{{r.stores}}" as="s" hint-placeholder-count="3">
+<div onClick="{{s.onClick}}" style="display:flex;flex-direction:column;gap:6px;padding:8px;border-radius:var(--radius-sm);background:var(--color-bg)">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+<div style="font-weight:600;font-size:13px">{{s.name}}</div>
+<div style="font-weight:700;font-size:13px;color:var(--color-accent)">{{s.netSalesLabel}}</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px 12px;font-size:11px;color:var(--color-neutral-500)">
+<span>Qty {{s.qtyLabel}}</span><span>ATV {{s.atvLabel}}</span><span>UPT {{s.uptLabel}}</span><span>Markup {{s.markupLabel}}</span>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+</div>
+</sc-for>
+</div>
+</sc-if>
 </section>
 </sc-if>
 
 <sc-if value="{{isCategories}}" hint-placeholder-val="{{false}}">
 <section>
 <div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4)">Category mix — respects region, city, store and date filters</div>
+<sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x:auto">
 <table class="table">
 <thead><tr>
@@ -252,11 +320,32 @@ a:hover{color:var(--color-accent-300)}
 </tbody>
 </table>
 </div>
+</sc-if>
+<sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{categoriesSorted}}" as="c" hint-placeholder-count="10">
+<div class="card elev-sm" style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+<div style="font-weight:700;font-size:15px">{{c.category}}</div>
+<div style="font-weight:700;font-size:16px;color:var(--color-accent);white-space:nowrap">{{c.netSalesLabel}}</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px 16px;font-size:13px">
+<div><div class="card-meta">% of sales</div><div style="font-weight:600">{{c.pctLabel}}</div></div>
+<div><div class="card-meta">Qty</div><div style="font-weight:600">{{c.qtyLabel}}</div></div>
+<div><div class="card-meta">Invoices</div><div style="font-weight:600">{{c.invoicesLabel}}</div></div>
+<div><div class="card-meta">ATV</div><div style="font-weight:600">{{c.atvLabel}}</div></div>
+<div><div class="card-meta">Markup%</div><div style="font-weight:600">{{c.markupLabel}}</div></div>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
 </section>
 </sc-if>
 
 <sc-if value="{{isDiscounts}}" hint-placeholder-val="{{false}}">
 <section>
+<sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x:auto">
 <table class="table">
 <thead><tr>
@@ -277,6 +366,27 @@ a:hover{color:var(--color-accent-300)}
 </tbody>
 </table>
 </div>
+</sc-if>
+<sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{discountsSorted}}" as="d" hint-placeholder-count="10">
+<div class="card elev-sm" style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+<div style="font-weight:700;font-size:15px">#{{d.rank}} {{d.storeName}}</div>
+<div style="font-weight:700;font-size:16px;color:var(--color-accent);white-space:nowrap">{{d.netSalesLabel}}</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px 16px;font-size:13px">
+<div><div class="card-meta">Discount</div><div style="font-weight:600">{{d.discountLabel}}</div></div>
+<div><div class="card-meta">Discount%</div><div style="font-weight:600">{{d.ratioLabel}}</div></div>
+<div><div class="card-meta">Promo%</div><div style="font-weight:600">{{d.promoLabel}}</div></div>
+<div><div class="card-meta">Qty</div><div style="font-weight:600">{{d.qtyLabel}}</div></div>
+<div><div class="card-meta">Invoices</div><div style="font-weight:600">{{d.invoicesLabel}}</div></div>
+<div><div class="card-meta">Markup%</div><div style="font-weight:600">{{d.markupLabel}}</div></div>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
 </section>
 </sc-if>
 
@@ -286,6 +396,7 @@ a:hover{color:var(--color-accent-300)}
 <label>Search store</label>
 <input class="input" type="text" placeholder="e.g. Abha" value="{{search}}" onChange="{{setSearch}}">
 </div>
+<sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x:auto">
 <table class="table">
 <thead><tr>
@@ -306,6 +417,27 @@ a:hover{color:var(--color-accent-300)}
 </tbody>
 </table>
 </div>
+</sc-if>
+<sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{invoicesSorted}}" as="iv" hint-placeholder-count="12">
+<div class="card elev-sm" style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+<div style="font-weight:700;font-size:15px">#{{iv.rank}} {{iv.storeName}}</div>
+<div style="font-weight:700;font-size:16px;color:var(--color-accent);white-space:nowrap">{{iv.netSalesLabel}}</div>
+</div>
+<div class="card-meta" style="margin-top:-6px">{{iv.region}}</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px 16px;font-size:13px">
+<div><div class="card-meta">Qty</div><div style="font-weight:600">{{iv.qtyLabel}}</div></div>
+<div><div class="card-meta">Invoices</div><div style="font-weight:600">{{iv.invoicesLabel}}</div></div>
+<div><div class="card-meta">ATV</div><div style="font-weight:600">{{iv.atvLabel}}</div></div>
+<div><div class="card-meta">UPT</div><div style="font-weight:600">{{iv.uptLabel}}</div></div>
+<div><div class="card-meta">ASP</div><div style="font-weight:600">{{iv.aspLabel}}</div></div>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
 <div style="font-size:12px;color:var(--color-neutral-500);margin-top:var(--space-3)">Showing {{invoicesSorted.length}} day(s) · {{meta.totalInvoices}} invoices total</div>
 </section>
 </sc-if>
@@ -317,6 +449,7 @@ a:hover{color:var(--color-accent-300)}
 <label>Search item</label>
 <input class="input" type="text" placeholder="e.g. shirt" value="{{itemSearch}}" onChange="{{setItemSearch}}">
 </div>
+<sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x:auto">
 <table class="table">
 <thead><tr>
@@ -339,6 +472,29 @@ a:hover{color:var(--color-accent-300)}
 </tbody>
 </table>
 </div>
+</sc-if>
+<sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{itemsSorted}}" as="it" hint-placeholder-count="15">
+<div class="card elev-sm" style="display:flex;gap:12px">
+<img src="{{it.imageSrc}}" style="width:52px;height:52px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);flex:none">
+<div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:0">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+<div style="font-weight:700;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{it.itemDesc}}</div>
+<div style="font-weight:700;font-size:15px;color:var(--color-accent);white-space:nowrap">{{it.netSalesLabel}}</div>
+</div>
+<div class="card-meta" style="margin-top:-4px">#{{it.rank}} · {{it.itemNo}}</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:12px">
+<div><div class="card-meta">Qty</div><div style="font-weight:600">{{it.qtyLabel}}</div></div>
+<div><div class="card-meta">Invoices</div><div style="font-weight:600">{{it.invoicesLabel}}</div></div>
+<div><div class="card-meta">UPT</div><div style="font-weight:600">{{it.uptLabel}}</div></div>
+<div><div class="card-meta">Markup%</div><div style="font-weight:600">{{it.markupLabel}}</div></div>
+</div>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
 <div style="display:flex;align-items:center;justify-content:space-between;margin-top:var(--space-3);gap:var(--space-3);flex-wrap:wrap">
 <div style="font-size:12px;color:var(--color-neutral-500)">Showing {{itemsSorted.length}} of {{itemsTotalCount}} items · page {{itemsPageLabel}}</div>
 <div style="display:flex;gap:8px">
@@ -352,6 +508,7 @@ a:hover{color:var(--color-accent-300)}
 <sc-if value="{{isDaily}}" hint-placeholder-val="{{false}}">
 <section>
 <div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4)">"Single-item invoices" (exactly 1 SKU, 1 unit)</div>
+<sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x:auto">
 <table class="table">
 <thead><tr><th>Date</th><th>Net sales</th><th>Sold qty</th><th>Invoices</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Single Inv</th><th>Single Inv%</th></tr></thead>
@@ -362,6 +519,26 @@ a:hover{color:var(--color-accent-300)}
 </tbody>
 </table>
 </div>
+</sc-if>
+<sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{dailySorted}}" as="d" hint-placeholder-count="10">
+<div class="card elev-sm" style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+<div style="font-weight:700;font-size:15px">{{d.date}}</div>
+<div style="font-weight:700;font-size:16px;color:var(--color-accent);white-space:nowrap">{{d.netSalesLabel}}</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px 16px;font-size:13px">
+<div><div class="card-meta">Qty</div><div style="font-weight:600">{{d.qtyLabel}}</div></div>
+<div><div class="card-meta">Invoices</div><div style="font-weight:600">{{d.invoicesLabel}}</div></div>
+<div><div class="card-meta">ATV</div><div style="font-weight:600">{{d.atvLabel}}</div></div>
+<div><div class="card-meta">UPT</div><div style="font-weight:600">{{d.uptLabel}}</div></div>
+<div><div class="card-meta">Single Inv%</div><div style="font-weight:600">{{d.singleItemPctLabel}}</div></div>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
 </section>
 </sc-if>
 
@@ -404,6 +581,7 @@ a:hover{color:var(--color-accent-300)}
 </select>
 </div>
 </div>
+<sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x:auto">
 <table class="table">
 <thead><tr><th style="text-align:left">Store</th><th>Net sales</th></tr></thead>
@@ -414,6 +592,17 @@ a:hover{color:var(--color-accent-300)}
 </tbody>
 </table>
 </div>
+</sc-if>
+<sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{wholesaleSorted}}" as="w" hint-placeholder-count="8">
+<div class="card elev-sm" style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+<div style="font-weight:700;font-size:14px">{{w.storeName}}</div>
+<div style="font-weight:700;font-size:15px;color:var(--color-accent);white-space:nowrap">{{w.netSalesLabel}}</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
 <div style="font-size:12px;color:var(--color-neutral-500);margin-top:var(--space-3)">Total net sales: {{wholesaleTotalLabel}}</div>
 </section>
 </sc-if>
@@ -581,7 +770,7 @@ class Component extends DCLogic {
   renderVals() {
     const st = this.state;
     if (st.loading) {
-      return { pageTitle: 'Loading…', isMobile: st.isMobile, navDisplay: st.isMobile ? 'none' : 'flex', bottomNavDisplay: st.isMobile ? 'flex' : 'none', mainMaxWidth: st.isMobile ? 'none' : '1180px', mainPadding: st.isMobile ? '16px 16px 88px 16px' : 'var(--space-6) var(--space-8) var(--space-8) var(--space-6)', filtersDirection: st.isMobile ? 'column' : 'row', filtersAlign: st.isMobile ? 'stretch' : 'flex-end', filtersItemWidth: st.isMobile ? '100%' : 'auto', kpiBasis: st.isMobile ? 'calc(50% - 8px)' : '148px', kpiFlex: st.isMobile ? '0 1 calc(50% - 5px)' : '1 1 148px', kpiValueSize: st.isMobile ? '20px' : '26px', kpiGap: st.isMobile ? '10px' : 'var(--space-4)', bottomNavItems: [], mobileNavOpen: false, toggleMobileNav: () => {}, navItems: [], meta: {}, filters: { ...st.filters, isDirty: false }, regionOptions: ['All'], cityOptions: ['All'], storeOptions: [{ code: 'All', label: 'All' }], monthOptions: [{ value: 'All', label: 'All' }], setMonth: () => {}, dateMenuOpen: false, dateButtonLabel: 'All dates', calendarCells: [], toggleDateMenu: () => {}, clearDate: () => {}, isOverview: false, isStores: false, isRegionDetail: false, isCategories: false, isInvoices: false, isItems: false, isDiscounts: false, isWholesale: false, kpiCards: [], dailyBars: [], regionBars: [], topStores: [], topCategories: [], storesSorted: [], categoriesSorted: [], invoicesSorted: [], regionSorted: [], discountsSorted: [], itemsSorted: [], itemsTotalCount: 0, itemSearch: '', setItemSearch: () => {}, sortArrow: {}, sortHandlers: {}, search: '', globalFiltersDisplay: 'flex', wholesaleFilters: { month: 'All', type: 'All', store: 'All' }, wholesaleMonthOptions: ['All'], wholesaleTypeOptions: ['All'], wholesaleStoreOptions: ['All'], setWholesaleStore: () => {}, wholesaleSorted: [], wholesaleKpiCards: [], wholesaleTypeCards: [], wholesaleTotalLabel: '0', setWholesaleMonth: () => {}, setWholesaleType: () => {} };
+      return { pageTitle: 'Loading…', isMobile: st.isMobile, isDesktop: !st.isMobile, navDisplay: st.isMobile ? 'none' : 'flex', bottomNavDisplay: st.isMobile ? 'flex' : 'none', mainMaxWidth: st.isMobile ? 'none' : '1180px', mainPadding: st.isMobile ? '16px 16px 88px 16px' : 'var(--space-6) var(--space-8) var(--space-8) var(--space-6)', filtersDirection: st.isMobile ? 'column' : 'row', filtersAlign: st.isMobile ? 'stretch' : 'flex-end', filtersItemWidth: st.isMobile ? '100%' : 'auto', kpiBasis: st.isMobile ? 'calc(50% - 8px)' : '148px', kpiFlex: st.isMobile ? '0 1 calc(50% - 5px)' : '1 1 148px', kpiValueSize: st.isMobile ? '20px' : '26px', kpiGap: st.isMobile ? '10px' : 'var(--space-4)', bottomNavItems: [], mobileNavOpen: false, toggleMobileNav: () => {}, navItems: [], meta: {}, filters: { ...st.filters, isDirty: false }, regionOptions: ['All'], cityOptions: ['All'], storeOptions: [{ code: 'All', label: 'All' }], monthOptions: [{ value: 'All', label: 'All' }], setMonth: () => {}, dateMenuOpen: false, dateButtonLabel: 'All dates', calendarCells: [], toggleDateMenu: () => {}, clearDate: () => {}, isOverview: false, isStores: false, isRegionDetail: false, isCategories: false, isInvoices: false, isItems: false, isDiscounts: false, isWholesale: false, kpiCards: [], dailyBars: [], regionBars: [], topStores: [], topCategories: [], storesSorted: [], categoriesSorted: [], invoicesSorted: [], regionSorted: [], discountsSorted: [], itemsSorted: [], itemsTotalCount: 0, itemSearch: '', setItemSearch: () => {}, sortArrow: {}, sortHandlers: {}, search: '', globalFiltersDisplay: 'flex', wholesaleFilters: { month: 'All', type: 'All', store: 'All' }, wholesaleMonthOptions: ['All'], wholesaleTypeOptions: ['All'], wholesaleStoreOptions: ['All'], setWholesaleStore: () => {}, wholesaleSorted: [], wholesaleKpiCards: [], wholesaleTypeCards: [], wholesaleTotalLabel: '0', setWholesaleMonth: () => {}, setWholesaleType: () => {} };
     }
 
     const filteredBuckets = st.buckets.filter(b => this.matchesFilters(b));
@@ -981,10 +1170,11 @@ class Component extends DCLogic {
     return {
       pageTitle: titles[st.page],
       isMobile,
+      isDesktop: !isMobile,
       navDisplay: isMobile ? 'none' : 'flex',
       bottomNavDisplay: isMobile ? 'flex' : 'none',
       mainMaxWidth: isMobile ? 'none' : '1180px',
-      mainPadding: isMobile ? '16px 16px 24px 16px' : 'var(--space-6) var(--space-8) var(--space-8) var(--space-6)',
+      mainPadding: isMobile ? '16px 16px 84px 16px' : 'var(--space-6) var(--space-8) var(--space-8) var(--space-6)',
       filtersDirection: isMobile ? 'column' : 'row',
       filtersAlign: isMobile ? 'stretch' : 'flex-end',
       filtersItemWidth: isMobile ? '100%' : 'auto',
