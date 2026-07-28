@@ -30,6 +30,8 @@ a:hover{color:var(--color-accent-300)}
 }
 </style>
 </helmet>
+
+<sc-if value="{{isAuthed}}" hint-placeholder-val="{{false}}">
 <div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);display:flex">
 <nav style="width:196px;flex:none;padding:var(--space-6) var(--space-4) var(--space-6) var(--space-6);display:{{navDisplay}};flex-direction:column;gap:var(--space-6)">
 <div>
@@ -44,6 +46,12 @@ a:hover{color:var(--color-accent-300)}
 <div style="font-size:12px;color:var(--color-neutral-500);line-height:1.5;margin-top:auto">
 <em>{{meta.dateLabel}}</em><br>
 {{meta.storeCount}} branches tracked
+<sc-if value="{{managerName}}" hint-placeholder-val="{{false}}">
+<div style="margin-top:var(--space-4);padding-top:var(--space-4);border-top:1px solid var(--color-divider)">
+<div style="font-weight:600;color:var(--color-text)">{{managerName}}</div>
+<div onClick="{{doLogout}}" style="cursor:pointer;color:var(--color-accent);margin-top:4px">Log out</div>
+</div>
+</sc-if>
 </div>
 </nav>
 <main style="flex:1;padding:{{mainPadding}};max-width:{{mainMaxWidth}}">
@@ -76,7 +84,7 @@ a:hover{color:var(--color-accent-300)}
 <div style="display:{{globalFiltersDisplay}};gap:var(--space-4);align-items:{{filtersAlign}};flex-wrap:wrap;flex-direction:{{filtersDirection}};margin:var(--space-6) 0 var(--space-6)">
 <div class="field" style="min-width:130px;width:{{filtersItemWidth}}">
 <label>Region</label>
-<select class="input" value="{{filters.region}}" onChange="{{setRegion}}">
+<select class="input" value="{{filters.region}}" onChange="{{setRegion}}" disabled="{{lockRegion}}">
 <sc-for list="{{regionOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
 </select>
 </div>
@@ -734,6 +742,16 @@ a:hover{color:var(--color-accent-300)}
 </div>
 </sc-for>
 </div>
+<h3 style="font-family:var(--font-heading);font-size:16px;margin:0 0 var(--space-3)">By Region</h3>
+<div style="display:flex;gap:var(--space-4);flex-wrap:wrap;margin-bottom:var(--space-6)">
+<sc-for list="{{stcRegionCards}}" as="g" hint-placeholder-count="5">
+<div class="card elev-sm" style="flex:1 1 180px;min-width:0">
+<div class="card-kicker">{{g.region}}</div>
+<div class="card-title" style="font-size:20px;margin-top:2px;white-space:nowrap">{{g.amountLabel}}</div>
+<div class="card-meta">Invoices: {{g.invoicesLabel}} · Days: {{g.daysLabel}} · Stores: {{g.storesLabel}}</div>
+</div>
+</sc-for>
+</div>
 <div style="display:flex;gap:8px;margin-bottom:var(--space-4)">
 <button class="btn {{stcStoreBtnClass}}" onClick="{{setStcViewStore}}">By Store</button>
 <button class="btn {{stcDayBtnClass}}" onClick="{{setStcViewDay}}">PerDay</button>
@@ -860,6 +878,30 @@ a:hover{color:var(--color-accent-300)}
 
 </main>
 </div>
+</sc-if>
+
+<sc-if value="{{showLogin}}" hint-placeholder-val="{{true}}">
+<div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);display:flex;align-items:center;justify-content:center;padding:var(--space-6)">
+<form onSubmit="{{doLogin}}" class="card elev-md" style="width:100%;max-width:340px;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-6)">
+<div>
+<div style="font-family:var(--font-heading);font-weight:500;font-size:22px">Retail Sales</div>
+<div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-neutral-500);margin-top:4px">Region Manager Sign In</div>
+</div>
+<div class="field">
+<label>Manager ID</label>
+<input class="input" type="text" value="{{loginId}}" onChange="{{setLoginId}}" autoCapitalize="off" autoComplete="off">
+</div>
+<div class="field">
+<label>PIN</label>
+<input class="input" type="password" value="{{loginPin}}" onChange="{{setLoginPin}}">
+</div>
+<sc-if value="{{loginError}}" hint-placeholder-val="{{false}}">
+<div style="font-size:12px;color:#c0392b">{{loginError}}</div>
+</sc-if>
+<button class="btn btn-primary" type="submit">Sign in</button>
+</form>
+</div>
+</sc-if>
 
 </x-dc>
 <script type="text/x-dc" data-dc-script>
@@ -890,12 +932,30 @@ class Component extends DCLogic {
     expandedRegions: {},
     stcQitaf: [],
     stcView: 'store',
+    auth: null,
+    loginId: '',
+    loginPin: '',
+    loginError: '',
     mobileNavOpen: false,
     isMobile: typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches,
     receiptDay: []
   };
 
   componentDidMount() {
+    this.MANAGERS = {
+      '32340': { pin: '0192', region: 'Central', name: 'Central Region Manager' },
+      '25120': { pin: '4756', region: 'East', name: 'East Region Manager' },
+      '38218': { pin: '1029', region: 'West', name: 'West Region Manager' },
+      '39595': { pin: '3847', region: 'North', name: 'North Region Manager' },
+      '31504': { pin: '2938', region: 'South', name: 'South Region Manager' },
+      admin: { pin: '30558', region: 'All', name: 'Admin' }
+    };
+    try {
+      const saved = JSON.parse(localStorage.getItem('stcRegionAuth') || 'null');
+      if (saved && this.MANAGERS[saved.id] && this.MANAGERS[saved.id].region === saved.region) {
+        this.setState({ auth: saved, filters: { ...this.state.filters, region: saved.region, city: 'All', store: 'All' } });
+      }
+    } catch (e) {}
     this.wholesaleSalesmanCodes = new Set(['HQST01', 'RYVS01', 'RYVS02', 'RYVS03', 'RYVS04', 'RYVS05', 'RYVS06', 'RYVS07', 'RYVS08', 'RYVS09', 'RYVS10', 'RYVS11', 'RYVS12', 'RYVS13']);
     this._mql = window.matchMedia('(max-width: 768px)');
     this._onResize = e => this.setState({ isMobile: e.matches });
@@ -992,6 +1052,24 @@ class Component extends DCLogic {
 
   goTo(page) { return () => this.setState({ page }); }
 
+  doLogin(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const id = (this.state.loginId || '').trim().toLowerCase();
+    const m = this.MANAGERS[id];
+    if (!m || m.pin !== this.state.loginPin) {
+      this.setState({ loginError: 'Invalid manager ID or PIN' });
+      return;
+    }
+    const auth = { id, region: m.region, name: m.name };
+    localStorage.setItem('stcRegionAuth', JSON.stringify(auth));
+    this.setState({ auth, loginError: '', loginPin: '', filters: { ...this.state.filters, region: m.region, city: 'All', store: 'All' } });
+  }
+
+  doLogout() {
+    localStorage.removeItem('stcRegionAuth');
+    this.setState({ auth: null, page: 'overview', filters: { ...this.state.filters, region: 'All', city: 'All', store: 'All' } });
+  }
+
   matchesFilters(b) {
     const f = this.state.filters;
     if (f.region !== 'All' && b.region !== f.region) return false;
@@ -1046,8 +1124,17 @@ class Component extends DCLogic {
 
   renderVals() {
     const st = this.state;
+    const isAuthed = !!st.auth;
+    const loginVals = {
+      isAuthed, showLogin: !isAuthed, managerName: st.auth ? st.auth.name : '', lockRegion: isAuthed && st.auth.region !== 'All',
+      loginId: st.loginId, loginPin: st.loginPin, loginError: st.loginError,
+      setLoginId: e => this.setState({ loginId: e.target.value, loginError: '' }),
+      setLoginPin: e => this.setState({ loginPin: e.target.value, loginError: '' }),
+      doLogin: e => this.doLogin(e), doLogout: () => this.doLogout()
+    };
+    if (!isAuthed) return loginVals;
     if (st.loading) {
-      return { pageTitle: 'Loading…', isMobile: st.isMobile, isDesktop: !st.isMobile, navDisplay: st.isMobile ? 'none' : 'flex', bottomNavDisplay: st.isMobile ? 'flex' : 'none', mainMaxWidth: st.isMobile ? 'none' : '1180px', mainPadding: st.isMobile ? '16px 16px 88px 16px' : 'var(--space-6) var(--space-8) var(--space-8) var(--space-6)', filtersDirection: st.isMobile ? 'column' : 'row', filtersAlign: st.isMobile ? 'stretch' : 'flex-end', filtersItemWidth: st.isMobile ? '100%' : 'auto', kpiBasis: st.isMobile ? 'calc(50% - 8px)' : '148px', kpiFlex: st.isMobile ? '0 1 calc(50% - 5px)' : '1 1 148px', kpiValueSize: st.isMobile ? '20px' : '26px', kpiGap: st.isMobile ? '10px' : 'var(--space-4)', bottomNavItems: [], mobileNavOpen: false, toggleMobileNav: () => {}, navItems: [], meta: {}, filters: { ...st.filters, isDirty: false }, regionOptions: ['All'], cityOptions: ['All'], storeOptions: [{ code: 'All', label: 'All' }], monthOptions: [{ value: 'All', label: 'All' }], setMonth: () => {}, showCurrentMonthOnly: () => {}, dateMenuOpen: false, dateButtonLabel: 'All dates', calendarCells: [], toggleDateMenu: () => {}, clearDate: () => {}, isOverview: false, isStores: false, isRegionDetail: false, isCategories: false, isInvoices: false, isItems: false, isDiscounts: false, isWholesale: false, kpiCards: [], dailyBars: [], regionBars: [], topStores: [], topCategories: [], storesSorted: [], categoriesSorted: [], invoicesSorted: [], regionSorted: [], discountsSorted: [], itemsSorted: [], itemsTotalCount: 0, itemSearch: '', setItemSearch: () => {}, sortArrow: {}, sortHandlers: {}, search: '', globalFiltersDisplay: 'flex', showFilterToggle: false, toggleFilters: () => {}, filtersToggleArrow: '\u25be', filtersActiveCount: 0, wholesaleFilters: { month: 'All', type: 'All', store: 'All' }, wholesaleMonthOptions: ['All'], wholesaleTypeOptions: ['All'], wholesaleStoreOptions: ['All'], setWholesaleStore: () => {}, wholesaleSorted: [], wholesaleKpiCards: [], wholesaleTypeCards: [], wholesaleTotalLabel: '0', isWholesaleStores: true, isWholesaleDaily: false, wholesaleStoresBtnClass: 'btn-primary', wholesaleDailyBtnClass: 'btn-secondary', setWholesaleViewStores: () => {}, setWholesaleViewDaily: () => {}, wholesaleStoreCols: [], wholesaleDailyRows: [], wholesaleUndatedLabel: '', setWholesaleMonth: () => {}, setWholesaleType: () => {} };
+      return { ...loginVals, pageTitle: 'Loading…', isMobile: st.isMobile, isDesktop: !st.isMobile, navDisplay: st.isMobile ? 'none' : 'flex', bottomNavDisplay: st.isMobile ? 'flex' : 'none', mainMaxWidth: st.isMobile ? 'none' : '1180px', mainPadding: st.isMobile ? '16px 16px 88px 16px' : 'var(--space-6) var(--space-8) var(--space-8) var(--space-6)', filtersDirection: st.isMobile ? 'column' : 'row', filtersAlign: st.isMobile ? 'stretch' : 'flex-end', filtersItemWidth: st.isMobile ? '100%' : 'auto', kpiBasis: st.isMobile ? 'calc(50% - 8px)' : '148px', kpiFlex: st.isMobile ? '0 1 calc(50% - 5px)' : '1 1 148px', kpiValueSize: st.isMobile ? '20px' : '26px', kpiGap: st.isMobile ? '10px' : 'var(--space-4)', bottomNavItems: [], mobileNavOpen: false, toggleMobileNav: () => {}, navItems: [], meta: {}, filters: { ...st.filters, isDirty: false }, regionOptions: ['All'], cityOptions: ['All'], storeOptions: [{ code: 'All', label: 'All' }], monthOptions: [{ value: 'All', label: 'All' }], setMonth: () => {}, showCurrentMonthOnly: () => {}, dateMenuOpen: false, dateButtonLabel: 'All dates', calendarCells: [], toggleDateMenu: () => {}, clearDate: () => {}, isOverview: false, isStores: false, isRegionDetail: false, isCategories: false, isInvoices: false, isItems: false, isDiscounts: false, isWholesale: false, kpiCards: [], dailyBars: [], regionBars: [], topStores: [], topCategories: [], storesSorted: [], categoriesSorted: [], invoicesSorted: [], regionSorted: [], discountsSorted: [], itemsSorted: [], itemsTotalCount: 0, itemSearch: '', setItemSearch: () => {}, sortArrow: {}, sortHandlers: {}, search: '', globalFiltersDisplay: 'flex', showFilterToggle: false, toggleFilters: () => {}, filtersToggleArrow: '\u25be', filtersActiveCount: 0, wholesaleFilters: { month: 'All', type: 'All', store: 'All' }, wholesaleMonthOptions: ['All'], wholesaleTypeOptions: ['All'], wholesaleStoreOptions: ['All'], setWholesaleStore: () => {}, wholesaleSorted: [], wholesaleKpiCards: [], wholesaleTypeCards: [], wholesaleTotalLabel: '0', isWholesaleStores: true, isWholesaleDaily: false, wholesaleStoresBtnClass: 'btn-primary', wholesaleDailyBtnClass: 'btn-secondary', setWholesaleViewStores: () => {}, setWholesaleViewDaily: () => {}, wholesaleStoreCols: [], wholesaleDailyRows: [], wholesaleUndatedLabel: '', setWholesaleMonth: () => {}, setWholesaleType: () => {} };
     }
 
     const filteredBuckets = st.buckets.filter(b => this.matchesFilters(b));
@@ -1141,8 +1228,10 @@ class Component extends DCLogic {
       points: trendPoints.map((p, i) => ({ cx: p.x.toFixed(1), cy: p.y.toFixed(1), labelY: Math.min(chartH - 4, p.y + 16).toFixed(1), label: dailyEntries[i][0].slice(5), valueLabel: this.fmtShort(p.val) }))
     };
 
-    // region bars (respect city/store/date filters, not region itself, so users can see comparison)
+    // region bars (respect city/store/date filters, not region itself, so users can see comparison) — but a locked region-manager must never see other regions
+    const regionLock = st.auth && st.auth.region !== 'All' ? st.auth.region : null;
     const regionScopeBuckets = st.buckets.filter(b => {
+      if (regionLock && b.region !== regionLock) return false;
       if (f.city !== 'All' && b.city !== f.city) return false;
       if (f.store !== 'All' && b.store !== f.store) return false;
       if (f.month !== 'All' && b.date.slice(0, 7) !== f.month) return false;
@@ -1208,6 +1297,16 @@ class Component extends DCLogic {
       { label: 'Days', value: this.fmtNum(new Set(stcFiltered.map(r => r.date)).size), sub: '' },
       { label: 'Stores', value: this.fmtNum(new Set(stcFiltered.map(r => r.store)).size), sub: '' }
     ];
+    const stcByRegionMap = {};
+    stcFiltered.forEach(r => {
+      const region = (this.storeIndex[r.store] || {}).region || 'Other';
+      if (!stcByRegionMap[region]) stcByRegionMap[region] = { region, amount: 0, invoices: 0, days: new Set(), stores: new Set() };
+      const g = stcByRegionMap[region];
+      g.amount += r.amount; g.invoices += r.invoices; g.days.add(r.date); g.stores.add(r.store);
+    });
+    const stcRegionCards = Object.values(stcByRegionMap).sort((a, b) => b.amount - a.amount).map(g => ({
+      region: g.region, amountLabel: this.fmtMoney(g.amount), invoicesLabel: this.fmtNum(g.invoices), daysLabel: this.fmtNum(g.days.size), storesLabel: this.fmtNum(g.stores.size)
+    }));
     const stcDateTotal = Object.values(stcByDateMap).reduce((a, r) => a + r.amount, 0);
     const stcDateInvoicesTotal = Object.values(stcByDateMap).reduce((a, r) => a + r.invoices, 0);
     let stcStoreDailyRows = [];
@@ -1657,10 +1756,11 @@ class Component extends DCLogic {
     const titles = { overview: 'Executive Overview', stores: 'Branch Comparison', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', wholesale: 'Wholesale', daily: 'Daily Sales', regionDetail: 'Region Detail', stcQitaf: 'STC Qitaf' };
     const shortTitles = { overview: 'Overview', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily', regionDetail: 'Region', wholesale: 'Wholesale', stcQitaf: 'Qitaf' };
     const navIcons = { overview: '▣', categories: '▤', items: '◫', discounts: '%', invoices: '⌂', daily: '◷', regionDetail: '◈', wholesale: '◊', stcQitaf: '⊙' };
-    const pageOrder = ['overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'wholesale', 'stcQitaf'];
+    const pageOrder = ['overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'wholesale', 'stcQitaf'].filter(p => !(st.auth && st.auth.region !== 'All' && p === 'wholesale'));
     const isMobile = st.isMobile;
 
     return {
+      ...loginVals,
       pageTitle: titles[st.page],
       showBackButton: st.page === 'invoices',
       goBack: () => this.setState({ page: 'stores' }),
@@ -1711,7 +1811,7 @@ class Component extends DCLogic {
       monthOptions: [{ value: 'All', label: 'All' }, ...[...new Set(dates.map(d => d.slice(0, 7)))].sort().map(m => ({ value: m, label: new Date(m + '-02').toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) }))],
       toggleDateMenu: () => this.setState({ dateMenuOpen: !st.dateMenuOpen }),
       clearDate: () => this.setState({ filters: { ...f, dateRange: null }, rangeAnchor: null }),
-      clearFilters: () => this.setState({ filters: { region: 'All', city: 'All', store: 'All', month: 'All', dateRange: null }, rangeAnchor: null }),
+      clearFilters: () => this.setState({ filters: { region: (st.auth && st.auth.region !== 'All') ? st.auth.region : 'All', city: 'All', store: 'All', month: 'All', dateRange: null }, rangeAnchor: null }),
       dateMenuOpen: st.dateMenuOpen,
       dateButtonLabel: !f.dateRange ? 'All dates' : f.dateRange.start === f.dateRange.end ? f.dateRange.start : f.dateRange.start + ' → ' + f.dateRange.end,
       calendarCells,
@@ -1740,7 +1840,7 @@ class Component extends DCLogic {
       isOverview: st.page === 'overview', isRegionDetail: st.page === 'regionDetail', isCategories: st.page === 'categories', isInvoices: st.page === 'invoices', isItems: st.page === 'items', isDiscounts: st.page === 'discounts', isDaily: st.page === 'daily', isWholesale: st.page === 'wholesale', isStcQitaf: st.page === 'stcQitaf',
       globalFiltersDisplay: st.page === 'wholesale' ? 'none' : (isMobile && !st.filtersOpen ? 'none' : 'flex'),
       showFilterToggle: isMobile && st.page !== 'wholesale',
-      stcByStoreRows, stcByDateRows, stcKpiCards,
+      stcByStoreRows, stcByDateRows, stcKpiCards, stcRegionCards,
       stcStoreTotalLabel: this.fmtMoney(stcStoreTotal), stcStoreInvoicesTotalLabel: this.fmtNum(stcStoreInvoicesTotal),
       stcStoreDaysTotalLabel: this.fmtNum(new Set(stcFiltered.map(r => r.date)).size),
       stcDateTotalLabel: this.fmtMoney(stcDateTotal), stcDateInvoicesTotalLabel: this.fmtNum(stcDateInvoicesTotal),
