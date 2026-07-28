@@ -323,7 +323,7 @@ a:hover{color:var(--color-accent-300)}
 </tr></thead>
 <tbody>
 <sc-for list="{{categoriesSorted}}" as="c" hint-placeholder-count="10">
-<tr><td style="font-weight:600;white-space:nowrap;text-align:left">{{c.category}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.pctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.markupLabel}}</td></tr>
+<tr onClick="{{c.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;text-align:left">{{c.category}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.pctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.markupLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -332,7 +332,7 @@ a:hover{color:var(--color-accent-300)}
 <sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
 <div style="display:flex;flex-direction:column;gap:10px">
 <sc-for list="{{categoriesSorted}}" as="c" hint-placeholder-count="10">
-<div class="card elev-sm" style="display:flex;flex-direction:column;gap:10px">
+<div class="card elev-sm" onClick="{{c.onClick}}" style="display:flex;flex-direction:column;gap:10px;cursor:pointer">
 <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
 <div style="font-weight:700;font-size:15px">{{c.category}}</div>
 <div style="font-weight:700;font-size:16px;color:var(--color-accent);white-space:nowrap">{{c.netSalesLabel}}</div>
@@ -346,6 +346,26 @@ a:hover{color:var(--color-accent-300)}
 </div>
 </div>
 </sc-for>
+</div>
+</sc-if>
+<sc-if value="{{categoryDetailOpen}}" hint-placeholder-val="{{false}}">
+<div onClick="{{closeCategoryDetail}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px">
+<div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:620px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5)">
+<div style="display:flex;gap:12px;align-items:center">
+<div style="flex:1;min-width:0;font-weight:700;font-size:15px">{{categoryDetailLabel}}</div>
+<div onClick="{{closeCategoryDetail}}" style="cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500);padding:4px">×</div>
+</div>
+<div style="overflow-y:auto;flex:1">
+<table class="table">
+<thead><tr><th>Image</th><th style="text-align:left">Item</th><th>Net sales</th><th>% of sales</th><th>Qty</th></tr></thead>
+<tbody>
+<sc-for list="{{categoryDetailRows}}" as="it" hint-placeholder-count="10">
+<tr onClick="{{it.onClick}}" style="cursor:pointer"><td><img src="{{it.imageSrc}}" style="width:40px;height:40px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block"></td><td style="font-weight:600;white-space:nowrap;text-align:left">{{it.itemDesc}}</td><td style="font-weight:600;white-space:nowrap">{{it.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.pctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.qtyLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 </sc-if>
 </section>
@@ -511,30 +531,6 @@ a:hover{color:var(--color-accent-300)}
 </sc-for>
 </div>
 </sc-if>
-<sc-if value="{{itemDetailOpen}}" hint-placeholder-val="{{false}}">
-<div onClick="{{closeItemDetail}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px">
-<div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:560px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5)">
-<div style="display:flex;gap:12px;align-items:center">
-<img src="{{itemDetailImage}}" style="width:56px;height:56px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);flex:none">
-<div style="flex:1;min-width:0">
-<div style="font-weight:700;font-size:15px">{{itemDetailLabel}}</div>
-<div class="card-meta">{{itemDetailItemNo}}</div>
-</div>
-<div onClick="{{closeItemDetail}}" style="cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500);padding:4px">×</div>
-</div>
-<div style="overflow-y:auto;flex:1">
-<table class="table">
-<thead><tr><th style="text-align:left">Store</th><th>Net sales</th><th>Qty</th><th>Return Qty</th><th>Avg/day</th></tr></thead>
-<tbody>
-<sc-for list="{{itemDetailRows}}" as="r" hint-placeholder-count="5">
-<tr><td style="font-weight:600;white-space:nowrap;text-align:left">{{r.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{r.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.returnQtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.avgPerDayLabel}}</td></tr>
-</sc-for>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-</sc-if>
 <div style="display:flex;align-items:center;justify-content:space-between;margin-top:var(--space-3);gap:var(--space-3);flex-wrap:wrap">
 <div style="font-size:12px;color:var(--color-neutral-500)">Showing {{itemsSorted.length}} of {{itemsTotalCount}} items · page {{itemsPageLabel}}</div>
 <div style="display:flex;gap:8px">
@@ -587,6 +583,10 @@ a:hover{color:var(--color-accent-300)}
 
 <sc-if value="{{isWholesale}}" hint-placeholder-val="{{false}}">
 <section>
+<div style="display:flex;gap:8px;margin-bottom:var(--space-4)">
+<button class="btn {{wholesaleChannelWholesaleBtnClass}}" onClick="{{setWholesaleChannelWholesale}}">Wholesale</button>
+<button class="btn {{wholesaleChannel3pBtnClass}}" onClick="{{setWholesaleChannel3p}}">3P</button>
+</div>
 <div style="display:flex;gap:var(--space-4);flex-wrap:wrap;margin-bottom:var(--space-6)">
 <sc-for list="{{wholesaleKpiCards}}" as="k" hint-placeholder-count="2">
 <div class="card elev-sm" style="flex:1 1 148px;min-width:0">
@@ -677,6 +677,31 @@ a:hover{color:var(--color-accent-300)}
 </section>
 </sc-if>
 
+<sc-if value="{{itemDetailOpen}}" hint-placeholder-val="{{false}}">
+<div onClick="{{closeItemDetail}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:60;display:flex;align-items:center;justify-content:center;padding:16px">
+<div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:560px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5)">
+<div style="display:flex;gap:12px;align-items:center">
+<img src="{{itemDetailImage}}" style="width:56px;height:56px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);flex:none">
+<div style="flex:1;min-width:0">
+<div style="font-weight:700;font-size:15px">{{itemDetailLabel}}</div>
+<div class="card-meta">{{itemDetailItemNo}}</div>
+</div>
+<div onClick="{{closeItemDetail}}" style="cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500);padding:4px">×</div>
+</div>
+<div style="overflow-y:auto;flex:1">
+<table class="table">
+<thead><tr><th style="text-align:left">Store</th><th>Net sales</th><th>Qty</th><th>Return Qty</th><th>Avg/day</th></tr></thead>
+<tbody>
+<sc-for list="{{itemDetailRows}}" as="r" hint-placeholder-count="5">
+<tr><td style="font-weight:600;white-space:nowrap;text-align:left">{{r.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{r.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.returnQtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.avgPerDayLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</sc-if>
+
 </main>
 </div>
 
@@ -690,6 +715,7 @@ class Component extends DCLogic {
     wholesale: [],
     wholesaleFilters: { month: 'All', type: 'All', store: 'All' },
     wholesaleView: 'stores',
+    wholesaleChannel: 'wholesale',
     itemSearch: '',
     itemsPage: 0,
     filters: { region: 'All', city: 'All', store: 'All', month: 'All', dateRange: null },
@@ -1027,7 +1053,26 @@ class Component extends DCLogic {
     };
     let catRows = categoriesForPeriod.map(withCatMeasures);
     const csort = st.sort.categories;
-    catRows = this.sortRows(catRows, csort.col, csort.dir).map(labelCat);
+    catRows = this.sortRows(catRows, csort.col, csort.dir).map(labelCat).map(c => ({ ...c, onClick: () => this.setState({ selectedCategoryKey: c.division + '|' + c.category, selectedCategoryLabel: c.category }) }));
+
+    // category detail modal — top 50 items in the selected category, respects all filters
+    let categoryDetailRows = [];
+    if (st.selectedCategoryKey) {
+      const itemAggForCategory = {};
+      st.itemsByStoreDate.forEach(row => {
+        const [store, date, itemNo, netSales, qty] = row;
+        if (!inDateRange(date)) return;
+        if (!bucketMatches(store)) return;
+        const meta = this.itemMeta[itemNo] || {};
+        if ((meta.division + '|' + meta.category) !== st.selectedCategoryKey) return;
+        if (!itemAggForCategory[itemNo]) itemAggForCategory[itemNo] = { itemNo, itemDesc: meta.itemDesc || itemNo, image: meta.image || '', netSales: 0, qty: 0 };
+        itemAggForCategory[itemNo].netSales += netSales; itemAggForCategory[itemNo].qty += qty;
+      });
+      const catItemsAll = Object.values(itemAggForCategory).sort((a, b) => b.netSales - a.netSales);
+      const catItemsTotal = catItemsAll.reduce((s, it) => s + it.netSales, 0);
+      const blankCatImg = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect width="40" height="40" fill="%23252b3a"/%3E%3C/svg%3E';
+      categoryDetailRows = catItemsAll.slice(0, 50).map(it => ({ ...it, imageSrc: it.image || blankCatImg, netSalesLabel: this.fmtMoney(it.netSales), qtyLabel: this.fmtNum(it.qty), pctLabel: (catItemsTotal ? 100 * it.netSales / catItemsTotal : 0).toFixed(1) + '%', onClick: () => this.setState({ selectedItemNo: it.itemNo, selectedItemLabel: it.itemDesc, selectedItemNoLabel: it.itemNo, selectedItemImage: it.image || blankCatImg }) }));
+    }
     const trendCatAgg = {};
     st.categoriesByStoreDate.forEach(row => {
       const [store, date, division, category, netSales, qty, invoices] = row;
@@ -1109,9 +1154,12 @@ class Component extends DCLogic {
     // wholesale — sales minus returns, grouped by store, filtered by month and customer type
     const wf = st.wholesaleFilters;
     const storeTypeExceptions = [];
+    const threePNames = ['Amazon E-Market', 'Noon E-Market'];
     const wholesaleMonthScope = st.wholesale.filter(w => {
       const sm = this.storeIndex[w.storeCode];
       if (sm && sm.type === 'Store' && !storeTypeExceptions.includes(w.type)) return false;
+      const isThreeP = threePNames.includes(this.wholesaleName(w));
+      if (st.wholesaleChannel === '3p' ? !isThreeP : isThreeP) return false;
       return wf.month === 'All' || w.month === wf.month;
     });
     const wholesaleInScope = wholesaleMonthScope.filter(w => wf.store === 'All' || this.wholesaleName(w) === wf.store);
@@ -1423,6 +1471,11 @@ class Component extends DCLogic {
       wholesaleDailyBtnClass: st.wholesaleView === 'daily' ? 'btn-primary' : 'btn-secondary',
       setWholesaleViewStores: () => this.setState({ wholesaleView: 'stores' }),
       setWholesaleViewDaily: () => this.setState({ wholesaleView: 'daily' }),
+      wholesaleChannel: st.wholesaleChannel,
+      wholesaleChannelWholesaleBtnClass: st.wholesaleChannel !== '3p' ? 'btn-primary' : 'btn-secondary',
+      wholesaleChannel3pBtnClass: st.wholesaleChannel === '3p' ? 'btn-primary' : 'btn-secondary',
+      setWholesaleChannelWholesale: () => this.setState({ wholesaleChannel: 'wholesale', wholesaleFilters: { ...st.wholesaleFilters, store: 'All', type: 'All' } }),
+      setWholesaleChannel3p: () => this.setState({ wholesaleChannel: '3p', wholesaleFilters: { ...st.wholesaleFilters, store: 'All', type: 'All' } }),
       wholesaleStoreCols: wStoreNames,
       wholesaleDailyRows,
       wholesaleUndatedLabel: wholesaleUndated ? this.fmtMoney(wholesaleUndated) : '',
@@ -1432,6 +1485,7 @@ class Component extends DCLogic {
       storesSorted: storeRows, categoriesSorted: catRows, invoicesSorted: invRows, discountsSorted: discRows,
       itemsSorted: itemsRows, itemsTotalCount: itemsFiltered.length, itemSearch: st.itemSearch,
       itemDetailOpen: !!st.selectedItemNo, itemDetailLabel: st.selectedItemLabel, itemDetailItemNo: st.selectedItemNoLabel, itemDetailImage: st.selectedItemImage, itemDetailRows, closeItemDetail: () => this.setState({ selectedItemNo: null }), stopPropagation: e => e.stopPropagation(),
+      categoryDetailOpen: !!st.selectedCategoryKey, categoryDetailLabel: st.selectedCategoryLabel, categoryDetailRows, closeCategoryDetail: () => this.setState({ selectedCategoryKey: null }),
       setItemSearch: e => this.setState({ itemSearch: e.target.value, itemsPage: 0 }),
       itemsPageLabel: (itemsPage + 1) + ' of ' + (itemsMaxPage + 1),
       itemsHasPrev: itemsPage > 0, itemsHasNext: itemsPage < itemsMaxPage,
