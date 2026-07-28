@@ -724,6 +724,75 @@ a:hover{color:var(--color-accent-300)}
 </section>
 </sc-if>
 
+<sc-if value="{{isStcQitaf}}" hint-placeholder-val="{{false}}">
+<section>
+<div style="display:flex;gap:8px;margin-bottom:var(--space-4)">
+<button class="btn {{stcStoreBtnClass}}" onClick="{{setStcViewStore}}">By Store</button>
+<button class="btn {{stcDayBtnClass}}" onClick="{{setStcViewDay}}">PerDay</button>
+</div>
+<sc-if value="{{isStcStore}}" hint-placeholder-val="{{true}}">
+<sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
+<div style="overflow-x:auto">
+<table class="table">
+<thead><tr><th>Rank</th><th style="text-align:left">Store</th><th>Total amount</th><th>Invoices</th></tr></thead>
+<tbody>
+<sc-for list="{{stcByStoreRows}}" as="r" hint-placeholder-count="10">
+<tr onClick="{{r.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap">{{r.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{r.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{r.amountLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.invoicesLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</sc-if>
+<sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{stcByStoreRows}}" as="r" hint-placeholder-count="10">
+<div onClick="{{r.onClick}}" class="card elev-sm" style="display:flex;flex-direction:column;gap:6px;cursor:pointer">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+<div style="font-weight:700;font-size:14px">#{{r.rank}} {{r.storeName}}</div>
+<div style="font-weight:700;font-size:15px;color:var(--color-accent);white-space:nowrap">{{r.amountLabel}}</div>
+</div>
+<div class="card-meta">Invoices: {{r.invoicesLabel}}</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+</sc-if>
+<sc-if value="{{isStcDay}}" hint-placeholder-val="{{false}}">
+<div style="overflow-x:auto">
+<table class="table">
+<thead><tr><th style="text-align:left">Date</th><th>Total amount</th><th>Invoices</th></tr></thead>
+<tbody>
+<sc-for list="{{stcByDateRows}}" as="r" hint-placeholder-count="10">
+<tr><td style="font-weight:600;white-space:nowrap;text-align:left">{{r.date}}</td><td style="font-weight:600;white-space:nowrap">{{r.amountLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.invoicesLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</sc-if>
+</section>
+</sc-if>
+
+<sc-if value="{{stcStoreDailyOpen}}" hint-placeholder-val="{{false}}">
+<div onClick="{{closeStcStoreDaily}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:var(--space-4);z-index:50">
+<div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:560px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5);touch-action:pinch-zoom">
+<div style="display:flex;gap:12px;align-items:center">
+<div style="flex:1;min-width:0;font-weight:700;font-size:15px">Day-wise — {{stcStoreDailyLabel}}</div>
+<button onClick="{{closeStcStoreDaily}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
+</div>
+<div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow-y:auto;overflow-x:hidden;flex:1;touch-action:pan-y">
+<table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
+<thead><tr><th style="text-align:left">Date</th><th>Total amount</th><th>Invoices</th></tr></thead>
+<tbody>
+<sc-for list="{{stcStoreDailyRows}}" as="d" hint-placeholder-count="10">
+<tr><td style="font-weight:600;white-space:nowrap;text-align:left">{{d.date}}</td><td style="font-weight:600;white-space:nowrap">{{d.amountLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.invoicesLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</sc-if>
+
 <sc-if value="{{itemDetailOpen}}" hint-placeholder-val="{{false}}">
 <div onClick="{{closeItemDetail}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:60;display:flex;align-items:center;justify-content:center;padding:16px">
 <div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:560px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5);touch-action:pinch-zoom">
@@ -779,6 +848,8 @@ class Component extends DCLogic {
     },
     search: '',
     expandedRegions: {},
+    stcQitaf: [],
+    stcView: 'store',
     mobileNavOpen: false,
     isMobile: typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches,
     receiptDay: []
@@ -803,7 +874,7 @@ class Component extends DCLogic {
   async _loadData() {
     const safeJson = (path, fallback) => fetch(path).then(r => r.ok ? r.json() : fallback).catch(() => fallback);
     try {
-      let [storeMaster, buckets, categoriesRaw, overview, itemsRaw, categoriesByStoreDate, itemsByStoreDate, receiptDay, itemMaster, wholesale] = await Promise.all([
+      let [storeMaster, buckets, categoriesRaw, overview, itemsRaw, categoriesByStoreDate, itemsByStoreDate, receiptDay, itemMaster, wholesale, stcQitaf] = await Promise.all([
         safeJson('data/store-master.json', []),
         safeJson('data/store-day.json', []),
         safeJson('data/categories.json', []),
@@ -813,7 +884,8 @@ class Component extends DCLogic {
         safeJson('data/items-by-store-date.json', []),
         safeJson('data/receipt-day.json', []),
         safeJson('data/item-master.json', []),
-        safeJson('data/wholesale.json', [])
+        safeJson('data/wholesale.json', []),
+        safeJson('data/stc-qitaf.json', [])
       ]);
       this.storeIndex = {};
       storeMaster.forEach(s => this.storeIndex[s.code] = s);
@@ -830,7 +902,7 @@ class Component extends DCLogic {
       leakedWholesaleBuckets.forEach(b => {
         wholesale = [...wholesale, { month: b.date.slice(0, 7), storeCode: 'RYVS03', storeName: b.storeName, region: 'Wholesale', customerName: '', type: 'Wholesale', salespersonCode: '27133', amount: b.netSales }];
       });
-      this.setState({ storeMaster, buckets, categoriesRaw, overview, itemsRaw, categoriesByStoreDate, itemsByStoreDate, receiptDay, wholesale, loading: false });
+      this.setState({ storeMaster, buckets, categoriesRaw, overview, itemsRaw, categoriesByStoreDate, itemsByStoreDate, receiptDay, wholesale, stcQitaf, loading: false });
     } catch (e) {
       console.error('Sales Dashboard data load failed', e);
       this.setState({ loading: false, loadError: true });
@@ -1073,6 +1145,26 @@ class Component extends DCLogic {
       if (f.store !== 'All' && storeCode !== f.store) return false;
       return true;
     };
+    const stcFiltered = (st.stcQitaf || []).filter(r => inDateRange(r.date) && bucketMatches(r.store));
+    const stcByStoreMap = {};
+    stcFiltered.forEach(r => {
+      if (!stcByStoreMap[r.store]) { const sm = this.storeIndex[r.store]; stcByStoreMap[r.store] = { store: r.store, storeName: sm ? (sm.shortName || sm.nameEn) : r.storeName, amount: 0, invoices: 0 }; }
+      stcByStoreMap[r.store].amount += r.amount; stcByStoreMap[r.store].invoices += r.invoices;
+    });
+    const stcByStoreRows = Object.values(stcByStoreMap).sort((a, b) => b.amount - a.amount)
+      .map((r, i) => ({ rank: i + 1, storeName: r.storeName, amountLabel: this.fmtMoney(r.amount), invoicesLabel: this.fmtNum(r.invoices), onClick: () => this.setState({ selectedStcStore: r.store, selectedStcStoreName: r.storeName }) }));
+    const stcByDateMap = {};
+    stcFiltered.forEach(r => {
+      if (!stcByDateMap[r.date]) stcByDateMap[r.date] = { date: r.date, amount: 0, invoices: 0 };
+      stcByDateMap[r.date].amount += r.amount; stcByDateMap[r.date].invoices += r.invoices;
+    });
+    const stcByDateRows = Object.values(stcByDateMap).sort((a, b) => a.date < b.date ? -1 : 1)
+      .map(r => ({ date: r.date, amountLabel: this.fmtMoney(r.amount), invoicesLabel: this.fmtNum(r.invoices) }));
+    let stcStoreDailyRows = [];
+    if (st.selectedStcStore) {
+      stcStoreDailyRows = stcFiltered.filter(r => r.store === st.selectedStcStore).sort((a, b) => a.date < b.date ? -1 : 1)
+        .map(r => ({ date: r.date, amountLabel: this.fmtMoney(r.amount), invoicesLabel: this.fmtNum(r.invoices) }));
+    }
     let categoriesForPeriod;
     if (isDirty) {
       const agg = {};
@@ -1495,10 +1587,10 @@ class Component extends DCLogic {
       })
     }));
 
-    const titles = { overview: 'Executive Overview', stores: 'Branch Comparison', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', wholesale: 'Wholesale', daily: 'Daily Sales', regionDetail: 'Region Detail' };
-    const shortTitles = { overview: 'Overview', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily', regionDetail: 'Region', wholesale: 'Wholesale' };
-    const navIcons = { overview: '▣', categories: '▤', items: '◫', discounts: '%', invoices: '⌂', daily: '◷', regionDetail: '◈', wholesale: '◊' };
-    const pageOrder = ['overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'wholesale'];
+    const titles = { overview: 'Executive Overview', stores: 'Branch Comparison', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', wholesale: 'Wholesale', daily: 'Daily Sales', regionDetail: 'Region Detail', stcQitaf: 'STC Qitaf' };
+    const shortTitles = { overview: 'Overview', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily', regionDetail: 'Region', wholesale: 'Wholesale', stcQitaf: 'Qitaf' };
+    const navIcons = { overview: '▣', categories: '▤', items: '◫', discounts: '%', invoices: '⌂', daily: '◷', regionDetail: '◈', wholesale: '◊', stcQitaf: '⊙' };
+    const pageOrder = ['overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'wholesale', 'stcQitaf'];
     const isMobile = st.isMobile;
 
     return {
@@ -1577,9 +1669,17 @@ class Component extends DCLogic {
         discStoreName: this.arrow('discounts', 'storeName'), discNetSales: this.arrow('discounts', 'netSales'), discDiscount: this.arrow('discounts', 'discount'), discQty: this.arrow('discounts', 'qty'), discRatio: this.arrow('discounts', 'ratio'),
         itemNo: this.arrow('items', 'itemNo'), itemDesc: this.arrow('items', 'itemDesc'), itemDivision: this.arrow('items', 'division'), itemCategory: this.arrow('items', 'category'), itemNetSales: this.arrow('items', 'netSales'), itemQty: this.arrow('items', 'qty'), itemInvoices: this.arrow('items', 'invoices'), itemUpt: this.arrow('items', 'upt'), itemReturnQty: this.arrow('items', 'returnQty'), itemReturnPct: this.arrow('items', 'returnPct')
       },
-      isOverview: st.page === 'overview', isRegionDetail: st.page === 'regionDetail', isCategories: st.page === 'categories', isInvoices: st.page === 'invoices', isItems: st.page === 'items', isDiscounts: st.page === 'discounts', isDaily: st.page === 'daily', isWholesale: st.page === 'wholesale',
+      isOverview: st.page === 'overview', isRegionDetail: st.page === 'regionDetail', isCategories: st.page === 'categories', isInvoices: st.page === 'invoices', isItems: st.page === 'items', isDiscounts: st.page === 'discounts', isDaily: st.page === 'daily', isWholesale: st.page === 'wholesale', isStcQitaf: st.page === 'stcQitaf',
       globalFiltersDisplay: st.page === 'wholesale' ? 'none' : (isMobile && !st.filtersOpen ? 'none' : 'flex'),
       showFilterToggle: isMobile && st.page !== 'wholesale',
+      stcByStoreRows, stcByDateRows,
+      stcStoreDailyOpen: !!st.selectedStcStore, stcStoreDailyLabel: st.selectedStcStoreName, stcStoreDailyRows,
+      closeStcStoreDaily: () => this.setState({ selectedStcStore: null, tableZoom: 1 }),
+      isStcStore: st.stcView !== 'day', isStcDay: st.stcView === 'day',
+      stcStoreBtnClass: st.stcView !== 'day' ? 'btn-primary' : 'btn-secondary',
+      stcDayBtnClass: st.stcView === 'day' ? 'btn-primary' : 'btn-secondary',
+      setStcViewStore: () => this.setState({ stcView: 'store' }),
+      setStcViewDay: () => this.setState({ stcView: 'day' }),
       toggleFilters: () => this.setState({ filtersOpen: !st.filtersOpen }),
       filtersToggleArrow: st.filtersOpen ? '▴' : '▾',
       filtersActiveCount: (f.region !== 'All' ? 1 : 0) + (f.city !== 'All' ? 1 : 0) + (f.store !== 'All' ? 1 : 0) + (f.month !== 'All' ? 1 : 0) + (f.dateRange ? 1 : 0),

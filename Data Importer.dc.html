@@ -10,7 +10,21 @@
 <helmet>
 <link rel="stylesheet" href="nocturne/styles.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<style>body{margin:0}</style>
+<style>body{margin:0}
+:root{
+  --color-bg:#f6f5fb;
+  --color-surface:#ffffff;
+  --color-text:#1e1c28;
+  --color-accent:#6a5ecf;
+  --color-accent-300:#5c4fc4;
+  --color-accent-2:#8f7fd9;
+  --color-divider:color-mix(in srgb, #1e1c28 14%, transparent);
+  --color-neutral-500:#6b6f80;
+  --shadow-sm:0 0 0 1px #e3e1ef;
+  --shadow-md:0 0 0 1px #d8d5e8, 0 6px 18px rgba(30,28,40,0.10);
+  --shadow-lg:0 0 0 1px #cac6df, 0 16px 40px rgba(30,28,40,0.16);
+}
+</style>
 </helmet>
 <div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);padding:var(--space-8);max-width:900px;margin:0 auto">
 <h1 style="font-family:var(--font-heading);font-weight:500;font-size:28px;margin:0 0 var(--space-2)">Daily Data Importer</h1>
@@ -42,6 +56,20 @@
 <div class="card elev-sm" style="margin-bottom:var(--space-6);white-space:pre-wrap;font-size:13px;line-height:1.6">{{wholesaleStatus}}</div>
 </sc-if>
 
+<div class="card elev-sm" style="margin-bottom:var(--space-6)">
+<label style="display:block;font-size:13px;margin-bottom:8px;color:var(--color-neutral-500)">STC Qitaf export — Transaction Payment Entries .xlsx</label>
+<input type="file" accept=".xlsx" onChange="{{onStcQitafFile}}" style="font-size:14px;color:var(--color-text)">
+</div>
+
+<sc-if value="{{stcQitafStatus}}" hint-placeholder-val="{{false}}">
+<div class="card elev-sm" style="margin-bottom:var(--space-6);white-space:pre-wrap;font-size:13px;line-height:1.6">{{stcQitafStatus}}</div>
+</sc-if>
+
+<sc-if value="{{hasStcQitafResult}}" hint-placeholder-val="{{false}}">
+<h3 style="font-family:var(--font-heading);font-size:17px;margin:0 0 var(--space-3)">Updated stc-qitaf.json — download and replace in your repo's <code>data/</code> folder</h3>
+<button class="btn btn-primary btn-block" onClick="{{downloadStcQitaf}}" style="margin-bottom:var(--space-6)">Download stc-qitaf.json ({{stcQitafCount}} rows)</button>
+</sc-if>
+
 <sc-if value="{{hasWholesaleResult}}" hint-placeholder-val="{{false}}">
 <h3 style="font-family:var(--font-heading);font-size:17px;margin:0 0 var(--space-3)">Updated wholesale.json — download and replace in your repo's <code>data/</code> folder</h3>
 <button class="btn btn-primary btn-block" onClick="{{downloadWholesale}}" style="margin-bottom:var(--space-6)">Download wholesale.json ({{wholesaleCount}} rows)</button>
@@ -66,7 +94,7 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
-  state = { status: '', hasResult: false, downloads: [], wholesaleStatus: '', hasWholesaleResult: false, wholesaleDownload: null, wholesaleCount: 0, wholesaleSalesFile: null, wholesaleReturnsFile: null };
+  state = { status: '', hasResult: false, downloads: [], wholesaleStatus: '', hasWholesaleResult: false, wholesaleDownload: null, wholesaleCount: 0, wholesaleSalesFile: null, wholesaleReturnsFile: null, stcQitafStatus: '', hasStcQitafResult: false, stcQitafDownload: null, stcQitafCount: 0 };
 
   fmtStatus(lines) { return lines.join('\n'); }
 
@@ -515,12 +543,13 @@ class Component extends DCLogic {
           const storeCode = this.storeCodeFromRegion(r[regionIdx]);
           const sm = storeIdxMap[storeCode];
           const rawDate = r[dateIdx];
-          const month = typeof rawDate === 'number' ? this.excelDateToISO(rawDate).slice(0, 7) : String(rawDate || '').slice(0, 7);
+          const date = typeof rawDate === 'number' ? this.excelDateToISO(rawDate) : String(rawDate || '');
+          const month = date.slice(0, 7);
           const customerName = r[custIdx];
           const rawAmount = Number(r[amountIdx]) || 0;
           const amount = isReturns ? -Math.abs(rawAmount) : rawAmount;
           newRows.push({
-            docNo: r[noIdx], month, storeCode, storeName: sm ? (sm.nameEn || sm.shortName) : storeCode,
+            docNo: r[noIdx], date, month, storeCode, storeName: sm ? (sm.nameEn || sm.shortName) : storeCode,
             region: sm ? sm.region : 'Wholesale', customerName,
             type: custTypeMap[customerName] || 'Wholesale', salespersonCode: spIdx !== undefined ? String(r[spIdx] || '') : '',
             amount
@@ -544,6 +573,68 @@ class Component extends DCLogic {
     if (this.state.wholesaleDownload) this.download('wholesale.json', this.state.wholesaleDownload);
   }
 
+  async onStcQitafFile(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    this.setState({ stcQitafStatus: `Loading current data and parsing ${file.name}…`, hasStcQitafResult: false });
+    try {
+      const existing = await fetch('data/stc-qitaf.json').then(r => r.ok ? r.json() : []).catch(() => []);
+      const storeMaster = await fetch('data/store-master.json').then(r => r.ok ? r.json() : []).catch(() => []);
+      const storeIndex = {}; storeMaster.forEach(s => storeIndex[s.code] = s);
+      const buf = await file.arrayBuffer();
+      let rows = [];
+      const warnings = [];
+      try {
+        const wb = window.XLSX.read(buf, { type: 'array', cellDates: false });
+        const sheetName = wb.SheetNames[0];
+        rows = sheetName ? window.XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1, defval: '' }) : [];
+      } catch (e1) {
+        warnings.push(`primary parser failed (${e1.message})`);
+      }
+      if (!rows.length || !rows[0] || !rows[0].length) {
+        try { rows = await this.parseXlsxFallback(buf); } catch (e2) { warnings.push(`fallback parser failed (${e2.message})`); rows = []; }
+      }
+      const header = rows[0];
+      if (!header) throw new Error('could not read any rows from this file');
+      const idx = {};
+      header.forEach((h, i) => { idx[h] = i; });
+      const need = ['Store No.', 'Receipt No.', 'Amount Tendered', 'Date'];
+      for (const col of need) if (idx[col] === undefined) warnings.push(`missing column "${col}"`);
+      const dataRows = rows.slice(1).filter(r => r[idx['Store No.']]);
+      const byStoreDate = {};
+      const touchedDates = new Set();
+      dataRows.forEach(r => {
+        const store = r[idx['Store No.']];
+        const date = this.excelDateToISO(r[idx['Date']]);
+        touchedDates.add(date);
+        const receipt = r[idx['Receipt No.']];
+        const amount = Number(r[idx['Amount Tendered']]) || 0;
+        const key = store + '|' + date;
+        if (!byStoreDate[key]) byStoreDate[key] = { store, date, amount: 0, invoices: new Set() };
+        byStoreDate[key].amount += amount;
+        byStoreDate[key].invoices.add(receipt);
+      });
+      const newRows = Object.values(byStoreDate).map(sd => {
+        const meta = storeIndex[sd.store];
+        if (!meta) warnings.push(`Unknown store code "${sd.store}" — add it to store-master.json first`);
+        return { store: sd.store, storeName: meta ? (meta.shortName || meta.nameEn) : sd.store, date: sd.date, amount: sd.amount, invoices: sd.invoices.size };
+      });
+      const byKey = new Map();
+      existing.forEach(r => byKey.set(r.store + '|' + r.date, r));
+      newRows.forEach(r => byKey.set(r.store + '|' + r.date, r));
+      const out = [...byKey.values()];
+      const statusLines = [`Parsed ${dataRows.length} row(s) — dates touched: ${[...touchedDates].sort().join(', ')}`];
+      if (warnings.length) statusLines.push('', 'Warnings:', ...warnings);
+      this.setState({ stcQitafStatus: this.fmtStatus(statusLines), hasStcQitafResult: true, stcQitafDownload: out, stcQitafCount: out.length });
+    } catch (err) {
+      this.setState({ stcQitafStatus: 'Error: ' + err.message, hasStcQitafResult: false });
+    }
+  }
+
+  downloadStcQitaf() {
+    if (this.state.stcQitafDownload) this.download('stc-qitaf.json', this.state.stcQitafDownload);
+  }
+
   renderVals() {
     return { status: this.state.status, hasResult: this.state.hasResult, downloads: this.state.downloads, onFiles: e => this.onFiles(e), downloadAll: () => this.downloadAll(),
       wholesaleStatus: this.state.wholesaleStatus, hasWholesaleResult: this.state.hasWholesaleResult, wholesaleCount: this.state.wholesaleCount,
@@ -551,7 +642,9 @@ class Component extends DCLogic {
       wholesaleSalesFileName: this.state.wholesaleSalesFile ? this.state.wholesaleSalesFile.name : 'no file chosen',
       wholesaleReturnsFileName: this.state.wholesaleReturnsFile ? this.state.wholesaleReturnsFile.name : 'no file chosen',
       canMergeWholesale: !!(this.state.wholesaleSalesFile || this.state.wholesaleReturnsFile),
-      mergeWholesaleFiles: () => this.mergeWholesaleFiles(), downloadWholesale: () => this.downloadWholesale() };
+      mergeWholesaleFiles: () => this.mergeWholesaleFiles(), downloadWholesale: () => this.downloadWholesale(),
+      stcQitafStatus: this.state.stcQitafStatus, hasStcQitafResult: this.state.hasStcQitafResult, stcQitafCount: this.state.stcQitafCount,
+      onStcQitafFile: e => this.onStcQitafFile(e), downloadStcQitaf: () => this.downloadStcQitaf() };
   }
 }
 </script>
