@@ -726,6 +726,14 @@ a:hover{color:var(--color-accent-300)}
 
 <sc-if value="{{isStcQitaf}}" hint-placeholder-val="{{false}}">
 <section>
+<div style="display:flex;gap:var(--space-4);flex-wrap:wrap;margin-bottom:var(--space-6)">
+<sc-for list="{{stcKpiCards}}" as="k" hint-placeholder-count="4">
+<div class="card elev-sm" style="flex:1 1 148px;min-width:0">
+<div class="card-kicker">{{k.label}}</div>
+<div class="card-title" style="font-size:26px;margin-top:2px;white-space:nowrap">{{k.value}}</div>
+</div>
+</sc-for>
+</div>
 <div style="display:flex;gap:8px;margin-bottom:var(--space-4)">
 <button class="btn {{stcStoreBtnClass}}" onClick="{{setStcViewStore}}">By Store</button>
 <button class="btn {{stcDayBtnClass}}" onClick="{{setStcViewDay}}">PerDay</button>
@@ -1194,6 +1202,12 @@ class Component extends DCLogic {
     });
     const stcByDateRows = Object.values(stcByDateMap).sort((a, b) => a.date < b.date ? -1 : 1)
       .map(r => ({ date: r.date, amountLabel: this.fmtMoney(r.amount), invoicesLabel: this.fmtNum(r.invoices), onClick: () => this.setState({ selectedStcDate: r.date }) }));
+    const stcKpiCards = [
+      { label: 'Total sales', value: this.fmtMoney(stcStoreTotal), sub: '' },
+      { label: 'Total invoices', value: this.fmtNum(stcStoreInvoicesTotal), sub: '' },
+      { label: 'Days', value: this.fmtNum(new Set(stcFiltered.map(r => r.date)).size), sub: '' },
+      { label: 'Stores', value: this.fmtNum(new Set(stcFiltered.map(r => r.store)).size), sub: '' }
+    ];
     const stcDateTotal = Object.values(stcByDateMap).reduce((a, r) => a + r.amount, 0);
     const stcDateInvoicesTotal = Object.values(stcByDateMap).reduce((a, r) => a + r.invoices, 0);
     let stcStoreDailyRows = [];
@@ -1726,7 +1740,7 @@ class Component extends DCLogic {
       isOverview: st.page === 'overview', isRegionDetail: st.page === 'regionDetail', isCategories: st.page === 'categories', isInvoices: st.page === 'invoices', isItems: st.page === 'items', isDiscounts: st.page === 'discounts', isDaily: st.page === 'daily', isWholesale: st.page === 'wholesale', isStcQitaf: st.page === 'stcQitaf',
       globalFiltersDisplay: st.page === 'wholesale' ? 'none' : (isMobile && !st.filtersOpen ? 'none' : 'flex'),
       showFilterToggle: isMobile && st.page !== 'wholesale',
-      stcByStoreRows, stcByDateRows,
+      stcByStoreRows, stcByDateRows, stcKpiCards,
       stcStoreTotalLabel: this.fmtMoney(stcStoreTotal), stcStoreInvoicesTotalLabel: this.fmtNum(stcStoreInvoicesTotal),
       stcStoreDaysTotalLabel: this.fmtNum(new Set(stcFiltered.map(r => r.date)).size),
       stcDateTotalLabel: this.fmtMoney(stcDateTotal), stcDateInvoicesTotalLabel: this.fmtNum(stcDateInvoicesTotal),
