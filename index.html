@@ -445,7 +445,7 @@ a:hover{color:var(--color-accent-300)}
 </tr></thead>
 <tbody>
 <sc-for list="{{invoicesSorted}}" as="iv" hint-placeholder-count="12">
-<tr><td style="font-weight:600;white-space:nowrap">{{iv.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{iv.storeName}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{iv.region}}</td><td style="font-weight:600;white-space:nowrap">{{iv.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.singleItemPctLabel}}</td></tr>
+<tr onClick="{{iv.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap">{{iv.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{iv.storeName}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{iv.region}}</td><td style="font-weight:600;white-space:nowrap">{{iv.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.singleItemPctLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -454,7 +454,7 @@ a:hover{color:var(--color-accent-300)}
 <sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
 <div style="display:flex;flex-direction:column;gap:10px">
 <sc-for list="{{invoicesSorted}}" as="iv" hint-placeholder-count="12">
-<div class="card elev-sm" style="display:flex;flex-direction:column;gap:10px">
+<div onClick="{{iv.onClick}}" class="card elev-sm" style="display:flex;flex-direction:column;gap:10px;cursor:pointer">
 <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
 <div style="font-weight:700;font-size:15px">#{{iv.rank}} {{iv.storeName}}</div>
 <div style="font-weight:700;font-size:16px;color:var(--color-accent);white-space:nowrap">{{iv.netSalesLabel}}</div>
@@ -471,8 +471,29 @@ a:hover{color:var(--color-accent-300)}
 </sc-for>
 </div>
 </sc-if>
-<div style="font-size:12px;color:var(--color-neutral-500);margin-top:var(--space-3)">Showing {{invoicesSorted.length}} day(s) · {{meta.totalInvoices}} invoices total</div>
 </section>
+</sc-if>
+
+<sc-if value="{{storeDailyOpen}}" hint-placeholder-val="{{false}}">
+<div onClick="{{closeStoreDaily}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:var(--space-4);z-index:50">
+<div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:760px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5);touch-action:pinch-zoom">
+<div style="display:flex;gap:12px;align-items:center">
+<div style="flex:1;min-width:0;font-weight:700;font-size:15px">Day-wise sales — {{storeDailyLabel}}</div>
+<button onClick="{{closeStoreDaily}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
+</div>
+<div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow-y:auto;overflow-x:hidden;flex:1;touch-action:pan-y">
+<table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
+<thead><tr><th style="text-align:left">Date</th><th>Net sales</th><th>Qty</th><th>Invoices</th><th>ATV</th><th>UPT</th><th>Single Inv%</th></tr></thead>
+<tbody>
+<sc-for list="{{storeDailyRows}}" as="d" hint-placeholder-count="10">
+<tr><td style="font-weight:600;white-space:nowrap;text-align:left">{{d.date}}</td><td style="font-weight:600;white-space:nowrap">{{d.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.singleItemPctLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</sc-if>
 </sc-if>
 
 <sc-if value="{{isItems}}" hint-placeholder-val="{{false}}">
@@ -1150,6 +1171,35 @@ class Component extends DCLogic {
     const rankByStore = {};
     [...invRows].sort((a, b) => b.netSales - a.netSales).forEach((r, i) => { rankByStore[r.storeName] = i + 1; });
 
+    // day-wise sales for a selected store (Store Detail drill-down)
+    let storeDailyRows = [];
+    if (st.selectedStoreCode) {
+      const singleItemByDateForStore = {};
+      (st.receiptDay || []).forEach(r => {
+        if (r.store !== st.selectedStoreCode) return;
+        if (!inDateRange(r.date)) return;
+        singleItemByDateForStore[r.date] = (singleItemByDateForStore[r.date] || 0) + r.singleItemInvoices;
+      });
+      const byDateForStore = {};
+      filteredBuckets.forEach(b => {
+        if (b.store !== st.selectedStoreCode) return;
+        if (!byDateForStore[b.date]) byDateForStore[b.date] = { date: b.date, netSales: 0, qty: 0, invoices: 0 };
+        const a = byDateForStore[b.date];
+        a.netSales += b.netSales; a.qty += b.qty; a.invoices += b.invoices;
+      });
+      storeDailyRows = Object.values(byDateForStore).sort((a, b) => a.date < b.date ? -1 : 1).map(r => {
+        const atv = r.invoices ? r.netSales / r.invoices : 0;
+        const upt = r.invoices ? r.qty / r.invoices : 0;
+        const singleInv = singleItemByDateForStore.hasOwnProperty(r.date) ? singleItemByDateForStore[r.date] : null;
+        const singlePct = (singleInv !== null && r.invoices) ? 100 * singleInv / r.invoices : null;
+        return {
+          date: r.date, netSalesLabel: this.fmtMoney(r.netSales), qtyLabel: this.fmtNum(r.qty), invoicesLabel: this.fmtNum(r.invoices),
+          atvLabel: this.fmtMoney(atv), uptLabel: Math.abs(upt).toFixed(2),
+          singleItemPctLabel: singlePct === null ? '—' : Math.abs(singlePct).toFixed(1) + '%'
+        };
+      });
+    }
+
     // discount detail — per store, respects all filters
     const byStoreDisc = {};
     filteredBuckets.forEach(b => {
@@ -1195,7 +1245,7 @@ class Component extends DCLogic {
     discRows = this.sortRows(discRowsWithRatio, dsort.col, dsort.dir)
       .map(d => ({ ...d, rank: discRankMap[d.storeName], netSalesLabel: this.fmtMoney(d.netSales), discountLabel: this.fmtMoney(d.discount), qtyLabel: this.fmtNum(d.qty), invoicesLabel: this.fmtNum(d.invoices), ratioLabel: Math.abs(d.ratio).toFixed(1) + '%', promoLabel: Math.abs(d.promoPct).toFixed(1) + '%' }));
     const isort = st.sort.invoices;
-    invRows = this.sortRows(invRows, isort.col, isort.dir).map(iv => ({ ...iv, rank: rankByStore[iv.storeName], netSalesLabel: this.fmtMoney(iv.netSales), discountLabel: this.fmtMoney(iv.discount), atvLabel: this.fmtMoney(iv.atv), uptLabel: Math.abs(iv.upt).toFixed(2), aspLabel: this.fmtMoney(iv.asp), qtyLabel: this.fmtNum(iv.qty), invoicesLabel: this.fmtNum(iv.invoices) }));
+    invRows = this.sortRows(invRows, isort.col, isort.dir).map(iv => ({ ...iv, rank: rankByStore[iv.storeName], netSalesLabel: this.fmtMoney(iv.netSales), discountLabel: this.fmtMoney(iv.discount), atvLabel: this.fmtMoney(iv.atv), uptLabel: Math.abs(iv.upt).toFixed(2), aspLabel: this.fmtMoney(iv.asp), qtyLabel: this.fmtNum(iv.qty), invoicesLabel: this.fmtNum(iv.invoices), onClick: () => this.setState({ selectedStoreCode: iv.code, selectedStoreLabel: iv.storeName, tableZoom: 1 }) }));
 
     // wholesale — sales minus returns, grouped by store, filtered by month and customer type
     const wf = st.wholesaleFilters;
@@ -1566,6 +1616,7 @@ class Component extends DCLogic {
       itemDetailOpen: !!st.selectedItemNo, itemDetailLabel: st.selectedItemLabel, itemDetailItemNo: st.selectedItemNoLabel, itemDetailImage: st.selectedItemImage, itemDetailRows, closeItemDetail: () => this.setState({ selectedItemNo: null, tableZoom: 1 }), stopPropagation: e => e.stopPropagation(),
       categoryDetailOpen: !!st.selectedCategoryKey, categoryDetailLabel: st.selectedCategoryLabel, categoryDetailRows, closeCategoryDetail: () => this.setState({ selectedCategoryKey: null, tableZoom: 1 }),
       dailyDetailOpen: !!st.selectedDailyDate, dailyDetailLabel: st.selectedDailyDate, dailyDetailRows, closeDailyDetail: () => this.setState({ selectedDailyDate: null, tableZoom: 1 }),
+      storeDailyOpen: !!st.selectedStoreCode, storeDailyLabel: st.selectedStoreLabel, storeDailyRows, closeStoreDaily: () => this.setState({ selectedStoreCode: null, tableZoom: 1 }),
       tableZoom: st.tableZoom || 1, tableZoomPct: (100 / (st.tableZoom || 1)) + '%', pinchStart: this.pinchStart, pinchMove: this.pinchMove, pinchEnd: this.pinchEnd,
       setItemSearch: e => this.setState({ itemSearch: e.target.value, itemsPage: 0 }),
       itemsPageLabel: (itemsPage + 1) + ' of ' + (itemsMaxPage + 1),
