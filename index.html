@@ -734,13 +734,13 @@ a:hover{color:var(--color-accent-300)}
 <sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x:auto">
 <table class="table">
-<thead><tr><th>Rank</th><th style="text-align:left">Store</th><th>Total amount</th><th>Invoices</th></tr></thead>
+<thead><tr><th>Rank</th><th style="text-align:left">Store</th><th>Total amount</th><th>Invoices</th><th>Days</th></tr></thead>
 <tbody>
 <sc-for list="{{stcByStoreRows}}" as="r" hint-placeholder-count="10">
-<tr onClick="{{r.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap">{{r.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{r.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{r.amountLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.invoicesLabel}}</td></tr>
+<tr onClick="{{r.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap">{{r.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{r.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{r.amountLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.daysLabel}}</td></tr>
 </sc-for>
 </tbody>
-<tfoot><tr><td></td><td style="font-weight:700;text-align:left">Total</td><td style="font-weight:700;white-space:nowrap">{{stcStoreTotalLabel}}</td><td style="font-weight:700;white-space:nowrap">{{stcStoreInvoicesTotalLabel}}</td></tr></tfoot>
+<tfoot><tr><td></td><td style="font-weight:700;text-align:left">Total</td><td style="font-weight:700;white-space:nowrap">{{stcStoreTotalLabel}}</td><td style="font-weight:700;white-space:nowrap">{{stcStoreInvoicesTotalLabel}}</td><td></td></tr></tfoot>
 </table>
 </div>
 </sc-if>
@@ -752,7 +752,7 @@ a:hover{color:var(--color-accent-300)}
 <div style="font-weight:700;font-size:14px">#{{r.rank}} {{r.storeName}}</div>
 <div style="font-weight:700;font-size:15px;color:var(--color-accent);white-space:nowrap">{{r.amountLabel}}</div>
 </div>
-<div class="card-meta">Invoices: {{r.invoicesLabel}}</div>
+<div class="card-meta">Invoices: {{r.invoicesLabel}} · Days: {{r.daysLabel}}</div>
 </div>
 </sc-for>
 <div class="card elev-sm" style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
@@ -1154,11 +1154,11 @@ class Component extends DCLogic {
     const stcFiltered = (st.stcQitaf || []).filter(r => inDateRange(r.date) && bucketMatches(r.store));
     const stcByStoreMap = {};
     stcFiltered.forEach(r => {
-      if (!stcByStoreMap[r.store]) { const sm = this.storeIndex[r.store]; stcByStoreMap[r.store] = { store: r.store, storeName: sm ? (sm.shortName || sm.nameEn) : r.storeName, amount: 0, invoices: 0 }; }
-      stcByStoreMap[r.store].amount += r.amount; stcByStoreMap[r.store].invoices += r.invoices;
+      if (!stcByStoreMap[r.store]) { const sm = this.storeIndex[r.store]; stcByStoreMap[r.store] = { store: r.store, storeName: sm ? (sm.shortName || sm.nameEn) : r.storeName, amount: 0, invoices: 0, days: new Set() }; }
+      stcByStoreMap[r.store].amount += r.amount; stcByStoreMap[r.store].invoices += r.invoices; stcByStoreMap[r.store].days.add(r.date);
     });
     const stcByStoreRows = Object.values(stcByStoreMap).sort((a, b) => b.amount - a.amount)
-      .map((r, i) => ({ rank: i + 1, storeName: r.storeName, amountLabel: this.fmtMoney(r.amount), invoicesLabel: this.fmtNum(r.invoices), onClick: () => this.setState({ selectedStcStore: r.store, selectedStcStoreName: r.storeName }) }));
+      .map((r, i) => ({ rank: i + 1, storeName: r.storeName, amountLabel: this.fmtMoney(r.amount), invoicesLabel: this.fmtNum(r.invoices), daysLabel: this.fmtNum(r.days.size), onClick: () => this.setState({ selectedStcStore: r.store, selectedStcStoreName: r.storeName }) }));
     const stcStoreTotal = Object.values(stcByStoreMap).reduce((a, r) => a + r.amount, 0);
     const stcStoreInvoicesTotal = Object.values(stcByStoreMap).reduce((a, r) => a + r.invoices, 0);
     const stcByDateMap = {};
