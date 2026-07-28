@@ -740,6 +740,7 @@ a:hover{color:var(--color-accent-300)}
 <tr onClick="{{r.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap">{{r.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{r.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{r.amountLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.invoicesLabel}}</td></tr>
 </sc-for>
 </tbody>
+<tfoot><tr><td></td><td style="font-weight:700;text-align:left">Total</td><td style="font-weight:700;white-space:nowrap">{{stcStoreTotalLabel}}</td><td style="font-weight:700;white-space:nowrap">{{stcStoreInvoicesTotalLabel}}</td></tr></tfoot>
 </table>
 </div>
 </sc-if>
@@ -754,6 +755,10 @@ a:hover{color:var(--color-accent-300)}
 <div class="card-meta">Invoices: {{r.invoicesLabel}}</div>
 </div>
 </sc-for>
+<div class="card elev-sm" style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+<div style="font-weight:700;font-size:14px">Total</div>
+<div style="font-weight:700;font-size:15px;color:var(--color-accent);white-space:nowrap">{{stcStoreTotalLabel}}</div>
+</div>
 </div>
 </sc-if>
 </sc-if>
@@ -766,6 +771,7 @@ a:hover{color:var(--color-accent-300)}
 <tr><td style="font-weight:600;white-space:nowrap;text-align:left">{{r.date}}</td><td style="font-weight:600;white-space:nowrap">{{r.amountLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.invoicesLabel}}</td></tr>
 </sc-for>
 </tbody>
+<tfoot><tr><td style="font-weight:700;text-align:left">Total</td><td style="font-weight:700;white-space:nowrap">{{stcDateTotalLabel}}</td><td style="font-weight:700;white-space:nowrap">{{stcDateInvoicesTotalLabel}}</td></tr></tfoot>
 </table>
 </div>
 </sc-if>
@@ -1153,6 +1159,8 @@ class Component extends DCLogic {
     });
     const stcByStoreRows = Object.values(stcByStoreMap).sort((a, b) => b.amount - a.amount)
       .map((r, i) => ({ rank: i + 1, storeName: r.storeName, amountLabel: this.fmtMoney(r.amount), invoicesLabel: this.fmtNum(r.invoices), onClick: () => this.setState({ selectedStcStore: r.store, selectedStcStoreName: r.storeName }) }));
+    const stcStoreTotal = Object.values(stcByStoreMap).reduce((a, r) => a + r.amount, 0);
+    const stcStoreInvoicesTotal = Object.values(stcByStoreMap).reduce((a, r) => a + r.invoices, 0);
     const stcByDateMap = {};
     stcFiltered.forEach(r => {
       if (!stcByDateMap[r.date]) stcByDateMap[r.date] = { date: r.date, amount: 0, invoices: 0 };
@@ -1160,6 +1168,8 @@ class Component extends DCLogic {
     });
     const stcByDateRows = Object.values(stcByDateMap).sort((a, b) => a.date < b.date ? -1 : 1)
       .map(r => ({ date: r.date, amountLabel: this.fmtMoney(r.amount), invoicesLabel: this.fmtNum(r.invoices) }));
+    const stcDateTotal = Object.values(stcByDateMap).reduce((a, r) => a + r.amount, 0);
+    const stcDateInvoicesTotal = Object.values(stcByDateMap).reduce((a, r) => a + r.invoices, 0);
     let stcStoreDailyRows = [];
     if (st.selectedStcStore) {
       stcStoreDailyRows = stcFiltered.filter(r => r.store === st.selectedStcStore).sort((a, b) => a.date < b.date ? -1 : 1)
@@ -1673,6 +1683,8 @@ class Component extends DCLogic {
       globalFiltersDisplay: st.page === 'wholesale' ? 'none' : (isMobile && !st.filtersOpen ? 'none' : 'flex'),
       showFilterToggle: isMobile && st.page !== 'wholesale',
       stcByStoreRows, stcByDateRows,
+      stcStoreTotalLabel: this.fmtMoney(stcStoreTotal), stcStoreInvoicesTotalLabel: this.fmtNum(stcStoreInvoicesTotal),
+      stcDateTotalLabel: this.fmtMoney(stcDateTotal), stcDateInvoicesTotalLabel: this.fmtNum(stcDateInvoicesTotal),
       stcStoreDailyOpen: !!st.selectedStcStore, stcStoreDailyLabel: st.selectedStcStoreName, stcStoreDailyRows,
       closeStcStoreDaily: () => this.setState({ selectedStcStore: null, tableZoom: 1 }),
       isStcStore: st.stcView !== 'day', isStcDay: st.stcView === 'day',
