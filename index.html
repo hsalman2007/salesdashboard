@@ -58,7 +58,12 @@ a:hover{color:var(--color-accent-300)}
 </div>
 
 <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:var(--space-2)">
+<div style="display:flex;align-items:baseline;gap:12px;min-width:0">
+<sc-if value="{{showBackButton}}" hint-placeholder-val="{{false}}">
+<button onClick="{{goBack}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500);padding:0;align-self:center">←</button>
+</sc-if>
 <h1 style="font-family:var(--font-heading);font-size:30px;font-weight:500;margin:0">{{pageTitle}}</h1>
+</div>
 </div>
 
 <sc-if value="{{showFilterToggle}}" hint-placeholder-val="{{false}}">
@@ -253,7 +258,7 @@ a:hover{color:var(--color-accent-300)}
 <thead><tr><th style="text-align:left">Store</th><th>Net sales</th><th>Sold qty</th><th>ATV</th><th>UPT</th><th>Promo%</th><th>Invoices</th><th>Single Inv%</th><th>Return Qty</th><th>Return%</th><th>Markup%</th></tr></thead>
 <tbody>
 <sc-for list="{{r.stores}}" as="s" hint-placeholder-count="3">
-<tr onClick="{{s.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;padding-left:28px;padding-right:32px;text-align:left">{{s.name}}</td><td style="font-weight:600;white-space:nowrap">{{s.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.promoLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.singleItemPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.returnQtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.returnPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.markupLabel}}</td></tr>
+<tr><td style="font-weight:600;white-space:nowrap;padding-left:28px;padding-right:32px;text-align:left">{{s.name}}</td><td style="font-weight:600;white-space:nowrap">{{s.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.promoLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.singleItemPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.returnQtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.returnPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.markupLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -286,7 +291,7 @@ a:hover{color:var(--color-accent-300)}
 <sc-if value="{{r.expanded}}" hint-placeholder-val="{{false}}">
 <div style="display:flex;flex-direction:column;gap:8px;padding-top:6px;border-top:1px solid var(--color-divider)">
 <sc-for list="{{r.stores}}" as="s" hint-placeholder-count="3">
-<div onClick="{{s.onClick}}" style="display:flex;flex-direction:column;gap:6px;padding:8px;border-radius:var(--radius-sm);background:var(--color-bg)">
+<div style="display:flex;flex-direction:column;gap:6px;padding:8px;border-radius:var(--radius-sm);background:var(--color-bg)">
 <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
 <div style="font-weight:600;font-size:13px">{{s.name}}</div>
 <div style="font-weight:700;font-size:13px;color:var(--color-accent)">{{s.netSalesLabel}}</div>
@@ -350,17 +355,17 @@ a:hover{color:var(--color-accent-300)}
 </sc-if>
 <sc-if value="{{categoryDetailOpen}}" hint-placeholder-val="{{false}}">
 <div onClick="{{closeCategoryDetail}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px">
-<div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:620px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5)">
+<div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:760px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5)">
 <div style="display:flex;gap:12px;align-items:center">
 <div style="flex:1;min-width:0;font-weight:700;font-size:15px">{{categoryDetailLabel}}</div>
 <div onClick="{{closeCategoryDetail}}" style="cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500);padding:4px">×</div>
 </div>
 <div style="overflow-y:auto;flex:1">
 <table class="table">
-<thead><tr><th>Image</th><th style="text-align:left">Item</th><th>Net sales</th><th>% of sales</th><th>Qty</th></tr></thead>
+<thead><tr><th>Image</th><th style="text-align:left">SKU</th><th style="text-align:left">Item</th><th>Net sales</th><th>% of sales</th><th>Qty</th></tr></thead>
 <tbody>
 <sc-for list="{{categoryDetailRows}}" as="it" hint-placeholder-count="10">
-<tr onClick="{{it.onClick}}" style="cursor:pointer"><td><img src="{{it.imageSrc}}" style="width:40px;height:40px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block"></td><td style="font-weight:600;white-space:nowrap;text-align:left">{{it.itemDesc}}</td><td style="font-weight:600;white-space:nowrap">{{it.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.pctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.qtyLabel}}</td></tr>
+<tr onClick="{{it.onClick}}" style="cursor:pointer"><td><img src="{{it.imageSrc}}" style="width:40px;height:40px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block"></td><td style="font-weight:600;white-space:nowrap;text-align:left">{{it.itemNo}}</td><td style="font-weight:600;text-align:left;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{it.itemDesc}}">{{it.itemDesc}}</td><td style="font-weight:600;white-space:nowrap">{{it.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.pctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.qtyLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -1376,6 +1381,8 @@ class Component extends DCLogic {
 
     return {
       pageTitle: titles[st.page],
+      showBackButton: st.page === 'invoices',
+      goBack: () => this.setState({ page: 'stores' }),
       isMobile,
       isDesktop: !isMobile,
       navDisplay: isMobile ? 'none' : 'flex',
