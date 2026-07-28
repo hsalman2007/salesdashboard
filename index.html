@@ -558,7 +558,7 @@ a:hover{color:var(--color-accent-300)}
 <thead><tr><th>Date</th><th>Net sales</th><th>Sold qty</th><th>Invoices</th><th>ATV</th><th>UPT</th><th>Single Inv</th><th>Single Inv%</th></tr></thead>
 <tbody>
 <sc-for list="{{dailySorted}}" as="d" hint-placeholder-count="10">
-<tr><td style="font-weight:600;white-space:nowrap">{{d.date}}</td><td style="font-weight:600;white-space:nowrap">{{d.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.singleItemInvoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.singleItemPctLabel}}</td></tr>
+<tr onClick="{{d.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap">{{d.date}}</td><td style="font-weight:600;white-space:nowrap">{{d.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.singleItemInvoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.singleItemPctLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -567,7 +567,7 @@ a:hover{color:var(--color-accent-300)}
 <sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
 <div style="display:flex;flex-direction:column;gap:10px">
 <sc-for list="{{dailySorted}}" as="d" hint-placeholder-count="10">
-<div class="card elev-sm" style="display:flex;flex-direction:column;gap:10px">
+<div onClick="{{d.onClick}}" class="card elev-sm" style="display:flex;flex-direction:column;gap:10px;cursor:pointer">
 <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
 <div style="font-weight:700;font-size:15px">{{d.date}}</div>
 <div style="font-weight:700;font-size:16px;color:var(--color-accent);white-space:nowrap">{{d.netSalesLabel}}</div>
@@ -584,6 +584,27 @@ a:hover{color:var(--color-accent-300)}
 </div>
 </sc-if>
 </section>
+</sc-if>
+
+<sc-if value="{{dailyDetailOpen}}" hint-placeholder-val="{{false}}">
+<div onClick="{{closeDailyDetail}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:var(--space-4);z-index:50">
+<div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:760px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5);touch-action:pinch-zoom">
+<div style="display:flex;gap:12px;align-items:center">
+<div style="flex:1;min-width:0;font-weight:700;font-size:15px">Store ranking — {{dailyDetailLabel}}</div>
+<button onClick="{{closeDailyDetail}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
+</div>
+<div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow-y:auto;overflow-x:hidden;flex:1;touch-action:pan-y">
+<table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
+<thead><tr><th>#</th><th style="text-align:left">Store</th><th>Net sales</th><th>Sold qty</th><th>Invoices</th><th>ATV</th><th>UPT</th><th>Single Inv</th><th>Single Inv%</th></tr></thead>
+<tbody>
+<sc-for list="{{dailyDetailRows}}" as="s" hint-placeholder-count="10">
+<tr><td style="font-weight:600">{{s.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{s.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{s.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.singleItemInvoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.singleItemPctLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</div>
+</div>
 </sc-if>
 
 <sc-if value="{{isWholesale}}" hint-placeholder-val="{{false}}">
@@ -1331,6 +1352,37 @@ class Component extends DCLogic {
       singleItemInvoicesLabel: d.singleItemInvoices === null ? '—' : this.fmtNum(d.singleItemInvoices),
       singleItemPctLabel: d.singleItemPct === null ? '—' : Math.abs(d.singleItemPct).toFixed(1) + '%'
     }));
+    dailyRows = dailyRows.map(d => ({ ...d, onClick: () => this.setState({ selectedDailyDate: d.date, tableZoom: 1 }) }));
+
+    // daily detail modal — store ranking for the selected date
+    let dailyDetailRows = [];
+    if (st.selectedDailyDate) {
+      const singleItemByStoreForDate = {};
+      (st.receiptDay || []).forEach(r => {
+        if (r.date !== st.selectedDailyDate) return;
+        if (!bucketMatches(r.store)) return;
+        singleItemByStoreForDate[r.store] = (singleItemByStoreForDate[r.store] || 0) + r.singleItemInvoices;
+      });
+      const storeAggForDate = {};
+      filteredBuckets.forEach(b => {
+        if (b.date !== st.selectedDailyDate) return;
+        if (!storeAggForDate[b.store]) storeAggForDate[b.store] = { store: b.store, storeName: b.storeName, netSales: 0, qty: 0, invoices: 0 };
+        const a = storeAggForDate[b.store];
+        a.netSales += b.netSales; a.qty += b.qty; a.invoices += b.invoices;
+      });
+      dailyDetailRows = Object.values(storeAggForDate).sort((a, b) => b.netSales - a.netSales).map((r, i) => {
+        const atv = r.invoices ? r.netSales / r.invoices : 0;
+        const upt = r.invoices ? r.qty / r.invoices : 0;
+        const singleInv = singleItemByStoreForDate.hasOwnProperty(r.store) ? singleItemByStoreForDate[r.store] : null;
+        const singlePct = (singleInv !== null && r.invoices) ? 100 * singleInv / r.invoices : null;
+        return {
+          rank: i + 1, storeName: r.storeName, netSalesLabel: this.fmtMoney(r.netSales), qtyLabel: this.fmtNum(r.qty), invoicesLabel: this.fmtNum(r.invoices),
+          atvLabel: this.fmtMoney(atv), uptLabel: Math.abs(upt).toFixed(2),
+          singleItemInvoicesLabel: singleInv === null ? '—' : this.fmtNum(singleInv),
+          singleItemPctLabel: singlePct === null ? '—' : Math.abs(singlePct).toFixed(1) + '%'
+        };
+      });
+    }
 
     // region detail — grouped by region, respects all filters
     const byRegion = {};
@@ -1513,6 +1565,7 @@ class Component extends DCLogic {
       itemsSorted: itemsRows, itemsTotalCount: itemsFiltered.length, itemSearch: st.itemSearch,
       itemDetailOpen: !!st.selectedItemNo, itemDetailLabel: st.selectedItemLabel, itemDetailItemNo: st.selectedItemNoLabel, itemDetailImage: st.selectedItemImage, itemDetailRows, closeItemDetail: () => this.setState({ selectedItemNo: null, tableZoom: 1 }), stopPropagation: e => e.stopPropagation(),
       categoryDetailOpen: !!st.selectedCategoryKey, categoryDetailLabel: st.selectedCategoryLabel, categoryDetailRows, closeCategoryDetail: () => this.setState({ selectedCategoryKey: null, tableZoom: 1 }),
+      dailyDetailOpen: !!st.selectedDailyDate, dailyDetailLabel: st.selectedDailyDate, dailyDetailRows, closeDailyDetail: () => this.setState({ selectedDailyDate: null, tableZoom: 1 }),
       tableZoom: st.tableZoom || 1, tableZoomPct: (100 / (st.tableZoom || 1)) + '%', pinchStart: this.pinchStart, pinchMove: this.pinchMove, pinchEnd: this.pinchEnd,
       setItemSearch: e => this.setState({ itemSearch: e.target.value, itemsPage: 0 }),
       itemsPageLabel: (itemsPage + 1) + ' of ' + (itemsMaxPage + 1),
