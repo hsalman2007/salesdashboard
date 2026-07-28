@@ -360,8 +360,8 @@ a:hover{color:var(--color-accent-300)}
 <div style="flex:1;min-width:0;font-weight:700;font-size:15px">{{categoryDetailLabel}}</div>
 <div onClick="{{closeCategoryDetail}}" style="cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500);padding:4px">×</div>
 </div>
-<div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow:auto;flex:1;touch-action:none">
-<table class="table" style="transform:scale({{tableZoom}});transform-origin:top left">
+<div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow-y:auto;overflow-x:hidden;flex:1;touch-action:none">
+<table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
 <thead><tr><th>Image</th><th style="text-align:left">SKU</th><th style="text-align:left">Item</th><th>Net sales</th><th>% of sales</th><th>Qty</th></tr></thead>
 <tbody>
 <sc-for list="{{categoryDetailRows}}" as="it" hint-placeholder-count="10">
@@ -693,8 +693,8 @@ a:hover{color:var(--color-accent-300)}
 </div>
 <div onClick="{{closeItemDetail}}" style="cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500);padding:4px">×</div>
 </div>
-<div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow:auto;flex:1;touch-action:none">
-<table class="table" style="transform:scale({{tableZoom}});transform-origin:top left">
+<div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow-y:auto;overflow-x:hidden;flex:1;touch-action:none">
+<table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
 <thead><tr><th style="text-align:left">Store</th><th>Net sales</th><th>Qty</th><th>Return Qty</th><th>Avg/day</th></tr></thead>
 <tbody>
 <sc-for list="{{itemDetailRows}}" as="r" hint-placeholder-count="5">
@@ -1513,7 +1513,7 @@ class Component extends DCLogic {
       itemsSorted: itemsRows, itemsTotalCount: itemsFiltered.length, itemSearch: st.itemSearch,
       itemDetailOpen: !!st.selectedItemNo, itemDetailLabel: st.selectedItemLabel, itemDetailItemNo: st.selectedItemNoLabel, itemDetailImage: st.selectedItemImage, itemDetailRows, closeItemDetail: () => this.setState({ selectedItemNo: null, tableZoom: 1 }), stopPropagation: e => e.stopPropagation(),
       categoryDetailOpen: !!st.selectedCategoryKey, categoryDetailLabel: st.selectedCategoryLabel, categoryDetailRows, closeCategoryDetail: () => this.setState({ selectedCategoryKey: null, tableZoom: 1 }),
-      tableZoom: st.tableZoom || 1, pinchStart: this.pinchStart, pinchMove: this.pinchMove, pinchEnd: this.pinchEnd,
+      tableZoom: st.tableZoom || 1, tableZoomPct: (100 / (st.tableZoom || 1)) + '%', pinchStart: this.pinchStart, pinchMove: this.pinchMove, pinchEnd: this.pinchEnd,
       setItemSearch: e => this.setState({ itemSearch: e.target.value, itemsPage: 0 }),
       itemsPageLabel: (itemsPage + 1) + ' of ' + (itemsMaxPage + 1),
       itemsHasPrev: itemsPage > 0, itemsHasNext: itemsPage < itemsMaxPage,
