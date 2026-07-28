@@ -182,7 +182,7 @@ a:hover{color:var(--color-accent-300)}
 </div>
 
 <div style="display:flex;gap:var(--space-6);flex-wrap:wrap">
-<div style="flex:1;min-width:320px">
+<div style="flex:1;min-width:{{sectionMinWidth}}">
 <h3 style="font-family:var(--font-heading);font-size:16px;margin:0 0 var(--space-3)">Trending Branches</h3>
 <sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x:auto">
@@ -210,7 +210,7 @@ a:hover{color:var(--color-accent-300)}
 </div>
 </sc-if>
 </div>
-<div style="flex:1;min-width:320px">
+<div style="flex:1;min-width:{{sectionMinWidth}}">
 <h3 style="font-family:var(--font-heading);font-size:16px;margin:0 0 var(--space-3)">Trending Categories</h3>
 <sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x:auto">
@@ -740,7 +740,7 @@ a:hover{color:var(--color-accent-300)}
 <tr onClick="{{r.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap">{{r.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{r.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{r.amountLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.daysLabel}}</td></tr>
 </sc-for>
 </tbody>
-<tfoot><tr><td></td><td style="font-weight:700;text-align:left">Total</td><td style="font-weight:700;white-space:nowrap">{{stcStoreTotalLabel}}</td><td style="font-weight:700;white-space:nowrap">{{stcStoreInvoicesTotalLabel}}</td><td></td></tr></tfoot>
+<tfoot><tr><td></td><td style="font-weight:700;text-align:left">Total</td><td style="font-weight:700;white-space:nowrap">{{stcStoreTotalLabel}}</td><td style="font-weight:700;white-space:nowrap">{{stcStoreInvoicesTotalLabel}}</td><td style="font-weight:700;white-space:nowrap">{{stcStoreDaysTotalLabel}}</td></tr></tfoot>
 </table>
 </div>
 </sc-if>
@@ -755,9 +755,12 @@ a:hover{color:var(--color-accent-300)}
 <div class="card-meta">Invoices: {{r.invoicesLabel}} · Days: {{r.daysLabel}}</div>
 </div>
 </sc-for>
-<div class="card elev-sm" style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+<div class="card elev-sm" style="display:flex;flex-direction:column;gap:6px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
 <div style="font-weight:700;font-size:14px">Total</div>
 <div style="font-weight:700;font-size:15px;color:var(--color-accent);white-space:nowrap">{{stcStoreTotalLabel}}</div>
+</div>
+<div class="card-meta">Invoices: {{stcStoreInvoicesTotalLabel}} · Days: {{stcStoreDaysTotalLabel}}</div>
 </div>
 </div>
 </sc-if>
@@ -768,7 +771,7 @@ a:hover{color:var(--color-accent-300)}
 <thead><tr><th style="text-align:left">Date</th><th>Total amount</th><th>Invoices</th></tr></thead>
 <tbody>
 <sc-for list="{{stcByDateRows}}" as="r" hint-placeholder-count="10">
-<tr><td style="font-weight:600;white-space:nowrap;text-align:left">{{r.date}}</td><td style="font-weight:600;white-space:nowrap">{{r.amountLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.invoicesLabel}}</td></tr>
+<tr onClick="{{r.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;text-align:left">{{r.date}}</td><td style="font-weight:600;white-space:nowrap">{{r.amountLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.invoicesLabel}}</td></tr>
 </sc-for>
 </tbody>
 <tfoot><tr><td style="font-weight:700;text-align:left">Total</td><td style="font-weight:700;white-space:nowrap">{{stcDateTotalLabel}}</td><td style="font-weight:700;white-space:nowrap">{{stcDateInvoicesTotalLabel}}</td></tr></tfoot>
@@ -793,6 +796,29 @@ a:hover{color:var(--color-accent-300)}
 <tr><td style="font-weight:600;white-space:nowrap;text-align:left">{{d.date}}</td><td style="font-weight:600;white-space:nowrap">{{d.amountLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.invoicesLabel}}</td></tr>
 </sc-for>
 </tbody>
+<tfoot><tr><td style="font-weight:700;text-align:left">Total</td><td style="font-weight:700;white-space:nowrap">{{stcStoreDailyTotalLabel}}</td><td style="font-weight:700;white-space:nowrap">{{stcStoreDailyInvoicesTotalLabel}}</td></tr></tfoot>
+</table>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{stcDateStoreOpen}}" hint-placeholder-val="{{false}}">
+<div onClick="{{closeStcDateStore}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:var(--space-4);z-index:50">
+<div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:560px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5);touch-action:pinch-zoom">
+<div style="display:flex;gap:12px;align-items:center">
+<div style="flex:1;min-width:0;font-weight:700;font-size:15px">Store ranking — {{stcDateStoreLabel}}</div>
+<button onClick="{{closeStcDateStore}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
+</div>
+<div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow-y:auto;overflow-x:hidden;flex:1;touch-action:pan-y">
+<table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
+<thead><tr><th>Rank</th><th style="text-align:left">Store</th><th>Total amount</th><th>Invoices</th></tr></thead>
+<tbody>
+<sc-for list="{{stcDateStoreRows}}" as="r" hint-placeholder-count="10">
+<tr><td style="font-weight:600">{{r.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{r.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{r.amountLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.invoicesLabel}}</td></tr>
+</sc-for>
+</tbody>
+<tfoot><tr><td></td><td style="font-weight:700;text-align:left">Total</td><td style="font-weight:700;white-space:nowrap">{{stcDateStoreTotalLabel}}</td><td style="font-weight:700;white-space:nowrap">{{stcDateStoreInvoicesTotalLabel}}</td></tr></tfoot>
 </table>
 </div>
 </div>
@@ -1167,13 +1193,30 @@ class Component extends DCLogic {
       stcByDateMap[r.date].amount += r.amount; stcByDateMap[r.date].invoices += r.invoices;
     });
     const stcByDateRows = Object.values(stcByDateMap).sort((a, b) => a.date < b.date ? -1 : 1)
-      .map(r => ({ date: r.date, amountLabel: this.fmtMoney(r.amount), invoicesLabel: this.fmtNum(r.invoices) }));
+      .map(r => ({ date: r.date, amountLabel: this.fmtMoney(r.amount), invoicesLabel: this.fmtNum(r.invoices), onClick: () => this.setState({ selectedStcDate: r.date }) }));
     const stcDateTotal = Object.values(stcByDateMap).reduce((a, r) => a + r.amount, 0);
     const stcDateInvoicesTotal = Object.values(stcByDateMap).reduce((a, r) => a + r.invoices, 0);
     let stcStoreDailyRows = [];
+    let stcStoreDailyTotalLabel = '', stcStoreDailyInvoicesTotalLabel = '';
     if (st.selectedStcStore) {
-      stcStoreDailyRows = stcFiltered.filter(r => r.store === st.selectedStcStore).sort((a, b) => a.date < b.date ? -1 : 1)
+      const rowsForStore = stcFiltered.filter(r => r.store === st.selectedStcStore);
+      stcStoreDailyRows = rowsForStore.sort((a, b) => a.date < b.date ? -1 : 1)
         .map(r => ({ date: r.date, amountLabel: this.fmtMoney(r.amount), invoicesLabel: this.fmtNum(r.invoices) }));
+      stcStoreDailyTotalLabel = this.fmtMoney(rowsForStore.reduce((a, r) => a + r.amount, 0));
+      stcStoreDailyInvoicesTotalLabel = this.fmtNum(rowsForStore.reduce((a, r) => a + r.invoices, 0));
+    }
+    let stcDateStoreRows = [];
+    let stcDateStoreTotalLabel = '', stcDateStoreInvoicesTotalLabel = '';
+    if (st.selectedStcDate) {
+      const byStoreForDate = {};
+      stcFiltered.filter(r => r.date === st.selectedStcDate).forEach(r => {
+        if (!byStoreForDate[r.store]) { const sm = this.storeIndex[r.store]; byStoreForDate[r.store] = { storeName: sm ? (sm.shortName || sm.nameEn) : r.storeName, amount: 0, invoices: 0 }; }
+        byStoreForDate[r.store].amount += r.amount; byStoreForDate[r.store].invoices += r.invoices;
+      });
+      stcDateStoreRows = Object.values(byStoreForDate).sort((a, b) => b.amount - a.amount)
+        .map((r, i) => ({ rank: i + 1, storeName: r.storeName, amountLabel: this.fmtMoney(r.amount), invoicesLabel: this.fmtNum(r.invoices) }));
+      stcDateStoreTotalLabel = this.fmtMoney(Object.values(byStoreForDate).reduce((a, r) => a + r.amount, 0));
+      stcDateStoreInvoicesTotalLabel = this.fmtNum(Object.values(byStoreForDate).reduce((a, r) => a + r.invoices, 0));
     }
     let categoriesForPeriod;
     if (isDirty) {
@@ -1620,6 +1663,7 @@ class Component extends DCLogic {
       kpiFlex: isMobile ? '0 1 calc(50% - 5px)' : '1 1 148px',
       kpiValueSize: isMobile ? '20px' : '26px',
       kpiGap: isMobile ? '10px' : 'var(--space-4)',
+      sectionMinWidth: isMobile ? '100%' : '320px',
       navItems: pageOrder.map(p => ({
         label: titles[p], onClick: () => { this.goTo(p)(); this.setState({ mobileNavOpen: false }); },
         weight: st.page === p ? 600 : 400,
@@ -1684,9 +1728,12 @@ class Component extends DCLogic {
       showFilterToggle: isMobile && st.page !== 'wholesale',
       stcByStoreRows, stcByDateRows,
       stcStoreTotalLabel: this.fmtMoney(stcStoreTotal), stcStoreInvoicesTotalLabel: this.fmtNum(stcStoreInvoicesTotal),
+      stcStoreDaysTotalLabel: this.fmtNum(new Set(stcFiltered.map(r => r.date)).size),
       stcDateTotalLabel: this.fmtMoney(stcDateTotal), stcDateInvoicesTotalLabel: this.fmtNum(stcDateInvoicesTotal),
-      stcStoreDailyOpen: !!st.selectedStcStore, stcStoreDailyLabel: st.selectedStcStoreName, stcStoreDailyRows,
+      stcStoreDailyOpen: !!st.selectedStcStore, stcStoreDailyLabel: st.selectedStcStoreName, stcStoreDailyRows, stcStoreDailyTotalLabel, stcStoreDailyInvoicesTotalLabel,
       closeStcStoreDaily: () => this.setState({ selectedStcStore: null, tableZoom: 1 }),
+      stcDateStoreOpen: !!st.selectedStcDate, stcDateStoreLabel: st.selectedStcDate, stcDateStoreRows, stcDateStoreTotalLabel, stcDateStoreInvoicesTotalLabel,
+      closeStcDateStore: () => this.setState({ selectedStcDate: null, tableZoom: 1 }),
       isStcStore: st.stcView !== 'day', isStcDay: st.stcView === 'day',
       stcStoreBtnClass: st.stcView !== 'day' ? 'btn-primary' : 'btn-secondary',
       stcDayBtnClass: st.stcView === 'day' ? 'btn-primary' : 'btn-secondary',
