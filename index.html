@@ -360,7 +360,7 @@ a:hover{color:var(--color-accent-300)}
 <div style="flex:1;min-width:0;font-weight:700;font-size:15px">{{categoryDetailLabel}}</div>
 <div onClick="{{closeCategoryDetail}}" style="cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500);padding:4px">×</div>
 </div>
-<div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow-y:auto;overflow-x:hidden;flex:1;touch-action:none">
+<div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow-y:auto;overflow-x:hidden;flex:1;touch-action:pan-y">
 <table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
 <thead><tr><th>Image</th><th style="text-align:left">SKU</th><th style="text-align:left">Item</th><th>Net sales</th><th>% of sales</th><th>Qty</th></tr></thead>
 <tbody>
@@ -693,7 +693,7 @@ a:hover{color:var(--color-accent-300)}
 </div>
 <div onClick="{{closeItemDetail}}" style="cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500);padding:4px">×</div>
 </div>
-<div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow-y:auto;overflow-x:hidden;flex:1;touch-action:none">
+<div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow-y:auto;overflow-x:hidden;flex:1;touch-action:pan-y">
 <table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
 <thead><tr><th style="text-align:left">Store</th><th>Net sales</th><th>Qty</th><th>Return Qty</th><th>Avg/day</th></tr></thead>
 <tbody>
