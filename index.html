@@ -1125,6 +1125,8 @@ class Component extends DCLogic {
   renderVals() {
     const st = this.state;
     const isAuthed = !!st.auth;
+    const hideMarkup = isAuthed && st.auth.region !== 'All';
+    const mkp = v => hideMarkup ? '—' : v;
     const loginVals = {
       isAuthed, showLogin: !isAuthed, managerName: st.auth ? st.auth.name : '', lockRegion: isAuthed && st.auth.region !== 'All',
       loginId: st.loginId, loginPin: st.loginPin, loginError: st.loginError,
@@ -1358,7 +1360,7 @@ class Component extends DCLogic {
       overviewCost.netSales += netSales;
     });
     const grossMarkupPct = overviewCost.cost ? 100 * (overviewCost.netSales - overviewCost.cost) / overviewCost.cost : 0;
-    kpiCards.push({ label: 'Gross Markup%', value: grossMarkupPct.toFixed(1) + '%', sub: this.fmtMoney(overviewCost.netSales - overviewCost.cost) + ' margin' });
+    if (!hideMarkup) kpiCards.push({ label: 'Gross Markup%', value: grossMarkupPct.toFixed(1) + '%', sub: this.fmtMoney(overviewCost.netSales - overviewCost.cost) + ' margin' });
     if (st.page === 'categories') {
       st.itemsByStoreDate.forEach(row => {
         const [store, date, itemNo, netSales, qty] = row;
@@ -1373,7 +1375,7 @@ class Component extends DCLogic {
     const withCatMeasures = c => ({ ...c, atv: c.invoices ? c.netSales / c.invoices : 0, upt: c.invoices ? c.qty / c.invoices : 0, asp: c.qty ? c.netSales / c.qty : 0, pct: totalCatNetSales ? (c.netSales / totalCatNetSales) * 100 : 0 });
     const labelCat = c => {
       const cost = categoryCost[c.division + '|' + c.category] || 0;
-      const markupLabel = (cost ? 100 * (c.netSales - cost) / cost : 0).toFixed(1) + '%';
+      const markupLabel = mkp((cost ? 100 * (c.netSales - cost) / cost : 0).toFixed(1) + '%');
       return { ...c, netSalesLabel: this.fmtMoney(c.netSales), qtyLabel: this.fmtNum(c.qty), invoicesLabel: this.fmtNum(c.invoices), atvLabel: this.fmtMoney(c.atv), uptLabel: Math.abs(c.upt).toFixed(2), aspLabel: this.fmtMoney(c.asp), pctLabel: c.pct.toFixed(1) + '%', markupLabel };
     };
     let catRows = categoriesForPeriod.map(withCatMeasures);
@@ -1480,7 +1482,7 @@ class Component extends DCLogic {
     }
     const markupLabelFor = (code, netSales) => {
       const cost = storeCost[code] ? storeCost[code].cost : 0;
-      return (cost ? 100 * (netSales - cost) / cost : 0).toFixed(1) + '%';
+      return mkp((cost ? 100 * (netSales - cost) / cost : 0).toFixed(1) + '%');
     };
     const singleItemByStoreEarly = {};
     (st.receiptDay || []).forEach(r => {
@@ -1604,7 +1606,7 @@ class Component extends DCLogic {
     });
     itemsRows = itemsRows.map((it, i) => {
       const cost = (it.unitCost || 0) * it.qty;
-      const markupLabel = (cost ? 100 * (it.netSales - cost) / cost : 0).toFixed(1) + '%';
+      const markupLabel = mkp((cost ? 100 * (it.netSales - cost) / cost : 0).toFixed(1) + '%');
       const returnQtyLabel = this.fmtNum(it.returnQty || 0);
       const returnPctLabel = Math.abs(it.returnPct || 0).toFixed(1) + '%';
       const regionQtyList = Object.entries(regionQtyByItem[it.itemNo] || {}).sort((a, b) => b[1] - a[1]).map(([region, qty]) => ({ region, qtyLabel: this.fmtNum(qty) }));
@@ -1734,7 +1736,7 @@ class Component extends DCLogic {
     regionRows = regionRows.map(r => ({
       ...r, netSalesLabel: this.fmtMoney(r.netSales), qtyLabel: this.fmtNum(r.qty), invoicesLabel: this.fmtNum(r.invoices),
       atvLabel: this.fmtMoney(r.atv), uptLabel: Math.abs(r.upt).toFixed(2), aspLabel: this.fmtMoney(r.asp),
-      promoLabel: Math.abs(r.promoPct).toFixed(1) + '%', returnQtyLabel: this.fmtNum(r.returnQty), returnPctLabel: Math.abs(r.returnPct).toFixed(1) + '%', markupLabel: r.markupPct.toFixed(1) + '%',
+      promoLabel: Math.abs(r.promoPct).toFixed(1) + '%', returnQtyLabel: this.fmtNum(r.returnQty), returnPctLabel: Math.abs(r.returnPct).toFixed(1) + '%', markupLabel: mkp(r.markupPct.toFixed(1) + '%'),
       singleItemPctLabel: r.singleItemPct === null ? '—' : Math.abs(r.singleItemPct).toFixed(1) + '%',
       expanded: !!st.expandedRegions[r.region], arrow: st.expandedRegions[r.region] ? '▾' : '▸',
       regionLabel: (st.expandedRegions[r.region] ? '▾ ' : '▸ ') + r.region,
@@ -1747,7 +1749,7 @@ class Component extends DCLogic {
           promoLabel: (rawStore.qty ? Math.abs(100 * rawStore.discountedQty / rawStore.qty) : 0).toFixed(1) + '%',
           returnQtyLabel: this.fmtNum(rawStore.returnQty),
           returnPctLabel: ((rawStore.qty + rawStore.returnQty) ? Math.abs(100 * rawStore.returnQty / (rawStore.qty + rawStore.returnQty)) : 0).toFixed(1) + '%',
-          markupLabel: (cost ? 100 * (s.netSales - cost) / cost : 0).toFixed(1) + '%',
+          markupLabel: mkp((cost ? 100 * (s.netSales - cost) / cost : 0).toFixed(1) + '%'),
           singleItemPctLabel: (singleItemByStore.hasOwnProperty(s.code) && s.invoices) ? Math.abs(100 * singleItemByStore[s.code] / s.invoices).toFixed(1) + '%' : '—'
         };
       })
