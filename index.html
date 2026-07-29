@@ -113,6 +113,11 @@ a:hover{color:var(--color-accent-300)}
 </button>
 <sc-if value="{{dateMenuOpen}}" hint-placeholder-val="{{false}}">
 <div class="card elev-md" style="position:absolute;top:100%;left:0;z-index:20;margin-top:4px;padding:var(--space-3);width:240px">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-2)">
+<button class="btn btn-ghost" onClick="{{calendarPrevMonth}}" disabled="{{calendarAtStart}}" style="font-size:12px;padding:2px 8px">‹</button>
+<div style="font-weight:600;font-size:13px">{{calendarMonthLabel}}</div>
+<button class="btn btn-ghost" onClick="{{calendarNextMonth}}" disabled="{{calendarAtEnd}}" style="font-size:12px;padding:2px 8px">›</button>
+</div>
 <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;font-size:11px;text-align:center;color:var(--color-neutral-500);margin-bottom:4px">
 <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
 </div>
@@ -1153,12 +1158,21 @@ class Component extends DCLogic {
     const dateSet = new Set(dates);
     const calendarCells = [];
     const toISO = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-    if (dates.length) {
-      const first = new Date(dates[0] + 'T00:00:00');
-      const last = new Date(dates[dates.length - 1] + 'T00:00:00');
-      const leadBlanks = first.getDay();
+    const monthKeys = [...new Set(dates.map(d => d.slice(0, 7)))].sort();
+    let calendarMonthLabel = '', calendarAtStart = true, calendarAtEnd = true, calendarPrevMonth = () => {}, calendarNextMonth = () => {};
+    if (monthKeys.length) {
+      const idx = Math.min(st.calendarMonthIndex == null ? monthKeys.length - 1 : st.calendarMonthIndex, monthKeys.length - 1);
+      const monthKey = monthKeys[idx];
+      const [my, mm] = monthKey.split('-').map(Number);
+      const monthStart = new Date(my, mm - 1, 1);
+      calendarMonthLabel = monthStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      calendarAtStart = idx === 0;
+      calendarAtEnd = idx === monthKeys.length - 1;
+      calendarPrevMonth = () => this.setState({ calendarMonthIndex: Math.max(0, idx - 1) });
+      calendarNextMonth = () => this.setState({ calendarMonthIndex: Math.min(monthKeys.length - 1, idx + 1) });
+      const leadBlanks = monthStart.getDay();
       for (let i = 0; i < leadBlanks; i++) calendarCells.push({ blank: true, hasData: false });
-      for (let d = new Date(first); d <= last; d.setDate(d.getDate() + 1)) {
+      for (let d = new Date(monthStart); d.getMonth() === mm - 1; d.setDate(d.getDate() + 1)) {
         const iso = toISO(d);
         const hasData = dateSet.has(iso);
         const inRange = f.dateRange && iso >= f.dateRange.start && iso <= f.dateRange.end;
@@ -1816,7 +1830,7 @@ class Component extends DCLogic {
       clearFilters: () => this.setState({ filters: { region: (st.auth && st.auth.region !== 'All') ? st.auth.region : 'All', city: 'All', store: 'All', month: 'All', dateRange: null }, rangeAnchor: null }),
       dateMenuOpen: st.dateMenuOpen,
       dateButtonLabel: !f.dateRange ? 'All dates' : f.dateRange.start === f.dateRange.end ? f.dateRange.start : f.dateRange.start + ' → ' + f.dateRange.end,
-      calendarCells,
+      calendarCells, calendarMonthLabel, calendarAtStart, calendarAtEnd, calendarPrevMonth, calendarNextMonth,
       setSearch: e => this.setState({ search: e.target.value }),
       search: st.search,
       sortHandlers: {
