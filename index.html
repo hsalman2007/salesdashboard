@@ -1050,9 +1050,11 @@ class Component extends DCLogic {
       img.crossOrigin = 'anonymous';
       img.onload = () => {
         try {
-          const c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
-          c.getContext('2d').drawImage(img, 0, 0);
-          resolve(c.toDataURL('image/png'));
+          // thumbnail-sized canvas (PDF only renders these at ~14px) + JPEG keeps each embed a few KB
+          const dim = 60;
+          const c = document.createElement('canvas'); c.width = dim; c.height = dim;
+          c.getContext('2d').drawImage(img, 0, 0, dim, dim);
+          resolve(c.toDataURL('image/jpeg', 0.6));
         } catch (e) { resolve(null); }
       };
       img.onerror = () => resolve(null);
@@ -1063,8 +1065,10 @@ class Component extends DCLogic {
   async loadImageDataUrl(url) {
     if (!url) return null;
     // most product photo hosts (e.g. alrimaya.com) don't send CORS headers, so a direct
-    // cross-origin canvas read silently fails; proxy through a CORS-safe image resizer first.
-    const proxied = 'https://images.weserv.nl/?url=' + encodeURIComponent(url.replace(/^https?:\/\//, ''));
+    // cross-origin canvas read silently fails; proxy through a CORS-safe image resizer first,
+    // also asking it to pre-resize so we never pull down a full-resolution original.
+    const noScheme = url.replace(/^https?:\/\//, '');
+    const proxied = 'https://images.weserv.nl/?url=' + encodeURIComponent(noScheme) + '&w=80&h=80&fit=cover';
     const viaProxy = await this.loadImageViaSrc(proxied);
     if (viaProxy) return viaProxy;
     return this.loadImageViaSrc(url);
@@ -1090,7 +1094,7 @@ class Component extends DCLogic {
           const url = imgDataUrls[data.row.index];
           if (url) {
             const dim = Math.min(data.cell.height - 4, 14);
-            try { doc.addImage(url, 'PNG', data.cell.x + 3, data.cell.y + 2, dim, dim); } catch (e) {}
+            try { doc.addImage(url, 'JPEG', data.cell.x + 3, data.cell.y + 2, dim, dim); } catch (e) {}
           }
         }
       }
