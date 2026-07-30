@@ -1805,7 +1805,7 @@ class Component extends DCLogic {
       const excludedSkus = new Set(['99-939', '99-940', '99-941', 'SRV-004', 'SRV-003']);
       (st.itemsByStoreDate || []).forEach(([store, date, itemNo, netSales, qty, invoices, returnQty]) => {
         if (store !== st.selectedDailyStore || date !== st.selectedDailyDate) return;
-        if (excludedSkus.has(itemNo)) return;
+        if (excludedSkus.has(itemNo) || String(itemNo).startsWith('SRV-')) return;
         const meta = this.itemMeta[itemNo] || {};
         if (!itemAggForStoreDate[itemNo]) itemAggForStoreDate[itemNo] = { itemNo, itemDesc: meta.itemDesc || itemNo, image: meta.image || '', qty: 0 };
         itemAggForStoreDate[itemNo].qty += qty;
