@@ -9,6 +9,8 @@
 <x-dc>
 <helmet>
 <link rel="stylesheet" href="nocturne/styles.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
 body{margin:0}
 a:hover{color:var(--color-accent-300)}
@@ -632,7 +634,29 @@ a:hover{color:var(--color-accent-300)}
 <thead><tr><th>#</th><th style="text-align:left">Store</th><th>Net sales</th><th>Sold qty</th><th>Invoices</th><th>ATV</th><th>UPT</th><th>Single Inv</th><th>Single Inv%</th></tr></thead>
 <tbody>
 <sc-for list="{{dailyDetailRows}}" as="s" hint-placeholder-count="10">
-<tr><td style="font-weight:600">{{s.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{s.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{s.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.singleItemInvoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.singleItemPctLabel}}</td></tr>
+<tr onClick="{{s.onClick}}" style="cursor:pointer"><td style="font-weight:600">{{s.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{s.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{s.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.singleItemInvoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.singleItemPctLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{dailyStoreItemOpen}}" hint-placeholder-val="{{false}}">
+<div onClick="{{closeDailyStoreItem}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:var(--space-4);z-index:55">
+<div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:640px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5);touch-action:pinch-zoom">
+<div style="display:flex;gap:12px;align-items:center">
+<div style="flex:1;min-width:0;font-weight:700;font-size:15px">Item ranking — {{dailyStoreItemLabel}} — {{dailyStoreItemDate}}</div>
+<button class="btn btn-ghost" onClick="{{exportDailyStoreItemPdf}}" style="font-size:12px;padding:6px 10px;white-space:nowrap">Download PDF</button>
+<button onClick="{{closeDailyStoreItem}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
+</div>
+<div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow-y:auto;overflow-x:hidden;flex:1;touch-action:pan-y">
+<table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
+<thead><tr><th>#</th><th>Image</th><th style="text-align:left">SKU</th><th style="text-align:left">Description</th><th>Sold qty</th></tr></thead>
+<tbody>
+<sc-for list="{{dailyStoreItemRows}}" as="it" hint-placeholder-count="10">
+<tr><td style="font-weight:600">{{it.rank}}</td><td><img src="{{it.imageSrc}}" style="width:40px;height:40px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block"></td><td style="font-weight:600;white-space:nowrap;text-align:left">{{it.itemNo}}</td><td style="font-weight:600;text-align:left">{{it.itemDesc}}</td><td style="font-weight:600;white-space:nowrap">{{it.qtyLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -1019,6 +1043,60 @@ class Component extends DCLogic {
       this.setState({ loading: false, loadError: true });
     }
   }
+
+  loadImageViaSrc(src) {
+    return new Promise(resolve => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        try {
+          const c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
+          c.getContext('2d').drawImage(img, 0, 0);
+          resolve(c.toDataURL('image/png'));
+        } catch (e) { resolve(null); }
+      };
+      img.onerror = () => resolve(null);
+      img.src = src;
+    });
+  }
+
+  async loadImageDataUrl(url) {
+    if (!url) return null;
+    // most product photo hosts (e.g. alrimaya.com) don't send CORS headers, so a direct
+    // cross-origin canvas read silently fails; proxy through a CORS-safe image resizer first.
+    const proxied = 'https://images.weserv.nl/?url=' + encodeURIComponent(url.replace(/^https?:\/\//, ''));
+    const viaProxy = await this.loadImageViaSrc(proxied);
+    if (viaProxy) return viaProxy;
+    return this.loadImageViaSrc(url);
+  }
+
+  exportDailyStoreItemPdf = async () => {
+    const rows = this._lastDailyStoreItemRows || [];
+    const st = this.state;
+    if (!rows.length || !window.jspdf) return;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(13);
+    doc.text('Item ranking \u2014 ' + (st.selectedDailyStoreLabel || '') + ' \u2014 ' + (st.selectedDailyDate || ''), 14, 15);
+    const imgDataUrls = await Promise.all(rows.map(r => this.loadImageDataUrl(r.image)));
+    doc.autoTable({
+      startY: 22,
+      head: [['#', 'Image', 'SKU', 'Description', 'Sold Qty']],
+      body: rows.map((r, i) => [i + 1, '', r.itemNo, r.itemDesc, this.fmtNum(r.qty)]),
+      columnStyles: { 1: { cellWidth: 20 } },
+      styles: { minCellHeight: 16, valign: 'middle', fontSize: 9 },
+      didDrawCell: data => {
+        if (data.column.index === 1 && data.cell.section === 'body') {
+          const url = imgDataUrls[data.row.index];
+          if (url) {
+            const dim = Math.min(data.cell.height - 4, 14);
+            try { doc.addImage(url, 'PNG', data.cell.x + 3, data.cell.y + 2, dim, dim); } catch (e) {}
+          }
+        }
+      }
+    });
+    doc.save('item-ranking-' + (st.selectedDailyDate || '') + '-' + (st.selectedDailyStoreLabel || 'store').replace(/[^a-z0-9]+/gi, '-') + '.pdf');
+  };
 
   fmtMoney(n) { const v = Math.round(n || 0); return (v < 0 ? '-' : '') + Math.abs(v).toLocaleString('en-US'); }
   fmtNum(n) { const v = Math.round(n || 0); return (v < 0 ? '-' : '') + Math.abs(v).toLocaleString('en-US'); }
@@ -1706,12 +1784,29 @@ class Component extends DCLogic {
         const singleInv = singleItemByStoreForDate.hasOwnProperty(r.store) ? singleItemByStoreForDate[r.store] : null;
         const singlePct = (singleInv !== null && r.invoices) ? 100 * singleInv / r.invoices : null;
         return {
-          rank: i + 1, storeName: r.storeName, netSalesLabel: this.fmtMoney(r.netSales), qtyLabel: this.fmtNum(r.qty), invoicesLabel: this.fmtNum(r.invoices),
+          rank: i + 1, store: r.store, storeName: r.storeName, netSalesLabel: this.fmtMoney(r.netSales), qtyLabel: this.fmtNum(r.qty), invoicesLabel: this.fmtNum(r.invoices),
           atvLabel: this.fmtMoney(atv), uptLabel: Math.abs(upt).toFixed(2),
           singleItemInvoicesLabel: singleInv === null ? '—' : this.fmtNum(singleInv),
-          singleItemPctLabel: singlePct === null ? '—' : Math.abs(singlePct).toFixed(1) + '%'
+          singleItemPctLabel: singlePct === null ? '—' : Math.abs(singlePct).toFixed(1) + '%',
+          onClick: () => this.setState({ selectedDailyStore: r.store, selectedDailyStoreLabel: r.storeName })
         };
       });
+    }
+
+    // daily store item ranking — items sold by a specific store on the selected date
+    let dailyStoreItemRows = [];
+    if (st.selectedDailyDate && st.selectedDailyStore) {
+      const blankImg2 = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect width="40" height="40" fill="%23252b3a"/%3E%3C/svg%3E';
+      const itemAggForStoreDate = {};
+      (st.itemsByStoreDate || []).forEach(([store, date, itemNo, netSales, qty, invoices, returnQty]) => {
+        if (store !== st.selectedDailyStore || date !== st.selectedDailyDate) return;
+        const meta = this.itemMeta[itemNo] || {};
+        if (!itemAggForStoreDate[itemNo]) itemAggForStoreDate[itemNo] = { itemNo, itemDesc: meta.itemDesc || itemNo, image: meta.image || '', qty: 0 };
+        itemAggForStoreDate[itemNo].qty += qty;
+      });
+      const storeItemsAll = Object.values(itemAggForStoreDate).sort((a, b) => b.qty - a.qty);
+      dailyStoreItemRows = storeItemsAll.map((it, i) => ({ ...it, rank: i + 1, imageSrc: it.image || blankImg2, qtyLabel: this.fmtNum(it.qty) }));
+      this._lastDailyStoreItemRows = storeItemsAll;
     }
 
     // region detail — grouped by region, respects all filters
@@ -1910,7 +2005,9 @@ class Component extends DCLogic {
       itemsSorted: itemsRows, itemsTotalCount: itemsFiltered.length, itemSearch: st.itemSearch,
       itemDetailOpen: !!st.selectedItemNo, itemDetailLabel: st.selectedItemLabel, itemDetailItemNo: st.selectedItemNoLabel, itemDetailImage: st.selectedItemImage, itemDetailRows, closeItemDetail: () => this.setState({ selectedItemNo: null, tableZoom: 1 }), stopPropagation: e => e.stopPropagation(),
       categoryDetailOpen: !!st.selectedCategoryKey, categoryDetailLabel: st.selectedCategoryLabel, categoryDetailRows, closeCategoryDetail: () => this.setState({ selectedCategoryKey: null, tableZoom: 1 }),
-      dailyDetailOpen: !!st.selectedDailyDate, dailyDetailLabel: st.selectedDailyDate, dailyDetailRows, closeDailyDetail: () => this.setState({ selectedDailyDate: null, tableZoom: 1 }),
+      dailyDetailOpen: !!st.selectedDailyDate, dailyDetailLabel: st.selectedDailyDate, dailyDetailRows, closeDailyDetail: () => this.setState({ selectedDailyDate: null, selectedDailyStore: null, tableZoom: 1 }),
+      dailyStoreItemOpen: !!(st.selectedDailyDate && st.selectedDailyStore), dailyStoreItemLabel: st.selectedDailyStoreLabel, dailyStoreItemDate: st.selectedDailyDate, dailyStoreItemRows,
+      closeDailyStoreItem: () => this.setState({ selectedDailyStore: null, tableZoom: 1 }), exportDailyStoreItemPdf: this.exportDailyStoreItemPdf,
       storeDailyOpen: !!st.selectedStoreCode, storeDailyLabel: st.selectedStoreLabel, storeDailyRows, closeStoreDaily: () => this.setState({ selectedStoreCode: null, tableZoom: 1 }),
       tableZoom: st.tableZoom || 1, tableZoomPct: (100 / (st.tableZoom || 1)) + '%', pinchStart: this.pinchStart, pinchMove: this.pinchMove, pinchEnd: this.pinchEnd,
       setItemSearch: e => this.setState({ itemSearch: e.target.value, itemsPage: 0 }),
