@@ -1412,12 +1412,20 @@ class Component extends DCLogic {
     const atv = invoiceCount ? netSales / invoiceCount : 0;
     const upt = invoiceCount ? qty / invoiceCount : 0;
     const asp = qty ? netSales / qty : 0;
+    // wholesale + BO + 3P, respecting the active global filters, folded into Executive Overview's Net Sales
+    let overviewWholesaleTotal = 0;
+    st.wholesale.forEach(w => {
+      const sm = this.storeIndex[w.storeCode] || {};
+      if (!this.matchesFilters({ store: w.storeCode, date: w.date || '', region: sm.region, city: sm.city })) return;
+      overviewWholesaleTotal += w.amount;
+    });
+    const netSalesWithWholesale = netSales + overviewWholesaleTotal;
     const discountPct = (netSales + discount) ? (100 * discount / (netSales + discount)) : 0;
     const returnRate = (qty + returnQty) ? (100 * returnQty / (qty + returnQty)) : 0;
     const returnMonthsCount = [...new Set(filteredBuckets.map(b => b.date.slice(0, 7)))].length || 1;
 
     const kpiCards = [
-      { label: 'Net Sales', value: this.fmtMoney(netSales), sub: this.fmtMoney(Math.round(dates.length ? netSales / dates.length : 0)) + ' avg. per day' },
+      { label: 'Net Sales', value: this.fmtMoney(netSalesWithWholesale), sub: 'retail + wholesale, BO & 3P' },
       { label: 'ATV', value: this.fmtMoney(atv), sub: 'avg. transaction value' },
       { label: 'UPT', value: Math.abs(upt).toFixed(2), sub: 'units per transaction' },
       { label: 'ASP', value: this.fmtMoney(asp), sub: 'avg. selling price' },
@@ -1931,9 +1939,14 @@ class Component extends DCLogic {
     });
     // wholesale + BO amount per date, respecting active filters, folded into Daily Sales' combined Net Sales
     const dailyWholesaleMap = {};
+    let dailyWholesaleUndated = 0;
     st.wholesale.forEach(w => {
-      if (!w.date) return;
       const sm = this.storeIndex[w.storeCode] || {};
+      if (!w.date) {
+        if (!this.matchesFilters({ store: w.storeCode, date: '', region: sm.region, city: sm.city })) return;
+        dailyWholesaleUndated += w.amount;
+        return;
+      }
       if (!this.matchesFilters({ store: w.storeCode, date: w.date, region: sm.region, city: sm.city })) return;
       dailyWholesaleMap[w.date] = (dailyWholesaleMap[w.date] || 0) + w.amount;
     });
@@ -1957,11 +1970,11 @@ class Component extends DCLogic {
     });
     dailyRows = dailyRows.map(d => ({ ...d, onClick: () => this.setState({ selectedDailyDate: d.date, tableZoom: 1 }) }));
     const dailyRetailTotal = Object.values(dailyAgg).reduce((a, d) => a + d.netSales, 0);
-    const dailyWholesaleTotal = Object.values(dailyWholesaleMap).reduce((a, b) => a + b, 0);
+    const dailyWholesaleTotal = Object.values(dailyWholesaleMap).reduce((a, b) => a + b, 0) + dailyWholesaleUndated;
     const dailyKpiCards = [
-      { label: 'Net Sales', value: this.fmtMoney(dailyRetailTotal + dailyWholesaleTotal), sub: 'retail + wholesale & BO' },
+      { label: 'Net Sales', value: this.fmtMoney(dailyRetailTotal + dailyWholesaleTotal), sub: 'retail + wholesale, BO & 3P' },
       { label: 'Retail Sales', value: this.fmtMoney(dailyRetailTotal), sub: '' },
-      { label: 'Wholesale & BO', value: this.fmtMoney(dailyWholesaleTotal), sub: '' }
+      { label: 'Wholesale, BO & 3P', value: this.fmtMoney(dailyWholesaleTotal), sub: '' }
     ];
 
     // daily detail modal — store ranking for the selected date
