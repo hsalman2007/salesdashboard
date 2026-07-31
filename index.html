@@ -516,7 +516,7 @@ a:hover{color:var(--color-accent-300)}
 <div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4)">Top 100 items by net sales — respects region, city, store and date filters</div>
 <div class="field" style="max-width:280px;margin-bottom:var(--space-4)">
 <label>Search item</label>
-<input class="input" type="text" placeholder="e.g. shirt" value="{{itemSearch}}" onChange="{{setItemSearch}}">
+<input class="input" type="text" placeholder="e.g. shirt or SKU" value="{{itemSearch}}" onChange="{{setItemSearch}}">
 </div>
 <sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x:auto">
@@ -1697,7 +1697,7 @@ class Component extends DCLogic {
       itemsForPeriod = st.itemsRaw;
     }
     const itemSearch = st.itemSearch.trim().toLowerCase();
-    const itemsFiltered = itemsForPeriod.filter(it => !it.itemNo.startsWith('SRV-') && (!itemSearch || it.itemDesc.toLowerCase().includes(itemSearch)));
+    const itemsFiltered = itemsForPeriod.filter(it => !it.itemNo.startsWith('SRV-') && (!itemSearch || it.itemDesc.toLowerCase().includes(itemSearch) || (it.itemNo || '').toLowerCase().includes(itemSearch)));
     const itemsWithMeasures = itemsFiltered.map(it => ({ ...it, upt: it.invoices ? it.qty / it.invoices : 0, returnPct: ((it.qty + (it.returnQty || 0)) ? 100 * (it.returnQty || 0) / (it.qty + (it.returnQty || 0)) : 0) }));
     const itsort = st.sort.items;
     const itemsSortedFull = this.sortRows(itemsWithMeasures, itsort.col, itsort.dir);
