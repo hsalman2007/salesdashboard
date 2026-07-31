@@ -59,7 +59,7 @@ a:hover{color:var(--color-accent-300)}
 </sc-if>
 </div>
 </nav>
-<main style="flex:1;padding:{{mainPadding}};max-width:{{mainMaxWidth}}">
+<main style="flex:1;min-width:0;padding:{{mainPadding}};max-width:{{mainMaxWidth}};box-sizing:border-box;overflow-x:hidden">
 
 <div style="display:{{bottomNavDisplay}};position:fixed;left:0;right:0;bottom:0;z-index:30;padding:6px 4px calc(6px + env(safe-area-inset-bottom));background:var(--color-surface);border-top:1px solid var(--color-divider);box-shadow:var(--shadow-md)">
 <sc-for list="{{bottomNavItems}}" as="b" hint-placeholder-count="6">
@@ -150,17 +150,29 @@ a:hover{color:var(--color-accent-300)}
 <section>
 <div style="display:flex;gap:{{kpiGap}};flex-wrap:wrap;margin-bottom:var(--space-8)">
 <sc-for list="{{kpiCards}}" as="k" hint-placeholder-count="7">
-<div class="card elev-sm" style="flex:{{kpiFlex}};min-width:0">
+<div class="card elev-sm" style="flex:{{kpiFlex}};min-width:0;overflow:hidden">
 <div class="card-kicker">{{k.label}}</div>
-<div class="card-title" style="font-size:{{kpiValueSize}};margin-top:2px;white-space:nowrap">{{k.value}}</div>
-<div class="card-meta">{{k.sub}}</div>
+<div class="card-title" style="font-size:{{kpiValueSize}};margin-top:2px;white-space:{{kpiValueWrap}};overflow:hidden;text-overflow:ellipsis">{{k.value}}</div>
+<div class="card-meta" style="overflow-wrap:break-word">{{k.sub}}</div>
 </div>
 </sc-for>
+<div class="card elev-sm" style="flex:{{kpiFlex}};min-width:0;overflow:hidden">
+<div class="card-kicker">Top 3 Stores</div>
+<div style="display:flex;flex-direction:column;gap:6px;margin-top:6px">
+<sc-for list="{{topStoresKpi}}" as="s" hint-placeholder-count="3">
+<div onClick="{{s.onClick}}" style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;cursor:pointer">
+<div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{s.rank}}. {{s.name}}</div>
+<div style="font-size:13px;font-weight:700;color:var(--color-accent);white-space:nowrap">{{s.netSalesLabel}}</div>
+</div>
+</sc-for>
+</div>
+<div class="card-meta" style="margin-top:6px">blended score: sales, returns, promo, markup, ATV, UPT</div>
+</div>
 </div>
 
 <div style="display:flex;gap:var(--space-6);flex-wrap:wrap;margin-bottom:var(--space-8)">
 <div style="flex:1;min-width:0">
-<h3 style="font-family:var(--font-heading);font-size:16px;margin:0 0 var(--space-4)">Daily net sales <span style="font-weight:400;color:var(--color-neutral-500)">(current month)</span></h3>
+<h3 style="font-family:var(--font-heading);font-size:16px;margin:0 0 var(--space-4)">Daily net sales <span style="font-weight:400;color:var(--color-neutral-500)">({{chartRangeLabel}})</span></h3>
 <div style="overflow-x:auto;padding-bottom:2px">
 <div style="position:relative;width:{{dailyTrend.width}}px;height:{{dailyTrend.height}}px">
 <svg width="{{dailyTrend.width}}" height="{{dailyTrend.height}}" viewBox="0 0 {{dailyTrend.width}} {{dailyTrend.height}}" style="display:block">
@@ -266,17 +278,17 @@ a:hover{color:var(--color-accent-300)}
 <sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x:auto">
 <table class="table">
-<thead><tr><th style="text-align:left">Region</th><th>Net sales</th><th>Sold qty</th><th>ATV</th><th>UPT</th><th>Promo%</th><th>Invoices</th><th>Single Inv%</th><th>Return Qty</th><th>Return%</th><th>Markup%</th></tr></thead>
+<thead><tr><th style="text-align:left">Region</th><th>Net sales</th><th>Sold qty</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Promo%</th><th>Invoices</th><th>Single Inv%</th><th>Return Qty</th><th>Return%</th><th>Markup%</th></tr></thead>
 <tbody>
 <sc-for list="{{regionSorted}}" as="r" hint-placeholder-count="5">
-<tr onClick="{{r.onToggle}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;padding-right:32px;text-align:left">{{r.regionLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.promoLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.singleItemPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.returnQtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.returnPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.markupLabel}}</td></tr>
+<tr onClick="{{r.onToggle}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;padding-right:32px;text-align:left">{{r.regionLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.promoLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.singleItemPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.returnQtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.returnPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.markupLabel}}</td></tr>
 <sc-if value="{{r.expanded}}" hint-placeholder-val="{{false}}">
-<tr><td colspan="11" style="padding:0 0 var(--space-4) 0">
+<tr><td colspan="12" style="padding:0 0 var(--space-4) 0">
 <table class="table">
-<thead><tr><th style="text-align:left">Store</th><th>Net sales</th><th>Sold qty</th><th>ATV</th><th>UPT</th><th>Promo%</th><th>Invoices</th><th>Single Inv%</th><th>Return Qty</th><th>Return%</th><th>Markup%</th></tr></thead>
+<thead><tr><th style="text-align:left">Store</th><th>Net sales</th><th>Sold qty</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Promo%</th><th>Invoices</th><th>Single Inv%</th><th>Return Qty</th><th>Return%</th><th>Markup%</th></tr></thead>
 <tbody>
 <sc-for list="{{r.stores}}" as="s" hint-placeholder-count="3">
-<tr><td style="font-weight:600;white-space:nowrap;padding-left:28px;padding-right:32px;text-align:left">{{s.name}}</td><td style="font-weight:600;white-space:nowrap">{{s.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.promoLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.singleItemPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.returnQtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.returnPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.markupLabel}}</td></tr>
+<tr><td style="font-weight:600;white-space:nowrap;padding-left:28px;padding-right:32px;text-align:left">{{s.name}}</td><td style="font-weight:600;white-space:nowrap">{{s.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.promoLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.singleItemPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.returnQtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.returnPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.markupLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -284,6 +296,7 @@ a:hover{color:var(--color-accent-300)}
 </sc-if>
 </sc-for>
 </tbody>
+<tfoot><tr style="border-top:2px solid var(--color-divider)"><td style="font-weight:700;white-space:nowrap;padding-right:32px;text-align:left">Grand Total</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.netSalesLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.qtyLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.atvLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.uptLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.aspLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.promoLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.invoicesLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.singleItemPctLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.returnQtyLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.returnPctLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.markupLabel}}</td></tr></tfoot>
 </table>
 </div>
 </sc-if>
@@ -300,6 +313,7 @@ a:hover{color:var(--color-accent-300)}
 <div><div class="card-meta">Invoices</div><div style="font-weight:600">{{r.invoicesLabel}}</div></div>
 <div><div class="card-meta">ATV</div><div style="font-weight:600">{{r.atvLabel}}</div></div>
 <div><div class="card-meta">UPT</div><div style="font-weight:600">{{r.uptLabel}}</div></div>
+<div><div class="card-meta">ASP</div><div style="font-weight:600">{{r.aspLabel}}</div></div>
 <div><div class="card-meta">Promo%</div><div style="font-weight:600">{{r.promoLabel}}</div></div>
 <div><div class="card-meta">Single Inv%</div><div style="font-weight:600">{{r.singleItemPctLabel}}</div></div>
 <div><div class="card-meta">Return Qty</div><div style="font-weight:600">{{r.returnQtyLabel}}</div></div>
@@ -315,7 +329,7 @@ a:hover{color:var(--color-accent-300)}
 <div style="font-weight:700;font-size:13px;color:var(--color-accent)">{{s.netSalesLabel}}</div>
 </div>
 <div style="display:flex;flex-wrap:wrap;gap:8px 12px;font-size:11px;color:var(--color-neutral-500)">
-<span>Qty {{s.qtyLabel}}</span><span>ATV {{s.atvLabel}}</span><span>UPT {{s.uptLabel}}</span><span>Single Inv% {{s.singleItemPctLabel}}</span><span>Return Qty {{s.returnQtyLabel}}</span><span>Return% {{s.returnPctLabel}}</span><span>Markup {{s.markupLabel}}</span>
+<span>Qty {{s.qtyLabel}}</span><span>ATV {{s.atvLabel}}</span><span>UPT {{s.uptLabel}}</span><span>ASP {{s.aspLabel}}</span><span>Single Inv% {{s.singleItemPctLabel}}</span><span>Return Qty {{s.returnQtyLabel}}</span><span>Return% {{s.returnPctLabel}}</span><span>Markup {{s.markupLabel}}</span>
 </div>
 </div>
 </sc-for>
@@ -323,6 +337,24 @@ a:hover{color:var(--color-accent-300)}
 </sc-if>
 </div>
 </sc-for>
+<div class="card elev-sm" style="display:flex;flex-direction:column;gap:10px;margin-top:4px;border:1px solid var(--color-divider)">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+<div style="font-weight:700;font-size:15px">Total</div>
+<div style="font-weight:700;font-size:16px;color:var(--color-accent);white-space:nowrap">{{regionTotals.netSalesLabel}}</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px 16px;font-size:13px">
+<div><div class="card-meta">Qty</div><div style="font-weight:600">{{regionTotals.qtyLabel}}</div></div>
+<div><div class="card-meta">Invoices</div><div style="font-weight:600">{{regionTotals.invoicesLabel}}</div></div>
+<div><div class="card-meta">ATV</div><div style="font-weight:600">{{regionTotals.atvLabel}}</div></div>
+<div><div class="card-meta">UPT</div><div style="font-weight:600">{{regionTotals.uptLabel}}</div></div>
+<div><div class="card-meta">ASP</div><div style="font-weight:600">{{regionTotals.aspLabel}}</div></div>
+<div><div class="card-meta">Promo%</div><div style="font-weight:600">{{regionTotals.promoLabel}}</div></div>
+<div><div class="card-meta">Single Inv%</div><div style="font-weight:600">{{regionTotals.singleItemPctLabel}}</div></div>
+<div><div class="card-meta">Return Qty</div><div style="font-weight:600">{{regionTotals.returnQtyLabel}}</div></div>
+<div><div class="card-meta">Return%</div><div style="font-weight:600">{{regionTotals.returnPctLabel}}</div></div>
+<div><div class="card-meta">Markup%</div><div style="font-weight:600">{{regionTotals.markupLabel}}</div></div>
+</div>
+</div>
 </div>
 </sc-if>
 </section>
@@ -331,6 +363,11 @@ a:hover{color:var(--color-accent-300)}
 <sc-if value="{{isCategories}}" hint-placeholder-val="{{false}}">
 <section>
 <div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4)">Category mix — respects region, city, store and date filters</div>
+<div style="display:flex;gap:8px;margin-bottom:var(--space-4)">
+<button class="btn {{categoryTopBtnClass}}" onClick="{{setCategoryViewTop}}">Categories</button><button class="btn {{categorySubBtnClass}}" onClick="{{setCategoryViewSub}}">Sub-Categories</button>
+
+</div>
+<sc-if value="{{isCategorySub}}" hint-placeholder-val="{{true}}">
 <sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x:auto">
 <table class="table">
@@ -342,11 +379,12 @@ a:hover{color:var(--color-accent-300)}
 <th class="rl-th" onClick="{{sortHandlers.catInvoices}}">Invoices {{sortArrow.catInvoices}}</th>
 <th class="rl-th" onClick="{{sortHandlers.catAtv}}">ATV {{sortArrow.catAtv}}</th>
 <th class="rl-th" onClick="{{sortHandlers.catUpt}}">UPT {{sortArrow.catUpt}}</th>
+<th>ASP</th>
 <th>Markup%</th>
 </tr></thead>
 <tbody>
 <sc-for list="{{categoriesSorted}}" as="c" hint-placeholder-count="10">
-<tr onClick="{{c.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;text-align:left">{{c.category}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.pctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.markupLabel}}</td></tr>
+<tr onClick="{{c.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;text-align:left">{{c.category}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.pctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.markupLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -365,11 +403,57 @@ a:hover{color:var(--color-accent-300)}
 <div><div class="card-meta">Qty</div><div style="font-weight:600">{{c.qtyLabel}}</div></div>
 <div><div class="card-meta">Invoices</div><div style="font-weight:600">{{c.invoicesLabel}}</div></div>
 <div><div class="card-meta">ATV</div><div style="font-weight:600">{{c.atvLabel}}</div></div>
+<div><div class="card-meta">ASP</div><div style="font-weight:600">{{c.aspLabel}}</div></div>
 <div><div class="card-meta">Markup%</div><div style="font-weight:600">{{c.markupLabel}}</div></div>
 </div>
 </div>
 </sc-for>
 </div>
+</sc-if>
+</sc-if>
+<sc-if value="{{isCategoryTop}}" hint-placeholder-val="{{false}}">
+<sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
+<div style="overflow-x:auto">
+<table class="table">
+<thead><tr>
+<th class="rl-th" style="text-align:left" onClick="{{sortHandlers.topCatCategory}}">Category {{sortArrow.topCatCategory}}</th>
+<th class="rl-th" onClick="{{sortHandlers.topCatNetSales}}">Net sales {{sortArrow.topCatNetSales}}</th>
+<th class="rl-th" onClick="{{sortHandlers.topCatPct}}">% of sales {{sortArrow.topCatPct}}</th>
+<th class="rl-th" onClick="{{sortHandlers.topCatQty}}">Qty {{sortArrow.topCatQty}}</th>
+<th class="rl-th" onClick="{{sortHandlers.topCatInvoices}}">Invoices {{sortArrow.topCatInvoices}}</th>
+<th class="rl-th" onClick="{{sortHandlers.topCatAtv}}">ATV {{sortArrow.topCatAtv}}</th>
+<th class="rl-th" onClick="{{sortHandlers.topCatUpt}}">UPT {{sortArrow.topCatUpt}}</th>
+<th>ASP</th>
+<th>Markup%</th>
+</tr></thead>
+<tbody>
+<sc-for list="{{topCategoriesSorted}}" as="c" hint-placeholder-count="10">
+<tr onClick="{{c.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;text-align:left">{{c.category}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.pctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.markupLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</sc-if>
+<sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{topCategoriesSorted}}" as="c" hint-placeholder-count="10">
+<div class="card elev-sm" onClick="{{c.onClick}}" style="display:flex;flex-direction:column;gap:10px;cursor:pointer">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+<div style="font-weight:700;font-size:15px">{{c.category}}</div>
+<div style="font-weight:700;font-size:16px;color:var(--color-accent);white-space:nowrap">{{c.netSalesLabel}}</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px 16px;font-size:13px">
+<div><div class="card-meta">% of sales</div><div style="font-weight:600">{{c.pctLabel}}</div></div>
+<div><div class="card-meta">Qty</div><div style="font-weight:600">{{c.qtyLabel}}</div></div>
+<div><div class="card-meta">Invoices</div><div style="font-weight:600">{{c.invoicesLabel}}</div></div>
+<div><div class="card-meta">ATV</div><div style="font-weight:600">{{c.atvLabel}}</div></div>
+<div><div class="card-meta">ASP</div><div style="font-weight:600">{{c.aspLabel}}</div></div>
+<div><div class="card-meta">Markup%</div><div style="font-weight:600">{{c.markupLabel}}</div></div>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
 </sc-if>
 <sc-if value="{{categoryDetailOpen}}" hint-placeholder-val="{{false}}">
 <div onClick="{{closeCategoryDetail}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px">
@@ -386,6 +470,7 @@ a:hover{color:var(--color-accent-300)}
 <tr onClick="{{it.onClick}}" style="cursor:pointer"><td><img src="{{it.imageSrc}}" style="width:40px;height:40px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block"></td><td style="font-weight:600;white-space:nowrap;text-align:left">{{it.itemNo}}</td><td style="font-weight:600;text-align:left;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{it.itemDesc}}">{{it.itemDesc}}</td><td style="font-weight:600;white-space:nowrap">{{it.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.pctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.qtyLabel}}</td></tr>
 </sc-for>
 </tbody>
+<tfoot><tr style="border-top:2px solid var(--color-divider)"><td></td><td style="text-align:left"></td><td style="font-weight:700;text-align:left">Total</td><td style="font-weight:700;white-space:nowrap">{{categoryDetailTotals.netSalesLabel}}</td><td style="font-weight:700;white-space:nowrap">{{categoryDetailTotals.pctLabel}}</td><td style="font-weight:700;white-space:nowrap">{{categoryDetailTotals.qtyLabel}}</td></tr></tfoot>
 </table>
 </div>
 </div>
@@ -459,11 +544,12 @@ a:hover{color:var(--color-accent-300)}
 <th class="rl-th" onClick="{{sortHandlers.invInvoices}}">Invoices {{sortArrow.invInvoices}}</th>
 <th class="rl-th" onClick="{{sortHandlers.invAtv}}">ATV {{sortArrow.invAtv}}</th>
 <th class="rl-th" onClick="{{sortHandlers.invUpt}}">UPT {{sortArrow.invUpt}}</th>
+<th>ASP</th>
 <th>Single Inv%</th>
 </tr></thead>
 <tbody>
 <sc-for list="{{invoicesSorted}}" as="iv" hint-placeholder-count="12">
-<tr onClick="{{iv.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap">{{iv.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{iv.storeName}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{iv.region}}</td><td style="font-weight:600;white-space:nowrap">{{iv.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.singleItemPctLabel}}</td></tr>
+<tr onClick="{{iv.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap">{{iv.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{iv.storeName}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{iv.region}}</td><td style="font-weight:600;white-space:nowrap">{{iv.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.singleItemPctLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -483,6 +569,7 @@ a:hover{color:var(--color-accent-300)}
 <div><div class="card-meta">Invoices</div><div style="font-weight:600">{{iv.invoicesLabel}}</div></div>
 <div><div class="card-meta">ATV</div><div style="font-weight:600">{{iv.atvLabel}}</div></div>
 <div><div class="card-meta">UPT</div><div style="font-weight:600">{{iv.uptLabel}}</div></div>
+<div><div class="card-meta">ASP</div><div style="font-weight:600">{{iv.aspLabel}}</div></div>
 <div><div class="card-meta">Single Inv%</div><div style="font-weight:600">{{iv.singleItemPctLabel}}</div></div>
 </div>
 </div>
@@ -501,10 +588,10 @@ a:hover{color:var(--color-accent-300)}
 </div>
 <div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow-y:auto;overflow-x:hidden;flex:1;touch-action:pan-y">
 <table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
-<thead><tr><th style="text-align:left">Date</th><th>Net sales</th><th>Qty</th><th>Invoices</th><th>ATV</th><th>UPT</th><th>Single Inv%</th></tr></thead>
+<thead><tr><th style="text-align:left">Date</th><th>Net sales</th><th>Qty</th><th>Invoices</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Single Inv%</th></tr></thead>
 <tbody>
 <sc-for list="{{storeDailyRows}}" as="d" hint-placeholder-count="10">
-<tr><td style="font-weight:600;white-space:nowrap;text-align:left">{{d.date}}</td><td style="font-weight:600;white-space:nowrap">{{d.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.singleItemPctLabel}}</td></tr>
+<tr><td style="font-weight:600;white-space:nowrap;text-align:left">{{d.date}}</td><td style="font-weight:600;white-space:nowrap">{{d.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.singleItemPctLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -512,14 +599,14 @@ a:hover{color:var(--color-accent-300)}
 </div>
 </div>
 </sc-if>
-</sc-if>
+
 
 <sc-if value="{{isItems}}" hint-placeholder-val="{{false}}">
 <section>
 <div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4)">Top 100 items by net sales — respects region, city, store and date filters</div>
 <div class="field" style="max-width:280px;margin-bottom:var(--space-4)">
 <label>Search item</label>
-<input class="input" type="text" placeholder="e.g. shirt or SKU" value="{{itemSearch}}" onChange="{{setItemSearch}}">
+<input class="input" type="text" placeholder="e.g. chair or SKU" value="{{itemSearch}}" onChange="{{setItemSearch}}">
 </div>
 <sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x:auto">
@@ -603,10 +690,10 @@ a:hover{color:var(--color-accent-300)}
 <sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x:auto">
 <table class="table">
-<thead><tr><th>Date</th><th>Retail Sales</th><th>Net Sales</th><th>Sold qty</th><th>Invoices</th><th>ATV</th><th>UPT</th><th>Single Inv</th><th>Single Inv%</th></tr></thead>
+<thead><tr><th>Date</th><th>Retail Sales</th><th>Net Sales</th><th>Sold qty</th><th>Invoices</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Single Inv</th><th>Single Inv%</th></tr></thead>
 <tbody>
 <sc-for list="{{dailySorted}}" as="d" hint-placeholder-count="10">
-<tr onClick="{{d.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap">{{d.date}}</td><td style="font-weight:600;white-space:nowrap">{{d.retailSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.singleItemInvoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.singleItemPctLabel}}</td></tr>
+<tr onClick="{{d.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap">{{d.date}}</td><td style="font-weight:600;white-space:nowrap">{{d.retailSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.singleItemInvoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.singleItemPctLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -626,6 +713,7 @@ a:hover{color:var(--color-accent-300)}
 <div><div class="card-meta">Invoices</div><div style="font-weight:600">{{d.invoicesLabel}}</div></div>
 <div><div class="card-meta">ATV</div><div style="font-weight:600">{{d.atvLabel}}</div></div>
 <div><div class="card-meta">UPT</div><div style="font-weight:600">{{d.uptLabel}}</div></div>
+<div><div class="card-meta">ASP</div><div style="font-weight:600">{{d.aspLabel}}</div></div>
 <div><div class="card-meta">Single Inv%</div><div style="font-weight:600">{{d.singleItemPctLabel}}</div></div>
 </div>
 </div>
@@ -644,10 +732,10 @@ a:hover{color:var(--color-accent-300)}
 </div>
 <div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow-y:auto;overflow-x:hidden;flex:1;touch-action:pan-y">
 <table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
-<thead><tr><th>#</th><th style="text-align:left">Store</th><th>Net sales</th><th>Sold qty</th><th>Invoices</th><th>ATV</th><th>UPT</th><th>Single Inv</th><th>Single Inv%</th></tr></thead>
+<thead><tr><th>#</th><th style="text-align:left">Store</th><th>Net sales</th><th>Sold qty</th><th>Invoices</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Single Inv</th><th>Single Inv%</th></tr></thead>
 <tbody>
 <sc-for list="{{dailyDetailRows}}" as="s" hint-placeholder-count="10">
-<tr onClick="{{s.onClick}}" style="cursor:pointer"><td style="font-weight:600">{{s.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{s.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{s.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.singleItemInvoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.singleItemPctLabel}}</td></tr>
+<tr onClick="{{s.onClick}}" style="cursor:pointer"><td style="font-weight:600">{{s.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{s.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{s.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.singleItemInvoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.singleItemPctLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -972,6 +1060,7 @@ class Component extends DCLogic {
     sort: {
       stores: { col: 'netSales', dir: 'desc' },
       categories: { col: 'netSales', dir: 'desc' },
+      topCategories: { col: 'netSales', dir: 'desc' },
       invoices: { col: 'netSales', dir: 'desc' },
       items: { col: 'netSales', dir: 'desc' },
       discounts: { col: 'ratio', dir: 'desc' }
@@ -1322,6 +1411,7 @@ class Component extends DCLogic {
     const returnValue = Math.abs(filteredBuckets.reduce((a, b) => a + (b.returnValue || 0), 0));
     const atv = invoiceCount ? netSales / invoiceCount : 0;
     const upt = invoiceCount ? qty / invoiceCount : 0;
+    const asp = qty ? netSales / qty : 0;
     const discountPct = (netSales + discount) ? (100 * discount / (netSales + discount)) : 0;
     const returnRate = (qty + returnQty) ? (100 * returnQty / (qty + returnQty)) : 0;
     const returnMonthsCount = [...new Set(filteredBuckets.map(b => b.date.slice(0, 7)))].length || 1;
@@ -1330,17 +1420,20 @@ class Component extends DCLogic {
       { label: 'Net Sales', value: this.fmtMoney(netSales), sub: this.fmtMoney(Math.round(dates.length ? netSales / dates.length : 0)) + ' avg. per day' },
       { label: 'ATV', value: this.fmtMoney(atv), sub: 'avg. transaction value' },
       { label: 'UPT', value: Math.abs(upt).toFixed(2), sub: 'units per transaction' },
-      { label: 'No# of Invoices', value: this.fmtNum(invoiceCount), sub: this.fmtNum(Math.round(dates.length ? invoiceCount / dates.length : 0)) + ' avg. per day' },
+      { label: 'ASP', value: this.fmtMoney(asp), sub: 'avg. selling price' },
+      { label: 'No of Invoices', value: this.fmtNum(invoiceCount), sub: this.fmtNum(Math.round(dates.length ? invoiceCount / dates.length : 0)) + ' avg. per day' },
       { label: 'Sold Qty', value: this.fmtNum(qty), sub: this.fmtNum(Math.round(dates.length ? qty / dates.length : 0)) + ' avg. per day' },
-      { label: 'share of discounted items sold %', value: Math.abs(discountPct).toFixed(1) + '%', sub: this.fmtMoney(discount) + ' given' },
+      { label: '% of promo sold', value: Math.abs(discountPct).toFixed(1) + '%', sub: this.fmtMoney(discount) + ' given' },
       { label: 'Returns Rate', value: Math.abs(returnRate).toFixed(1) + '%', sub: this.fmtMoney(returnValue) + ' total \u00b7 ' + this.fmtNum(Math.round(returnMonthsCount ? returnQty / returnMonthsCount : 0)) + ' avg/month' }
     ];
 
     // daily bars — current month only
     const allDates = st.buckets.map(b => b.date);
     const currentMonth = allDates.length ? allDates.reduce((a, b) => (a > b ? a : b)).slice(0, 7) : '';
+    const chartMonth = f.month !== 'All' ? f.month : currentMonth;
+    const inChartRange = date => f.dateRange ? (date >= f.dateRange.start && date <= f.dateRange.end) : date.slice(0, 7) === chartMonth;
     const dailyMap = {};
-    filteredBuckets.filter(b => b.date.slice(0, 7) === currentMonth).forEach(b => { if (!dailyMap[b.date]) dailyMap[b.date] = 0; dailyMap[b.date] += b.netSales; });
+    filteredBuckets.filter(b => inChartRange(b.date)).forEach(b => { if (!dailyMap[b.date]) dailyMap[b.date] = 0; dailyMap[b.date] += b.netSales; });
     const dailyEntries = Object.entries(dailyMap).sort((a, b) => a[0].localeCompare(b[0]));
     const maxDaily = Math.max(1, ...dailyEntries.map(e => e[1]));
     const dailyBars = dailyEntries.map(([date, val]) => ({ label: date.slice(5), valueLabel: this.fmtMoney(val), heightPx: Math.max(36, Math.round(128 * val / maxDaily)) }));
@@ -1392,7 +1485,7 @@ class Component extends DCLogic {
     const ssort = st.sort.stores;
     storeRows = this.sortRows(storeRows, ssort.col, ssort.dir).map(s => ({ ...s, netSalesLabel: this.fmtMoney(s.netSales), atvLabel: this.fmtMoney(s.atv), uptLabel: Math.abs(s.upt).toFixed(2), aspLabel: this.fmtMoney(s.asp), qtyLabel: this.fmtNum(s.qty), invoicesLabel: this.fmtNum(s.invoices) }));
 
-    const trendBuckets = st.buckets.filter(b => this.matchesFilters(b) && b.date.slice(0, 7) === currentMonth);
+    const trendBuckets = st.buckets.filter(b => this.matchesFilters(b) && inChartRange(b.date));
     const trendStoreMap = {};
     trendBuckets.forEach(b => { if (!trendStoreMap[b.store]) trendStoreMap[b.store] = { code: b.store, name: b.storeName, netSales: 0, invoices: 0 }; trendStoreMap[b.store].netSales += b.netSales; trendStoreMap[b.store].invoices += b.invoices; });
     const topStores = Object.values(trendStoreMap).sort((a, b) => b.netSales - a.netSales).slice(0, 5).map(s => ({ ...s, netSalesLabel: this.fmtMoney(s.netSales), invoicesLabel: this.fmtNum(s.invoices) }));
@@ -1510,7 +1603,27 @@ class Component extends DCLogic {
     };
     let catRows = categoriesForPeriod.map(withCatMeasures);
     const csort = st.sort.categories;
-    catRows = this.sortRows(catRows, csort.col, csort.dir).map(labelCat).map(c => ({ ...c, onClick: () => this.setState({ selectedCategoryKey: c.division + '|' + c.category, selectedCategoryLabel: c.category }) }));
+    catRows = this.sortRows(catRows, csort.col, csort.dir).map(labelCat).map(c => ({ ...c, onClick: () => this.setState({ selectedCategoryKey: c.division + '|' + c.category, selectedCategoryMode: 'sub', selectedCategoryLabel: c.category }) }));
+
+    // top-level categories (division) roll-up — same measures, grouped one level up
+    let topCatRows = [];
+    if (st.page === 'categories') {
+      const divAgg = {};
+      categoriesForPeriod.forEach(c => {
+        if (!divAgg[c.division]) divAgg[c.division] = { division: c.division, category: c.division, netSales: 0, qty: 0, invoices: 0 };
+        divAgg[c.division].netSales += c.netSales; divAgg[c.division].qty += c.qty; divAgg[c.division].invoices += c.invoices;
+      });
+      const divCost = {};
+      Object.keys(categoryCost).forEach(key => {
+        const division = key.split('|')[0];
+        divCost[division] = (divCost[division] || 0) + categoryCost[key];
+      });
+      const tsort = st.sort.topCategories;
+      topCatRows = this.sortRows(Object.values(divAgg).map(withCatMeasures), tsort.col, tsort.dir).map(c => {
+        const cost = divCost[c.division] || 0;
+        return { ...c, netSalesLabel: this.fmtMoney(c.netSales), qtyLabel: this.fmtNum(c.qty), invoicesLabel: this.fmtNum(c.invoices), atvLabel: this.fmtMoney(c.atv), uptLabel: Math.abs(c.upt).toFixed(2), aspLabel: this.fmtMoney(c.asp), pctLabel: (totalCatNetSales ? 100 * c.netSales / totalCatNetSales : 0).toFixed(1) + '%', markupLabel: mkp((cost ? 100 * (c.netSales - cost) / cost : 0).toFixed(1) + '%') };
+      }).map(c => ({ ...c, onClick: () => this.setState({ selectedCategoryKey: c.division, selectedCategoryMode: 'division', selectedCategoryLabel: c.category }) }));
+    }
 
     // category detail modal — top 50 items in the selected category, respects all filters
     let categoryDetailRows = [];
@@ -1521,7 +1634,8 @@ class Component extends DCLogic {
         if (!inDateRange(date)) return;
         if (!bucketMatches(store)) return;
         const meta = this.itemMeta[itemNo] || {};
-        if ((meta.division + '|' + meta.category) !== st.selectedCategoryKey) return;
+        const catMatches = st.selectedCategoryMode === 'division' ? meta.division === st.selectedCategoryKey : (meta.division + '|' + meta.category) === st.selectedCategoryKey;
+        if (!catMatches) return;
         if (!itemAggForCategory[itemNo]) itemAggForCategory[itemNo] = { itemNo, itemDesc: meta.itemDesc || itemNo, image: meta.image || '', netSales: 0, qty: 0 };
         itemAggForCategory[itemNo].netSales += netSales; itemAggForCategory[itemNo].qty += qty;
       });
@@ -1529,11 +1643,12 @@ class Component extends DCLogic {
       const catItemsTotal = catItemsAll.reduce((s, it) => s + it.netSales, 0);
       const blankCatImg = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect width="40" height="40" fill="%23252b3a"/%3E%3C/svg%3E';
       categoryDetailRows = catItemsAll.slice(0, 50).map(it => ({ ...it, imageSrc: it.image || blankCatImg, netSalesLabel: this.fmtMoney(it.netSales), qtyLabel: this.fmtNum(it.qty), pctLabel: (catItemsTotal ? 100 * it.netSales / catItemsTotal : 0).toFixed(1) + '%', onClick: () => this.setState({ selectedItemNo: it.itemNo, selectedItemLabel: it.itemDesc, selectedItemNoLabel: it.itemNo, selectedItemImage: it.image || blankCatImg }) }));
+      var categoryDetailTotals = { netSalesLabel: this.fmtMoney(catItemsTotal), qtyLabel: this.fmtNum(catItemsAll.reduce((s, it) => s + it.qty, 0)), pctLabel: '100.0%' };
     }
     const trendCatAgg = {};
     st.categoriesByStoreDate.forEach(row => {
       const [store, date, division, category, netSales, qty, invoices] = row;
-      if (date.slice(0, 7) !== currentMonth) return;
+      if (!inChartRange(date)) return;
       if (!this.matchesFilters({ store, date, region: (this.storeIndex[store] || {}).region, city: (this.storeIndex[store] || {}).city })) return;
       if (!trendCatAgg[division]) trendCatAgg[division] = { category: division, netSales: 0, qty: 0, invoices: 0 };
       trendCatAgg[division].netSales += netSales; trendCatAgg[division].qty += qty; trendCatAgg[division].invoices += invoices;
@@ -1582,9 +1697,10 @@ class Component extends DCLogic {
         const upt = r.invoices ? r.qty / r.invoices : 0;
         const singleInv = singleItemByDateForStore.hasOwnProperty(r.date) ? singleItemByDateForStore[r.date] : null;
         const singlePct = (singleInv !== null && r.invoices) ? 100 * singleInv / r.invoices : null;
+        const asp = r.qty ? r.netSales / r.qty : 0;
         return {
           date: r.date, netSalesLabel: this.fmtMoney(r.netSales), qtyLabel: this.fmtNum(r.qty), invoicesLabel: this.fmtNum(r.invoices),
-          atvLabel: this.fmtMoney(atv), uptLabel: Math.abs(upt).toFixed(2),
+          atvLabel: this.fmtMoney(atv), uptLabel: Math.abs(upt).toFixed(2), aspLabel: this.fmtMoney(asp),
           singleItemPctLabel: singlePct === null ? '—' : Math.abs(singlePct).toFixed(1) + '%'
         };
       });
@@ -1599,7 +1715,7 @@ class Component extends DCLogic {
     });
     let discRows = Object.values(byStoreDisc);
     const storeCost = {};
-    if (st.page === 'discounts' || st.page === 'invoices' || st.page === 'regionDetail') {
+    if (st.page === 'discounts' || st.page === 'invoices' || st.page === 'regionDetail' || st.page === 'overview') {
       st.itemsByStoreDate.forEach(row => {
         const [store, date, itemNo, netSales, qty] = row;
         if (!inDateRange(date)) return;
@@ -1624,6 +1740,42 @@ class Component extends DCLogic {
       if (f.dateRange && (r.date < f.dateRange.start || r.date > f.dateRange.end)) return;
       singleItemByStoreEarly[r.store] = (singleItemByStoreEarly[r.store] || 0) + r.singleItemInvoices;
     });
+
+    // top-3 stores blended score: high sales/promo/markup/ATV/UPT, low returns & single-item share
+    let topStoresKpi = [];
+    if (st.page === 'overview') {
+      const candidates = Object.values(storeAggMap).filter(s => s.invoices > 0).map(s => {
+        const cost = storeCost[s.code] ? storeCost[s.code].cost : 0;
+        return {
+          code: s.code, name: s.name,
+          netSales: s.netSales,
+          returnPct: (s.qty + s.returnQty) ? 100 * s.returnQty / (s.qty + s.returnQty) : 0,
+          singleItemPct: (singleItemByStoreEarly.hasOwnProperty(s.code) && s.invoices) ? 100 * singleItemByStoreEarly[s.code] / s.invoices : 0,
+          promoPct: s.qty ? 100 * s.discountedQty / s.qty : 0,
+          markupPct: cost ? 100 * (s.netSales - cost) / cost : 0,
+          atv: s.invoices ? s.netSales / s.invoices : 0,
+          upt: s.invoices ? s.qty / s.invoices : 0
+        };
+      });
+      const norm = (val, min, max, invert) => {
+        if (max === min) return 0.5;
+        const n = (val - min) / (max - min);
+        return invert ? 1 - n : n;
+      };
+      const range = key => ({ min: Math.min(...candidates.map(c => c[key])), max: Math.max(...candidates.map(c => c[key])) });
+      const rNetSales = range('netSales'), rReturn = range('returnPct'), rSingle = range('singleItemPct'), rPromo = range('promoPct'), rMarkup = range('markupPct'), rAtv = range('atv'), rUpt = range('upt');
+      const scored = candidates.map(c => ({
+        ...c,
+        score: 0.30 * norm(c.netSales, rNetSales.min, rNetSales.max, false)
+          + 0.15 * norm(c.returnPct, rReturn.min, rReturn.max, true)
+          + 0.15 * norm(c.singleItemPct, rSingle.min, rSingle.max, true)
+          + 0.10 * norm(c.promoPct, rPromo.min, rPromo.max, false)
+          + 0.15 * norm(c.markupPct, rMarkup.min, rMarkup.max, false)
+          + 0.075 * norm(c.atv, rAtv.min, rAtv.max, false)
+          + 0.075 * norm(c.upt, rUpt.min, rUpt.max, false)
+      })).sort((a, b) => b.score - a.score);
+      topStoresKpi = scored.slice(0, 3).map((c, i) => ({ rank: i + 1, name: c.name, netSalesLabel: this.fmtMoney(c.netSales), onClick: () => this.setState({ page: 'invoices', filters: { ...st.filters, store: c.code } }) }));
+    }
     invRows = invRows.map(d => ({ ...d, markupLabel: markupLabelFor(d.code, d.netSales), singleItemPctLabel: (singleItemByStoreEarly.hasOwnProperty(d.code) && d.invoices) ? Math.abs(100 * singleItemByStoreEarly[d.code] / d.invoices).toFixed(1) + '%' : '—' }));
     const discRankMap = {};
     const discRowsWithRatio = discRows.map(d => {
@@ -1833,9 +1985,10 @@ class Component extends DCLogic {
         const upt = r.invoices ? r.qty / r.invoices : 0;
         const singleInv = singleItemByStoreForDate.hasOwnProperty(r.store) ? singleItemByStoreForDate[r.store] : null;
         const singlePct = (singleInv !== null && r.invoices) ? 100 * singleInv / r.invoices : null;
+        const asp = r.qty ? r.netSales / r.qty : 0;
         return {
           rank: i + 1, store: r.store, storeName: r.storeName, netSalesLabel: this.fmtMoney(r.netSales), qtyLabel: this.fmtNum(r.qty), invoicesLabel: this.fmtNum(r.invoices),
-          atvLabel: this.fmtMoney(atv), uptLabel: Math.abs(upt).toFixed(2),
+          atvLabel: this.fmtMoney(atv), uptLabel: Math.abs(upt).toFixed(2), aspLabel: this.fmtMoney(asp),
           singleItemInvoicesLabel: singleInv === null ? '—' : this.fmtNum(singleInv),
           singleItemPctLabel: singlePct === null ? '—' : Math.abs(singlePct).toFixed(1) + '%',
           onClick: () => this.setState({ selectedDailyStore: r.store, selectedDailyStoreLabel: r.storeName })
@@ -1921,7 +2074,19 @@ class Component extends DCLogic {
         };
       })
     }));
-
+    const regionTotals = (() => {
+      const t = regionRows.reduce((a, r) => ({ netSales: a.netSales + r.netSales, qty: a.qty + r.qty, invoices: a.invoices + r.invoices, discountedQty: a.discountedQty + (r.discountedQty || 0), returnQty: a.returnQty + r.returnQty }), { netSales: 0, qty: 0, invoices: 0, discountedQty: 0, returnQty: 0 });
+      const totalCost = Object.values(regionCost).reduce((a, c) => a + c, 0);
+      const singleItemTotal = Object.values(singleItemByRegion).reduce((a, c) => a + c, 0);
+      return {
+        netSalesLabel: this.fmtMoney(t.netSales), qtyLabel: this.fmtNum(t.qty), invoicesLabel: this.fmtNum(t.invoices),
+        atvLabel: this.fmtMoney(t.invoices ? t.netSales / t.invoices : 0), uptLabel: Math.abs(t.invoices ? t.qty / t.invoices : 0).toFixed(2),
+        promoLabel: Math.abs(t.qty ? 100 * t.discountedQty / t.qty : 0).toFixed(1) + '%',
+        singleItemPctLabel: t.invoices ? Math.abs(100 * singleItemTotal / t.invoices).toFixed(1) + '%' : '—',
+        returnQtyLabel: this.fmtNum(t.returnQty), returnPctLabel: Math.abs((t.qty + t.returnQty) ? 100 * t.returnQty / (t.qty + t.returnQty) : 0).toFixed(1) + '%',
+        markupLabel: mkp((totalCost ? 100 * (t.netSales - totalCost) / totalCost : 0).toFixed(1) + '%')
+      };
+    })();
     const titles = { overview: 'Executive Overview', stores: 'Branch Comparison', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', wholesale: 'Wholesale', daily: 'Daily Sales', regionDetail: 'Region Detail', stcQitaf: 'STC Qitaf' };
     const shortTitles = { overview: 'Overview', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily', regionDetail: 'Region', wholesale: 'Wholesale', stcQitaf: 'Qitaf' };
     const navIcons = { overview: '▣', categories: '▤', items: '◫', discounts: '%', invoices: '⌂', daily: '◷', regionDetail: '◈', wholesale: '◊', stcQitaf: '⊙' };
@@ -1946,6 +2111,7 @@ class Component extends DCLogic {
       kpiFlex: isMobile ? '0 1 calc(50% - 5px)' : '1 1 148px',
       kpiValueSize: isMobile ? '20px' : '26px',
       kpiGap: isMobile ? '10px' : 'var(--space-4)',
+      kpiValueWrap: isMobile ? 'normal' : 'nowrap',
       sectionMinWidth: isMobile ? '100%' : '320px',
       navItems: pageOrder.map(p => ({
         label: titles[p], onClick: () => { this.goTo(p)(); this.setState({ mobileNavOpen: false }); },
@@ -1992,7 +2158,8 @@ class Component extends DCLogic {
         storesNetSales: this.makeSortHandler('stores', 'netSales'), storesQty: this.makeSortHandler('stores', 'qty'), storesInvoices: this.makeSortHandler('stores', 'invoices'),
         storesAtv: this.makeSortHandler('stores', 'atv'), storesUpt: this.makeSortHandler('stores', 'upt'),
         catDivision: this.makeSortHandler('categories', 'division'), catCategory: this.makeSortHandler('categories', 'category'), catNetSales: this.makeSortHandler('categories', 'netSales'), catQty: this.makeSortHandler('categories', 'qty'),
-        catInvoices: this.makeSortHandler('categories', 'invoices'), catAtv: this.makeSortHandler('categories', 'atv'), catUpt: this.makeSortHandler('categories', 'upt'), catAsp: this.makeSortHandler('categories', 'asp'), catPct: this.makeSortHandler('categories', 'pct'),
+        catInvoices: this.makeSortHandler('categories', 'invoices'), catAtv: this.makeSortHandler('categories', 'atv'), catUpt: this.makeSortHandler('categories', 'upt'), catAsp: this.makeSortHandler('categories', 'asp'),
+        topCatCategory: this.makeSortHandler('topCategories', 'category'), topCatNetSales: this.makeSortHandler('topCategories', 'netSales'), topCatPct: this.makeSortHandler('topCategories', 'pct'), topCatQty: this.makeSortHandler('topCategories', 'qty'), topCatInvoices: this.makeSortHandler('topCategories', 'invoices'), topCatAtv: this.makeSortHandler('topCategories', 'atv'), topCatUpt: this.makeSortHandler('topCategories', 'upt'), catPct: this.makeSortHandler('categories', 'pct'),
         invStoreName: this.makeSortHandler('invoices', 'storeName'), invRegion: this.makeSortHandler('invoices', 'region'), invNetSales: this.makeSortHandler('invoices', 'netSales'), invQty: this.makeSortHandler('invoices', 'qty'), invDiscount: this.makeSortHandler('invoices', 'discount'), invInvoices: this.makeSortHandler('invoices', 'invoices'), invAtv: this.makeSortHandler('invoices', 'atv'), invUpt: this.makeSortHandler('invoices', 'upt'), invAsp: this.makeSortHandler('invoices', 'asp'),
         discStoreName: this.makeSortHandler('discounts', 'storeName'), discNetSales: this.makeSortHandler('discounts', 'netSales'), discDiscount: this.makeSortHandler('discounts', 'discount'), discQty: this.makeSortHandler('discounts', 'qty'), discRatio: this.makeSortHandler('discounts', 'ratio'),
         itemNo: this.makeSortHandler('items', 'itemNo'), itemDesc: this.makeSortHandler('items', 'itemDesc'), itemDivision: this.makeSortHandler('items', 'division'), itemCategory: this.makeSortHandler('items', 'category'), itemNetSales: this.makeSortHandler('items', 'netSales'), itemQty: this.makeSortHandler('items', 'qty'), itemInvoices: this.makeSortHandler('items', 'invoices'), itemUpt: this.makeSortHandler('items', 'upt'), itemReturnQty: this.makeSortHandler('items', 'returnQty'), itemReturnPct: this.makeSortHandler('items', 'returnPct')
@@ -2003,6 +2170,7 @@ class Component extends DCLogic {
         storesAtv: this.arrow('stores', 'atv'), storesUpt: this.arrow('stores', 'upt'),
         catDivision: this.arrow('categories', 'division'), catCategory: this.arrow('categories', 'category'), catNetSales: this.arrow('categories', 'netSales'), catQty: this.arrow('categories', 'qty'),
         catInvoices: this.arrow('categories', 'invoices'), catAtv: this.arrow('categories', 'atv'), catUpt: this.arrow('categories', 'upt'), catAsp: this.arrow('categories', 'asp'),
+        topCatCategory: this.arrow('topCategories', 'category'), topCatNetSales: this.arrow('topCategories', 'netSales'), topCatPct: this.arrow('topCategories', 'pct'), topCatQty: this.arrow('topCategories', 'qty'), topCatInvoices: this.arrow('topCategories', 'invoices'), topCatAtv: this.arrow('topCategories', 'atv'), topCatUpt: this.arrow('topCategories', 'upt'),
         invStoreName: this.arrow('invoices', 'storeName'), invRegion: this.arrow('invoices', 'region'), invNetSales: this.arrow('invoices', 'netSales'), invQty: this.arrow('invoices', 'qty'), invDiscount: this.arrow('invoices', 'discount'), invInvoices: this.arrow('invoices', 'invoices'), invAtv: this.arrow('invoices', 'atv'), invUpt: this.arrow('invoices', 'upt'), invAsp: this.arrow('invoices', 'asp'),
         discStoreName: this.arrow('discounts', 'storeName'), discNetSales: this.arrow('discounts', 'netSales'), discDiscount: this.arrow('discounts', 'discount'), discQty: this.arrow('discounts', 'qty'), discRatio: this.arrow('discounts', 'ratio'),
         itemNo: this.arrow('items', 'itemNo'), itemDesc: this.arrow('items', 'itemDesc'), itemDivision: this.arrow('items', 'division'), itemCategory: this.arrow('items', 'category'), itemNetSales: this.arrow('items', 'netSales'), itemQty: this.arrow('items', 'qty'), itemInvoices: this.arrow('items', 'invoices'), itemUpt: this.arrow('items', 'upt'), itemReturnQty: this.arrow('items', 'returnQty'), itemReturnPct: this.arrow('items', 'returnPct')
@@ -2051,13 +2219,18 @@ class Component extends DCLogic {
       wholesaleStoreCols: wStoreNames,
       wholesaleDailyRows,
       wholesaleUndatedLabel: wholesaleUndated ? this.fmtMoney(wholesaleUndated) : '',
-      regionSorted: regionRows,
+      regionSorted: regionRows, regionTotals,
       dailySorted: dailyRows, dailyKpiCards,
-      kpiCards, dailyBars, dailyTrend, regionBars, topStores, topCategories,
-      storesSorted: storeRows, categoriesSorted: catRows, invoicesSorted: invRows, discountsSorted: discRows,
+      kpiCards, dailyBars, dailyTrend, regionBars, topStores, topCategories, topStoresKpi,
+      chartRangeLabel: f.dateRange ? (f.dateRange.start + ' \u2013 ' + f.dateRange.end) : (chartMonth ? new Date(chartMonth + '-02').toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'current month'),
+      storesSorted: storeRows, categoriesSorted: catRows, topCategoriesSorted: topCatRows,
+      categoryView: st.categoryView || 'sub', isCategorySub: (st.categoryView || 'sub') !== 'top', isCategoryTop: st.categoryView === 'top',
+      categorySubBtnClass: (st.categoryView || 'sub') !== 'top' ? 'btn-primary' : 'btn-secondary', categoryTopBtnClass: st.categoryView === 'top' ? 'btn-primary' : 'btn-secondary',
+      setCategoryViewSub: () => this.setState({ categoryView: 'sub' }), setCategoryViewTop: () => this.setState({ categoryView: 'top' }),
+      invoicesSorted: invRows, discountsSorted: discRows,
       itemsSorted: itemsRows, itemsTotalCount: itemsFiltered.length, itemSearch: st.itemSearch,
       itemDetailOpen: !!st.selectedItemNo, itemDetailLabel: st.selectedItemLabel, itemDetailItemNo: st.selectedItemNoLabel, itemDetailImage: st.selectedItemImage, itemDetailRows, closeItemDetail: () => this.setState({ selectedItemNo: null, tableZoom: 1 }), stopPropagation: e => e.stopPropagation(),
-      categoryDetailOpen: !!st.selectedCategoryKey, categoryDetailLabel: st.selectedCategoryLabel, categoryDetailRows, closeCategoryDetail: () => this.setState({ selectedCategoryKey: null, tableZoom: 1 }),
+      categoryDetailOpen: !!st.selectedCategoryKey, categoryDetailLabel: st.selectedCategoryLabel, categoryDetailRows, categoryDetailTotals: typeof categoryDetailTotals !== 'undefined' ? categoryDetailTotals : { netSalesLabel: '', qtyLabel: '', pctLabel: '' }, closeCategoryDetail: () => this.setState({ selectedCategoryKey: null, tableZoom: 1 }),
       dailyDetailOpen: !!st.selectedDailyDate, dailyDetailLabel: st.selectedDailyDate, dailyDetailRows, closeDailyDetail: () => this.setState({ selectedDailyDate: null, selectedDailyStore: null, tableZoom: 1 }),
       dailyStoreItemOpen: !!(st.selectedDailyDate && st.selectedDailyStore), dailyStoreItemLabel: st.selectedDailyStoreLabel, dailyStoreItemDate: st.selectedDailyDate, dailyStoreItemRows,
       closeDailyStoreItem: () => this.setState({ selectedDailyStore: null, tableZoom: 1 }), exportDailyStoreItemPdf: this.exportDailyStoreItemPdf,
