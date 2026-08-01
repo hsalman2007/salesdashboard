@@ -487,7 +487,6 @@ a:hover{color:var(--color-accent-300)}
 <thead><tr>
 <th>Rank</th>
 <th class="rl-th" style="text-align:left" onClick="{{sortHandlers.discStoreName}}">Store {{sortArrow.discStoreName}}</th>
-<th class="rl-th" onClick="{{sortHandlers.discNetSales}}">Net sales {{sortArrow.discNetSales}}</th>
 <th class="rl-th" onClick="{{sortHandlers.discDiscount}}">Discount value {{sortArrow.discDiscount}}</th>
 <th>Markup%</th>
 <th class="rl-th" onClick="{{sortHandlers.discQty}}">Sold qty {{sortArrow.discQty}}</th>
@@ -497,7 +496,7 @@ a:hover{color:var(--color-accent-300)}
 </tr></thead>
 <tbody>
 <sc-for list="{{discountsSorted}}" as="d" hint-placeholder-count="10">
-<tr><td style="font-weight:600;white-space:nowrap">{{d.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{d.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{d.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.discountLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.markupLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.ratioLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.promoLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.invoicesLabel}}</td></tr>
+<tr onClick="{{d.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap">{{d.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{d.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{d.discountLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.markupLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.ratioLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.promoLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.invoicesLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -506,13 +505,12 @@ a:hover{color:var(--color-accent-300)}
 <sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
 <div style="display:flex;flex-direction:column;gap:10px">
 <sc-for list="{{discountsSorted}}" as="d" hint-placeholder-count="10">
-<div class="card elev-sm" style="display:flex;flex-direction:column;gap:10px">
+<div class="card elev-sm" onClick="{{d.onClick}}" style="display:flex;flex-direction:column;gap:10px;cursor:pointer">
 <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
 <div style="font-weight:700;font-size:15px">#{{d.rank}} {{d.storeName}}</div>
-<div style="font-weight:700;font-size:16px;color:var(--color-accent);white-space:nowrap">{{d.netSalesLabel}}</div>
+<div style="font-weight:700;font-size:16px;color:var(--color-accent);white-space:nowrap">{{d.discountLabel}}</div>
 </div>
 <div style="display:flex;flex-wrap:wrap;gap:10px 16px;font-size:13px">
-<div><div class="card-meta">Discount</div><div style="font-weight:600">{{d.discountLabel}}</div></div>
 <div><div class="card-meta">Discount%</div><div style="font-weight:600">{{d.ratioLabel}}</div></div>
 <div><div class="card-meta">Promo%</div><div style="font-weight:600">{{d.promoLabel}}</div></div>
 <div><div class="card-meta">Qty</div><div style="font-weight:600">{{d.qtyLabel}}</div></div>
@@ -761,6 +759,34 @@ a:hover{color:var(--color-accent-300)}
 </sc-for>
 </tbody>
 </table>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{discStoreItemOpen}}" hint-placeholder-val="{{false}}">
+<div onClick="{{closeDiscStoreItem}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:var(--space-4);z-index:55">
+<div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:640px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5);touch-action:pinch-zoom">
+<div style="display:flex;gap:12px;align-items:center">
+<div style="flex:1;min-width:0;font-weight:700;font-size:15px">Items sold at a discount — {{discStoreItemLabel}}</div>
+<button onClick="{{closeDiscStoreItem}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
+</div>
+<div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow-y:auto;overflow-x:hidden;flex:1;touch-action:pan-y">
+<table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
+<thead><tr><th>#</th><th>Image</th><th style="text-align:left">SKU</th><th style="text-align:left">Description</th><th>Net sales</th><th>Sold qty</th><th>Discount%</th><th>Markup%</th></tr></thead>
+<tbody>
+<sc-for list="{{discStoreItemRows}}" as="it" hint-placeholder-count="10">
+<tr><td style="font-weight:600">{{it.rank}}</td><td><img src="{{it.imageSrc}}" style="width:40px;height:40px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block"></td><td style="font-weight:600;white-space:nowrap;text-align:left">{{it.itemNo}}</td><td style="font-weight:600;text-align:left">{{it.itemDesc}}</td><td style="font-weight:600;white-space:nowrap">{{it.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.discountPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.markupLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);flex-wrap:wrap">
+<div style="font-size:12px;color:var(--color-neutral-500)">Page {{discItemPageLabel}}</div>
+<div style="display:flex;gap:8px">
+<button class="btn btn-ghost" onClick="{{discItemPrev}}" disabled="{{!discItemHasPrev}}">← Prev 100</button>
+<button class="btn btn-ghost" onClick="{{discItemNext}}" disabled="{{!discItemHasNext}}">Next 100 →</button>
+</div>
 </div>
 </div>
 </div>
@@ -1053,6 +1079,7 @@ class Component extends DCLogic {
     wholesaleChannel: 'wholesale',
     itemSearch: '',
     itemsPage: 0,
+    discItemPage: 0,
     filters: { region: 'All', city: 'All', store: 'All', month: 'All', dateRange: null },
     dateMenuOpen: false,
     filtersOpen: false,
@@ -1131,7 +1158,7 @@ class Component extends DCLogic {
       itemMaster.forEach(m => masterIndex[m.sku] = m);
       itemsRaw = itemsRaw.map(it => {
         const m = masterIndex[it.itemNo];
-        return m ? { ...it, itemDesc: m.descEn || it.itemDesc, image: m.image || '', unitCost: m.unitCost || 0, division: m.category || it.division, category: m.subCategory || it.category } : { ...it, image: '', unitCost: 0 };
+        return m ? { ...it, itemDesc: m.descEn || it.itemDesc, image: m.image || '', unitCost: m.unitCost || 0, rsp: m.rspXVAT || 0, division: m.category || it.division, category: m.subCategory || it.category } : { ...it, image: '', unitCost: 0 };
       });
       this.itemMeta = {};
       itemsRaw.forEach(it => this.itemMeta[it.itemNo] = it);
@@ -1785,15 +1812,52 @@ class Component extends DCLogic {
       topStoresKpi = scored.slice(0, 3).map((c, i) => ({ rank: i + 1, name: c.name, netSalesLabel: this.fmtMoney(c.netSales), onClick: () => this.setState({ page: 'invoices', filters: { ...st.filters, store: c.code } }) }));
     }
     invRows = invRows.map(d => ({ ...d, markupLabel: markupLabelFor(d.code, d.netSales), singleItemPctLabel: (singleItemByStoreEarly.hasOwnProperty(d.code) && d.invoices) ? Math.abs(100 * singleItemByStoreEarly[d.code] / d.invoices).toFixed(1) + '%' : '—' }));
+    const discMarkupLabelFor = (code, discountedValue, discountedQty, totalQty) => {
+      const cost = storeCost[code] ? storeCost[code].cost : 0;
+      const costPortion = totalQty ? cost * (discountedQty / totalQty) : 0;
+      return mkp((costPortion ? 100 * (discountedValue - costPortion) / costPortion : 0).toFixed(1) + '%');
+    };
     const discRankMap = {};
     const discRowsWithRatio = discRows.map(d => {
       const total = d.discountedValue + d.regularValue;
-      return { ...d, ratio: total ? 100 * d.discountedValue / total : 0, promoPct: d.qty ? 100 * d.discountedQty / d.qty : 0, markupLabel: markupLabelFor(d.code, d.netSales) };
+      return { ...d, ratio: total ? 100 * d.discountedValue / total : 0, promoPct: d.qty ? 100 * d.discountedQty / d.qty : 0, markupLabel: discMarkupLabelFor(d.code, d.discountedValue, d.discountedQty, d.qty) };
     });
     [...discRowsWithRatio].sort((a, b) => b.ratio - a.ratio).forEach((r, i) => { discRankMap[r.storeName] = i + 1; });
     const dsort = st.sort.discounts;
     discRows = this.sortRows(discRowsWithRatio, dsort.col, dsort.dir)
-      .map(d => ({ ...d, rank: discRankMap[d.storeName], netSalesLabel: this.fmtMoney(d.netSales), discountLabel: this.fmtMoney(d.discount), qtyLabel: this.fmtNum(d.qty), invoicesLabel: this.fmtNum(d.invoices), ratioLabel: Math.abs(d.ratio).toFixed(1) + '%', promoLabel: Math.abs(d.promoPct).toFixed(1) + '%' }));
+      .map(d => ({ ...d, rank: discRankMap[d.storeName], discountLabel: this.fmtMoney(d.discount), qtyLabel: this.fmtNum(d.discountedQty), invoicesLabel: this.fmtNum(Math.round(d.qty ? d.invoices * (d.discountedQty / d.qty) : 0)), ratioLabel: Math.abs(d.ratio).toFixed(1) + '%', promoLabel: Math.abs(d.promoPct).toFixed(1) + '%', onClick: () => this.setState({ selectedDiscStore: d.code, selectedDiscStoreLabel: d.storeName, discItemPage: 0, tableZoom: 1 }) }));
+
+    // discount store item drill-down — top items sold at the clicked store, paginated 100 at a time
+    let discStoreItemRows = [];
+    let discItemPage = 0, discItemMaxPage = 0;
+    if (st.selectedDiscStore) {
+      const blankImg3 = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect width="40" height="40" fill="%23252b3a"/%3E%3C/svg%3E';
+      const excludedSkusDisc = new Set(['99-939', '99-940', '99-941', 'SRV-004', 'SRV-003']);
+      const itemAggForDiscStore = {};
+      st.itemsByStoreDate.forEach(row => {
+        const [store, date, itemNo, netSales, qty] = row;
+        if (store !== st.selectedDiscStore) return;
+        if (!inDateRange(date)) return;
+        if (excludedSkusDisc.has(itemNo) || String(itemNo).startsWith('SRV-')) return;
+        const meta = this.itemMeta[itemNo] || {};
+        if (!itemAggForDiscStore[itemNo]) itemAggForDiscStore[itemNo] = { itemNo, itemDesc: meta.itemDesc || itemNo, image: meta.image, rsp: meta.rsp || 0, unitCost: meta.unitCost || 0, netSales: 0, qty: 0 };
+        itemAggForDiscStore[itemNo].netSales += netSales; itemAggForDiscStore[itemNo].qty += qty;
+      });
+      const discStoreItemsAll = Object.values(itemAggForDiscStore)
+        .map(it => {
+          const roundedAmt = it.netSales * 1.15; // Total Rounded Amt = Net Amount + VAT (15%), matching rspXVAT's VAT-inclusive basis
+          const asp = it.qty ? roundedAmt / it.qty : 0;
+          const discountPct = it.rsp ? 100 * (it.rsp - asp) / it.rsp : 0;
+          const cost = it.unitCost * it.qty;
+          const markupLabel = mkp((cost ? 100 * (it.netSales - cost) / cost : 0).toFixed(1) + '%');
+          return { ...it, discountPct, markupLabel };
+        })
+        .filter(it => it.rsp > 0 && it.discountPct > 0.5)
+        .sort((a, b) => b.netSales - a.netSales);
+      discItemMaxPage = Math.max(0, Math.ceil(discStoreItemsAll.length / 100) - 1);
+      discItemPage = Math.min(st.discItemPage || 0, discItemMaxPage);
+      discStoreItemRows = discStoreItemsAll.slice(discItemPage * 100, discItemPage * 100 + 100).map((it, i) => ({ ...it, rank: discItemPage * 100 + i + 1, imageSrc: it.image || blankImg3, netSalesLabel: this.fmtMoney(it.netSales), qtyLabel: this.fmtNum(it.qty), discountPctLabel: it.discountPct.toFixed(1) + '%' }));
+    }
     const isort = st.sort.invoices;
     invRows = this.sortRows(invRows, isort.col, isort.dir).map(iv => ({ ...iv, rank: rankByStore[iv.storeName], rowBg: rankByStore[iv.storeName] <= 10 ? '#e3f5e6' : rankByStore[iv.storeName] <= 20 ? '#f6f0e0' : '#fbe7e7', netSalesLabel: this.fmtMoney(iv.netSales), discountLabel: this.fmtMoney(iv.discount), atvLabel: this.fmtMoney(iv.atv), uptLabel: Math.abs(iv.upt).toFixed(2), aspLabel: this.fmtMoney(iv.asp), qtyLabel: this.fmtNum(iv.qty), invoicesLabel: this.fmtNum(iv.invoices), onClick: () => this.setState({ selectedStoreCode: iv.code, selectedStoreLabel: iv.storeName, tableZoom: 1 }) }));
 
@@ -2249,6 +2313,12 @@ class Component extends DCLogic {
       dailyStoreItemOpen: !!(st.selectedDailyDate && st.selectedDailyStore), dailyStoreItemLabel: st.selectedDailyStoreLabel, dailyStoreItemDate: st.selectedDailyDate, dailyStoreItemRows,
       closeDailyStoreItem: () => this.setState({ selectedDailyStore: null, tableZoom: 1 }), exportDailyStoreItemPdf: this.exportDailyStoreItemPdf,
       storeDailyOpen: !!st.selectedStoreCode, storeDailyLabel: st.selectedStoreLabel, storeDailyRows, closeStoreDaily: () => this.setState({ selectedStoreCode: null, tableZoom: 1 }),
+      discStoreItemOpen: !!st.selectedDiscStore, discStoreItemLabel: st.selectedDiscStoreLabel, discStoreItemRows,
+      closeDiscStoreItem: () => this.setState({ selectedDiscStore: null, tableZoom: 1 }),
+      discItemPageLabel: (discItemPage + 1) + ' of ' + (discItemMaxPage + 1),
+      discItemHasPrev: discItemPage > 0, discItemHasNext: discItemPage < discItemMaxPage,
+      discItemPrev: () => this.setState({ discItemPage: Math.max(0, discItemPage - 1) }),
+      discItemNext: () => this.setState({ discItemPage: Math.min(discItemMaxPage, discItemPage + 1) }),
       tableZoom: st.tableZoom || 1, tableZoomPct: (100 / (st.tableZoom || 1)) + '%', pinchStart: this.pinchStart, pinchMove: this.pinchMove, pinchEnd: this.pinchEnd,
       setItemSearch: e => this.setState({ itemSearch: e.target.value, itemsPage: 0 }),
       itemsPageLabel: (itemsPage + 1) + ' of ' + (itemsMaxPage + 1),
