@@ -629,12 +629,13 @@ a:hover{color:var(--color-accent-300)}
 </div>
 <div style="overflow-y:auto;flex:1">
 <table class="table">
-<thead><tr><th style="text-align:left">Category</th><th>Net sales</th><th>Qty</th></tr></thead>
+<thead><tr><th style="text-align:left">Category</th><th>Net sales</th><th>Qty</th><th>Cont%</th></tr></thead>
 <tbody>
 <sc-for list="{{drillCategoryRows}}" as="c" hint-placeholder-count="10">
-<tr onClick="{{c.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;text-align:left">{{c.name}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.qtyLabel}}</td></tr>
+<tr onClick="{{c.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;text-align:left">{{c.name}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.pctLabel}}</td></tr>
 </sc-for>
 </tbody>
+<tfoot><tr style="border-top:2px solid var(--color-divider)"><td style="font-weight:700;text-align:left">Total</td><td style="font-weight:700;white-space:nowrap">{{drillCategoryTotals.netSalesLabel}}</td><td style="font-weight:700;white-space:nowrap">{{drillCategoryTotals.qtyLabel}}</td><td style="font-weight:700;white-space:nowrap">{{drillCategoryTotals.pctLabel}}</td></tr></tfoot>
 </table>
 </div>
 </div>
@@ -651,12 +652,13 @@ a:hover{color:var(--color-accent-300)}
 </div>
 <div style="overflow-y:auto;flex:1">
 <table class="table">
-<thead><tr><th style="text-align:left">Brand</th><th>Net sales</th><th>Qty</th></tr></thead>
+<thead><tr><th style="text-align:left">Brand</th><th>Net sales</th><th>Qty</th><th>Cont%</th></tr></thead>
 <tbody>
 <sc-for list="{{drillBrandRows}}" as="b" hint-placeholder-count="10">
-<tr onClick="{{b.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;text-align:left">{{b.name}}</td><td style="font-weight:600;white-space:nowrap">{{b.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{b.qtyLabel}}</td></tr>
+<tr onClick="{{b.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;text-align:left">{{b.name}}</td><td style="font-weight:600;white-space:nowrap">{{b.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{b.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{b.pctLabel}}</td></tr>
 </sc-for>
 </tbody>
+<tfoot><tr style="border-top:2px solid var(--color-divider)"><td style="font-weight:700;text-align:left">Total</td><td style="font-weight:700;white-space:nowrap">{{drillBrandTotals.netSalesLabel}}</td><td style="font-weight:700;white-space:nowrap">{{drillBrandTotals.qtyLabel}}</td><td style="font-weight:700;white-space:nowrap">{{drillBrandTotals.pctLabel}}</td></tr></tfoot>
 </table>
 </div>
 </div>
@@ -1990,7 +1992,9 @@ class Component extends DCLogic {
         if (!agg[cat]) agg[cat] = { name: cat, netSales: 0, qty: 0 };
         agg[cat].netSales += netSales; agg[cat].qty += qty;
       });
-      drillCategoryRows = Object.values(agg).sort((a, b) => b.netSales - a.netSales).map(c => ({ ...c, netSalesLabel: this.fmtMoney(c.netSales), qtyLabel: this.fmtNum(c.qty), onClick: () => this.setState({ selectedDrillCategory: c.name }) }));
+      const drillCatTotal = Object.values(agg).reduce((s, c) => s + c.netSales, 0);
+      drillCategoryRows = Object.values(agg).sort((a, b) => b.netSales - a.netSales).map(c => ({ ...c, netSalesLabel: this.fmtMoney(c.netSales), qtyLabel: this.fmtNum(c.qty), pctLabel: (drillCatTotal ? 100 * c.netSales / drillCatTotal : 0).toFixed(1) + '%', onClick: () => this.setState({ selectedDrillCategory: c.name }) }));
+      var drillCategoryTotals = { netSalesLabel: this.fmtMoney(drillCatTotal), qtyLabel: this.fmtNum(Object.values(agg).reduce((s, c) => s + c.qty, 0)), pctLabel: '100.0%' };
     }
     let drillBrandRows = [];
     if (st.selectedDrillStore && st.selectedDrillCategory) {
@@ -2005,7 +2009,9 @@ class Component extends DCLogic {
         if (!agg[brand]) agg[brand] = { name: brand, netSales: 0, qty: 0 };
         agg[brand].netSales += netSales; agg[brand].qty += qty;
       });
-      drillBrandRows = Object.values(agg).sort((a, b) => b.netSales - a.netSales).map(c => ({ ...c, netSalesLabel: this.fmtMoney(c.netSales), qtyLabel: this.fmtNum(c.qty), onClick: () => this.setState({ selectedDrillBrand: c.name }) }));
+      const drillBrandTotal = Object.values(agg).reduce((s, c) => s + c.netSales, 0);
+      drillBrandRows = Object.values(agg).sort((a, b) => b.netSales - a.netSales).map(c => ({ ...c, netSalesLabel: this.fmtMoney(c.netSales), qtyLabel: this.fmtNum(c.qty), pctLabel: (drillBrandTotal ? 100 * c.netSales / drillBrandTotal : 0).toFixed(1) + '%', onClick: () => this.setState({ selectedDrillBrand: c.name }) }));
+      var drillBrandTotals = { netSalesLabel: this.fmtMoney(drillBrandTotal), qtyLabel: this.fmtNum(Object.values(agg).reduce((s, c) => s + c.qty, 0)), pctLabel: '100.0%' };
     }
     let drillItemRows = [];
     if (st.selectedDrillStore && st.selectedDrillCategory && st.selectedDrillBrand) {
@@ -2481,9 +2487,9 @@ class Component extends DCLogic {
       storeDetailView: st.storeDetailView || 'daily', isStoreDetailDaily: (st.storeDetailView || 'daily') !== 'category', isStoreDetailCategory: st.storeDetailView === 'category',
       storeDetailDailyBtnClass: (st.storeDetailView || 'daily') !== 'category' ? 'btn-primary' : 'btn-secondary', storeDetailCategoryBtnClass: st.storeDetailView === 'category' ? 'btn-primary' : 'btn-secondary',
       setStoreDetailViewDaily: () => this.setState({ storeDetailView: 'daily' }), setStoreDetailViewCategory: () => this.setState({ storeDetailView: 'category' }),
-      drillCategoryOpen: !!st.selectedDrillStore, drillCategoryLabel: st.selectedDrillStoreLabel, drillCategoryRows,
+      drillCategoryOpen: !!st.selectedDrillStore, drillCategoryLabel: st.selectedDrillStoreLabel, drillCategoryRows, drillCategoryTotals: typeof drillCategoryTotals !== 'undefined' ? drillCategoryTotals : { netSalesLabel: '', qtyLabel: '', pctLabel: '' },
       closeDrillCategory: () => this.setState({ selectedDrillStore: null, selectedDrillStoreLabel: null, selectedDrillCategory: null, selectedDrillBrand: null, tableZoom: 1 }),
-      drillBrandOpen: !!(st.selectedDrillStore && st.selectedDrillCategory), drillBrandLabel: st.selectedDrillCategory, drillBrandRows,
+      drillBrandOpen: !!(st.selectedDrillStore && st.selectedDrillCategory), drillBrandLabel: st.selectedDrillCategory, drillBrandRows, drillBrandTotals: typeof drillBrandTotals !== 'undefined' ? drillBrandTotals : { netSalesLabel: '', qtyLabel: '', pctLabel: '' },
       closeDrillBrand: () => this.setState({ selectedDrillCategory: null, selectedDrillBrand: null, tableZoom: 1 }),
       drillItemOpen: !!(st.selectedDrillStore && st.selectedDrillCategory && st.selectedDrillBrand), drillItemLabel: st.selectedDrillBrand, drillItemRows,
       closeDrillItem: () => this.setState({ selectedDrillBrand: null, tableZoom: 1 }),
