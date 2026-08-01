@@ -212,61 +212,33 @@ a:hover{color:var(--color-accent-300)}
 </div>
 
 <div style="display:flex;gap:var(--space-6);flex-wrap:wrap">
-<div style="flex:1;min-width:{{sectionMinWidth}}">
-<h3 style="font-family:var(--font-heading);font-size:16px;margin:0 0 var(--space-3)">Trending Branches</h3>
-<sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
-<div style="overflow-x:auto">
-<table class="table">
-<thead><tr><th style="text-align:left">Store</th><th>Net sales</th><th>Invoices</th></tr></thead>
-<tbody>
+<div class="card elev-sm" style="flex:1;min-width:{{sectionMinWidth}}">
+<div class="card-kicker">Trending Branches</div>
+<div style="display:flex;flex-direction:column;gap:2px;margin-top:6px">
 <sc-for list="{{topStores}}" as="s" hint-placeholder-count="5">
-<tr onClick="{{s.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;text-align:left">{{s.name}}</td><td style="font-weight:600;white-space:nowrap">{{s.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.invoicesLabel}}</td></tr>
-</sc-for>
-</tbody>
-</table>
-</div>
-</sc-if>
-<sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
-<div style="display:flex;flex-direction:column;gap:8px">
-<sc-for list="{{topStores}}" as="s" hint-placeholder-count="5">
-<div class="card elev-sm" onClick="{{s.onClick}}" style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;cursor:pointer">
-<div style="font-weight:700;font-size:14px">{{s.name}}</div>
-<div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
-<div style="font-weight:700;font-size:14px;color:var(--color-accent)">{{s.netSalesLabel}}</div>
-<div class="card-meta">{{s.invoicesLabel}} inv.</div>
+<div onClick="{{s.onClick}}" style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;cursor:pointer;padding:6px 0;border-bottom:1px solid var(--color-divider)">
+<div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{s.name}}</div>
+<div style="display:flex;align-items:baseline;gap:10px">
+<div style="font-size:13px;font-weight:700;color:var(--color-accent);white-space:nowrap">{{s.netSalesLabel}}</div>
+<div class="card-meta" style="white-space:nowrap">{{s.invoicesLabel}} inv.</div>
 </div>
 </div>
 </sc-for>
 </div>
-</sc-if>
 </div>
-<div style="flex:1;min-width:{{sectionMinWidth}}">
-<h3 style="font-family:var(--font-heading);font-size:16px;margin:0 0 var(--space-3)">Trending Categories</h3>
-<sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
-<div style="overflow-x:auto">
-<table class="table">
-<thead><tr><th style="text-align:left">Category</th><th>Net sales</th><th>% of sales</th><th>Qty</th><th>Invoices</th></tr></thead>
-<tbody>
+<div class="card elev-sm" style="flex:1;min-width:{{sectionMinWidth}}">
+<div class="card-kicker">Trending Categories</div>
+<div style="display:flex;flex-direction:column;gap:2px;margin-top:6px">
 <sc-for list="{{topCategories}}" as="c" hint-placeholder-count="5">
-<tr><td style="font-weight:600;white-space:nowrap;text-align:left">{{c.category}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.pctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.invoicesLabel}}</td></tr>
-</sc-for>
-</tbody>
-</table>
-</div>
-</sc-if>
-<sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
-<div style="display:flex;flex-direction:column;gap:8px">
-<sc-for list="{{topCategories}}" as="c" hint-placeholder-count="5">
-<div class="card elev-sm" style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
-<div style="font-weight:700;font-size:14px">{{c.category}}</div>
-<div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
-<div style="font-weight:700;font-size:14px;color:var(--color-accent)">{{c.netSalesLabel}}</div>
-<div class="card-meta">{{c.pctLabel}} · {{c.qtyLabel}} qty</div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:6px 0;border-bottom:1px solid var(--color-divider)">
+<div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{c.category}}</div>
+<div style="display:flex;align-items:baseline;gap:10px">
+<div style="font-size:13px;font-weight:700;color:var(--color-accent);white-space:nowrap">{{c.netSalesLabel}}</div>
+<div class="card-meta" style="white-space:nowrap">{{c.pctLabel}} · {{c.qtyLabel}} qty</div>
 </div>
 </div>
 </sc-for>
 </div>
-</sc-if>
 </div>
 </div>
 </section>
