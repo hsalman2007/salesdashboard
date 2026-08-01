@@ -336,7 +336,7 @@ a:hover{color:var(--color-accent-300)}
 <section>
 <div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4)">Category mix — respects region, city, store and date filters</div>
 <div style="display:flex;gap:8px;margin-bottom:var(--space-4)">
-<button class="btn {{categoryTopBtnClass}}" onClick="{{setCategoryViewTop}}">Categories</button><button class="btn {{categorySubBtnClass}}" onClick="{{setCategoryViewSub}}">Sub-Categories</button>
+<button class="btn {{categoryTopBtnClass}}" onClick="{{setCategoryViewTop}}">Categories</button><button class="btn {{categorySubBtnClass}}" onClick="{{setCategoryViewSub}}">Sub-Categories</button><button class="btn {{categoryBrandBtnClass}}" onClick="{{setCategoryViewBrand}}">Brands</button>
 
 </div>
 <sc-if value="{{isCategorySub}}" hint-placeholder-val="{{true}}">
@@ -427,10 +427,55 @@ a:hover{color:var(--color-accent-300)}
 </div>
 </sc-if>
 </sc-if>
+<sc-if value="{{isCategoryBrand}}" hint-placeholder-val="{{false}}">
+<sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
+<div style="overflow-x:auto">
+<table class="table">
+<thead><tr>
+<th class="rl-th" style="text-align:left" onClick="{{sortHandlers.brandBrand}}">Brand {{sortArrow.brandBrand}}</th>
+<th class="rl-th" onClick="{{sortHandlers.brandNetSales}}">Net sales {{sortArrow.brandNetSales}}</th>
+<th class="rl-th" onClick="{{sortHandlers.brandPct}}">% of sales {{sortArrow.brandPct}}</th>
+<th class="rl-th" onClick="{{sortHandlers.brandQty}}">Qty {{sortArrow.brandQty}}</th>
+<th class="rl-th" onClick="{{sortHandlers.brandInvoices}}">Invoices {{sortArrow.brandInvoices}}</th>
+<th class="rl-th" onClick="{{sortHandlers.brandAtv}}">ATV {{sortArrow.brandAtv}}</th>
+<th class="rl-th" onClick="{{sortHandlers.brandUpt}}">UPT {{sortArrow.brandUpt}}</th>
+<th>ASP</th>
+<th>Markup%</th>
+</tr></thead>
+<tbody>
+<sc-for list="{{brandsSorted}}" as="b" hint-placeholder-count="10">
+<tr onClick="{{b.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;text-align:left">{{b.brand}}</td><td style="font-weight:600;white-space:nowrap">{{b.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{b.pctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{b.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{b.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{b.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{b.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{b.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{b.markupLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</sc-if>
+<sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{brandsSorted}}" as="b" hint-placeholder-count="10">
+<div class="card elev-sm" onClick="{{b.onClick}}" style="display:flex;flex-direction:column;gap:10px;cursor:pointer">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+<div style="font-weight:700;font-size:15px">{{b.brand}}</div>
+<div style="font-weight:700;font-size:16px;color:var(--color-accent);white-space:nowrap">{{b.netSalesLabel}}</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px 16px;font-size:13px">
+<div><div class="card-meta">% of sales</div><div style="font-weight:600">{{b.pctLabel}}</div></div>
+<div><div class="card-meta">Qty</div><div style="font-weight:600">{{b.qtyLabel}}</div></div>
+<div><div class="card-meta">Invoices</div><div style="font-weight:600">{{b.invoicesLabel}}</div></div>
+<div><div class="card-meta">ATV</div><div style="font-weight:600">{{b.atvLabel}}</div></div>
+<div><div class="card-meta">ASP</div><div style="font-weight:600">{{b.aspLabel}}</div></div>
+<div><div class="card-meta">Markup%</div><div style="font-weight:600">{{b.markupLabel}}</div></div>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+</sc-if>
 <sc-if value="{{categoryDetailOpen}}" hint-placeholder-val="{{false}}">
 <div onClick="{{closeCategoryDetail}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px">
 <div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:760px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5);touch-action:pinch-zoom">
 <div style="display:flex;gap:12px;align-items:center">
+<button onClick="{{closeCategoryDetail}}" style="border:none;background:none;cursor:pointer;font-size:18px;line-height:1;color:var(--color-neutral-500);padding:4px">←</button>
 <div style="flex:1;min-width:0;font-weight:700;font-size:15px">{{categoryDetailLabel}}</div>
 <div onClick="{{closeCategoryDetail}}" style="cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500);padding:4px">×</div>
 </div>
@@ -498,6 +543,9 @@ a:hover{color:var(--color-accent-300)}
 
 <sc-if value="{{isInvoices}}" hint-placeholder-val="{{false}}">
 <section>
+<div style="display:flex;gap:8px;margin-bottom:var(--space-4)">
+<button class="btn {{storeDetailDailyBtnClass}}" onClick="{{setStoreDetailViewDaily}}">Daily</button><button class="btn {{storeDetailCategoryBtnClass}}" onClick="{{setStoreDetailViewCategory}}">By Category</button>
+</div>
 <div class="field" style="max-width:280px;margin-bottom:var(--space-4)">
 <label>Search store</label>
 <input class="input" type="text" placeholder="e.g. Abha" value="{{search}}" onChange="{{setSearch}}">
@@ -553,6 +601,7 @@ a:hover{color:var(--color-accent-300)}
 <div onClick="{{closeStoreDaily}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:var(--space-4);z-index:50">
 <div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:760px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5);touch-action:pinch-zoom">
 <div style="display:flex;gap:12px;align-items:center">
+<button onClick="{{closeStoreDaily}}" style="border:none;background:none;cursor:pointer;font-size:18px;line-height:1;color:var(--color-neutral-500);padding:4px">←</button>
 <div style="flex:1;min-width:0;font-weight:700;font-size:15px">Day-wise sales — {{storeDailyLabel}}</div>
 <button onClick="{{closeStoreDaily}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
 </div>
@@ -562,6 +611,72 @@ a:hover{color:var(--color-accent-300)}
 <tbody>
 <sc-for list="{{storeDailyRows}}" as="d" hint-placeholder-count="10">
 <tr><td style="font-weight:600;white-space:nowrap;text-align:left">{{d.date}}</td><td style="font-weight:600;white-space:nowrap">{{d.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.singleItemPctLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{drillCategoryOpen}}" hint-placeholder-val="{{false}}">
+<div onClick="{{closeDrillCategory}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:var(--space-4);z-index:50">
+<div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:520px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5);touch-action:pinch-zoom">
+<div style="display:flex;gap:12px;align-items:center">
+<button onClick="{{closeDrillCategory}}" style="border:none;background:none;cursor:pointer;font-size:18px;line-height:1;color:var(--color-neutral-500);padding:4px">←</button>
+<div style="flex:1;min-width:0;font-weight:700;font-size:15px">Categories — {{drillCategoryLabel}}</div>
+<button onClick="{{closeDrillCategory}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
+</div>
+<div style="overflow-y:auto;flex:1">
+<table class="table">
+<thead><tr><th style="text-align:left">Category</th><th>Net sales</th><th>Qty</th></tr></thead>
+<tbody>
+<sc-for list="{{drillCategoryRows}}" as="c" hint-placeholder-count="10">
+<tr onClick="{{c.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;text-align:left">{{c.name}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{c.qtyLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{drillBrandOpen}}" hint-placeholder-val="{{false}}">
+<div onClick="{{closeDrillBrand}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:var(--space-4);z-index:50">
+<div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:520px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5);touch-action:pinch-zoom">
+<div style="display:flex;gap:12px;align-items:center">
+<button onClick="{{closeDrillBrand}}" style="border:none;background:none;cursor:pointer;font-size:18px;line-height:1;color:var(--color-neutral-500);padding:4px">←</button>
+<div style="flex:1;min-width:0;font-weight:700;font-size:15px">Brands — {{drillBrandLabel}}</div>
+<button onClick="{{closeDrillBrand}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
+</div>
+<div style="overflow-y:auto;flex:1">
+<table class="table">
+<thead><tr><th style="text-align:left">Brand</th><th>Net sales</th><th>Qty</th></tr></thead>
+<tbody>
+<sc-for list="{{drillBrandRows}}" as="b" hint-placeholder-count="10">
+<tr onClick="{{b.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;text-align:left">{{b.name}}</td><td style="font-weight:600;white-space:nowrap">{{b.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{b.qtyLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{drillItemOpen}}" hint-placeholder-val="{{false}}">
+<div onClick="{{closeDrillItem}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:var(--space-4);z-index:50">
+<div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:680px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5);touch-action:pinch-zoom">
+<div style="display:flex;gap:12px;align-items:center">
+<button onClick="{{closeDrillItem}}" style="border:none;background:none;cursor:pointer;font-size:18px;line-height:1;color:var(--color-neutral-500);padding:4px">←</button>
+<div style="flex:1;min-width:0;font-weight:700;font-size:15px">Items — {{drillItemLabel}}</div>
+<button onClick="{{closeDrillItem}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
+</div>
+<div style="overflow-y:auto;flex:1">
+<table class="table">
+<thead><tr><th>Image</th><th style="text-align:left">SKU</th><th style="text-align:left">Item</th><th>Net sales</th><th>Qty</th></tr></thead>
+<tbody>
+<sc-for list="{{drillItemRows}}" as="it" hint-placeholder-count="10">
+<tr><td><img src="{{it.imageSrc}}" style="width:40px;height:40px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block"></td><td style="font-weight:600;white-space:nowrap;text-align:left">{{it.itemNo}}</td><td style="font-weight:600;text-align:left;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{it.itemDesc}}">{{it.itemDesc}}</td><td style="font-weight:600;white-space:nowrap">{{it.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.qtyLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -697,6 +812,7 @@ a:hover{color:var(--color-accent-300)}
 <div onClick="{{closeDailyDetail}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:var(--space-4);z-index:50">
 <div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:760px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5);touch-action:pinch-zoom">
 <div style="display:flex;gap:12px;align-items:center">
+<button onClick="{{closeDailyDetail}}" style="border:none;background:none;cursor:pointer;font-size:18px;line-height:1;color:var(--color-neutral-500);padding:4px">←</button>
 <div style="flex:1;min-width:0;font-weight:700;font-size:15px">Store ranking — {{dailyDetailLabel}}</div>
 <button onClick="{{closeDailyDetail}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
 </div>
@@ -718,6 +834,7 @@ a:hover{color:var(--color-accent-300)}
 <div onClick="{{closeDailyStoreItem}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:var(--space-4);z-index:55">
 <div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:640px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5);touch-action:pinch-zoom">
 <div style="display:flex;gap:12px;align-items:center">
+<button onClick="{{closeDailyStoreItem}}" style="border:none;background:none;cursor:pointer;font-size:18px;line-height:1;color:var(--color-neutral-500);padding:4px">←</button>
 <div style="flex:1;min-width:0;font-weight:700;font-size:15px">Item ranking — {{dailyStoreItemLabel}} — {{dailyStoreItemDate}}</div>
 <button class="btn btn-ghost" onClick="{{exportDailyStoreItemPdf}}" style="font-size:12px;padding:6px 10px;white-space:nowrap">Download PDF</button>
 <button onClick="{{closeDailyStoreItem}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
@@ -740,6 +857,7 @@ a:hover{color:var(--color-accent-300)}
 <div onClick="{{closeDiscStoreItem}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:var(--space-4);z-index:55">
 <div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:640px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5);touch-action:pinch-zoom">
 <div style="display:flex;gap:12px;align-items:center">
+<button onClick="{{closeDiscStoreItem}}" style="border:none;background:none;cursor:pointer;font-size:18px;line-height:1;color:var(--color-neutral-500);padding:4px">←</button>
 <div style="flex:1;min-width:0;font-weight:700;font-size:15px">Items sold at a discount — {{discStoreItemLabel}}</div>
 <button onClick="{{closeDiscStoreItem}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
 </div>
@@ -945,6 +1063,7 @@ a:hover{color:var(--color-accent-300)}
 <div onClick="{{closeStcStoreDaily}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:var(--space-4);z-index:50">
 <div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:560px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5);touch-action:pinch-zoom">
 <div style="display:flex;gap:12px;align-items:center">
+<button onClick="{{closeStcStoreDaily}}" style="border:none;background:none;cursor:pointer;font-size:18px;line-height:1;color:var(--color-neutral-500);padding:4px">←</button>
 <div style="flex:1;min-width:0;font-weight:700;font-size:15px">Day-wise — {{stcStoreDailyLabel}}</div>
 <button onClick="{{closeStcStoreDaily}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
 </div>
@@ -967,6 +1086,7 @@ a:hover{color:var(--color-accent-300)}
 <div onClick="{{closeStcDateStore}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:var(--space-4);z-index:50">
 <div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:560px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5);touch-action:pinch-zoom">
 <div style="display:flex;gap:12px;align-items:center">
+<button onClick="{{closeStcDateStore}}" style="border:none;background:none;cursor:pointer;font-size:18px;line-height:1;color:var(--color-neutral-500);padding:4px">←</button>
 <div style="flex:1;min-width:0;font-weight:700;font-size:15px">Store ranking — {{stcDateStoreLabel}}</div>
 <button onClick="{{closeStcDateStore}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
 </div>
@@ -989,6 +1109,7 @@ a:hover{color:var(--color-accent-300)}
 <div onClick="{{closeItemDetail}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:60;display:flex;align-items:center;justify-content:center;padding:16px">
 <div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:560px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5);touch-action:pinch-zoom">
 <div style="display:flex;gap:12px;align-items:center">
+<button onClick="{{closeItemDetail}}" style="border:none;background:none;cursor:pointer;font-size:18px;line-height:1;color:var(--color-neutral-500);padding:4px;flex:none">←</button>
 <img src="{{itemDetailImage}}" style="width:56px;height:56px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);flex:none">
 <div style="flex:1;min-width:0">
 <div style="font-weight:700;font-size:15px">{{itemDetailLabel}}</div>
@@ -1060,6 +1181,7 @@ class Component extends DCLogic {
       stores: { col: 'netSales', dir: 'desc' },
       categories: { col: 'netSales', dir: 'desc' },
       topCategories: { col: 'netSales', dir: 'desc' },
+      brands: { col: 'netSales', dir: 'desc' },
       invoices: { col: 'netSales', dir: 'desc' },
       items: { col: 'netSales', dir: 'desc' },
       discounts: { col: 'ratio', dir: 'desc' }
@@ -1130,7 +1252,7 @@ class Component extends DCLogic {
       itemMaster.forEach(m => masterIndex[m.sku] = m);
       itemsRaw = itemsRaw.map(it => {
         const m = masterIndex[it.itemNo];
-        return m ? { ...it, itemDesc: m.descEn || it.itemDesc, image: m.image || '', unitCost: m.unitCost || 0, rsp: m.rspXVAT || 0, division: m.category || it.division, category: m.subCategory || it.category } : { ...it, image: '', unitCost: 0 };
+        return m ? { ...it, itemDesc: m.descEn || it.itemDesc, image: m.image || '', unitCost: m.unitCost || 0, rsp: m.rspXVAT || 0, division: m.category || it.division, category: m.subCategory || it.category, brand: m.brand || 'Unknown' } : { ...it, image: '', unitCost: 0, brand: 'Unknown' };
       });
       this.itemMeta = {};
       itemsRaw.forEach(it => this.itemMeta[it.itemNo] = it);
@@ -1632,6 +1754,28 @@ class Component extends DCLogic {
       }).map(c => ({ ...c, onClick: () => this.setState({ selectedCategoryKey: c.division, selectedCategoryMode: 'division', selectedCategoryLabel: c.category }) }));
     }
 
+    // brand roll-up — same measures, grouped by brand (item-master)
+    let brandRows = [];
+    if (st.page === 'categories') {
+      const brandAgg = {};
+      const brandCost = {};
+      st.itemsByStoreDate.forEach(row => {
+        const [store, date, itemNo, netSales, qty, invoices] = row;
+        if (!inDateRange(date)) return;
+        if (!bucketMatches(store)) return;
+        const meta = this.itemMeta[itemNo] || {};
+        const brand = meta.brand || 'Unknown';
+        if (!brandAgg[brand]) brandAgg[brand] = { brand, netSales: 0, qty: 0, invoices: 0 };
+        brandAgg[brand].netSales += netSales; brandAgg[brand].qty += qty; brandAgg[brand].invoices += (invoices || 0);
+        brandCost[brand] = (brandCost[brand] || 0) + (meta.unitCost || 0) * qty;
+      });
+      const bsort = st.sort.brands;
+      brandRows = this.sortRows(Object.values(brandAgg).map(withCatMeasures), bsort.col, bsort.dir).map(c => {
+        const cost = brandCost[c.brand] || 0;
+        return { ...c, netSalesLabel: this.fmtMoney(c.netSales), qtyLabel: this.fmtNum(c.qty), invoicesLabel: this.fmtNum(c.invoices), atvLabel: this.fmtMoney(c.atv), uptLabel: Math.abs(c.upt).toFixed(2), aspLabel: this.fmtMoney(c.asp), pctLabel: (totalCatNetSales ? 100 * c.netSales / totalCatNetSales : 0).toFixed(1) + '%', markupLabel: mkp((cost ? 100 * (c.netSales - cost) / cost : 0).toFixed(1) + '%') };
+      }).map(c => ({ ...c, onClick: () => this.setState({ selectedCategoryKey: c.brand, selectedCategoryMode: 'brand', selectedCategoryLabel: c.brand }) }));
+    }
+
     // category detail modal — top 50 items in the selected category, respects all filters
     let categoryDetailRows = [];
     if (st.selectedCategoryKey) {
@@ -1641,7 +1785,7 @@ class Component extends DCLogic {
         if (!inDateRange(date)) return;
         if (!bucketMatches(store)) return;
         const meta = this.itemMeta[itemNo] || {};
-        const catMatches = st.selectedCategoryMode === 'division' ? meta.division === st.selectedCategoryKey : (meta.division + '|' + meta.category) === st.selectedCategoryKey;
+        const catMatches = st.selectedCategoryMode === 'division' ? meta.division === st.selectedCategoryKey : st.selectedCategoryMode === 'brand' ? (meta.brand || 'Unknown') === st.selectedCategoryKey : (meta.division + '|' + meta.category) === st.selectedCategoryKey;
         if (!catMatches) return;
         if (!itemAggForCategory[itemNo]) itemAggForCategory[itemNo] = { itemNo, itemDesc: meta.itemDesc || itemNo, image: meta.image || '', netSales: 0, qty: 0 };
         itemAggForCategory[itemNo].netSales += netSales; itemAggForCategory[itemNo].qty += qty;
@@ -1831,7 +1975,54 @@ class Component extends DCLogic {
       discStoreItemRows = discStoreItemsAll.slice(discItemPage * 100, discItemPage * 100 + 100).map((it, i) => ({ ...it, rank: discItemPage * 100 + i + 1, imageSrc: it.image || blankImg3, netSalesLabel: this.fmtMoney(it.netSales), qtyLabel: this.fmtNum(it.qty), discountPctLabel: it.discountPct.toFixed(1) + '%' }));
     }
     const isort = st.sort.invoices;
-    invRows = this.sortRows(invRows, isort.col, isort.dir).map(iv => ({ ...iv, rank: rankByStore[iv.storeName], rowBg: rankByStore[iv.storeName] <= 10 ? '#e3f5e6' : rankByStore[iv.storeName] <= 20 ? '#f6f0e0' : '#fbe7e7', netSalesLabel: this.fmtMoney(iv.netSales), discountLabel: this.fmtMoney(iv.discount), atvLabel: this.fmtMoney(iv.atv), uptLabel: Math.abs(iv.upt).toFixed(2), aspLabel: this.fmtMoney(iv.asp), qtyLabel: this.fmtNum(iv.qty), invoicesLabel: this.fmtNum(iv.invoices), onClick: () => this.setState({ selectedStoreCode: iv.code, selectedStoreLabel: iv.storeName, tableZoom: 1 }) }));
+    invRows = this.sortRows(invRows, isort.col, isort.dir).map(iv => ({ ...iv, rank: rankByStore[iv.storeName], rowBg: rankByStore[iv.storeName] <= 10 ? '#e3f5e6' : rankByStore[iv.storeName] <= 20 ? '#f6f0e0' : '#fbe7e7', netSalesLabel: this.fmtMoney(iv.netSales), discountLabel: this.fmtMoney(iv.discount), atvLabel: this.fmtMoney(iv.atv), uptLabel: Math.abs(iv.upt).toFixed(2), aspLabel: this.fmtMoney(iv.asp), qtyLabel: this.fmtNum(iv.qty), invoicesLabel: this.fmtNum(iv.invoices), onClick: st.storeDetailView === 'category' ? (() => this.setState({ selectedDrillStore: iv.code, selectedDrillStoreLabel: iv.storeName, tableZoom: 1 })) : (() => this.setState({ selectedStoreCode: iv.code, selectedStoreLabel: iv.storeName, tableZoom: 1 })) }));
+
+    // store drill-down: category -> brand -> item (Store Detail sub-page)
+    let drillCategoryRows = [];
+    if (st.selectedDrillStore) {
+      const agg = {};
+      st.itemsByStoreDate.forEach(row => {
+        const [store, date, itemNo, netSales, qty] = row;
+        if (store !== st.selectedDrillStore) return;
+        if (!inDateRange(date)) return;
+        const meta = this.itemMeta[itemNo] || {};
+        const cat = meta.category || 'Unknown';
+        if (!agg[cat]) agg[cat] = { name: cat, netSales: 0, qty: 0 };
+        agg[cat].netSales += netSales; agg[cat].qty += qty;
+      });
+      drillCategoryRows = Object.values(agg).sort((a, b) => b.netSales - a.netSales).map(c => ({ ...c, netSalesLabel: this.fmtMoney(c.netSales), qtyLabel: this.fmtNum(c.qty), onClick: () => this.setState({ selectedDrillCategory: c.name }) }));
+    }
+    let drillBrandRows = [];
+    if (st.selectedDrillStore && st.selectedDrillCategory) {
+      const agg = {};
+      st.itemsByStoreDate.forEach(row => {
+        const [store, date, itemNo, netSales, qty] = row;
+        if (store !== st.selectedDrillStore) return;
+        if (!inDateRange(date)) return;
+        const meta = this.itemMeta[itemNo] || {};
+        if ((meta.category || 'Unknown') !== st.selectedDrillCategory) return;
+        const brand = meta.brand || 'Unknown';
+        if (!agg[brand]) agg[brand] = { name: brand, netSales: 0, qty: 0 };
+        agg[brand].netSales += netSales; agg[brand].qty += qty;
+      });
+      drillBrandRows = Object.values(agg).sort((a, b) => b.netSales - a.netSales).map(c => ({ ...c, netSalesLabel: this.fmtMoney(c.netSales), qtyLabel: this.fmtNum(c.qty), onClick: () => this.setState({ selectedDrillBrand: c.name }) }));
+    }
+    let drillItemRows = [];
+    if (st.selectedDrillStore && st.selectedDrillCategory && st.selectedDrillBrand) {
+      const blankDrillImg = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect width="40" height="40" fill="%23252b3a"/%3E%3C/svg%3E';
+      const agg = {};
+      st.itemsByStoreDate.forEach(row => {
+        const [store, date, itemNo, netSales, qty] = row;
+        if (store !== st.selectedDrillStore) return;
+        if (!inDateRange(date)) return;
+        const meta = this.itemMeta[itemNo] || {};
+        if ((meta.category || 'Unknown') !== st.selectedDrillCategory) return;
+        if ((meta.brand || 'Unknown') !== st.selectedDrillBrand) return;
+        if (!agg[itemNo]) agg[itemNo] = { itemNo, itemDesc: meta.itemDesc || itemNo, image: meta.image || '', netSales: 0, qty: 0 };
+        agg[itemNo].netSales += netSales; agg[itemNo].qty += qty;
+      });
+      drillItemRows = Object.values(agg).sort((a, b) => b.netSales - a.netSales).map(it => ({ ...it, imageSrc: it.image || blankDrillImg, netSalesLabel: this.fmtMoney(it.netSales), qtyLabel: this.fmtNum(it.qty) }));
+    }
 
     // wholesale — sales minus returns, grouped by store, filtered by month and customer type
     const wf = st.wholesaleFilters;
@@ -2209,6 +2400,7 @@ class Component extends DCLogic {
         storesAtv: this.makeSortHandler('stores', 'atv'), storesUpt: this.makeSortHandler('stores', 'upt'),
         catDivision: this.makeSortHandler('categories', 'division'), catCategory: this.makeSortHandler('categories', 'category'), catNetSales: this.makeSortHandler('categories', 'netSales'), catQty: this.makeSortHandler('categories', 'qty'),
         catInvoices: this.makeSortHandler('categories', 'invoices'), catAtv: this.makeSortHandler('categories', 'atv'), catUpt: this.makeSortHandler('categories', 'upt'), catAsp: this.makeSortHandler('categories', 'asp'),
+        brandBrand: this.makeSortHandler('brands', 'brand'), brandNetSales: this.makeSortHandler('brands', 'netSales'), brandPct: this.makeSortHandler('brands', 'pct'), brandQty: this.makeSortHandler('brands', 'qty'), brandInvoices: this.makeSortHandler('brands', 'invoices'), brandAtv: this.makeSortHandler('brands', 'atv'), brandUpt: this.makeSortHandler('brands', 'upt'),
         topCatCategory: this.makeSortHandler('topCategories', 'category'), topCatNetSales: this.makeSortHandler('topCategories', 'netSales'), topCatPct: this.makeSortHandler('topCategories', 'pct'), topCatQty: this.makeSortHandler('topCategories', 'qty'), topCatInvoices: this.makeSortHandler('topCategories', 'invoices'), topCatAtv: this.makeSortHandler('topCategories', 'atv'), topCatUpt: this.makeSortHandler('topCategories', 'upt'), catPct: this.makeSortHandler('categories', 'pct'),
         invStoreName: this.makeSortHandler('invoices', 'storeName'), invRegion: this.makeSortHandler('invoices', 'region'), invNetSales: this.makeSortHandler('invoices', 'netSales'), invQty: this.makeSortHandler('invoices', 'qty'), invDiscount: this.makeSortHandler('invoices', 'discount'), invInvoices: this.makeSortHandler('invoices', 'invoices'), invAtv: this.makeSortHandler('invoices', 'atv'), invUpt: this.makeSortHandler('invoices', 'upt'), invAsp: this.makeSortHandler('invoices', 'asp'),
         discStoreName: this.makeSortHandler('discounts', 'storeName'), discNetSales: this.makeSortHandler('discounts', 'netSales'), discDiscount: this.makeSortHandler('discounts', 'discount'), discQty: this.makeSortHandler('discounts', 'qty'), discRatio: this.makeSortHandler('discounts', 'ratio'),
@@ -2220,6 +2412,7 @@ class Component extends DCLogic {
         storesAtv: this.arrow('stores', 'atv'), storesUpt: this.arrow('stores', 'upt'),
         catDivision: this.arrow('categories', 'division'), catCategory: this.arrow('categories', 'category'), catNetSales: this.arrow('categories', 'netSales'), catQty: this.arrow('categories', 'qty'),
         catInvoices: this.arrow('categories', 'invoices'), catAtv: this.arrow('categories', 'atv'), catUpt: this.arrow('categories', 'upt'), catAsp: this.arrow('categories', 'asp'),
+        brandBrand: this.arrow('brands', 'brand'), brandNetSales: this.arrow('brands', 'netSales'), brandPct: this.arrow('brands', 'pct'), brandQty: this.arrow('brands', 'qty'), brandInvoices: this.arrow('brands', 'invoices'), brandAtv: this.arrow('brands', 'atv'), brandUpt: this.arrow('brands', 'upt'),
         topCatCategory: this.arrow('topCategories', 'category'), topCatNetSales: this.arrow('topCategories', 'netSales'), topCatPct: this.arrow('topCategories', 'pct'), topCatQty: this.arrow('topCategories', 'qty'), topCatInvoices: this.arrow('topCategories', 'invoices'), topCatAtv: this.arrow('topCategories', 'atv'), topCatUpt: this.arrow('topCategories', 'upt'),
         invStoreName: this.arrow('invoices', 'storeName'), invRegion: this.arrow('invoices', 'region'), invNetSales: this.arrow('invoices', 'netSales'), invQty: this.arrow('invoices', 'qty'), invDiscount: this.arrow('invoices', 'discount'), invInvoices: this.arrow('invoices', 'invoices'), invAtv: this.arrow('invoices', 'atv'), invUpt: this.arrow('invoices', 'upt'), invAsp: this.arrow('invoices', 'asp'),
         discStoreName: this.arrow('discounts', 'storeName'), discNetSales: this.arrow('discounts', 'netSales'), discDiscount: this.arrow('discounts', 'discount'), discQty: this.arrow('discounts', 'qty'), discRatio: this.arrow('discounts', 'ratio'),
@@ -2273,10 +2466,10 @@ class Component extends DCLogic {
       dailySorted: dailyRows, dailyKpiCards,
       kpiCards, dailyBars, dailyTrend, regionBars, topStores, topCategories, topStoresKpi,
       chartRangeLabel: f.dateRange ? (f.dateRange.start + ' \u2013 ' + f.dateRange.end) : (chartMonth ? new Date(chartMonth + '-02').toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'current month'),
-      storesSorted: storeRows, categoriesSorted: catRows, topCategoriesSorted: topCatRows,
-      categoryView: st.categoryView || 'sub', isCategorySub: (st.categoryView || 'sub') !== 'top', isCategoryTop: st.categoryView === 'top',
-      categorySubBtnClass: (st.categoryView || 'sub') !== 'top' ? 'btn-primary' : 'btn-secondary', categoryTopBtnClass: st.categoryView === 'top' ? 'btn-primary' : 'btn-secondary',
-      setCategoryViewSub: () => this.setState({ categoryView: 'sub' }), setCategoryViewTop: () => this.setState({ categoryView: 'top' }),
+      storesSorted: storeRows, categoriesSorted: catRows, topCategoriesSorted: topCatRows, brandsSorted: brandRows,
+      categoryView: st.categoryView || 'sub', isCategorySub: (st.categoryView || 'sub') !== 'top' && (st.categoryView || 'sub') !== 'brand', isCategoryTop: st.categoryView === 'top', isCategoryBrand: st.categoryView === 'brand',
+      categorySubBtnClass: (st.categoryView || 'sub') !== 'top' && (st.categoryView || 'sub') !== 'brand' ? 'btn-primary' : 'btn-secondary', categoryTopBtnClass: st.categoryView === 'top' ? 'btn-primary' : 'btn-secondary', categoryBrandBtnClass: st.categoryView === 'brand' ? 'btn-primary' : 'btn-secondary',
+      setCategoryViewSub: () => this.setState({ categoryView: 'sub' }), setCategoryViewTop: () => this.setState({ categoryView: 'top' }), setCategoryViewBrand: () => this.setState({ categoryView: 'brand' }),
       invoicesSorted: invRows, discountsSorted: discRows,
       itemsSorted: itemsRows, itemsTotalCount: itemsFiltered.length, itemSearch: st.itemSearch,
       itemDetailOpen: !!st.selectedItemNo, itemDetailLabel: st.selectedItemLabel, itemDetailItemNo: st.selectedItemNoLabel, itemDetailImage: st.selectedItemImage, itemDetailRows, closeItemDetail: () => this.setState({ selectedItemNo: null, tableZoom: 1 }), stopPropagation: e => e.stopPropagation(),
@@ -2285,6 +2478,15 @@ class Component extends DCLogic {
       dailyStoreItemOpen: !!(st.selectedDailyDate && st.selectedDailyStore), dailyStoreItemLabel: st.selectedDailyStoreLabel, dailyStoreItemDate: st.selectedDailyDate, dailyStoreItemRows,
       closeDailyStoreItem: () => this.setState({ selectedDailyStore: null, tableZoom: 1 }), exportDailyStoreItemPdf: this.exportDailyStoreItemPdf,
       storeDailyOpen: !!st.selectedStoreCode, storeDailyLabel: st.selectedStoreLabel, storeDailyRows, closeStoreDaily: () => this.setState({ selectedStoreCode: null, tableZoom: 1 }),
+      storeDetailView: st.storeDetailView || 'daily', isStoreDetailDaily: (st.storeDetailView || 'daily') !== 'category', isStoreDetailCategory: st.storeDetailView === 'category',
+      storeDetailDailyBtnClass: (st.storeDetailView || 'daily') !== 'category' ? 'btn-primary' : 'btn-secondary', storeDetailCategoryBtnClass: st.storeDetailView === 'category' ? 'btn-primary' : 'btn-secondary',
+      setStoreDetailViewDaily: () => this.setState({ storeDetailView: 'daily' }), setStoreDetailViewCategory: () => this.setState({ storeDetailView: 'category' }),
+      drillCategoryOpen: !!st.selectedDrillStore, drillCategoryLabel: st.selectedDrillStoreLabel, drillCategoryRows,
+      closeDrillCategory: () => this.setState({ selectedDrillStore: null, selectedDrillStoreLabel: null, selectedDrillCategory: null, selectedDrillBrand: null, tableZoom: 1 }),
+      drillBrandOpen: !!(st.selectedDrillStore && st.selectedDrillCategory), drillBrandLabel: st.selectedDrillCategory, drillBrandRows,
+      closeDrillBrand: () => this.setState({ selectedDrillCategory: null, selectedDrillBrand: null, tableZoom: 1 }),
+      drillItemOpen: !!(st.selectedDrillStore && st.selectedDrillCategory && st.selectedDrillBrand), drillItemLabel: st.selectedDrillBrand, drillItemRows,
+      closeDrillItem: () => this.setState({ selectedDrillBrand: null, tableZoom: 1 }),
       discStoreItemOpen: !!st.selectedDiscStore, discStoreItemLabel: st.selectedDiscStoreLabel, discStoreItemRows,
       closeDiscStoreItem: () => this.setState({ selectedDiscStore: null, tableZoom: 1 }),
       discItemPageLabel: (discItemPage + 1) + ' of ' + (discItemMaxPage + 1),
