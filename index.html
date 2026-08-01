@@ -627,8 +627,8 @@ a:hover{color:var(--color-accent-300)}
 <div style="flex:1;min-width:0;font-weight:700;font-size:15px">Categories — {{drillCategoryLabel}}</div>
 <button onClick="{{closeDrillCategory}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
 </div>
-<div style="overflow-y:auto;flex:1">
-<table class="table">
+<div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow-y:auto;overflow-x:hidden;flex:1;touch-action:pan-y">
+<table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
 <thead><tr><th style="text-align:left">Category</th><th>Net sales</th><th>Qty</th><th>Cont%</th></tr></thead>
 <tbody>
 <sc-for list="{{drillCategoryRows}}" as="c" hint-placeholder-count="10">
@@ -650,8 +650,8 @@ a:hover{color:var(--color-accent-300)}
 <div style="flex:1;min-width:0;font-weight:700;font-size:15px">Brands — {{drillBrandLabel}}</div>
 <button onClick="{{closeDrillBrand}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
 </div>
-<div style="overflow-y:auto;flex:1">
-<table class="table">
+<div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow-y:auto;overflow-x:hidden;flex:1;touch-action:pan-y">
+<table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
 <thead><tr><th style="text-align:left">Brand</th><th>Net sales</th><th>Qty</th><th>Cont%</th></tr></thead>
 <tbody>
 <sc-for list="{{drillBrandRows}}" as="b" hint-placeholder-count="10">
@@ -673,8 +673,8 @@ a:hover{color:var(--color-accent-300)}
 <div style="flex:1;min-width:0;font-weight:700;font-size:15px">Items — {{drillItemLabel}}</div>
 <button onClick="{{closeDrillItem}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
 </div>
-<div style="overflow-y:auto;flex:1">
-<table class="table">
+<div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow-y:auto;overflow-x:hidden;flex:1;touch-action:pan-y">
+<table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
 <thead><tr><th>Image</th><th style="text-align:left">SKU</th><th style="text-align:left">Item</th><th>Net sales</th><th>Qty</th></tr></thead>
 <tbody>
 <sc-for list="{{drillItemRows}}" as="it" hint-placeholder-count="10">
@@ -1993,7 +1993,7 @@ class Component extends DCLogic {
         agg[cat].netSales += netSales; agg[cat].qty += qty;
       });
       const drillCatTotal = Object.values(agg).reduce((s, c) => s + c.netSales, 0);
-      drillCategoryRows = Object.values(agg).sort((a, b) => b.netSales - a.netSales).map(c => ({ ...c, netSalesLabel: this.fmtMoney(c.netSales), qtyLabel: this.fmtNum(c.qty), pctLabel: (drillCatTotal ? 100 * c.netSales / drillCatTotal : 0).toFixed(1) + '%', onClick: () => this.setState({ selectedDrillCategory: c.name }) }));
+      drillCategoryRows = Object.values(agg).sort((a, b) => b.netSales - a.netSales).map(c => ({ ...c, netSalesLabel: this.fmtMoney(c.netSales), qtyLabel: this.fmtNum(c.qty), pctLabel: (drillCatTotal ? 100 * c.netSales / drillCatTotal : 0).toFixed(1) + '%', onClick: () => this.setState({ selectedDrillCategory: c.name, tableZoom: 1 }) }));
       var drillCategoryTotals = { netSalesLabel: this.fmtMoney(drillCatTotal), qtyLabel: this.fmtNum(Object.values(agg).reduce((s, c) => s + c.qty, 0)), pctLabel: '100.0%' };
     }
     let drillBrandRows = [];
@@ -2010,7 +2010,7 @@ class Component extends DCLogic {
         agg[brand].netSales += netSales; agg[brand].qty += qty;
       });
       const drillBrandTotal = Object.values(agg).reduce((s, c) => s + c.netSales, 0);
-      drillBrandRows = Object.values(agg).sort((a, b) => b.netSales - a.netSales).map(c => ({ ...c, netSalesLabel: this.fmtMoney(c.netSales), qtyLabel: this.fmtNum(c.qty), pctLabel: (drillBrandTotal ? 100 * c.netSales / drillBrandTotal : 0).toFixed(1) + '%', onClick: () => this.setState({ selectedDrillBrand: c.name }) }));
+      drillBrandRows = Object.values(agg).sort((a, b) => b.netSales - a.netSales).map(c => ({ ...c, netSalesLabel: this.fmtMoney(c.netSales), qtyLabel: this.fmtNum(c.qty), pctLabel: (drillBrandTotal ? 100 * c.netSales / drillBrandTotal : 0).toFixed(1) + '%', onClick: () => this.setState({ selectedDrillBrand: c.name, tableZoom: 1 }) }));
       var drillBrandTotals = { netSalesLabel: this.fmtMoney(drillBrandTotal), qtyLabel: this.fmtNum(Object.values(agg).reduce((s, c) => s + c.qty, 0)), pctLabel: '100.0%' };
     }
     let drillItemRows = [];
