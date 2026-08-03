@@ -339,6 +339,10 @@ a:hover{color:var(--color-accent-300)}
 <button class="btn {{categoryTopBtnClass}}" onClick="{{setCategoryViewTop}}">Categories</button><button class="btn {{categorySubBtnClass}}" onClick="{{setCategoryViewSub}}">Sub-Categories</button><button class="btn {{categoryBrandBtnClass}}" onClick="{{setCategoryViewBrand}}">Brands</button>
 
 </div>
+<div class="field" style="max-width:280px;margin-bottom:var(--space-4)">
+<label>Search categories, sub-categories, brands</label>
+<input class="input" type="text" placeholder="e.g. Wander or ARB" value="{{categorySearch}}" onChange="{{setCategorySearch}}">
+</div>
 <sc-if value="{{isCategorySub}}" hint-placeholder-val="{{true}}">
 <sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x:auto">
@@ -1173,6 +1177,7 @@ class Component extends DCLogic {
     wholesaleView: 'stores',
     wholesaleChannel: 'wholesale',
     itemSearch: '',
+    categorySearch: '',
     itemsPage: 0,
     discItemPage: 0,
     filters: { region: 'All', city: 'All', store: 'All', month: 'All', dateRange: null },
@@ -1734,7 +1739,9 @@ class Component extends DCLogic {
     };
     let catRows = categoriesForPeriod.map(withCatMeasures);
     const csort = st.sort.categories;
+    const catSearch = (st.categorySearch || '').trim().toLowerCase();
     catRows = this.sortRows(catRows, csort.col, csort.dir).map(labelCat).map(c => ({ ...c, onClick: () => this.setState({ selectedCategoryKey: c.division + '|' + c.category, selectedCategoryMode: 'sub', selectedCategoryLabel: c.category }) }));
+    if (catSearch) catRows = catRows.filter(c => c.category.toLowerCase().includes(catSearch) || (c.division || '').toLowerCase().includes(catSearch));
 
     // top-level categories (division) roll-up — same measures, grouped one level up
     let topCatRows = [];
@@ -1754,6 +1761,7 @@ class Component extends DCLogic {
         const cost = divCost[c.division] || 0;
         return { ...c, netSalesLabel: this.fmtMoney(c.netSales), qtyLabel: this.fmtNum(c.qty), invoicesLabel: this.fmtNum(c.invoices), atvLabel: this.fmtMoney(c.atv), uptLabel: Math.abs(c.upt).toFixed(2), aspLabel: this.fmtMoney(c.asp), pctLabel: (totalCatNetSales ? 100 * c.netSales / totalCatNetSales : 0).toFixed(1) + '%', markupLabel: mkp((cost ? 100 * (c.netSales - cost) / cost : 0).toFixed(1) + '%') };
       }).map(c => ({ ...c, onClick: () => this.setState({ selectedCategoryKey: c.division, selectedCategoryMode: 'division', selectedCategoryLabel: c.category }) }));
+      if (catSearch) topCatRows = topCatRows.filter(c => c.category.toLowerCase().includes(catSearch));
     }
 
     // brand roll-up — same measures, grouped by brand (item-master)
@@ -1776,6 +1784,7 @@ class Component extends DCLogic {
         const cost = brandCost[c.brand] || 0;
         return { ...c, netSalesLabel: this.fmtMoney(c.netSales), qtyLabel: this.fmtNum(c.qty), invoicesLabel: this.fmtNum(c.invoices), atvLabel: this.fmtMoney(c.atv), uptLabel: Math.abs(c.upt).toFixed(2), aspLabel: this.fmtMoney(c.asp), pctLabel: (totalCatNetSales ? 100 * c.netSales / totalCatNetSales : 0).toFixed(1) + '%', markupLabel: mkp((cost ? 100 * (c.netSales - cost) / cost : 0).toFixed(1) + '%') };
       }).map(c => ({ ...c, onClick: () => this.setState({ selectedCategoryKey: c.brand, selectedCategoryMode: 'brand', selectedCategoryLabel: c.brand }) }));
+      if (catSearch) brandRows = brandRows.filter(c => c.brand.toLowerCase().includes(catSearch));
     }
 
     // category detail modal — top 50 items in the selected category, respects all filters
@@ -2472,7 +2481,7 @@ class Component extends DCLogic {
       dailySorted: dailyRows, dailyKpiCards,
       kpiCards, dailyBars, dailyTrend, regionBars, topStores, topCategories, topStoresKpi,
       chartRangeLabel: f.dateRange ? (f.dateRange.start + ' \u2013 ' + f.dateRange.end) : (chartMonth ? new Date(chartMonth + '-02').toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'current month'),
-      storesSorted: storeRows, categoriesSorted: catRows, topCategoriesSorted: topCatRows, brandsSorted: brandRows,
+      storesSorted: storeRows, categoriesSorted: catRows, topCategoriesSorted: topCatRows, brandsSorted: brandRows, categorySearch: st.categorySearch || '', setCategorySearch: e => this.setState({ categorySearch: e.target.value }),
       categoryView: st.categoryView || 'sub', isCategorySub: (st.categoryView || 'sub') !== 'top' && (st.categoryView || 'sub') !== 'brand', isCategoryTop: st.categoryView === 'top', isCategoryBrand: st.categoryView === 'brand',
       categorySubBtnClass: (st.categoryView || 'sub') !== 'top' && (st.categoryView || 'sub') !== 'brand' ? 'btn-primary' : 'btn-secondary', categoryTopBtnClass: st.categoryView === 'top' ? 'btn-primary' : 'btn-secondary', categoryBrandBtnClass: st.categoryView === 'brand' ? 'btn-primary' : 'btn-secondary',
       setCategoryViewSub: () => this.setState({ categoryView: 'sub' }), setCategoryViewTop: () => this.setState({ categoryView: 'top' }), setCategoryViewBrand: () => this.setState({ categoryView: 'brand' }),
