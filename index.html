@@ -1666,12 +1666,12 @@ class Component extends DCLogic {
       pctLabel: (hourlyPctTotal ? (100 * val / hourlyPctTotal).toFixed(1) : '0.0') + '%',
       pct: Math.max(2, Math.round(100 * val / maxHourly))
     }));
-    const daySliceDefs = [0, 1, 2, 3].map(i => {
-      const startH = (9 + i * 6) % 24;
-      const hours = Array.from({ length: 6 }, (_, k) => (startH + k) % 24);
-      const endH = (startH + 6) % 24;
-      return { label: hourLabel(startH) + ' \u2013 ' + hourLabel(endH), hours };
-    });
+    const daySliceDefs = [
+      { label: '9AM \u2013 3PM', hours: [9, 10, 11, 12, 13, 14] },
+      { label: '3PM \u2013 9PM', hours: [15, 16, 17, 18, 19, 20] },
+      { label: '9PM \u2013 12AM', hours: [21, 22, 23] },
+      { label: 'After 12AM', hours: [0, 1, 2, 3, 4, 5, 6, 7, 8] }
+    ];
     const daySlices = daySliceDefs.map(s => {
       const val = s.hours.reduce((a, h) => a + (hourlyMap[h] || 0), 0);
       return { label: s.label, valueLabel: this.fmtMoney(val), pctLabel: (hourlyPctTotal ? (100 * val / hourlyPctTotal).toFixed(1) : '0.0') + '%' };
