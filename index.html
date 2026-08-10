@@ -192,7 +192,7 @@ a:hover{color:var(--color-accent-300)}
 </sc-for>
 </div>
 </div>
-</sc-if>
+
 </div>
 <div style="flex:1;min-width:0">
 <h3 style="font-family:var(--font-heading);font-size:16px;margin:0 0 var(--space-4)">Sales by region</h3>
@@ -889,6 +889,378 @@ a:hover{color:var(--color-accent-300)}
 </div>
 </sc-if>
 
+<sc-if value="{{isYoy}}" hint-placeholder-val="{{false}}">
+<section>
+<sc-if value="{{showYoyFilterToggle}}" hint-placeholder-val="{{false}}">
+<button class="btn btn-secondary" onClick="{{toggleYoyFilters}}" style="display:flex;align-items:center;gap:6px;margin-bottom:var(--space-3)">
+<span>Select Filters</span>
+<sc-if value="{{yoyFiltersActiveCount}}" hint-placeholder-val="{{0}}"><span class="tag-accent" style="font-size:11px;padding:1px 7px;border-radius:var(--radius-pill)">{{yoyFiltersActiveCount}}</span></sc-if>
+<span style="font-size:11px;color:var(--color-neutral-500)">{{yoyFiltersToggleArrow}}</span>
+</button>
+</sc-if>
+<div style="display:{{yoyFiltersDisplay}};gap:var(--space-4);align-items:{{filtersAlign}};flex-wrap:wrap;flex-direction:{{filtersDirection}};margin-bottom:var(--space-6)">
+<div class="field" style="min-width:130px;width:{{filtersItemWidth}}">
+<label>Region</label>
+<select class="input" value="{{yoyFilters.region}}" onChange="{{setYoyRegion}}" disabled="{{lockRegion}}">
+<sc-for list="{{yoyRegionOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
+</select>
+</div>
+<div class="field" style="min-width:150px;width:{{filtersItemWidth}}">
+<label>City</label>
+<select class="input" value="{{yoyFilters.city}}" onChange="{{setYoyCity}}">
+<sc-for list="{{yoyCityOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
+</select>
+</div>
+<div class="field" style="min-width:180px;width:{{filtersItemWidth}}">
+<label>Store</label>
+<select class="input" value="{{yoyFilters.store}}" onChange="{{setYoyStore}}">
+<sc-for list="{{yoyStoreOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt.code}}">{{opt.label}}</option></sc-for>
+</select>
+</div>
+<div class="field" style="min-width:140px;width:{{filtersItemWidth}}">
+<label>Month</label>
+<select class="input" value="{{yoyFilters.month}}" onChange="{{setYoyMonth}}">
+<sc-for list="{{yoyMonthOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt.value}}">{{opt.label}}</option></sc-for>
+</select>
+</div>
+<div class="field" style="min-width:150px;width:{{filtersItemWidth}}">
+<label>Date</label>
+<select class="input" value="{{yoyFilters.date}}" onChange="{{setYoyDate}}">
+<sc-for list="{{yoyDateOptions}}" as="opt" hint-placeholder-count="5"><option value="{{opt.value}}">{{opt.label}}</option></sc-for>
+</select>
+</div>
+<sc-if value="{{yoyFiltersDirty}}" hint-placeholder-val="{{false}}">
+<button class="btn btn-ghost" onClick="{{clearYoyFilters}}">Clear filters</button>
+</sc-if>
+</div>
+
+<sc-if value="{{yoyLoading}}" hint-placeholder-val="{{true}}">
+<div class="card elev-sm" style="text-align:center;color:var(--color-neutral-500);font-size:14px">Loading year-on-year data…</div>
+</sc-if>
+
+<sc-if value="{{yoyReady}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;gap:var(--space-4);flex-wrap:wrap;margin-bottom:var(--space-5)">
+<sc-for list="{{yoyKpiCards}}" as="k" hint-placeholder-count="4">
+<div class="card elev-sm" style="flex:1 1 170px;min-width:0">
+<div class="card-kicker">{{k.label}}</div>
+<div class="card-title" style="font-size:24px;margin-top:2px;white-space:nowrap">{{k.value}}</div>
+<div class="card-meta" style="margin-top:2px">LY {{k.ly}}</div>
+<div style="font-size:13px;font-weight:700;margin-top:2px;color:{{k.color}}">{{k.delta}}</div>
+</div>
+</sc-for>
+</div>
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:var(--space-4)">
+<button class="btn {{yoyCatBtnClass}}" onClick="{{setYoyViewCategory}}">Category</button>
+<button class="btn {{yoySubBtnClass}}" onClick="{{setYoyViewSub}}">Sub-Category</button>
+<button class="btn {{yoyBrandBtnClass}}" onClick="{{setYoyViewBrand}}">Brand</button>
+<button class="btn {{yoyStoreBtnClass}}" onClick="{{setYoyViewStores}}">By Store</button>
+<button class="btn {{yoyRegionBtnClass}}" onClick="{{setYoyViewRegion}}">Region</button>
+<button class="btn {{yoyCityBtnClass}}" onClick="{{setYoyViewCity}}">City</button>
+<button class="btn {{yoyItemsBtnClass}}" onClick="{{setYoyViewItems}}">Items</button>
+</div>
+<sc-if value="{{yoyItemsLoading}}" hint-placeholder-val="{{false}}">
+<div class="card elev-sm" style="text-align:center;color:var(--color-neutral-500);font-size:14px;margin-bottom:var(--space-4)">Loading item-level data…</div>
+</sc-if>
+
+<div style="display:flex;gap:8px;margin-bottom:var(--space-4)">
+<button class="btn {{yoyAllBtnClass}}" onClick="{{setYoyAll}}">All</button>
+<button class="btn {{yoyLosersBtnClass}}" onClick="{{setYoyLosers}}">Losers</button>
+</div>
+<div class="field" style="max-width:300px;margin-bottom:var(--space-4)">
+<label>Search {{yoyDimLabel}}</label>
+<input class="input" type="text" value="{{yoySearch}}" onChange="{{setYoySearch}}" placeholder="Type to filter…" />
+</div>
+
+<sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
+<div style="overflow-x:auto">
+<table class="table">
+<thead>
+<tr>
+<sc-if value="{{yoyIsItems}}" hint-placeholder-val="{{false}}">
+<th rowspan="2" style="text-align:left">Image</th><th rowspan="2" style="text-align:left">SKU</th><th rowspan="2" style="text-align:left">Item</th>
+</sc-if>
+<sc-if value="{{yoyIsNotItems}}" hint-placeholder-val="{{true}}"><th rowspan="2" style="text-align:left">{{yoyDimHeader}}</th></sc-if>
+<th colspan="3">Sales</th><th colspan="2">Sold</th>
+<sc-if value="{{yoyShowRcpt}}" hint-placeholder-val="{{true}}"><th colspan="2">Receipt lines</th></sc-if>
+<sc-if value="{{yoyShowMarkup}}" hint-placeholder-val="{{true}}"><th colspan="2">Markup %</th></sc-if>
+</tr>
+<tr>
+<th>CY</th><th>LY</th><th>Δ%</th><th>CY</th><th>LY</th>
+<sc-if value="{{yoyShowRcpt}}" hint-placeholder-val="{{true}}"><th>CY</th><th>LY</th></sc-if>
+<sc-if value="{{yoyShowMarkup}}" hint-placeholder-val="{{true}}"><th>CY</th><th>LY</th></sc-if>
+</tr>
+</thead>
+<tbody>
+<sc-for list="{{yoyRows}}" as="r" hint-placeholder-count="12">
+<tr>
+<sc-if value="{{yoyIsItems}}" hint-placeholder-val="{{false}}">
+<td style="text-align:left;width:52px">
+<img src="{{r.imageSrc}}" alt="" style="width:44px;height:44px;object-fit:contain;background:#fff;border-radius:var(--radius-sm);display:block" />
+</td>
+<td style="text-align:left;font-weight:600;white-space:nowrap">
+<span onClick="{{r.onClick}}" style="cursor:pointer;color:var(--color-accent-300);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px">{{r.sku}}</span>
+</td>
+<td style="text-align:left;font-weight:600">{{r.desc}}</td>
+</sc-if>
+<sc-if value="{{yoyIsNotItems}}" hint-placeholder-val="{{true}}">
+<td style="text-align:left;font-weight:600">
+<span onClick="{{r.onClick}}" style="cursor:pointer;color:var(--color-accent-300);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px">{{r.name}}</span>
+</td>
+</sc-if>
+<td style="font-weight:600;white-space:nowrap">{{r.cySales}}</td>
+<td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.lySales}}</td>
+<td style="white-space:nowrap;font-weight:700;color:{{r.deltaColor}}">{{r.delta}}</td>
+<td style="white-space:nowrap">{{r.cySold}}</td>
+<td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.lySold}}</td>
+<sc-if value="{{yoyShowRcpt}}" hint-placeholder-val="{{true}}">
+<td style="white-space:nowrap">{{r.cyRcpt}}</td>
+<td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.lyRcpt}}</td>
+</sc-if>
+<sc-if value="{{yoyShowMarkup}}" hint-placeholder-val="{{true}}">
+<td style="white-space:nowrap">{{r.cyMarkup}}</td>
+<td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.lyMarkup}}</td>
+</sc-if>
+</tr>
+</sc-for>
+</tbody>
+<sc-if value="{{yoyIsNotItems}}" hint-placeholder-val="{{true}}">
+<tfoot>
+<tr>
+<td style="text-align:left;font-weight:700">Total</td>
+<td style="font-weight:700;white-space:nowrap">{{yoyFooter.cySales}}</td>
+<td style="font-weight:700;white-space:nowrap">{{yoyFooter.lySales}}</td>
+<td style="font-weight:700;white-space:nowrap;color:{{yoyFooter.deltaColor}}">{{yoyFooter.delta}}</td>
+<td style="font-weight:700;white-space:nowrap">{{yoyFooter.cySold}}</td>
+<td style="font-weight:700;white-space:nowrap">{{yoyFooter.lySold}}</td>
+<sc-if value="{{yoyShowRcpt}}" hint-placeholder-val="{{true}}">
+<td style="font-weight:700;white-space:nowrap">{{yoyFooter.cyRcpt}}</td>
+<td style="font-weight:700;white-space:nowrap">{{yoyFooter.lyRcpt}}</td>
+</sc-if>
+<sc-if value="{{yoyShowMarkup}}" hint-placeholder-val="{{true}}">
+<td style="font-weight:700;white-space:nowrap">{{yoyFooter.cyMarkup}}</td>
+<td style="font-weight:700;white-space:nowrap">{{yoyFooter.lyMarkup}}</td>
+</sc-if>
+</tr>
+</tfoot>
+</sc-if>
+</table>
+</div>
+</sc-if>
+
+<sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{yoyRows}}" as="r" hint-placeholder-count="10">
+<div class="card elev-sm">
+<div onClick="{{r.onClick}}" style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+<div style="font-weight:700;font-size:14px;flex:1;min-width:0">
+<sc-if value="{{yoyIsByStore}}" hint-placeholder-val="{{false}}"><span style="color:var(--color-accent-300);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px">{{r.name}}</span></sc-if>
+<sc-if value="{{yoyIsNotByStore}}" hint-placeholder-val="{{true}}"><span style="color:var(--color-accent-300);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px">{{r.name}}</span></sc-if>
+</div>
+<div style="font-size:13px;font-weight:700;color:{{r.deltaColor}};white-space:nowrap">{{r.delta}}</div>
+</div>
+<div style="display:grid;grid-template-columns:{{yoyMobileCols}};gap:6px;margin-top:8px;font-size:11px">
+<div>
+<div style="color:var(--color-neutral-500)">Sales</div>
+<div style="font-weight:700;font-size:13px">{{r.cySales}}</div>
+<div style="color:var(--color-neutral-500)">{{r.lySales}}</div>
+</div>
+<div>
+<div style="color:var(--color-neutral-500)">Sold</div>
+<div style="font-weight:700;font-size:13px">{{r.cySold}}</div>
+<div style="color:var(--color-neutral-500)">{{r.lySold}}</div>
+</div>
+<sc-if value="{{yoyShowRcpt}}" hint-placeholder-val="{{true}}">
+<div>
+<div style="color:var(--color-neutral-500)">Rcpt lines</div>
+<div style="font-weight:700;font-size:13px">{{r.cyRcpt}}</div>
+<div style="color:var(--color-neutral-500)">{{r.lyRcpt}}</div>
+</div>
+</sc-if>
+<sc-if value="{{yoyShowMarkup}}" hint-placeholder-val="{{true}}">
+<div>
+<div style="color:var(--color-neutral-500)">Markup</div>
+<div style="font-weight:700;font-size:13px">{{r.cyMarkup}}</div>
+<div style="color:var(--color-neutral-500)">{{r.lyMarkup}}</div>
+</div>
+</sc-if>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{yoyItemPagerVisible}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);flex-wrap:wrap;margin-top:var(--space-4)">
+<div style="font-size:12px;color:var(--color-neutral-500)">{{yoyItemPageLabel}}</div>
+<div style="display:flex;gap:8px">
+<button class="btn btn-secondary" onClick="{{yoyItemPrev}}" disabled="{{yoyItemPrevDisabled}}">‹ Previous 100</button>
+<button class="btn btn-secondary" onClick="{{yoyItemNext}}" disabled="{{yoyItemNextDisabled}}">Next 100 ›</button>
+</div>
+</div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{yoyDimDrillOpen}}" hint-placeholder-val="{{false}}">
+<div onClick="{{closeYoyDimDrill}}" style="position:fixed;inset:0;z-index:60;background:rgba(12,10,22,0.55);display:flex;align-items:flex-start;justify-content:center;padding:var(--space-6) var(--space-4);overflow:auto">
+<div onClick="{{stopPropagation}}" class="card elev-lg" style="width:100%;max-width:1040px;background:var(--color-surface);padding:var(--space-6)">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:var(--space-4);margin-bottom:var(--space-4)">
+<div>
+<div class="card-kicker">{{yoyDimDrillKicker}}</div>
+<h3 style="font-family:var(--font-heading);font-size:20px;margin:2px 0 0">{{yoyDimDrillName}}</h3>
+</div>
+<button class="btn btn-ghost" onClick="{{closeYoyDimDrill}}" style="font-size:13px;padding:4px 10px">Close ✕</button>
+</div>
+<sc-if value="{{yoyDimDrillSwitchVisible}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;gap:8px;margin-bottom:var(--space-4)">
+<button class="btn {{yoyDimStoresBtnClass}}" onClick="{{setYoyDimModeStores}}">Stores</button>
+<button class="btn {{yoyDimItemsBtnClass}}" onClick="{{setYoyDimModeItems}}">Items</button>
+</div>
+</sc-if>
+<sc-if value="{{yoyDimItemsLoading}}" hint-placeholder-val="{{false}}">
+<div style="font-size:13px;color:var(--color-neutral-500);margin-bottom:var(--space-3)">Loading item-level data…</div>
+</sc-if>
+<div style="overflow:auto;max-height:60vh">
+<table class="table">
+<thead>
+<tr>
+<sc-if value="{{yoyDimItemsMode}}" hint-placeholder-val="{{false}}">
+<th rowspan="2" style="text-align:left">Image</th><th rowspan="2" style="text-align:left">SKU</th><th rowspan="2" style="text-align:left">Item</th>
+</sc-if>
+<sc-if value="{{yoyDimStoresMode}}" hint-placeholder-val="{{true}}"><th rowspan="2" style="text-align:left">{{yoyDimDrillHeader}}</th></sc-if>
+<th colspan="3">Sales</th><th colspan="2">Sold</th>
+<sc-if value="{{yoyDimShowRcpt}}" hint-placeholder-val="{{true}}"><th colspan="2">Receipt lines</th></sc-if>
+<sc-if value="{{yoyShowMarkup}}" hint-placeholder-val="{{true}}"><th colspan="2">Markup %</th></sc-if>
+</tr>
+<tr>
+<th>CY</th><th>LY</th><th>Δ%</th><th>CY</th><th>LY</th>
+<sc-if value="{{yoyDimShowRcpt}}" hint-placeholder-val="{{true}}"><th>CY</th><th>LY</th></sc-if>
+<sc-if value="{{yoyShowMarkup}}" hint-placeholder-val="{{true}}"><th>CY</th><th>LY</th></sc-if>
+</tr>
+</thead>
+<tbody>
+<sc-for list="{{yoyDimDrillRows}}" as="r" hint-placeholder-count="10">
+<tr>
+<sc-if value="{{yoyDimItemsMode}}" hint-placeholder-val="{{false}}">
+<td style="text-align:left;width:52px">
+<img src="{{r.imageSrc}}" alt="" style="width:44px;height:44px;object-fit:contain;background:#fff;border-radius:var(--radius-sm);display:block" />
+</td>
+<td style="text-align:left;font-weight:600;white-space:nowrap">{{r.sku}}</td>
+<td style="text-align:left;font-weight:600">{{r.desc}}</td>
+</sc-if>
+<sc-if value="{{yoyDimStoresMode}}" hint-placeholder-val="{{true}}">
+<td style="text-align:left;font-weight:600">{{r.name}}</td>
+</sc-if>
+<td style="font-weight:600;white-space:nowrap">{{r.cySales}}</td>
+<td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.lySales}}</td>
+<td style="white-space:nowrap;font-weight:700;color:{{r.deltaColor}}">{{r.delta}}</td>
+<td style="white-space:nowrap">{{r.cySold}}</td>
+<td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.lySold}}</td>
+<sc-if value="{{yoyDimShowRcpt}}" hint-placeholder-val="{{true}}">
+<td style="white-space:nowrap">{{r.cyRcpt}}</td>
+<td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.lyRcpt}}</td>
+</sc-if>
+<sc-if value="{{yoyShowMarkup}}" hint-placeholder-val="{{true}}">
+<td style="white-space:nowrap">{{r.cyMarkup}}</td>
+<td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.lyMarkup}}</td>
+</sc-if>
+</tr>
+</sc-for>
+</tbody>
+<tfoot>
+<tr>
+<sc-if value="{{yoyDimItemsMode}}" hint-placeholder-val="{{false}}"><td colspan="3" style="text-align:left;font-weight:700">Total</td></sc-if>
+<sc-if value="{{yoyDimStoresMode}}" hint-placeholder-val="{{true}}"><td style="text-align:left;font-weight:700">Total</td></sc-if>
+<td style="font-weight:700;white-space:nowrap">{{yoyDimDrillFooter.cySales}}</td>
+<td style="font-weight:700;white-space:nowrap">{{yoyDimDrillFooter.lySales}}</td>
+<td style="font-weight:700;white-space:nowrap;color:{{yoyDimDrillFooter.deltaColor}}">{{yoyDimDrillFooter.delta}}</td>
+<td style="font-weight:700;white-space:nowrap">{{yoyDimDrillFooter.cySold}}</td>
+<td style="font-weight:700;white-space:nowrap">{{yoyDimDrillFooter.lySold}}</td>
+<sc-if value="{{yoyDimShowRcpt}}" hint-placeholder-val="{{true}}">
+<td style="font-weight:700;white-space:nowrap">{{yoyDimDrillFooter.cyRcpt}}</td>
+<td style="font-weight:700;white-space:nowrap">{{yoyDimDrillFooter.lyRcpt}}</td>
+</sc-if>
+<sc-if value="{{yoyShowMarkup}}" hint-placeholder-val="{{true}}">
+<td style="font-weight:700;white-space:nowrap">{{yoyDimDrillFooter.cyMarkup}}</td>
+<td style="font-weight:700;white-space:nowrap">{{yoyDimDrillFooter.lyMarkup}}</td>
+</sc-if>
+</tr>
+</tfoot>
+</table>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{yoyDrillOpen}}" hint-placeholder-val="{{false}}">
+<div onClick="{{closeYoyDrill}}" style="position:fixed;inset:0;z-index:60;background:rgba(12,10,22,0.55);display:flex;align-items:flex-start;justify-content:center;padding:var(--space-6) var(--space-4);overflow:auto">
+<div onClick="{{stopPropagation}}" class="card elev-lg" style="width:100%;max-width:1040px;background:var(--color-surface);padding:var(--space-6)">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:var(--space-4);margin-bottom:var(--space-4)">
+<div>
+<div class="card-kicker">Store · {{yoyPeriodLabel}}</div>
+<h3 style="font-family:var(--font-heading);font-size:20px;margin:2px 0 0">{{yoyDrillName}}</h3>
+</div>
+<button class="btn btn-ghost" onClick="{{closeYoyDrill}}" style="font-size:13px;padding:4px 10px">Close ✕</button>
+</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:var(--space-4)">
+<button class="btn {{yoyDrillCatBtnClass}}" onClick="{{setYoyDrillCat}}">Category</button>
+<button class="btn {{yoyDrillSubBtnClass}}" onClick="{{setYoyDrillSub}}">Sub-Category</button>
+<button class="btn {{yoyDrillBrandBtnClass}}" onClick="{{setYoyDrillBrand}}">Brand</button>
+</div>
+<div style="overflow:auto;max-height:60vh">
+<table class="table">
+<thead>
+<tr>
+<th rowspan="2" style="text-align:left">{{yoyDrillHeader}}</th>
+<th colspan="3">Sales</th><th colspan="2">Sold</th><th colspan="2">Receipt lines</th>
+<sc-if value="{{yoyShowMarkup}}" hint-placeholder-val="{{true}}"><th colspan="2">Markup %</th></sc-if>
+</tr>
+<tr>
+<th>CY</th><th>LY</th><th>Δ%</th><th>CY</th><th>LY</th><th>CY</th><th>LY</th>
+<sc-if value="{{yoyShowMarkup}}" hint-placeholder-val="{{true}}"><th>CY</th><th>LY</th></sc-if>
+</tr>
+</thead>
+<tbody>
+<sc-for list="{{yoyDrillRows}}" as="r" hint-placeholder-count="10">
+<tr>
+<td style="text-align:left;font-weight:600">{{r.name}}</td>
+<td style="font-weight:600;white-space:nowrap">{{r.cySales}}</td>
+<td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.lySales}}</td>
+<td style="white-space:nowrap;font-weight:700;color:{{r.deltaColor}}">{{r.delta}}</td>
+<td style="white-space:nowrap">{{r.cySold}}</td>
+<td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.lySold}}</td>
+<td style="white-space:nowrap">{{r.cyRcpt}}</td>
+<td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.lyRcpt}}</td>
+<sc-if value="{{yoyShowMarkup}}" hint-placeholder-val="{{true}}">
+<td style="white-space:nowrap">{{r.cyMarkup}}</td>
+<td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.lyMarkup}}</td>
+</sc-if>
+</tr>
+</sc-for>
+</tbody>
+<tfoot>
+<tr>
+<td style="text-align:left;font-weight:700">Total</td>
+<td style="font-weight:700;white-space:nowrap">{{yoyDrillFooter.cySales}}</td>
+<td style="font-weight:700;white-space:nowrap">{{yoyDrillFooter.lySales}}</td>
+<td style="font-weight:700;white-space:nowrap;color:{{yoyDrillFooter.deltaColor}}">{{yoyDrillFooter.delta}}</td>
+<td style="font-weight:700;white-space:nowrap">{{yoyDrillFooter.cySold}}</td>
+<td style="font-weight:700;white-space:nowrap">{{yoyDrillFooter.lySold}}</td>
+<td style="font-weight:700;white-space:nowrap">{{yoyDrillFooter.cyRcpt}}</td>
+<td style="font-weight:700;white-space:nowrap">{{yoyDrillFooter.lyRcpt}}</td>
+<sc-if value="{{yoyShowMarkup}}" hint-placeholder-val="{{true}}">
+<td style="font-weight:700;white-space:nowrap">{{yoyDrillFooter.cyMarkup}}</td>
+<td style="font-weight:700;white-space:nowrap">{{yoyDrillFooter.lyMarkup}}</td>
+</sc-if>
+</tr>
+</tfoot>
+</table>
+</div>
+</div>
+</div>
+</sc-if>
+</section>
+</sc-if>
+
 <sc-if value="{{isWholesale}}" hint-placeholder-val="{{false}}">
 <section>
 <div style="display:flex;gap:8px;margin-bottom:var(--space-4)">
@@ -965,7 +1337,8 @@ a:hover{color:var(--color-accent-300)}
 </div>
 <div style="display:flex;gap:8px;margin-bottom:var(--space-4)">
 <button class="btn {{wholesaleStoresBtnClass}}" onClick="{{setWholesaleViewStores}}">By Store</button>
-<button class="btn {{wholesaleDailyBtnClass}}" onClick="{{setWholesaleViewDaily}}">Day-wise</button>
+
+<button class="btn {{wholesaleDailyBtnClass}}" onClick="{{setWholesaleViewDaily}}">Day-wise</button><button class="btn {{wholesaleCustomersBtnClass}}" onClick="{{setWholesaleViewCustomers}}">By Customer</button>
 </div>
 <sc-if value="{{isWholesaleStores}}" hint-placeholder-val="{{true}}">
 <sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
@@ -994,6 +1367,38 @@ a:hover{color:var(--color-accent-300)}
 </div>
 </sc-if>
 <div style="font-size:12px;color:var(--color-neutral-500);margin-top:var(--space-3)">Total net sales: {{wholesaleTotalLabel}}</div>
+</sc-if>
+<sc-if value="{{isWholesaleCustomers}}" hint-placeholder-val="{{false}}">
+<div class="field" style="max-width:320px;margin-bottom:var(--space-4)">
+<label>Search customer</label>
+<input class="input" type="text" value="{{wholesaleCustomerSearch}}" onChange="{{setWholesaleCustomerSearch}}" placeholder="Customer name…">
+</div>
+<sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
+<div style="overflow-x:auto">
+<table class="table">
+<thead><tr><th style="text-align:left;width:44px">#</th><th style="text-align:left">Customer</th><th style="text-align:left">Type</th><th>Net sales</th><th>% of total</th></tr></thead>
+<tbody>
+<sc-for list="{{wholesaleCustomerRows}}" as="c" hint-placeholder-count="10">
+<tr><td style="text-align:left;color:var(--color-neutral-500)">{{c.rank}}</td><td style="font-weight:600;text-align:left">{{c.name}}</td><td style="white-space:nowrap;text-align:left">{{c.type}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="white-space:nowrap;color:var(--color-neutral-500)">{{c.pctLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</sc-if>
+<sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{wholesaleCustomerRows}}" as="c" hint-placeholder-count="10">
+<div class="card elev-sm" style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+<div style="flex:1;min-width:0">
+<div style="font-weight:700;font-size:14px">{{c.rank}}. {{c.name}}</div>
+<div class="card-meta">{{c.type}} · {{c.pctLabel}}</div>
+</div>
+<div style="font-weight:700;font-size:15px;color:var(--color-accent);white-space:nowrap">{{c.netSalesLabel}}</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+<div style="font-size:12px;color:var(--color-neutral-500);margin-top:var(--space-3)">{{wholesaleCustomerCountLabel}} · Total net sales: {{wholesaleTotalLabel}}</div>
 </sc-if>
 <sc-if value="{{isWholesaleDaily}}" hint-placeholder-val="{{false}}">
 <div style="overflow-x:auto">
@@ -1157,7 +1562,7 @@ a:hover{color:var(--color-accent-300)}
 </sc-for>
 </div>
 </div>
-</section>
+</sc-if></section>
 </sc-if>
 
 <sc-if value="{{stcStoreDailyOpen}}" hint-placeholder-val="{{false}}">
@@ -1271,6 +1676,7 @@ class Component extends DCLogic {
     wholesaleFilters: { month: 'All', type: 'All', store: 'All', dateRange: null },
     wholesaleView: 'stores',
     wholesaleChannel: 'wholesale',
+    wholesaleCustomerSearch: '',
     itemSearch: '',
     categorySearch: '',
     itemsPage: 0,
@@ -1295,6 +1701,21 @@ class Component extends DCLogic {
     stcQitaf: [],
     hourly: [],
     hourlyView: 'chart',
+    yoy: null,
+    yoyLoading: false,
+    yoyView: 'category',
+    yoySearch: '',
+    yoyFilters: { region: 'All', city: 'All', store: 'All', month: 'All', date: 'All' },
+    yoyFiltersOpen: false,
+    yoyDrillStore: null,
+    yoyDimDrill: null,
+    yoyItems: null,
+    yoyItemsLoading: false,
+    yoyItemPage: 0,
+    yoyLosersOnly: false,
+    yoyDimDrillMode: 'stores',
+    yoyDrillName: '',
+    yoyDrillView: 'category',
     stcView: 'store',
     auth: null,
     loginId: '',
@@ -1488,7 +1909,33 @@ class Component extends DCLogic {
     return name;
   }
 
-  goTo(page) { return () => this.setState({ page }); }
+  goTo(page) { return () => { if (page === 'yoy') this._ensureYoy(); this.setState({ page }); }; }
+
+  async _ensureYoyItems() {
+    if (this.state.yoyItems || this.state.yoyItemsLoading) return;
+    this.setState({ yoyItemsLoading: true });
+    try {
+      const r = await fetch('data/yoy-items.json');
+      const yoyItems = r.ok ? await r.json() : null;
+      this.setState({ yoyItems, yoyItemsLoading: false });
+    } catch (e) {
+      console.error('YOY item data load failed', e);
+      this.setState({ yoyItemsLoading: false });
+    }
+  }
+
+  async _ensureYoy() {
+    if (this.state.yoy || this.state.yoyLoading) return;
+    this.setState({ yoyLoading: true });
+    try {
+      const r = await fetch('data/yoy.json');
+      const yoy = r.ok ? await r.json() : null;
+      this.setState({ yoy, yoyLoading: false });
+    } catch (e) {
+      console.error('YOY data load failed', e);
+      this.setState({ yoyLoading: false });
+    }
+  }
 
   doLogin(e) {
     if (e && e.preventDefault) e.preventDefault();
@@ -2308,6 +2755,19 @@ class Component extends DCLogic {
         cells: wStoreNames.map(s => ({ store: s, value: wPivot[date][s] || 0, label: wPivot[date][s] ? this.fmtMoney(wPivot[date][s]) : '\u2014' }))
       };
     });
+    // customer-level rollup for the By Customer sub-view
+    const custMap = {}, custType = {};
+    wholesaleFiltered.forEach(w => {
+      const name = (w.customerName || '').trim() || this.wholesaleName(w) || '—';
+      custMap[name] = (custMap[name] || 0) + w.amount;
+      if (!custType[name]) custType[name] = this.wholesaleEffType(w);
+    });
+    const custQuery = (st.wholesaleCustomerSearch || '').trim().toLowerCase();
+    const wholesaleCustomerRows = Object.entries(custMap)
+      .map(([name, netSales]) => ({ name, netSales, netSalesLabel: this.fmtMoney(netSales), type: custType[name] || '' }))
+      .sort((a, b) => b.netSales - a.netSales)
+      .map((r, i) => ({ ...r, rank: i + 1, pctLabel: wholesaleTotal ? (100 * r.netSales / wholesaleTotal).toFixed(1) + '%' : '—' }))
+      .filter(r => !custQuery || r.name.toLowerCase().includes(custQuery) || (r.type || '').toLowerCase().includes(custQuery));
     const wholesaleUndated = wholesaleFiltered.filter(w => !w.date).reduce((a, w) => a + w.amount, 0);
     const wholesaleKpiCards = [
       { label: 'Net Sales', value: this.fmtMoney(wholesaleTotal), sub: wholesaleRows.length + ' accounts' },
@@ -2557,10 +3017,280 @@ class Component extends DCLogic {
         markupLabel: mkp((totalCost ? 100 * (t.netSales - totalCost) / totalCost : 0).toFixed(1) + '%')
       };
     })();
-    const titles = { overview: 'Executive Overview', stores: 'Branch Comparison', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', hourlySales: 'Hourly Sales', wholesale: 'Wholesale', daily: 'Daily Sales', regionDetail: 'Region Detail', stcQitaf: 'STC Qitaf' };
-    const shortTitles = { overview: 'Overview', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily', regionDetail: 'Region', hourlySales: 'Hourly', wholesale: 'Wholesale', stcQitaf: 'Qitaf' };
-    const navIcons = { overview: '▣', categories: '▤', items: '◫', discounts: '%', invoices: '⌂', daily: '◷', regionDetail: '◈', hourlySales: '◔', wholesale: '◊', stcQitaf: '⊙' };
-    const pageOrder = ['overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'hourlySales', 'wholesale', 'stcQitaf'].filter(p => !(st.auth && st.auth.region !== 'All' && p === 'wholesale'));
+    // ===== YOY comparison page =====
+    const yf = st.yoyFilters;
+    const Y = st.yoy;
+    const monthName = mm => new Date('2026-' + mm + '-02').toLocaleDateString('en-US', { month: 'short' });
+    let yoyRows = [], yoyFooter = {}, yoyKpiCards = [], yoyRowCountLabel = '', yoyPeriodLabel = '', yoyCoverageLabel = '';
+    let yoyDrillRows = [], yoyDrillFooter = {}, yoyDrillOpen = false;
+    let yoyDimDrillRows = [], yoyDimDrillFooter = {}, yoyDimDrillOpen = false, yoyDimItemsMode = false;
+    let yoyItemPage = 0, yoyItemMaxPage = 0, yoyItemTotalRows = 0;
+    let yoyRegionOptions = ['All'], yoyCityOptions = ['All'], yoyStoreOptions = [{ code: 'All', label: 'All' }];
+    let yoyMonthOptions = [{ value: 'All', label: 'All months' }], yoyDateOptions = [{ value: 'All', label: 'All days' }];
+    if (Y && st.page === 'yoy') {
+      const lockedRegion = st.auth && st.auth.region !== 'All' ? st.auth.region : null;
+      const codes = Object.keys(Y.rows);
+      const known = codes.map(c => ({ code: c, sm: this.storeIndex[c] || {} }))
+        .filter(x => !lockedRegion || x.sm.region === lockedRegion);
+      yoyRegionOptions = ['All', ...[...new Set(known.map(x => x.sm.region).filter(Boolean))].sort()];
+      const inRegion = known.filter(x => yf.region === 'All' || x.sm.region === yf.region);
+      yoyCityOptions = ['All', ...[...new Set(inRegion.map(x => x.sm.city).filter(Boolean))].sort()];
+      const inCity = inRegion.filter(x => yf.city === 'All' || x.sm.city === yf.city);
+      yoyStoreOptions = [{ code: 'All', label: 'All' }, ...inCity
+        .map(x => ({ code: x.code, label: x.sm.shortName || x.sm.nameEn || x.code }))
+        .sort((a, b) => a.label.localeCompare(b.label))];
+      const months = [...new Set(Y.days.map(d => d.slice(0, 2)))].sort();
+      yoyMonthOptions = [{ value: 'All', label: 'All months' }, ...months.map(m => ({ value: m, label: monthName(m) }))];
+      const daysInMonth = Y.days.filter(d => yf.month === 'All' || d.slice(0, 2) === yf.month);
+      yoyDateOptions = [{ value: 'All', label: 'All days' }, ...daysInMonth.map(d => ({ value: d, label: monthName(d.slice(0, 2)) + ' ' + d.slice(3) }))];
+
+      const storeOk = {};
+      inCity.forEach(x => { if (yf.store === 'All' || yf.store === x.code) storeOk[x.code] = x.sm; });
+      const dayMask = Y.days.map(d => (yf.month === 'All' || d.slice(0, 2) === yf.month) && (yf.date === 'All' || d === yf.date));
+      const view = st.yoyView;
+      const byStore = view === 'stores';
+      const byGeo = view === 'region' || view === 'city';
+      const byItem = view === 'items';
+      const nameArr = view === 'sub' ? Y.subs : view === 'brand' ? Y.brands : Y.cats;
+      const keyCol = view === 'sub' ? 2 : view === 'brand' ? 3 : 1;
+      const agg = {};
+      const codeByLabel = {};
+      const yoyCacheKey = [yf.region, yf.city, yf.store, yf.month, yf.date].join('|');
+      if (byItem) {
+        const IT = st.yoyItems;
+        const ck = 'itemsView|' + yoyCacheKey;
+        if (IT && this._yoyAggCache && this._yoyAggCache.key === ck) {
+          Object.assign(agg, this._yoyAggCache.val);
+        } else if (IT) {
+          const iMask = IT.days.map(d => (yf.month === 'All' || d.slice(0, 2) === yf.month) && (yf.date === 'All' || d === yf.date));
+          for (const code in storeOk) {
+            const arr = IT.rows[code];
+            if (!arr) continue;
+            for (let i = 0; i < arr.length; i++) {
+              const r = arr[i];
+              if (!iMask[r[0]]) continue;
+              const sku = IT.skus[r[1]];
+              let a = agg[sku];
+              if (!a) a = agg[sku] = [0, 0, 0, 0, 0, 0, 0, 0];
+              a[0] += r[2]; a[1] += r[3]; a[2] += r[4]; a[3] += r[5];
+              a[4] += r[6]; a[5] += r[7]; a[6] += r[8]; a[7] += r[9];
+            }
+          }
+          this._yoyAggCache = { key: ck, val: agg };
+        }
+      } else {
+        for (const code in storeOk) {
+          const arr = Y.rows[code];
+          if (!arr) continue;
+          const sm = storeOk[code];
+          const storeKey = byStore ? (sm.shortName || sm.nameEn || code)
+            : byGeo ? ((view === 'region' ? sm.region : sm.city) || 'Other') : null;
+          if (byStore) codeByLabel[storeKey] = code;
+          for (let i = 0; i < arr.length; i++) {
+            const r = arr[i];
+            if (!dayMask[r[0]]) continue;
+            const key = storeKey || nameArr[r[keyCol]];
+            let a = agg[key];
+            if (!a) a = agg[key] = [0, 0, 0, 0, 0, 0, 0, 0];
+            a[0] += r[4]; a[1] += r[5]; a[2] += r[6]; a[3] += r[7];
+            a[4] += r[8]; a[5] += r[9]; a[6] += r[10]; a[7] += r[11];
+          }
+        }
+      }
+      const mkp = (sales, cost) => (hideMarkup || !cost) ? '—' : (100 * (sales - cost) / cost).toFixed(1) + '%';
+      const delta = (cy, ly) => ly ? ((cy - ly) / Math.abs(ly) * 100) : (cy ? 100 : 0);
+      const deltaColor = d => d > 0 ? 'var(--color-positive, #4caf7d)' : d < 0 ? 'var(--color-negative, #e2705f)' : 'var(--color-neutral-500)';
+      const deltaLabel = (cy, ly) => (!ly && !cy) ? '—' : (delta(cy, ly) >= 0 ? '+' : '') + delta(cy, ly).toFixed(1) + '%';
+      const q = (st.yoySearch || '').trim().toLowerCase();
+      const labelFor = key => {
+        if (!byItem) return key;
+        const meta = this.itemMeta[key] || {};
+        return meta.itemDesc ? key + ' · ' + meta.itemDesc : key;
+      };
+      let entries = Object.entries(agg)
+        .map(([key, a]) => [labelFor(key), a, key])
+        .filter(([name]) => !q || name.toLowerCase().includes(q))
+        .sort((a, b) => b[1][0] - a[1][0]);
+      if (st.yoyLosersOnly) entries = entries.filter(([, a]) => a[0] < a[4]);
+      if (byItem) {
+        yoyItemTotalRows = entries.length;
+        yoyItemMaxPage = Math.max(0, Math.ceil(entries.length / 100) - 1);
+        yoyItemPage = Math.min(st.yoyItemPage || 0, yoyItemMaxPage);
+        entries = entries.slice(yoyItemPage * 100, yoyItemPage * 100 + 100);
+      }
+      const blankImg = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="44" height="44"%3E%3Crect width="44" height="44" fill="%23eceaf5"/%3E%3C/svg%3E';
+      yoyRows = entries
+        .map(([name, a, key]) => ({
+          name,
+          sku: byItem ? key : '',
+          desc: byItem ? ((this.itemMeta[key] || {}).itemDesc || '') : '',
+          imageSrc: byItem ? ((this.itemMeta[key] || {}).image || blankImg) : blankImg,
+          cySales: this.fmtMoney(a[0]), lySales: this.fmtMoney(a[4]),
+          delta: deltaLabel(a[0], a[4]), deltaColor: deltaColor(delta(a[0], a[4])),
+          cySold: this.fmtNum(a[1]), lySold: this.fmtNum(a[5]),
+          cyRcpt: this.fmtNum(a[3]), lyRcpt: this.fmtNum(a[7]),
+          cyMarkup: mkp(a[0], a[2]), lyMarkup: mkp(a[4], a[6]),
+          onClick: byStore
+            ? () => this.setState({ yoyDrillStore: codeByLabel[name], yoyDrillName: name, yoyDrillView: 'category', yoyDimDrill: null })
+            : () => this.setState({ yoyDimDrill: { type: view, value: key, label: name }, yoyDrillStore: null, yoyDimDrillMode: 'stores' })
+        }));
+      const tot = Object.values(agg).reduce((t, a) => t.map((v, i) => v + a[i]), [0, 0, 0, 0, 0, 0, 0, 0]);
+      yoyFooter = {
+        cySales: this.fmtMoney(tot[0]), lySales: this.fmtMoney(tot[4]),
+        delta: deltaLabel(tot[0], tot[4]), deltaColor: deltaColor(delta(tot[0], tot[4])),
+        cySold: this.fmtNum(tot[1]), lySold: this.fmtNum(tot[5]),
+        cyRcpt: this.fmtNum(tot[3]), lyRcpt: this.fmtNum(tot[7]),
+        cyMarkup: mkp(tot[0], tot[2]), lyMarkup: mkp(tot[4], tot[6])
+      };
+      yoyKpiCards = [
+        { label: 'Sales', value: this.fmtMoney(tot[0]), ly: this.fmtMoney(tot[4]), delta: deltaLabel(tot[0], tot[4]), color: deltaColor(delta(tot[0], tot[4])) },
+        { label: 'Sold qty', value: this.fmtNum(tot[1]), ly: this.fmtNum(tot[5]), delta: deltaLabel(tot[1], tot[5]), color: deltaColor(delta(tot[1], tot[5])) },
+        ...(byItem ? [] : [{ label: 'Receipt lines', value: this.fmtNum(tot[3]), ly: this.fmtNum(tot[7]), delta: deltaLabel(tot[3], tot[7]), color: deltaColor(delta(tot[3], tot[7])) }]),
+      ];
+      if (!hideMarkup) yoyKpiCards.push({ label: 'Markup %', value: mkp(tot[0], tot[2]), ly: mkp(tot[4], tot[6]), delta: '', color: 'var(--color-neutral-500)' });
+      const activeDays = Y.days.filter((d, i) => dayMask[i]);
+      const rangeLabel = activeDays.length
+        ? (activeDays.length === 1 ? monthName(activeDays[0].slice(0, 2)) + ' ' + activeDays[0].slice(3)
+          : monthName(activeDays[0].slice(0, 2)) + ' ' + activeDays[0].slice(3) + ' – ' + monthName(activeDays[activeDays.length - 1].slice(0, 2)) + ' ' + activeDays[activeDays.length - 1].slice(3))
+        : '—';
+      yoyPeriodLabel = Y.cyYear + ' vs ' + Y.lyYear + ' · ' + rangeLabel;
+      yoyRowCountLabel = yoyRows.length + ' rows';
+      // dimension drill-down: one category / sub-category / brand, compared across stores
+      if (st.yoyDimDrill) {
+        const dd = st.yoyDimDrill;
+        const sAgg = {};
+        const bump = (label, r, o) => {
+          let a = sAgg[label];
+          if (!a) a = sAgg[label] = [0, 0, 0, 0, 0, 0, 0, 0];
+          a[0] += r[o]; a[1] += r[o + 1]; a[2] += r[o + 2]; a[3] += r[o + 3];
+          a[4] += r[o + 4]; a[5] += r[o + 5]; a[6] += r[o + 6]; a[7] += r[o + 7];
+        };
+        const dimItemsMode = st.yoyDimDrillMode === 'items' && dd.type !== 'items' && dd.type !== 'region' && dd.type !== 'city';
+        yoyDimItemsMode = dimItemsMode;
+        const dck = 'dimItems|' + dd.type + '|' + dd.value + '|' + yoyCacheKey;
+        if (dimItemsMode && this._yoyDimCache && this._yoyDimCache.key === dck) {
+          Object.assign(sAgg, this._yoyDimCache.val);
+        } else if (dimItemsMode) {
+          const IT = st.yoyItems;
+          if (IT) {
+            const iMask = IT.days.map(d => (yf.month === 'All' || d.slice(0, 2) === yf.month) && (yf.date === 'All' || d === yf.date));
+            const metaField = dd.type === 'sub' ? 'category' : dd.type === 'brand' ? 'brand' : 'division';
+            const skuOk = {};
+            IT.skus.forEach((sku, i) => { if (((this.itemMeta[sku] || {})[metaField] || '—') === dd.value) skuOk[i] = sku; });
+            for (const code in storeOk) {
+              const rowsFor = IT.rows[code];
+              if (!rowsFor) continue;
+              rowsFor.forEach(r => {
+                const sku = skuOk[r[1]];
+                if (!sku || !iMask[r[0]]) return;
+                bump(sku, r, 2);
+              });
+            }
+            this._yoyDimCache = { key: dck, val: sAgg };
+          }
+        } else if (dd.type === 'items') {
+          const IT = st.yoyItems;
+          if (IT) {
+            const iMask = IT.days.map(d => (yf.month === 'All' || d.slice(0, 2) === yf.month) && (yf.date === 'All' || d === yf.date));
+            const wantSku = IT.skus.indexOf(dd.value);
+            if (wantSku >= 0) {
+              for (const code in storeOk) {
+                const rowsFor = IT.rows[code];
+                if (!rowsFor) continue;
+                const label = storeOk[code].shortName || storeOk[code].nameEn || code;
+                rowsFor.forEach(r => { if (r[1] === wantSku && iMask[r[0]]) bump(label, r, 2); });
+              }
+            }
+          }
+        } else if (dd.type === 'region' || dd.type === 'city') {
+          for (const code in storeOk) {
+            const rowsFor = Y.rows[code];
+            if (!rowsFor) continue;
+            const sm = storeOk[code];
+            if (((dd.type === 'region' ? sm.region : sm.city) || 'Other') !== dd.value) continue;
+            const label = sm.shortName || sm.nameEn || code;
+            rowsFor.forEach(r => { if (dayMask[r[0]]) bump(label, r, 4); });
+          }
+        } else {
+          const arr = dd.type === 'sub' ? Y.subs : dd.type === 'brand' ? Y.brands : Y.cats;
+          const col = dd.type === 'sub' ? 2 : dd.type === 'brand' ? 3 : 1;
+          const wanted = arr.indexOf(dd.value);
+          if (wanted >= 0) {
+            for (const code in storeOk) {
+              const rowsFor = Y.rows[code];
+              if (!rowsFor) continue;
+              const label = storeOk[code].shortName || storeOk[code].nameEn || code;
+              rowsFor.forEach(r => { if (r[col] === wanted && dayMask[r[0]]) bump(label, r, 4); });
+            }
+          }
+        }
+        yoyDimDrillRows = Object.entries(sAgg).sort((a, b) => b[1][0] - a[1][0]).slice(0, 200).map(([name, a]) => ({
+          name: dimItemsMode ? ((this.itemMeta[name] || {}).itemDesc ? name + ' · ' + this.itemMeta[name].itemDesc : name) : name,
+          sku: dimItemsMode ? name : '',
+          desc: dimItemsMode ? ((this.itemMeta[name] || {}).itemDesc || '') : '',
+          imageSrc: dimItemsMode ? ((this.itemMeta[name] || {}).image || blankImg) : blankImg,
+          cySales: this.fmtMoney(a[0]), lySales: this.fmtMoney(a[4]),
+          delta: deltaLabel(a[0], a[4]), deltaColor: deltaColor(delta(a[0], a[4])),
+          cySold: this.fmtNum(a[1]), lySold: this.fmtNum(a[5]),
+          cyRcpt: this.fmtNum(a[3]), lyRcpt: this.fmtNum(a[7]),
+          cyMarkup: mkp(a[0], a[2]), lyMarkup: mkp(a[4], a[6])
+        }));
+        const sTot = Object.values(sAgg).reduce((t, a) => t.map((v, i) => v + a[i]), [0, 0, 0, 0, 0, 0, 0, 0]);
+        yoyDimDrillFooter = {
+          cySales: this.fmtMoney(sTot[0]), lySales: this.fmtMoney(sTot[4]),
+          delta: deltaLabel(sTot[0], sTot[4]), deltaColor: deltaColor(delta(sTot[0], sTot[4])),
+          cySold: this.fmtNum(sTot[1]), lySold: this.fmtNum(sTot[5]),
+          cyRcpt: this.fmtNum(sTot[3]), lyRcpt: this.fmtNum(sTot[7]),
+          cyMarkup: mkp(sTot[0], sTot[2]), lyMarkup: mkp(sTot[4], sTot[6])
+        };
+        yoyDimDrillOpen = true;
+      }
+
+      // store drill-down: same measures for one store, grouped by category / sub-category / brand
+      if (st.yoyDrillStore && Y.rows[st.yoyDrillStore]) {
+        const dv = st.yoyDrillView || 'category';
+        const dArr = dv === 'sub' ? Y.subs : dv === 'brand' ? Y.brands : Y.cats;
+        const dCol = dv === 'sub' ? 2 : dv === 'brand' ? 3 : 1;
+        const dAgg = {};
+        Y.rows[st.yoyDrillStore].forEach(r => {
+          if (!dayMask[r[0]]) return;
+          const key = dArr[r[dCol]];
+          let a = dAgg[key];
+          if (!a) a = dAgg[key] = [0, 0, 0, 0, 0, 0, 0, 0];
+          a[0] += r[4]; a[1] += r[5]; a[2] += r[6]; a[3] += r[7];
+          a[4] += r[8]; a[5] += r[9]; a[6] += r[10]; a[7] += r[11];
+        });
+        yoyDrillRows = Object.entries(dAgg).sort((a, b) => b[1][0] - a[1][0]).map(([name, a]) => ({
+          name,
+          cySales: this.fmtMoney(a[0]), lySales: this.fmtMoney(a[4]),
+          delta: deltaLabel(a[0], a[4]), deltaColor: deltaColor(delta(a[0], a[4])),
+          cySold: this.fmtNum(a[1]), lySold: this.fmtNum(a[5]),
+          cyRcpt: this.fmtNum(a[3]), lyRcpt: this.fmtNum(a[7]),
+          cyMarkup: mkp(a[0], a[2]), lyMarkup: mkp(a[4], a[6])
+        }));
+        const dTot = Object.values(dAgg).reduce((t, a) => t.map((v, i) => v + a[i]), [0, 0, 0, 0, 0, 0, 0, 0]);
+        yoyDrillFooter = {
+          cySales: this.fmtMoney(dTot[0]), lySales: this.fmtMoney(dTot[4]),
+          delta: deltaLabel(dTot[0], dTot[4]), deltaColor: deltaColor(delta(dTot[0], dTot[4])),
+          cySold: this.fmtNum(dTot[1]), lySold: this.fmtNum(dTot[5]),
+          cyRcpt: this.fmtNum(dTot[3]), lyRcpt: this.fmtNum(dTot[7]),
+          cyMarkup: mkp(dTot[0], dTot[2]), lyMarkup: mkp(dTot[4], dTot[6])
+        };
+        yoyDrillOpen = true;
+      }
+      const inScopeCount = Object.keys(storeOk).length;
+      const retailTotal = Object.keys(this.storeIndex).filter(c => (this.storeIndex[c] || {}).type === 'Store').length;
+      const absentRetail = Object.keys(this.storeIndex)
+        .filter(c => (this.storeIndex[c] || {}).type === 'Store' && !Y.rows[c])
+        .map(c => this.storeIndex[c].shortName || c);
+      yoyCoverageLabel = inScopeCount + ' store' + (inScopeCount === 1 ? '' : 's') + ' in this view · the source export covers ' + Object.keys(Y.rows).length + ' of ' + retailTotal + ' branches'
+        + (absentRetail.length ? ' — no data for ' + absentRetail.slice(0, 6).join(', ') + (absentRetail.length > 6 ? ' +' + (absentRetail.length - 6) + ' more' : '') : '');
+    }
+    const yoyDimLabel = { sub: 'sub-category', brand: 'brand', stores: 'store', region: 'region', city: 'city', items: 'item' }[st.yoyView] || 'category';
+    const titles = { overview: 'Executive Overview', stores: 'Branch Comparison', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', hourlySales: 'Hourly Sales', wholesale: 'Wholesale', daily: 'Daily Sales', regionDetail: 'Region Detail', stcQitaf: 'STC Qitaf', yoy: 'YOY Comparison' };
+    const shortTitles = { overview: 'Overview', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily', regionDetail: 'Region', hourlySales: 'Hourly', wholesale: 'Wholesale', stcQitaf: 'Qitaf', yoy: 'YOY' };
+    const navIcons = { overview: '▣', categories: '▤', items: '◫', discounts: '%', invoices: '⌂', daily: '◷', regionDetail: '◈', hourlySales: '◔', wholesale: '◊', stcQitaf: '⊙', yoy: '⇄' };
+    const pageOrder = ['overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'hourlySales', 'yoy', 'wholesale', 'stcQitaf'].filter(p => !(st.auth && st.auth.region !== 'All' && p === 'wholesale'));
     const isMobile = st.isMobile;
 
     return {
@@ -2652,9 +3382,84 @@ class Component extends DCLogic {
         itemNo: this.arrow('items', 'itemNo'), itemDesc: this.arrow('items', 'itemDesc'), itemDivision: this.arrow('items', 'division'), itemCategory: this.arrow('items', 'category'), itemNetSales: this.arrow('items', 'netSales'), itemQty: this.arrow('items', 'qty'), itemInvoices: this.arrow('items', 'invoices'), itemUpt: this.arrow('items', 'upt'), itemReturnQty: this.arrow('items', 'returnQty'), itemReturnPct: this.arrow('items', 'returnPct')
       },
       isHourlySales: st.page === 'hourlySales',
+      isYoy: st.page === 'yoy',
+      yoyLoading: st.page === 'yoy' && st.yoyLoading,
+      yoyReady: st.page === 'yoy' && !!st.yoy,
+      yoyFilters: yf,
+      yoyFiltersDirty: yf.region !== 'All' || yf.city !== 'All' || yf.store !== 'All' || yf.month !== 'All' || yf.date !== 'All',
+      clearYoyFilters: () => this.setState({ yoyFilters: { region: 'All', city: 'All', store: 'All', month: 'All', date: 'All' } }),
+      setYoyRegion: e => this.setState({ yoyFilters: { ...yf, region: e.target.value, city: 'All', store: 'All' } }),
+      setYoyCity: e => this.setState({ yoyFilters: { ...yf, city: e.target.value, store: 'All' } }),
+      setYoyStore: e => this.setState({ yoyFilters: { ...yf, store: e.target.value } }),
+      setYoyMonth: e => this.setState({ yoyFilters: { ...yf, month: e.target.value, date: 'All' } }),
+      setYoyDate: e => this.setState({ yoyFilters: { ...yf, date: e.target.value } }),
+      yoyRegionOptions, yoyCityOptions, yoyStoreOptions, yoyMonthOptions, yoyDateOptions,
+      yoyRows, yoyFooter, yoyKpiCards, yoyRowCountLabel, yoyPeriodLabel, yoyCoverageLabel, yoyDimLabel,
+      yoyShowMarkup: !hideMarkup,
+      yoyShowRcpt: st.yoyView !== 'items',
+      yoyDimShowRcpt: !(st.yoyDimDrill && st.yoyDimDrill.type === 'items') && st.yoyDimDrillMode !== 'items',
+      yoyDrillOpen, yoyDrillRows, yoyDrillFooter,
+      yoyIsByStore: st.yoyView === 'stores', yoyIsNotByStore: st.yoyView !== 'stores',
+      yoyIsItems: st.yoyView === 'items', yoyIsNotItems: st.yoyView !== 'items',
+      yoyAllBtnClass: st.yoyLosersOnly ? 'btn-secondary' : 'btn-primary',
+      yoyLosersBtnClass: st.yoyLosersOnly ? 'btn-primary' : 'btn-secondary',
+      setYoyAll: () => this.setState({ yoyLosersOnly: false, yoyItemPage: 0 }),
+      setYoyLosers: () => this.setState({ yoyLosersOnly: true, yoyItemPage: 0 }),
+      yoyDrillName: st.yoyDrillName || '',
+      yoyDrillHeader: st.yoyDrillView === 'sub' ? 'Sub-Category' : st.yoyDrillView === 'brand' ? 'Brand' : 'Category',
+      closeYoyDrill: () => this.setState({ yoyDrillStore: null }),
+      stopPropagation: e => e.stopPropagation(),
+      yoyDimDrillOpen, yoyDimDrillRows, yoyDimDrillFooter,
+      yoyDimDrillName: st.yoyDimDrill ? (st.yoyDimDrill.label || st.yoyDimDrill.value) : '',
+      yoyDimDrillKicker: st.yoyDimDrill ? (({ sub: 'Sub-Category', brand: 'Brand', region: 'Region', city: 'City', items: 'Item' }[st.yoyDimDrill.type] || 'Category') + ' · ' + yoyPeriodLabel) : '',
+      closeYoyDimDrill: () => this.setState({ yoyDimDrill: null }),
+      yoyDimDrillSwitchVisible: !!(st.yoyDimDrill && ['category', 'sub', 'brand'].includes(st.yoyDimDrill.type)),
+      yoyDimDrillHeader: 'Store',
+      yoyDimItemsMode, yoyDimStoresMode: !yoyDimItemsMode,
+      yoyDimStoresBtnClass: st.yoyDimDrillMode === 'items' ? 'btn-secondary' : 'btn-primary',
+      yoyDimItemsBtnClass: st.yoyDimDrillMode === 'items' ? 'btn-primary' : 'btn-secondary',
+      setYoyDimModeStores: () => this.setState({ yoyDimDrillMode: 'stores' }),
+      setYoyDimModeItems: () => { this._ensureYoyItems(); this.setState({ yoyDimDrillMode: 'items' }); },
+      yoyDimItemsLoading: st.yoyDimDrillMode === 'items' && st.yoyItemsLoading,
+      yoyDrillCatBtnClass: (st.yoyDrillView || 'category') === 'category' ? 'btn-primary' : 'btn-secondary',
+      yoyDrillSubBtnClass: st.yoyDrillView === 'sub' ? 'btn-primary' : 'btn-secondary',
+      yoyDrillBrandBtnClass: st.yoyDrillView === 'brand' ? 'btn-primary' : 'btn-secondary',
+      setYoyDrillCat: () => this.setState({ yoyDrillView: 'category' }),
+      setYoyDrillSub: () => this.setState({ yoyDrillView: 'sub' }),
+      setYoyDrillBrand: () => this.setState({ yoyDrillView: 'brand' }),
+      showYoyFilterToggle: isMobile,
+      toggleYoyFilters: () => this.setState({ yoyFiltersOpen: !st.yoyFiltersOpen }),
+      yoyFiltersToggleArrow: st.yoyFiltersOpen ? '▴' : '▾',
+      yoyFiltersActiveCount: (yf.region !== 'All' ? 1 : 0) + (yf.city !== 'All' ? 1 : 0) + (yf.store !== 'All' ? 1 : 0) + (yf.month !== 'All' ? 1 : 0) + (yf.date !== 'All' ? 1 : 0),
+      yoyFiltersDisplay: isMobile && !st.yoyFiltersOpen ? 'none' : 'flex',
+      yoyMobileCols: 'repeat(' + (2 + (st.yoyView !== 'items' ? 1 : 0) + (hideMarkup ? 0 : 1)) + ',1fr)',
+      yoyDimHeader: { sub: 'Sub-Category', brand: 'Brand', stores: 'Store', region: 'Region', city: 'City', items: 'Item' }[st.yoyView] || 'Category',
+      yoySearch: st.yoySearch || '',
+      setYoySearch: e => this.setState({ yoySearch: e.target.value, yoyItemPage: 0 }),
+      yoyRegionBtnClass: st.yoyView === 'region' ? 'btn-primary' : 'btn-secondary',
+      yoyCityBtnClass: st.yoyView === 'city' ? 'btn-primary' : 'btn-secondary',
+      yoyItemsBtnClass: st.yoyView === 'items' ? 'btn-primary' : 'btn-secondary',
+      setYoyViewRegion: () => this.setState({ yoyView: 'region', yoySearch: '' }),
+      setYoyViewCity: () => this.setState({ yoyView: 'city', yoySearch: '' }),
+      setYoyViewItems: () => { this._ensureYoyItems(); this.setState({ yoyView: 'items', yoySearch: '', yoyItemPage: 0 }); },
+      yoyItemPagerVisible: st.yoyView === 'items' && yoyItemTotalRows > 100,
+      yoyItemPageLabel: 'Showing ' + (yoyItemTotalRows ? (yoyItemPage * 100 + 1) : 0) + '–' + Math.min(yoyItemTotalRows, yoyItemPage * 100 + 100) + ' of ' + this.fmtNum(yoyItemTotalRows) + ' items',
+      yoyItemPrevDisabled: yoyItemPage === 0,
+      yoyItemNextDisabled: yoyItemPage >= yoyItemMaxPage,
+      yoyItemPrev: () => this.setState({ yoyItemPage: Math.max(0, (st.yoyItemPage || 0) - 1) }),
+      yoyItemNext: () => this.setState({ yoyItemPage: (st.yoyItemPage || 0) + 1 }),
+      yoyItemsLoading: st.yoyView === 'items' && st.yoyItemsLoading,
+      yoyCatBtnClass: st.yoyView === 'category' ? 'btn-primary' : 'btn-secondary',
+      yoySubBtnClass: st.yoyView === 'sub' ? 'btn-primary' : 'btn-secondary',
+      yoyBrandBtnClass: st.yoyView === 'brand' ? 'btn-primary' : 'btn-secondary',
+      yoyStoreBtnClass: st.yoyView === 'stores' ? 'btn-primary' : 'btn-secondary',
+      setYoyViewCategory: () => this.setState({ yoyView: 'category', yoySearch: '' }),
+      setYoyViewSub: () => this.setState({ yoyView: 'sub', yoySearch: '' }),
+      setYoyViewBrand: () => this.setState({ yoyView: 'brand', yoySearch: '' }),
+      setYoyViewStores: () => this.setState({ yoyView: 'stores', yoySearch: '' }),
       isOverview: st.page === 'overview', isRegionDetail: st.page === 'regionDetail', isCategories: st.page === 'categories', isInvoices: st.page === 'invoices', isItems: st.page === 'items', isDiscounts: st.page === 'discounts', isDaily: st.page === 'daily', isWholesale: st.page === 'wholesale', isStcQitaf: st.page === 'stcQitaf',
-      globalFiltersDisplay: st.page === 'wholesale' ? 'none' : (isMobile && !st.filtersOpen ? 'none' : 'flex'),
-      showFilterToggle: isMobile && st.page !== 'wholesale',
+      globalFiltersDisplay: (st.page === 'wholesale' || st.page === 'yoy') ? 'none' : (isMobile && !st.filtersOpen ? 'none' : 'flex'),
+      showFilterToggle: isMobile && st.page !== 'wholesale' && st.page !== 'yoy',
       stcByStoreRows, stcByDateRows, stcKpiCards, stcRegionCards,
       stcStoreTotalLabel: this.fmtMoney(stcStoreTotal), stcStoreInvoicesTotalLabel: this.fmtNum(stcStoreInvoicesTotal),
       stcStoreDaysTotalLabel: this.fmtNum(new Set(stcFiltered.map(r => r.date)).size),
@@ -2685,12 +3490,19 @@ class Component extends DCLogic {
       wholesaleKpiCards,
       wholesaleTypeCards,
       wholesaleTotalLabel: this.fmtMoney(wholesaleTotal),
-      isWholesaleStores: st.wholesaleView !== 'daily',
+      isWholesaleStores: st.wholesaleView !== 'daily' && st.wholesaleView !== 'customers',
       isWholesaleDaily: st.wholesaleView === 'daily',
-      wholesaleStoresBtnClass: st.wholesaleView !== 'daily' ? 'btn-primary' : 'btn-secondary',
+      isWholesaleCustomers: st.wholesaleView === 'customers',
+      wholesaleStoresBtnClass: (st.wholesaleView !== 'daily' && st.wholesaleView !== 'customers') ? 'btn-primary' : 'btn-secondary',
       wholesaleDailyBtnClass: st.wholesaleView === 'daily' ? 'btn-primary' : 'btn-secondary',
+      wholesaleCustomersBtnClass: st.wholesaleView === 'customers' ? 'btn-primary' : 'btn-secondary',
       setWholesaleViewStores: () => this.setState({ wholesaleView: 'stores' }),
       setWholesaleViewDaily: () => this.setState({ wholesaleView: 'daily' }),
+      setWholesaleViewCustomers: () => this.setState({ wholesaleView: 'customers' }),
+      wholesaleCustomerRows,
+      wholesaleCustomerSearch: st.wholesaleCustomerSearch || '',
+      setWholesaleCustomerSearch: e => this.setState({ wholesaleCustomerSearch: e.target.value }),
+      wholesaleCustomerCountLabel: wholesaleCustomerRows.length + (wholesaleCustomerRows.length === 1 ? ' customer' : ' customers'),
       wholesaleChannel: st.wholesaleChannel,
       wholesaleChannelWholesaleBtnClass: st.wholesaleChannel !== '3p' ? 'btn-primary' : 'btn-secondary',
       wholesaleChannel3pBtnClass: st.wholesaleChannel === '3p' ? 'btn-primary' : 'btn-secondary',
