@@ -1078,24 +1078,16 @@ a:hover{color:var(--color-accent-300)}
 </div>
 </div>
 <h3 style="font-family:var(--font-heading);font-size:16px;margin:0 0 var(--space-4)">Net sales by hour of day <span style="font-weight:400;color:var(--color-neutral-500)">({{hourlyRangeLabel}})</span></h3>
-<div style="overflow-x:auto;padding-bottom:2px">
-<div style="position:relative;width:{{hourlyTrend.width}}px;height:{{hourlyTrend.height}}px">
-<svg width="{{hourlyTrend.width}}" height="{{hourlyTrend.height}}" viewBox="0 0 {{hourlyTrend.width}} {{hourlyTrend.height}}" style="display:block">
-<path d="{{hourlyTrend.areaD}}" fill="var(--color-accent-500)" opacity="0.15"></path>
-<path d="{{hourlyTrend.pathD}}" fill="none" stroke="var(--color-accent-500)" stroke-width="2.5"></path>
-<sc-for list="{{hourlyTrend.points}}" as="p" hint-placeholder-count="12">
-<circle cx="{{p.cx}}" cy="{{p.cy}}" r="4" fill="var(--color-accent-500)"><title>{{p.valueLabel}}</title></circle>
-</sc-for>
-</svg>
-<sc-for list="{{hourlyTrend.points}}" as="p" hint-placeholder-count="12">
-<div style="position:absolute;left:{{p.cx}}px;top:{{p.labelY}}px;transform:translateX(-50%);font-size:7.5px;font-weight:700;color:var(--color-neutral-500);white-space:nowrap;text-align:center">{{p.valueLabel}}<br>{{p.pctLabel}}</div>
-</sc-for>
+<div style="display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{hourlyBars}}" as="b" hint-placeholder-count="12">
+<div style="display:flex;align-items:center;gap:8px">
+<div style="width:44px;flex:0 0 44px;font-size:11px;color:var(--color-neutral-500);text-align:right">{{b.label}}</div>
+<div style="flex:0 1 360px;max-width:360px;position:relative;height:22px">
+<div style="height:100%;width:{{b.pct}}%;min-width:4px;background:var(--color-accent-500);border-radius:0 4px 4px 0"></div>
+<div style="position:absolute;left:calc({{b.pct}}% + 8px);top:50%;transform:translateY(-50%);font-size:10px;font-weight:700;color:var(--color-text);white-space:nowrap">{{b.valueLabel}} · {{b.pctLabel}}</div>
 </div>
-<div style="display:flex;justify-content:space-between;width:{{hourlyTrend.width}}px;margin-top:4px">
-<sc-for list="{{hourlyTrend.points}}" as="p" hint-placeholder-count="12">
-<div style="font-size:10px;color:var(--color-neutral-500)">{{p.label}}</div>
-</sc-for>
 </div>
+</sc-for>
 </div>
 </section>
 </sc-if>
@@ -1652,6 +1644,12 @@ class Component extends DCLogic {
       width: hChartW, height: hChartH, pathD: hPathD, areaD: hAreaD,
       points: hourlyPoints.map(p => ({ cx: p.x.toFixed(1), cy: p.y.toFixed(1), labelY: Math.min(hChartH - 4, p.y + 16).toFixed(1), label: hourLabel(p.h), valueLabel: this.fmtShort(p.val), pctLabel: (hourlyEntries.reduce((s, e) => s + e[1], 0) ? (100 * p.val / hourlyEntries.reduce((s, e) => s + e[1], 0)).toFixed(1) : '0.0') + '%' }))
     };
+    const hourlyPctTotal = hourlyEntries.reduce((s, e) => s + e[1], 0);
+    const hourlyBars = hourlyEntries.map(([h, val]) => ({
+      label: hourLabel(h), valueLabel: this.fmtShort(val),
+      pctLabel: (hourlyPctTotal ? (100 * val / hourlyPctTotal).toFixed(1) : '0.0') + '%',
+      pct: Math.max(2, Math.round(100 * val / maxHourly))
+    }));
     const hourlyTotal = hourlyRows.reduce((a, h) => a + h.netSales, 0);
     const hourlyInvoices = hourlyRows.reduce((a, h) => a + h.invoices, 0);
     const hourlyRangeLabel = f.dateRange ? (f.dateRange.start + ' \u2013 ' + f.dateRange.end) : (f.month !== 'All' ? f.month : 'All dates');
@@ -2459,7 +2457,7 @@ class Component extends DCLogic {
         totalInvoices: st.buckets.reduce((a, b) => a + b.invoices, 0)
       },
       filters: { ...f, isDirty },
-      hourlyTrend, hourlyTotalLabel: this.fmtMoney(hourlyTotal), hourlyInvoicesLabel: this.fmtNum(hourlyInvoices), hourlyRangeLabel,
+      hourlyTrend, hourlyBars, hourlyTotalLabel: this.fmtMoney(hourlyTotal), hourlyInvoicesLabel: this.fmtNum(hourlyInvoices), hourlyRangeLabel,
       regionOptions: ['All', ...regions],
       cityOptions: ['All', ...citiesInRegion],
       storeOptions: [{ code: 'All', label: 'All' }, ...storesInScope.map(s => ({ code: s.code, label: s.shortName }))],
