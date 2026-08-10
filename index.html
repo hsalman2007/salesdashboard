@@ -1156,7 +1156,7 @@ a:hover{color:var(--color-accent-300)}
 <td style="text-align:left;font-weight:600">{{r.desc}}</td>
 </sc-if>
 <sc-if value="{{yoyDimStoresMode}}" hint-placeholder-val="{{true}}">
-<td style="text-align:left;font-weight:600">{{r.name}}</td>
+<td onClick="{{r.onClick}}" style="text-align:left;font-weight:600;cursor:{{r.nameCursor}};color:{{r.nameColor}}">{{r.name}}</td>
 </sc-if>
 <td style="font-weight:600;white-space:nowrap">{{r.cySales}}</td>
 <td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.lySales}}</td>
@@ -1717,6 +1717,8 @@ class Component extends DCLogic {
     yoyFiltersOpen: false,
     yoyDrillStore: null,
     yoyDimDrill: null,
+    yoyDimDrillStore: null,
+    yoyDimDrillStoreLabel: '',
     yoyItems: null,
     yoyItemsLoading: false,
     yoyItemPage: 0,
@@ -3140,7 +3142,7 @@ class Component extends DCLogic {
           cyMarkup: mkp(a[0], a[2]), lyMarkup: mkp(a[4], a[6]),
           onClick: byStore
             ? () => this.setState({ yoyDrillStore: codeByLabel[name], yoyDrillName: name, yoyDrillView: 'category', yoyDimDrill: null, tableZoom: 1 })
-            : () => this.setState({ yoyDimDrill: { type: view, value: key, label: name }, yoyDrillStore: null, yoyDimDrillMode: 'stores', tableZoom: 1 })
+            : () => this.setState({ yoyDimDrill: { type: view, value: key, label: name }, yoyDrillStore: null, yoyDimDrillMode: 'stores', yoyDimDrillStore: null, yoyDimDrillStoreLabel: '', tableZoom: 1 })
         }));
       const tot = Object.values(agg).reduce((t, a) => t.map((v, i) => v + a[i]), [0, 0, 0, 0, 0, 0, 0, 0]);
       yoyFooter = {
@@ -3175,7 +3177,10 @@ class Component extends DCLogic {
         };
         const dimItemsMode = st.yoyDimDrillMode === 'items' && dd.type !== 'items' && dd.type !== 'region' && dd.type !== 'city';
         yoyDimItemsMode = dimItemsMode;
-        const dck = 'dimItems|' + dd.type + '|' + dd.value + '|' + yoyCacheKey;
+        const canStoreDrill = ['category', 'sub', 'brand'].includes(dd.type);
+        const dimLabelCode = {};
+        const onlyStore = st.yoyDimDrillStore || null;
+        const dck = 'dimItems|' + dd.type + '|' + dd.value + '|' + (onlyStore || 'all') + '|' + yoyCacheKey;
         if (dimItemsMode && this._yoyDimCache && this._yoyDimCache.key === dck) {
           Object.assign(sAgg, this._yoyDimCache.val);
         } else if (dimItemsMode) {
@@ -3186,6 +3191,7 @@ class Component extends DCLogic {
             const skuOk = {};
             IT.skus.forEach((sku, i) => { if (((this.itemMeta[sku] || {})[metaField] || '—') === dd.value) skuOk[i] = sku; });
             for (const code in storeOk) {
+              if (onlyStore && code !== onlyStore) continue;
               const rowsFor = IT.rows[code];
               if (!rowsFor) continue;
               rowsFor.forEach(r => {
@@ -3228,6 +3234,7 @@ class Component extends DCLogic {
               const rowsFor = Y.rows[code];
               if (!rowsFor) continue;
               const label = storeOk[code].shortName || storeOk[code].nameEn || code;
+              dimLabelCode[label] = code;
               rowsFor.forEach(r => { if (r[col] === wanted && dayMask[r[0]]) bump(label, r, 4); });
             }
           }
@@ -3237,6 +3244,11 @@ class Component extends DCLogic {
           sku: dimItemsMode ? name : '',
           desc: dimItemsMode ? ((this.itemMeta[name] || {}).itemDesc || '') : '',
           imageSrc: dimItemsMode ? ((this.itemMeta[name] || {}).image || blankImg) : blankImg,
+          nameCursor: (!dimItemsMode && canStoreDrill) ? 'pointer' : 'default',
+          nameColor: (!dimItemsMode && canStoreDrill) ? 'var(--color-accent-300)' : 'inherit',
+          onClick: (!dimItemsMode && canStoreDrill)
+            ? () => { this._ensureYoyItems(); this.setState({ yoyDimDrillStore: dimLabelCode[name], yoyDimDrillStoreLabel: name, yoyDimDrillMode: 'items', tableZoom: 1 }); }
+            : null,
           cySales: this.fmtMoney(a[0]), lySales: this.fmtMoney(a[4]),
           delta: deltaLabel(a[0], a[4]), deltaColor: deltaColor(delta(a[0], a[4])),
           cySold: this.fmtNum(a[1]), lySold: this.fmtNum(a[5]),
@@ -3418,16 +3430,16 @@ class Component extends DCLogic {
       closeYoyDrill: () => this.setState({ yoyDrillStore: null, tableZoom: 1 }),
       stopPropagation: e => e.stopPropagation(),
       yoyDimDrillOpen, yoyDimDrillRows, yoyDimDrillFooter,
-      yoyDimDrillName: st.yoyDimDrill ? (st.yoyDimDrill.label || st.yoyDimDrill.value) : '',
+      yoyDimDrillName: st.yoyDimDrill ? ((st.yoyDimDrill.label || st.yoyDimDrill.value) + (st.yoyDimDrillStore ? ' · ' + st.yoyDimDrillStoreLabel : '')) : '',
       yoyDimDrillKicker: st.yoyDimDrill ? (({ sub: 'Sub-Category', brand: 'Brand', region: 'Region', city: 'City', items: 'Item' }[st.yoyDimDrill.type] || 'Category') + ' · ' + yoyPeriodLabel) : '',
-      closeYoyDimDrill: () => this.setState({ yoyDimDrill: null, tableZoom: 1 }),
+      closeYoyDimDrill: () => this.setState({ yoyDimDrill: null, yoyDimDrillStore: null, yoyDimDrillStoreLabel: '', tableZoom: 1 }),
       yoyDimDrillSwitchVisible: !!(st.yoyDimDrill && ['category', 'sub', 'brand'].includes(st.yoyDimDrill.type)),
       yoyDimDrillHeader: 'Store',
       yoyDimItemsMode, yoyDimStoresMode: !yoyDimItemsMode,
       yoyDimStoresBtnClass: st.yoyDimDrillMode === 'items' ? 'btn-secondary' : 'btn-primary',
       yoyDimItemsBtnClass: st.yoyDimDrillMode === 'items' ? 'btn-primary' : 'btn-secondary',
-      setYoyDimModeStores: () => this.setState({ yoyDimDrillMode: 'stores' }),
-      setYoyDimModeItems: () => { this._ensureYoyItems(); this.setState({ yoyDimDrillMode: 'items' }); },
+      setYoyDimModeStores: () => this.setState({ yoyDimDrillMode: 'stores', yoyDimDrillStore: null, yoyDimDrillStoreLabel: '' }),
+      setYoyDimModeItems: () => { this._ensureYoyItems(); this.setState({ yoyDimDrillMode: 'items', yoyDimDrillStore: null, yoyDimDrillStoreLabel: '' }); },
       yoyDimItemsLoading: st.yoyDimDrillMode === 'items' && st.yoyItemsLoading,
       yoyDrillCatBtnClass: (st.yoyDrillView || 'category') === 'category' ? 'btn-primary' : 'btn-secondary',
       yoyDrillSubBtnClass: st.yoyDrillView === 'sub' ? 'btn-primary' : 'btn-secondary',
