@@ -28,7 +28,7 @@
 </helmet>
 <div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);padding:var(--space-8);max-width:900px;margin:0 auto">
 <h1 style="font-family:var(--font-heading);font-weight:500;font-size:28px;margin:0 0 var(--space-2)">Daily Data Importer</h1>
-<p style="font-size:14px;color:var(--color-neutral-500);max-width:640px;margin:0 0 var(--space-6)">Upload one or more days of the raw "Transaction Sales Entries" export. This loads the dashboard's current <code>data/</code> files, merges in the new day(s), and gives you updated files to commit back to GitHub — any date already present gets replaced, so re-uploading a day is safe.</p>
+<p style="font-size:14px;color:var(--color-neutral-500);max-width:640px;margin:0 0 var(--space-6)">Upload one or more days of the raw "Transaction Sales Entries" export. This loads the latest data already published on GitHub, merges in the new day(s), and gives you updated files to commit back to GitHub — any date already present gets replaced, so re-uploading a day is safe.</p>
 
 <div class="card elev-sm" style="margin-bottom:var(--space-6)">
 <label style="display:block;font-size:13px;margin-bottom:8px;color:var(--color-neutral-500)">Raw transaction .xlsx file(s)</label>
@@ -97,6 +97,21 @@ class Component extends DCLogic {
   state = { status: '', hasResult: false, downloads: [], wholesaleStatus: '', hasWholesaleResult: false, wholesaleDownload: null, wholesaleCount: 0, wholesaleSalesFile: null, wholesaleReturnsFile: null, stcQitafStatus: '', hasStcQitafResult: false, stcQitafDownload: null, stcQitafCount: 0 };
 
   fmtStatus(lines) { return lines.join('\n'); }
+
+  // GitHub Pages (the last-pushed truth) is preferred over this project's local data/ copy, which can
+  // go stale if a previous merge's output was pushed to GitHub but never synced back here — reading
+  // local-only would then silently re-merge on top of an outdated base and drop the pushed day.
+  async loadJson(path, fallback) {
+    const base = 'https://hsalman2007.github.io/salesdashboard/';
+    try {
+      const r = await fetch(base + path, { cache: 'no-store' });
+      if (r.ok) return await r.json();
+    } catch (e) {}
+    try {
+      const r2 = await fetch(path);
+      return r2.ok ? await r2.json() : fallback;
+    } catch (e) { return fallback; }
+  }
 
   download(name, dataObj) {
     const blob = new Blob([JSON.stringify(dataObj)], { type: 'application/json' });
@@ -236,16 +251,17 @@ class Component extends DCLogic {
     if (!files.length) return;
     this.setState({ status: 'Loading current project data…', hasResult: false });
     try {
-      const [storeMaster, storeDay, categoriesByStoreDate, itemsByStoreDate, categories, items, overview, receiptDay, itemMaster] = await Promise.all([
-        fetch('data/store-master.json').then(r => r.json()),
-        fetch('data/store-day.json').then(r => r.json()),
-        fetch('data/categories-by-store-date.json').then(r => r.json()),
-        fetch('data/items-by-store-date.json').then(r => r.json()),
-        fetch('data/categories.json').then(r => r.json()),
-        fetch('data/items.json').then(r => r.json()),
-        fetch('data/overview.json').then(r => r.json()),
-        fetch('data/receipt-day.json').then(r => r.ok ? r.json() : []).catch(() => []),
-        fetch('data/item-master.json').then(r => r.ok ? r.json() : []).catch(() => [])
+      const [storeMaster, storeDay, categoriesByStoreDate, itemsByStoreDate, categories, items, overview, receiptDay, itemMaster, hourlyExisting] = await Promise.all([
+        this.loadJson('data/store-master.json', []),
+        this.loadJson('data/store-day.json', []),
+        this.loadJson('data/categories-by-store-date.json', []),
+        this.loadJson('data/items-by-store-date.json', []),
+        this.loadJson('data/categories.json', []),
+        this.loadJson('data/items.json', []),
+        this.loadJson('data/overview.json', {}),
+        this.loadJson('data/receipt-day.json', []),
+        this.loadJson('data/item-master.json', []),
+        this.loadJson('data/hourly-sales.json', [])
       ]);
       const storeIndex = {}; storeMaster.forEach(s => storeIndex[s.code] = s);
       const masterSkuMap = {}; itemMaster.forEach(m => { if (m.sku) masterSkuMap[m.sku] = { division: m.category, category: m.subCategory }; });
@@ -281,6 +297,7 @@ class Component extends DCLogic {
         header.forEach((h, i) => { idx[h] = i; });
         const need = ['Store No.', 'Receipt No.', 'Item No.', 'Date', 'Quantity', 'Net Amount', 'Discount Amount', 'Cost Amount', 'Refund Qty.', 'Item Category Code', 'Division Code', 'Item Description'];
         for (const col of need) if (idx[col] === undefined) warnings.push(`${file.name}: missing column "${col}"`);
+        if (idx['Time'] === undefined) warnings.push(`${file.name}: no "Time" column — hourly-sales.json will not be updated from this file`);
         const dataRows = rows.slice(1).filter(r => r[idx['Store No.']]);
         parsedFiles.push({ idx, dataRows });
       }
@@ -314,6 +331,8 @@ class Component extends DCLogic {
         return { division: rawDivision || 'Uncategorized', category: rawCategory };
       };
 
+      const byStoreDateHour = {};
+      const hourlyTouchedKeys = new Set();
       for (const { idx, dataRows } of parsedFiles) {
         const byStoreDate = {}, byStoreDateCat = {}, byStoreDateItem = {}, receiptGroups = {};
         dataRows.forEach(r => {
@@ -344,13 +363,25 @@ class Component extends DCLogic {
           const cd = byStoreDateCat[catKey]; cd.netSales += net; cd.qty += qty; cd.invoices.add(receipt);
 
           const itemKey = sdKey + '|' + itemNo;
-          if (!byStoreDateItem[itemKey]) byStoreDateItem[itemKey] = { store, date, itemNo, itemDesc, division, category, netSales: 0, qty: 0, invoices: new Set() };
+          if (!byStoreDateItem[itemKey]) byStoreDateItem[itemKey] = { store, date, itemNo, itemDesc, division, category, netSales: 0, qty: 0, invoices: new Set(), returnQty: 0 };
           const id = byStoreDateItem[itemKey]; id.netSales += net; id.qty += qty; id.invoices.add(receipt);
+          if (qty < 0) id.returnQty += Math.abs(refundQty || qty);
 
           const rgKey = sdKey + '|' + receipt;
           if (!receiptGroups[rgKey]) receiptGroups[rgKey] = { store, date, qtySum: 0, items: new Set() };
           receiptGroups[rgKey].qtySum += qty;
           receiptGroups[rgKey].items.add(itemNo);
+
+          if (idx['Time'] !== undefined) {
+            const timeFrac = Number(r[idx['Time']]);
+            if (!isNaN(timeFrac)) {
+              const hour = Math.min(23, Math.max(0, Math.floor(timeFrac * 24)));
+              const hKey = sdKey + '|' + hour;
+              hourlyTouchedKeys.add(sdKey);
+              if (!byStoreDateHour[hKey]) byStoreDateHour[hKey] = { store, date, hour, netSales: 0, qty: 0, invoices: new Set() };
+              byStoreDateHour[hKey].netSales += net; byStoreDateHour[hKey].qty += qty; byStoreDateHour[hKey].invoices.add(receipt);
+            }
+          }
         });
 
         Object.values(byStoreDate).forEach(sd => {
@@ -366,7 +397,7 @@ class Component extends DCLogic {
           categoriesByStoreDate.push([cd.store, cd.date, cd.division, cd.category, cd.netSales, cd.qty, cd.invoices.size]);
         });
         Object.values(byStoreDateItem).forEach(id => {
-          itemsByStoreDate.push([id.store, id.date, id.itemNo, id.netSales, id.qty, id.invoices.size]);
+          itemsByStoreDate.push([id.store, id.date, id.itemNo, id.netSales, id.qty, id.invoices.size, id.returnQty]);
         });
         const singleMap = {};
         Object.values(receiptGroups).forEach(g => {
@@ -397,6 +428,9 @@ class Component extends DCLogic {
       const catDeduped = dedupeByKey(categoriesByStoreDate, x => x[0] + '|' + x[1] + '|' + x[2] + '|' + x[3]);
       const itemDeduped = dedupeByKey(itemsByStoreDate, x => x[0] + '|' + x[1] + '|' + x[2]);
       const receiptDeduped = dedupeByKey(receiptDay, x => x.store + '|' + x.date);
+      const hourlyNew = Object.values(byStoreDateHour).map(h => ({ store: h.store, date: h.date, hour: h.hour, netSales: Math.round(h.netSales * 100) / 100, qty: h.qty, invoices: h.invoices.size }));
+      const hourlyKept = hourlyExisting.filter(h => !hourlyTouchedKeys.has(h.store + '|' + h.date));
+      const hourlyOut = [...hourlyKept, ...hourlyNew].sort((a, b) => a.store === b.store ? (a.date === b.date ? a.hour - b.hour : a.date.localeCompare(b.date)) : a.store.localeCompare(b.store));
 
       // derive categories.json and items.json from the by-store-date arrays
       const catAgg = {};
@@ -407,9 +441,9 @@ class Component extends DCLogic {
       });
       const itemMetaExisting = {}; items.forEach(it => itemMetaExisting[it.itemNo] = it);
       const itemAgg = {};
-      itemDeduped.forEach(([store, date, itemNo, netSales, qty, invoices]) => {
-        if (!itemAgg[itemNo]) itemAgg[itemNo] = { itemNo, netSales: 0, qty: 0, invoices: 0 };
-        itemAgg[itemNo].netSales += netSales; itemAgg[itemNo].qty += qty; itemAgg[itemNo].invoices += invoices;
+      itemDeduped.forEach(([store, date, itemNo, netSales, qty, invoices, returnQty]) => {
+        if (!itemAgg[itemNo]) itemAgg[itemNo] = { itemNo, netSales: 0, qty: 0, invoices: 0, returnQty: 0 };
+        itemAgg[itemNo].netSales += netSales; itemAgg[itemNo].qty += qty; itemAgg[itemNo].invoices += invoices; itemAgg[itemNo].returnQty += (returnQty || 0);
       });
       // pull itemDesc/division/category from newest raw rows this session, falling back to existing items.json
       const itemMetaNew = {};
@@ -417,7 +451,7 @@ class Component extends DCLogic {
       const itemsOut = Object.values(itemAgg).map(a => {
         const existing = itemMetaExisting[a.itemNo] || {};
         const master = masterSkuMap[a.itemNo];
-        return { itemNo: a.itemNo, itemDesc: existing.itemDesc || a.itemNo, division: (master && master.division) || existing.division || '', category: (master && master.category) || existing.category || '', netSales: a.netSales, qty: a.qty, invoices: a.invoices };
+        return { itemNo: a.itemNo, itemDesc: existing.itemDesc || a.itemNo, division: (master && master.division) || existing.division || '', category: (master && master.category) || existing.category || '', netSales: a.netSales, qty: a.qty, invoices: a.invoices, returnQty: a.returnQty };
       });
       const categoriesOut = Object.values(catAgg);
 
@@ -454,7 +488,8 @@ class Component extends DCLogic {
         { name: 'categories.json', data: categoriesOut },
         { name: 'items.json', data: itemsOut },
         { name: 'overview.json', data: overviewOut },
-        { name: 'receipt-day.json', data: receiptDeduped }
+        { name: 'receipt-day.json', data: receiptDeduped },
+        { name: 'hourly-sales.json', data: hourlyOut }
       ].map(f => ({ name: f.name, count: Array.isArray(f.data) ? f.data.length : Object.keys(f.data).length, onClick: () => this.download(f.name, f.data) }));
 
       const statusLines = [`Merged ${files.length} file(s) — dates touched: ${[...touchedDates].sort().join(', ')}`];
@@ -502,9 +537,9 @@ class Component extends DCLogic {
     if (!files.length) return;
     this.setState({ wholesaleStatus: 'Loading current wholesale data…', hasWholesaleResult: false });
     try {
-      const existing = await fetch('data/wholesale.json').then(r => r.ok ? r.json() : []).catch(() => []);
-      const storeMaster = await fetch('data/store-master.json').then(r => r.ok ? r.json() : []).catch(() => []);
-      const customerMaster = await fetch('data/customer-master.json').then(r => r.ok ? r.json() : []).catch(() => []);
+      const existing = await this.loadJson('data/wholesale.json', []);
+      const storeMaster = await this.loadJson('data/store-master.json', []);
+      const customerMaster = await this.loadJson('data/customer-master.json', []);
       const storeIdxMap = {}; storeMaster.forEach(s => storeIdxMap[s.code] = s);
       const custTypeMap = {}; customerMaster.forEach(c => custTypeMap[c.name] = c.type);
       const warnings = [];
@@ -578,8 +613,8 @@ class Component extends DCLogic {
     if (!file) return;
     this.setState({ stcQitafStatus: `Loading current data and parsing ${file.name}…`, hasStcQitafResult: false });
     try {
-      const existing = await fetch('data/stc-qitaf.json').then(r => r.ok ? r.json() : []).catch(() => []);
-      const storeMaster = await fetch('data/store-master.json').then(r => r.ok ? r.json() : []).catch(() => []);
+      const existing = await this.loadJson('data/stc-qitaf.json', []);
+      const storeMaster = await this.loadJson('data/store-master.json', []);
       const storeIndex = {}; storeMaster.forEach(s => storeIndex[s.code] = s);
       const buf = await file.arrayBuffer();
       let rows = [];

@@ -1065,6 +1065,41 @@ a:hover{color:var(--color-accent-300)}
 </section>
 </sc-if>
 
+<sc-if value="{{isHourlySales}}" hint-placeholder-val="{{false}}">
+<section>
+<div style="display:flex;gap:var(--space-4);flex-wrap:wrap;margin-bottom:var(--space-6)">
+<div class="card elev-sm" style="flex:1 1 160px;min-width:0">
+<div class="card-kicker">Net sales</div>
+<div class="card-title" style="font-size:26px;margin-top:2px;white-space:nowrap">{{hourlyTotalLabel}}</div>
+</div>
+<div class="card elev-sm" style="flex:1 1 160px;min-width:0">
+<div class="card-kicker">Invoices</div>
+<div class="card-title" style="font-size:26px;margin-top:2px;white-space:nowrap">{{hourlyInvoicesLabel}}</div>
+</div>
+</div>
+<h3 style="font-family:var(--font-heading);font-size:16px;margin:0 0 var(--space-4)">Net sales by hour of day <span style="font-weight:400;color:var(--color-neutral-500)">({{hourlyRangeLabel}})</span></h3>
+<div style="overflow-x:auto;padding-bottom:2px">
+<div style="position:relative;width:{{hourlyTrend.width}}px;height:{{hourlyTrend.height}}px">
+<svg width="{{hourlyTrend.width}}" height="{{hourlyTrend.height}}" viewBox="0 0 {{hourlyTrend.width}} {{hourlyTrend.height}}" style="display:block">
+<path d="{{hourlyTrend.areaD}}" fill="var(--color-accent-500)" opacity="0.15"></path>
+<path d="{{hourlyTrend.pathD}}" fill="none" stroke="var(--color-accent-500)" stroke-width="2.5"></path>
+<sc-for list="{{hourlyTrend.points}}" as="p" hint-placeholder-count="12">
+<circle cx="{{p.cx}}" cy="{{p.cy}}" r="4" fill="var(--color-accent-500)"><title>{{p.valueLabel}}</title></circle>
+</sc-for>
+</svg>
+<sc-for list="{{hourlyTrend.points}}" as="p" hint-placeholder-count="12">
+<div style="position:absolute;left:{{p.cx}}px;top:{{p.labelY}}px;transform:translateX(-50%);font-size:7.5px;font-weight:700;color:var(--color-neutral-500);white-space:nowrap">{{p.valueLabel}}</div>
+</sc-for>
+</div>
+<div style="display:flex;justify-content:space-between;width:{{hourlyTrend.width}}px;margin-top:4px">
+<sc-for list="{{hourlyTrend.points}}" as="p" hint-placeholder-count="12">
+<div style="font-size:10px;color:var(--color-neutral-500)">{{p.label}}</div>
+</sc-for>
+</div>
+</div>
+</section>
+</sc-if>
+
 <sc-if value="{{stcStoreDailyOpen}}" hint-placeholder-val="{{false}}">
 <div onClick="{{closeStcStoreDaily}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:var(--space-4);z-index:50">
 <div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:560px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5);touch-action:pinch-zoom">
@@ -1196,6 +1231,7 @@ class Component extends DCLogic {
     search: '',
     expandedRegions: {},
     stcQitaf: [],
+    hourly: [],
     stcView: 'store',
     auth: null,
     loginId: '',
@@ -1240,7 +1276,7 @@ class Component extends DCLogic {
   async _loadData() {
     const safeJson = (path, fallback) => fetch(path).then(r => r.ok ? r.json() : fallback).catch(() => fallback);
     try {
-      let [storeMaster, buckets, categoriesRaw, overview, itemsRaw, categoriesByStoreDate, itemsByStoreDate, receiptDay, itemMaster, wholesale, stcQitaf] = await Promise.all([
+      let [storeMaster, buckets, categoriesRaw, overview, itemsRaw, categoriesByStoreDate, itemsByStoreDate, receiptDay, itemMaster, wholesale, stcQitaf, hourly] = await Promise.all([
         safeJson('data/store-master.json', []),
         safeJson('data/store-day.json', []),
         safeJson('data/categories.json', []),
@@ -1251,7 +1287,8 @@ class Component extends DCLogic {
         safeJson('data/receipt-day.json', []),
         safeJson('data/item-master.json', []),
         safeJson('data/wholesale.json', []),
-        safeJson('data/stc-qitaf.json', [])
+        safeJson('data/stc-qitaf.json', []),
+        safeJson('data/hourly-sales.json', [])
       ]);
       this.storeIndex = {};
       storeMaster.forEach(s => this.storeIndex[s.code] = s);
@@ -1268,7 +1305,7 @@ class Component extends DCLogic {
       leakedWholesaleBuckets.forEach(b => {
         wholesale = [...wholesale, { month: b.date.slice(0, 7), storeCode: 'RYVS03', storeName: b.storeName, region: 'Wholesale', customerName: '', type: 'Wholesale', salespersonCode: '27133', amount: b.netSales }];
       });
-      this.setState({ storeMaster, buckets, categoriesRaw, overview, itemsRaw, categoriesByStoreDate, itemsByStoreDate, receiptDay, wholesale, stcQitaf, loading: false });
+      this.setState({ storeMaster, buckets, categoriesRaw, overview, itemsRaw, categoriesByStoreDate, itemsByStoreDate, receiptDay, wholesale, stcQitaf, hourly, loading: false });
       this._loadLastDataUpdate();
     } catch (e) {
       console.error('Sales Dashboard data load failed', e);
@@ -1588,6 +1625,36 @@ class Component extends DCLogic {
       width: chartW, height: chartH, pathD, areaD,
       points: trendPoints.map((p, i) => ({ cx: p.x.toFixed(1), cy: p.y.toFixed(1), labelY: Math.min(chartH - 4, p.y + 16).toFixed(1), label: dailyEntries[i][0].slice(5), valueLabel: this.fmtShort(p.val) }))
     };
+
+    // hourly sales trend — respects global region/city/store/month/date filters
+    const hourlyRows = (st.hourly || []).filter(h => {
+      const sm = this.storeIndex[h.store] || {};
+      return this.matchesFilters({ store: h.store, date: h.date, region: sm.region, city: sm.city });
+    });
+    const hourlyMap = {};
+    for (let hh = 0; hh < 24; hh++) hourlyMap[hh] = 0;
+    hourlyRows.forEach(h => { hourlyMap[h.hour] += h.netSales; });
+    const hourlyEntries = Object.keys(hourlyMap).map(k => [Number(k), hourlyMap[k]]).sort((a, b) => a[0] - b[0]);
+    const maxHourly = Math.max(1, ...hourlyEntries.map(e => e[1]));
+    const minHourly = Math.min(...hourlyEntries.map(e => e[1]), maxHourly);
+    const hRange = Math.max(1, maxHourly - minHourly);
+    const hChartW = Math.max(360, hourlyEntries.length * 34);
+    const hChartH = 140;
+    const hourLabel = h => { const period = h < 12 ? 'AM' : 'PM'; let hh12 = h % 12; if (hh12 === 0) hh12 = 12; return hh12 + period; };
+    const hourlyPoints = hourlyEntries.map(([h, val], i) => {
+      const x = hourlyEntries.length > 1 ? (i / (hourlyEntries.length - 1)) * (hChartW - 20) + 10 : hChartW / 2;
+      const y = hChartH - 26 - ((val - minHourly) / hRange) * (hChartH - 36);
+      return { x, y, h, val };
+    });
+    const hPathD = hourlyPoints.map((p, i) => (i === 0 ? 'M' : 'L') + p.x.toFixed(1) + ' ' + p.y.toFixed(1)).join(' ');
+    const hAreaD = hPathD + (hourlyPoints.length ? ` L${hourlyPoints[hourlyPoints.length - 1].x.toFixed(1)} ${hChartH} L${hourlyPoints[0].x.toFixed(1)} ${hChartH} Z` : '');
+    const hourlyTrend = {
+      width: hChartW, height: hChartH, pathD: hPathD, areaD: hAreaD,
+      points: hourlyPoints.map(p => ({ cx: p.x.toFixed(1), cy: p.y.toFixed(1), labelY: Math.min(hChartH - 4, p.y + 16).toFixed(1), label: hourLabel(p.h), valueLabel: this.fmtShort(p.val) }))
+    };
+    const hourlyTotal = hourlyRows.reduce((a, h) => a + h.netSales, 0);
+    const hourlyInvoices = hourlyRows.reduce((a, h) => a + h.invoices, 0);
+    const hourlyRangeLabel = f.dateRange ? (f.dateRange.start + ' \u2013 ' + f.dateRange.end) : (f.month !== 'All' ? f.month : 'All dates');
 
     // region bars (respect city/store/date filters, not region itself, so users can see comparison) — but a locked region-manager must never see other regions
     const regionLock = st.auth && st.auth.region !== 'All' ? st.auth.region : null;
@@ -2343,10 +2410,10 @@ class Component extends DCLogic {
         markupLabel: mkp((totalCost ? 100 * (t.netSales - totalCost) / totalCost : 0).toFixed(1) + '%')
       };
     })();
-    const titles = { overview: 'Executive Overview', stores: 'Branch Comparison', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', wholesale: 'Wholesale', daily: 'Daily Sales', regionDetail: 'Region Detail', stcQitaf: 'STC Qitaf' };
-    const shortTitles = { overview: 'Overview', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily', regionDetail: 'Region', wholesale: 'Wholesale', stcQitaf: 'Qitaf' };
-    const navIcons = { overview: '▣', categories: '▤', items: '◫', discounts: '%', invoices: '⌂', daily: '◷', regionDetail: '◈', wholesale: '◊', stcQitaf: '⊙' };
-    const pageOrder = ['overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'wholesale', 'stcQitaf'].filter(p => !(st.auth && st.auth.region !== 'All' && p === 'wholesale'));
+    const titles = { overview: 'Executive Overview', stores: 'Branch Comparison', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', hourlySales: 'Hourly Sales', wholesale: 'Wholesale', daily: 'Daily Sales', regionDetail: 'Region Detail', stcQitaf: 'STC Qitaf' };
+    const shortTitles = { overview: 'Overview', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily', regionDetail: 'Region', hourlySales: 'Hourly', wholesale: 'Wholesale', stcQitaf: 'Qitaf' };
+    const navIcons = { overview: '▣', categories: '▤', items: '◫', discounts: '%', invoices: '⌂', daily: '◷', regionDetail: '◈', hourlySales: '◔', wholesale: '◊', stcQitaf: '⊙' };
+    const pageOrder = ['overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'hourlySales', 'wholesale', 'stcQitaf'].filter(p => !(st.auth && st.auth.region !== 'All' && p === 'wholesale'));
     const isMobile = st.isMobile;
 
     return {
@@ -2392,6 +2459,7 @@ class Component extends DCLogic {
         totalInvoices: st.buckets.reduce((a, b) => a + b.invoices, 0)
       },
       filters: { ...f, isDirty },
+      hourlyTrend, hourlyTotalLabel: this.fmtMoney(hourlyTotal), hourlyInvoicesLabel: this.fmtNum(hourlyInvoices), hourlyRangeLabel,
       regionOptions: ['All', ...regions],
       cityOptions: ['All', ...citiesInRegion],
       storeOptions: [{ code: 'All', label: 'All' }, ...storesInScope.map(s => ({ code: s.code, label: s.shortName }))],
@@ -2433,6 +2501,7 @@ class Component extends DCLogic {
         discStoreName: this.arrow('discounts', 'storeName'), discNetSales: this.arrow('discounts', 'netSales'), discDiscount: this.arrow('discounts', 'discount'), discQty: this.arrow('discounts', 'qty'), discRatio: this.arrow('discounts', 'ratio'),
         itemNo: this.arrow('items', 'itemNo'), itemDesc: this.arrow('items', 'itemDesc'), itemDivision: this.arrow('items', 'division'), itemCategory: this.arrow('items', 'category'), itemNetSales: this.arrow('items', 'netSales'), itemQty: this.arrow('items', 'qty'), itemInvoices: this.arrow('items', 'invoices'), itemUpt: this.arrow('items', 'upt'), itemReturnQty: this.arrow('items', 'returnQty'), itemReturnPct: this.arrow('items', 'returnPct')
       },
+      isHourlySales: st.page === 'hourlySales',
       isOverview: st.page === 'overview', isRegionDetail: st.page === 'regionDetail', isCategories: st.page === 'categories', isInvoices: st.page === 'invoices', isItems: st.page === 'items', isDiscounts: st.page === 'discounts', isDaily: st.page === 'daily', isWholesale: st.page === 'wholesale', isStcQitaf: st.page === 'stcQitaf',
       globalFiltersDisplay: st.page === 'wholesale' ? 'none' : (isMobile && !st.filtersOpen ? 'none' : 'flex'),
       showFilterToggle: isMobile && st.page !== 'wholesale',
@@ -2520,4 +2589,4 @@ class Component extends DCLogic {
 
 </script>
 </body>
-</html> 
+</html>
