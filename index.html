@@ -1077,17 +1077,33 @@ a:hover{color:var(--color-accent-300)}
 <div class="card-title" style="font-size:26px;margin-top:2px;white-space:nowrap">{{hourlyInvoicesLabel}}</div>
 </div>
 </div>
+<div class="card elev-sm" style="margin-bottom:var(--space-6)">
+<div class="card-kicker" style="margin-bottom:8px">Sales by part of day</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{daySlices}}" as="s" hint-placeholder-count="3">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+<div style="font-size:13px;font-weight:600;white-space:nowrap">{{s.label}}</div>
+<div style="display:flex;align-items:baseline;gap:10px">
+<div class="card-meta" style="white-space:nowrap">{{s.valueLabel}}</div>
+<div style="font-size:15px;font-weight:700;color:var(--color-accent);white-space:nowrap">{{s.pctLabel}}</div>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
 <h3 style="font-family:var(--font-heading);font-size:16px;margin:0 0 var(--space-4)">Net sales by hour of day <span style="font-weight:400;color:var(--color-neutral-500)">({{hourlyRangeLabel}})</span></h3>
-<div style="display:flex;flex-direction:column;gap:10px">
+<div style="overflow-x:auto;padding-bottom:2px">
+<div style="display:flex;flex-direction:column;gap:10px;min-width:320px">
 <sc-for list="{{hourlyBars}}" as="b" hint-placeholder-count="12">
 <div style="display:flex;align-items:center;gap:8px">
 <div style="width:44px;flex:0 0 44px;font-size:11px;color:var(--color-neutral-500);text-align:right">{{b.label}}</div>
-<div style="flex:0 1 360px;max-width:360px;position:relative;height:22px">
+<div style="flex:0 1 220px;max-width:220px;position:relative;height:22px">
 <div style="height:100%;width:{{b.pct}}%;min-width:4px;background:var(--color-accent-500);border-radius:0 4px 4px 0"></div>
 <div style="position:absolute;left:calc({{b.pct}}% + 8px);top:50%;transform:translateY(-50%);font-size:10px;font-weight:700;color:var(--color-text);white-space:nowrap">{{b.valueLabel}} · {{b.pctLabel}}</div>
 </div>
 </div>
 </sc-for>
+</div>
 </div>
 </section>
 </sc-if>
@@ -1650,6 +1666,16 @@ class Component extends DCLogic {
       pctLabel: (hourlyPctTotal ? (100 * val / hourlyPctTotal).toFixed(1) : '0.0') + '%',
       pct: Math.max(2, Math.round(100 * val / maxHourly))
     }));
+    const daySliceDefs = [0, 1, 2, 3].map(i => {
+      const startH = (9 + i * 6) % 24;
+      const hours = Array.from({ length: 6 }, (_, k) => (startH + k) % 24);
+      const endH = (startH + 6) % 24;
+      return { label: hourLabel(startH) + ' \u2013 ' + hourLabel(endH), hours };
+    });
+    const daySlices = daySliceDefs.map(s => {
+      const val = s.hours.reduce((a, h) => a + (hourlyMap[h] || 0), 0);
+      return { label: s.label, valueLabel: this.fmtMoney(val), pctLabel: (hourlyPctTotal ? (100 * val / hourlyPctTotal).toFixed(1) : '0.0') + '%' };
+    });
     const hourlyTotal = hourlyRows.reduce((a, h) => a + h.netSales, 0);
     const hourlyInvoices = hourlyRows.reduce((a, h) => a + h.invoices, 0);
     const hourlyRangeLabel = f.dateRange ? (f.dateRange.start + ' \u2013 ' + f.dateRange.end) : (f.month !== 'All' ? f.month : 'All dates');
@@ -2457,7 +2483,7 @@ class Component extends DCLogic {
         totalInvoices: st.buckets.reduce((a, b) => a + b.invoices, 0)
       },
       filters: { ...f, isDirty },
-      hourlyTrend, hourlyBars, hourlyTotalLabel: this.fmtMoney(hourlyTotal), hourlyInvoicesLabel: this.fmtNum(hourlyInvoices), hourlyRangeLabel,
+      hourlyTrend, hourlyBars, daySlices, hourlyTotalLabel: this.fmtMoney(hourlyTotal), hourlyInvoicesLabel: this.fmtNum(hourlyInvoices), hourlyRangeLabel,
       regionOptions: ['All', ...regions],
       cityOptions: ['All', ...citiesInRegion],
       storeOptions: [{ code: 'All', label: 'All' }, ...storesInScope.map(s => ({ code: s.code, label: s.shortName }))],
