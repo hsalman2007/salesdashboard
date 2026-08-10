@@ -1083,7 +1083,7 @@ a:hover{color:var(--color-accent-300)}
 <button class="btn {{hourlyStoreBtnClass}}" onClick="{{setHourlyViewByStore}}">By Store</button>
 </div>
 <sc-if value="{{isHourlyByStore}}" hint-placeholder-val="{{false}}">
-<div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow-x:auto;overflow-y:hidden;touch-action:pinch-zoom">
+<div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow:auto;max-height:70vh;touch-action:pan-y">
 <table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
 <thead><tr><th style="text-align:left">Store</th><th>{{daySliceLabel0}}</th><th>{{daySliceLabel1}}</th><th>{{daySliceLabel2}}</th><th>{{daySliceLabel3}}</th><th>Total</th></tr></thead>
 <tbody>
@@ -1713,8 +1713,8 @@ class Component extends DCLogic {
       const sm = this.storeIndex[code] || {};
       const total = vals.reduce((a, b) => a + b, 0);
       const pct = v => (total ? (100 * v / total).toFixed(1) : '0.0') + '%';
-      return { code, name: sm.shortName || sm.nameEn || code, val0: this.fmtShort(vals[0]) + ' \u00b7 ' + pct(vals[0]), val1: this.fmtShort(vals[1]) + ' \u00b7 ' + pct(vals[1]), val2: this.fmtShort(vals[2]) + ' \u00b7 ' + pct(vals[2]), val3: this.fmtShort(vals[3]) + ' \u00b7 ' + pct(vals[3]), totalNum: total, totalLabel: this.fmtMoney(total) };
-    }).sort((a, b) => b.totalNum - a.totalNum);
+      return { code, name: sm.shortName || sm.nameEn || code, region: sm.region || '', val0: this.fmtShort(vals[0]) + ' \u00b7 ' + pct(vals[0]), val1: this.fmtShort(vals[1]) + ' \u00b7 ' + pct(vals[1]), val2: this.fmtShort(vals[2]) + ' \u00b7 ' + pct(vals[2]), val3: this.fmtShort(vals[3]) + ' \u00b7 ' + pct(vals[3]), totalNum: total, totalLabel: this.fmtMoney(total) };
+    }).sort((a, b) => a.region === b.region ? a.name.localeCompare(b.name) : a.region.localeCompare(b.region));
     const storeDayPartTotals = [0, 1, 2, 3].map(i => Object.values(storeSliceMap).reduce((a, vals) => a + vals[i], 0));
     const storeDayPartGrandTotal = storeDayPartTotals.reduce((a, b) => a + b, 0);
     const storeDayPartFooter = {
