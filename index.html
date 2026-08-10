@@ -932,6 +932,36 @@ a:hover{color:var(--color-accent-300)}
 <sc-for list="{{wholesaleStoreOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
 </select>
 </div>
+<div class="field" style="min-width:150px;position:relative">
+<label>Date</label>
+<button class="input" onClick="{{toggleWholesaleDateMenu}}" style="text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+<span>{{wholesaleDateButtonLabel}}</span><span style="font-size:10px">▾</span>
+</button>
+<sc-if value="{{wholesaleDateMenuOpen}}" hint-placeholder-val="{{false}}">
+<div class="card elev-md" style="position:absolute;top:100%;left:0;z-index:20;margin-top:4px;padding:var(--space-3);width:240px">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-2)">
+<button class="btn btn-ghost" onClick="{{wholesaleCalendarPrevMonth}}" disabled="{{wholesaleCalendarAtStart}}" style="font-size:12px;padding:2px 8px">‹</button>
+<div style="font-weight:600;font-size:13px">{{wholesaleCalendarMonthLabel}}</div>
+<button class="btn btn-ghost" onClick="{{wholesaleCalendarNextMonth}}" disabled="{{wholesaleCalendarAtEnd}}" style="font-size:12px;padding:2px 8px">›</button>
+</div>
+<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;font-size:11px;text-align:center;color:var(--color-neutral-500);margin-bottom:4px">
+<div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">
+<sc-for list="{{wholesaleCalendarCells}}" as="c" hint-placeholder-count="30">
+<sc-if value="{{c.hasData}}" hint-placeholder-val="{{false}}">
+<button onClick="{{c.onClick}}" style="{{c.style}}" title="{{c.iso}}">{{c.day}}</button>
+</sc-if>
+<sc-if value="{{c.blank}}" hint-placeholder-val="{{false}}"><div></div></sc-if>
+</sc-for>
+</div>
+<div style="display:flex;justify-content:space-between;margin-top:var(--space-3)">
+<button class="btn btn-ghost" onClick="{{clearWholesaleDate}}" style="font-size:12px;padding:4px 8px">Clear</button>
+<button class="btn btn-ghost" onClick="{{toggleWholesaleDateMenu}}" style="font-size:12px;padding:4px 8px">Done</button>
+</div>
+</div>
+</sc-if>
+</div>
 </div>
 <div style="display:flex;gap:8px;margin-bottom:var(--space-4)">
 <button class="btn {{wholesaleStoresBtnClass}}" onClick="{{setWholesaleViewStores}}">By Store</button>
@@ -941,10 +971,10 @@ a:hover{color:var(--color-accent-300)}
 <sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x:auto">
 <table class="table">
-<thead><tr><th style="text-align:left">Store</th><th>Net sales</th></tr></thead>
+<thead><tr><th style="text-align:left">Store</th><th style="text-align:left">Type</th><th>Net sales</th></tr></thead>
 <tbody>
 <sc-for list="{{wholesaleSorted}}" as="w" hint-placeholder-count="8">
-<tr><td style="font-weight:600;white-space:nowrap;text-align:left">{{w.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{w.netSalesLabel}}</td></tr>
+<tr><td style="font-weight:600;white-space:nowrap;text-align:left">{{w.storeName}}</td><td style="white-space:nowrap;text-align:left">{{w.type}}</td><td style="font-weight:600;white-space:nowrap">{{w.netSalesLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -954,7 +984,10 @@ a:hover{color:var(--color-accent-300)}
 <div style="display:flex;flex-direction:column;gap:8px">
 <sc-for list="{{wholesaleSorted}}" as="w" hint-placeholder-count="8">
 <div class="card elev-sm" style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+<div style="flex:1;min-width:0">
 <div style="font-weight:700;font-size:14px">{{w.storeName}}</div>
+<div class="card-meta">{{w.type}}</div>
+</div>
 <div style="font-weight:700;font-size:15px;color:var(--color-accent);white-space:nowrap">{{w.netSalesLabel}}</div>
 </div>
 </sc-for>
@@ -1235,7 +1268,7 @@ class Component extends DCLogic {
     tableZoom: 1,
     storeMaster: [], buckets: [], categoriesRaw: [], overview: null, itemsRaw: [], categoriesByStoreDate: [], itemsByStoreDate: [],
     wholesale: [],
-    wholesaleFilters: { month: 'All', type: 'All', store: 'All' },
+    wholesaleFilters: { month: 'All', type: 'All', store: 'All', dateRange: null },
     wholesaleView: 'stores',
     wholesaleChannel: 'wholesale',
     itemSearch: '',
@@ -1243,6 +1276,8 @@ class Component extends DCLogic {
     itemsPage: 0,
     discItemPage: 0,
     filters: { region: 'All', city: 'All', store: 'All', month: 'All', dateRange: null },
+    wholesaleDateMenuOpen: false,
+    wholesaleRangeAnchor: null,
     dateMenuOpen: false,
     filtersOpen: false,
     rangeAnchor: null,
@@ -2177,13 +2212,55 @@ class Component extends DCLogic {
 
     // wholesale — sales minus returns, grouped by store, filtered by month and customer type
     const wf = st.wholesaleFilters;
+    const wAllDates = [...new Set(st.wholesale.map(w => w.date).filter(Boolean))].sort();
+    const wMonthKeys = [...new Set(wAllDates.map(d => d.slice(0, 7)))].sort();
+    const wDateSet = new Set(wAllDates);
+    let wholesaleCalendarCells = [];
+    let wholesaleCalendarMonthLabel = '', wholesaleCalendarAtStart = true, wholesaleCalendarAtEnd = true, wholesaleCalendarPrevMonth = () => {}, wholesaleCalendarNextMonth = () => {};
+    if (wMonthKeys.length) {
+      const wIdx = Math.min(st.wholesaleCalendarMonthIndex == null ? wMonthKeys.length - 1 : st.wholesaleCalendarMonthIndex, wMonthKeys.length - 1);
+      const wMonthKey = wMonthKeys[wIdx];
+      const [wmy, wmm] = wMonthKey.split('-').map(Number);
+      const wMonthStart = new Date(wmy, wmm - 1, 1);
+      wholesaleCalendarMonthLabel = wMonthStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      wholesaleCalendarAtStart = wIdx === 0;
+      wholesaleCalendarAtEnd = wIdx === wMonthKeys.length - 1;
+      wholesaleCalendarPrevMonth = () => this.setState({ wholesaleCalendarMonthIndex: Math.max(0, wIdx - 1) });
+      wholesaleCalendarNextMonth = () => this.setState({ wholesaleCalendarMonthIndex: Math.min(wMonthKeys.length - 1, wIdx + 1) });
+      const wToISO = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      const wLeadBlanks = wMonthStart.getDay();
+      for (let i = 0; i < wLeadBlanks; i++) wholesaleCalendarCells.push({ blank: true, hasData: false });
+      for (let d = new Date(wMonthStart); d.getMonth() === wmm - 1; d.setDate(d.getDate() + 1)) {
+        const iso = wToISO(d);
+        const hasData = wDateSet.has(iso);
+        const inRange = wf.dateRange && iso >= wf.dateRange.start && iso <= wf.dateRange.end;
+        const isEndpoint = wf.dateRange && (iso === wf.dateRange.start || iso === wf.dateRange.end);
+        const isAnchor = st.wholesaleRangeAnchor === iso;
+        let bg = 'transparent', color = 'inherit';
+        if (isEndpoint || isAnchor) { bg = 'var(--color-accent-500)'; color = '#fff'; }
+        else if (inRange) { bg = 'color-mix(in oklab, var(--color-accent-500) 20%, transparent)'; }
+        wholesaleCalendarCells.push({
+          blank: false, hasData, iso, day: d.getDate(),
+          style: 'padding:4px 0;border-radius:6px;font-size:12px;cursor:pointer;border:none;background:' + bg + ';color:' + color,
+          onClick: () => {
+            if (!st.wholesaleRangeAnchor) {
+              this.setState({ wholesaleRangeAnchor: iso, wholesaleFilters: { ...wf, dateRange: { start: iso, end: iso } } });
+            } else {
+              const start = st.wholesaleRangeAnchor < iso ? st.wholesaleRangeAnchor : iso;
+              const end = st.wholesaleRangeAnchor < iso ? iso : st.wholesaleRangeAnchor;
+              this.setState({ wholesaleRangeAnchor: null, wholesaleFilters: { ...wf, dateRange: { start, end } } });
+            }
+          }
+        });
+      }
+    }
     const storeTypeExceptions = [];
     const threePNames = ['Amazon E-Market', 'Noon E-Market'];
-    const wholesaleMonthScope = st.wholesale.filter(w => {
-      const sm = this.storeIndex[w.storeCode];
+    const wholesaleMonthScope = st.wholesale.filter(w => {      const sm = this.storeIndex[w.storeCode];
       if (sm && sm.type === 'Store' && !storeTypeExceptions.includes(w.type)) return false;
       const isThreeP = threePNames.includes(this.wholesaleName(w));
       if (st.wholesaleChannel === '3p' ? !isThreeP : isThreeP) return false;
+      if (wf.dateRange) { if (!w.date || w.date < wf.dateRange.start || w.date > wf.dateRange.end) return false; }
       return wf.month === 'All' || w.month === wf.month;
     });
     const wholesaleInScope = wholesaleMonthScope.filter(w => wf.store === 'All' || this.wholesaleName(w) === wf.store);
@@ -2193,14 +2270,16 @@ class Component extends DCLogic {
       return true;
     });
     const wholesaleMap = {};
+    const wholesaleTypeByName = {};
     wholesaleFiltered.forEach(w => {
       const name = this.wholesaleName(w);
       if (!wholesaleMap[name]) wholesaleMap[name] = 0;
       wholesaleMap[name] += w.amount;
+      if (!wholesaleTypeByName[name]) wholesaleTypeByName[name] = this.wholesaleEffType(w);
     });
     const wholesaleTotal = Object.values(wholesaleMap).reduce((a, b) => a + b, 0);
     const wholesaleRows = Object.entries(wholesaleMap)
-      .map(([storeName, netSales]) => ({ storeName, netSales, netSalesLabel: this.fmtMoney(netSales) }))
+      .map(([storeName, netSales]) => ({ storeName, netSales, netSalesLabel: this.fmtMoney(netSales), type: wholesaleTypeByName[storeName] || '' }))
       .sort((a, b) => b.netSales - a.netSales);
     const wholesaleGross = wholesaleFiltered.reduce((a, w) => a + (w.amount > 0 ? w.amount : 0), 0);
     const wholesaleReturns = wholesaleFiltered.reduce((a, w) => a + (w.amount < 0 ? -w.amount : 0), 0);
@@ -2214,8 +2293,7 @@ class Component extends DCLogic {
     const wholesaleTypeCards = Object.entries(wholesaleTypeMap).sort((a, b) => b[1] - a[1]).map(([label, val]) => ({ label, value: this.fmtMoney(val), pctLabel: (wholesaleTypeTotal ? Math.abs(100 * val / wholesaleTypeTotal) : 0).toFixed(1) + '%' }));
 
     // day-wise x store pivot for the Wholesale sub-page
-    const wDates = [...new Set(wholesaleFiltered.map(w => w.date).filter(Boolean))].sort();
-    const wStoreNames = [...new Set(wholesaleFiltered.map(w => this.wholesaleName(w)))].sort();
+    const wDates = [...new Set(wholesaleFiltered.map(w => w.date).filter(Boolean))].sort();    const wStoreNames = [...new Set(wholesaleFiltered.map(w => this.wholesaleName(w)))].sort();
     const wPivot = {};
     wholesaleFiltered.forEach(w => {
       if (!w.date) return;
@@ -2594,8 +2672,11 @@ class Component extends DCLogic {
       filtersToggleArrow: st.filtersOpen ? '▴' : '▾',
       filtersActiveCount: (f.region !== 'All' ? 1 : 0) + (f.city !== 'All' ? 1 : 0) + (f.store !== 'All' ? 1 : 0) + (f.month !== 'All' ? 1 : 0) + (f.dateRange ? 1 : 0),
       wholesaleFilters: st.wholesaleFilters,
-      wholesaleMonthOptions: ['All', ...[...new Set(st.wholesale.map(w => w.month))].sort()],
-      wholesaleTypeOptions: ['All', ...Object.keys(wholesaleTypeMap).sort()],
+      wholesaleDateMenuOpen: st.wholesaleDateMenuOpen, toggleWholesaleDateMenu: () => this.setState({ wholesaleDateMenuOpen: !st.wholesaleDateMenuOpen }),
+      wholesaleDateButtonLabel: !wf.dateRange ? 'All dates' : wf.dateRange.start === wf.dateRange.end ? wf.dateRange.start : wf.dateRange.start + ' \u2192 ' + wf.dateRange.end,
+      clearWholesaleDate: () => this.setState({ wholesaleFilters: { ...wf, dateRange: null }, wholesaleRangeAnchor: null }),
+      wholesaleCalendarCells, wholesaleCalendarMonthLabel, wholesaleCalendarAtStart, wholesaleCalendarAtEnd, wholesaleCalendarPrevMonth, wholesaleCalendarNextMonth,
+      wholesaleMonthOptions: ['All', ...[...new Set(st.wholesale.map(w => w.month))].sort()],      wholesaleTypeOptions: ['All', ...Object.keys(wholesaleTypeMap).sort()],
       wholesaleStoreOptions: ['All', ...[...new Set(wholesaleMonthScope.map(w => this.wholesaleName(w)))].sort()],
       setWholesaleStore: e => this.setState({ wholesaleFilters: { ...st.wholesaleFilters, store: e.target.value } }),
       setWholesaleMonth: e => this.setState({ wholesaleFilters: { ...st.wholesaleFilters, month: e.target.value } }),
