@@ -1088,7 +1088,7 @@ a:hover{color:var(--color-accent-300)}
 </sc-for>
 </svg>
 <sc-for list="{{hourlyTrend.points}}" as="p" hint-placeholder-count="12">
-<div style="position:absolute;left:{{p.cx}}px;top:{{p.labelY}}px;transform:translateX(-50%);font-size:7.5px;font-weight:700;color:var(--color-neutral-500);white-space:nowrap">{{p.valueLabel}}</div>
+<div style="position:absolute;left:{{p.cx}}px;top:{{p.labelY}}px;transform:translateX(-50%);font-size:7.5px;font-weight:700;color:var(--color-neutral-500);white-space:nowrap;text-align:center">{{p.valueLabel}}<br>{{p.pctLabel}}</div>
 </sc-for>
 </div>
 <div style="display:flex;justify-content:space-between;width:{{hourlyTrend.width}}px;margin-top:4px">
@@ -1650,7 +1650,7 @@ class Component extends DCLogic {
     const hAreaD = hPathD + (hourlyPoints.length ? ` L${hourlyPoints[hourlyPoints.length - 1].x.toFixed(1)} ${hChartH} L${hourlyPoints[0].x.toFixed(1)} ${hChartH} Z` : '');
     const hourlyTrend = {
       width: hChartW, height: hChartH, pathD: hPathD, areaD: hAreaD,
-      points: hourlyPoints.map(p => ({ cx: p.x.toFixed(1), cy: p.y.toFixed(1), labelY: Math.min(hChartH - 4, p.y + 16).toFixed(1), label: hourLabel(p.h), valueLabel: this.fmtShort(p.val) }))
+      points: hourlyPoints.map(p => ({ cx: p.x.toFixed(1), cy: p.y.toFixed(1), labelY: Math.min(hChartH - 4, p.y + 16).toFixed(1), label: hourLabel(p.h), valueLabel: this.fmtShort(p.val), pctLabel: (hourlyEntries.reduce((s, e) => s + e[1], 0) ? (100 * p.val / hourlyEntries.reduce((s, e) => s + e[1], 0)).toFixed(1) : '0.0') + '%' }))
     };
     const hourlyTotal = hourlyRows.reduce((a, h) => a + h.netSales, 0);
     const hourlyInvoices = hourlyRows.reduce((a, h) => a + h.invoices, 0);
