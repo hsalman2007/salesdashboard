@@ -1083,8 +1083,8 @@ a:hover{color:var(--color-accent-300)}
 <button class="btn {{hourlyStoreBtnClass}}" onClick="{{setHourlyViewByStore}}">By Store</button>
 </div>
 <sc-if value="{{isHourlyByStore}}" hint-placeholder-val="{{false}}">
-<div style="overflow-x:auto">
-<table class="table">
+<div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow-x:auto;overflow-y:hidden;touch-action:pinch-zoom">
+<table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
 <thead><tr><th style="text-align:left">Store</th><th>{{daySliceLabel0}}</th><th>{{daySliceLabel1}}</th><th>{{daySliceLabel2}}</th><th>{{daySliceLabel3}}</th><th>Total</th></tr></thead>
 <tbody>
 <sc-for list="{{storeDayPartRows}}" as="r" hint-placeholder-count="10">
