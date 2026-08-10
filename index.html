@@ -192,6 +192,7 @@ a:hover{color:var(--color-accent-300)}
 </sc-for>
 </div>
 </div>
+</sc-if>
 </div>
 <div style="flex:1;min-width:0">
 <h3 style="font-family:var(--font-heading);font-size:16px;margin:0 0 var(--space-4)">Sales by region</h3>
@@ -1077,6 +1078,24 @@ a:hover{color:var(--color-accent-300)}
 <div class="card-title" style="font-size:26px;margin-top:2px;white-space:nowrap">{{hourlyInvoicesLabel}}</div>
 </div>
 </div>
+<div style="display:flex;gap:8px;margin-bottom:var(--space-4)">
+<button class="btn {{hourlyChartBtnClass}}" onClick="{{setHourlyViewChart}}">Chart</button>
+<button class="btn {{hourlyStoreBtnClass}}" onClick="{{setHourlyViewByStore}}">By Store</button>
+</div>
+<sc-if value="{{isHourlyByStore}}" hint-placeholder-val="{{false}}">
+<div style="overflow-x:auto">
+<table class="table">
+<thead><tr><th style="text-align:left">Store</th><th>{{daySliceLabel0}}</th><th>{{daySliceLabel1}}</th><th>{{daySliceLabel2}}</th><th>{{daySliceLabel3}}</th><th>Total</th></tr></thead>
+<tbody>
+<sc-for list="{{storeDayPartRows}}" as="r" hint-placeholder-count="10">
+<tr><td style="font-weight:600;white-space:nowrap;text-align:left">{{r.name}}</td><td style="white-space:nowrap">{{r.val0}}</td><td style="white-space:nowrap">{{r.val1}}</td><td style="white-space:nowrap">{{r.val2}}</td><td style="white-space:nowrap">{{r.val3}}</td><td style="font-weight:700;white-space:nowrap">{{r.totalLabel}}</td></tr>
+</sc-for>
+</tbody>
+<tfoot><tr><td style="font-weight:700;text-align:left">Total</td><td style="font-weight:700;white-space:nowrap">{{storeDayPartFooter.val0}}</td><td style="font-weight:700;white-space:nowrap">{{storeDayPartFooter.val1}}</td><td style="font-weight:700;white-space:nowrap">{{storeDayPartFooter.val2}}</td><td style="font-weight:700;white-space:nowrap">{{storeDayPartFooter.val3}}</td><td style="font-weight:700;white-space:nowrap">{{storeDayPartFooter.totalLabel}}</td></tr></tfoot>
+</table>
+</div>
+</sc-if>
+<sc-if value="{{!isHourlyByStore}}" hint-placeholder-val="{{true}}">
 <div class="card elev-sm" style="margin-bottom:var(--space-6)">
 <div class="card-kicker" style="margin-bottom:8px">Sales by part of day</div>
 <div style="display:flex;flex-direction:column;gap:8px">
@@ -1240,6 +1259,7 @@ class Component extends DCLogic {
     expandedRegions: {},
     stcQitaf: [],
     hourly: [],
+    hourlyView: 'chart',
     stcView: 'store',
     auth: null,
     loginId: '',
@@ -1676,6 +1696,31 @@ class Component extends DCLogic {
       const val = s.hours.reduce((a, h) => a + (hourlyMap[h] || 0), 0);
       return { label: s.label, valueLabel: this.fmtMoney(val), pctLabel: (hourlyPctTotal ? (100 * val / hourlyPctTotal).toFixed(1) : '0.0') + '%' };
     });
+    const hourlyStoreScope = (st.hourly || []).filter(h => {
+      const sm = this.storeIndex[h.store] || {};
+      if (f.region !== 'All' && sm.region !== f.region) return false;
+      if (f.city !== 'All' && sm.city !== f.city) return false;
+      if (f.month !== 'All' && h.date.slice(0, 7) !== f.month) return false;
+      if (f.dateRange && (h.date < f.dateRange.start || h.date > f.dateRange.end)) return false;
+      return true;
+    });
+    const storeSliceMap = {};
+    hourlyStoreScope.forEach(h => {
+      if (!storeSliceMap[h.store]) storeSliceMap[h.store] = daySliceDefs.map(() => 0);
+      daySliceDefs.forEach((s, i) => { if (s.hours.includes(h.hour)) storeSliceMap[h.store][i] += h.netSales; });
+    });
+    const storeDayPartRows = Object.entries(storeSliceMap).map(([code, vals]) => {
+      const sm = this.storeIndex[code] || {};
+      const total = vals.reduce((a, b) => a + b, 0);
+      const pct = v => (total ? (100 * v / total).toFixed(1) : '0.0') + '%';
+      return { code, name: sm.shortName || sm.nameEn || code, val0: this.fmtShort(vals[0]) + ' \u00b7 ' + pct(vals[0]), val1: this.fmtShort(vals[1]) + ' \u00b7 ' + pct(vals[1]), val2: this.fmtShort(vals[2]) + ' \u00b7 ' + pct(vals[2]), val3: this.fmtShort(vals[3]) + ' \u00b7 ' + pct(vals[3]), totalNum: total, totalLabel: this.fmtMoney(total) };
+    }).sort((a, b) => b.totalNum - a.totalNum);
+    const storeDayPartTotals = [0, 1, 2, 3].map(i => Object.values(storeSliceMap).reduce((a, vals) => a + vals[i], 0));
+    const storeDayPartGrandTotal = storeDayPartTotals.reduce((a, b) => a + b, 0);
+    const storeDayPartFooter = {
+      val0: this.fmtShort(storeDayPartTotals[0]), val1: this.fmtShort(storeDayPartTotals[1]), val2: this.fmtShort(storeDayPartTotals[2]), val3: this.fmtShort(storeDayPartTotals[3]),
+      totalLabel: this.fmtMoney(storeDayPartGrandTotal)
+    };
     const hourlyTotal = hourlyRows.reduce((a, h) => a + h.netSales, 0);
     const hourlyInvoices = hourlyRows.reduce((a, h) => a + h.invoices, 0);
     const hourlyRangeLabel = f.dateRange ? (f.dateRange.start + ' \u2013 ' + f.dateRange.end) : (f.month !== 'All' ? f.month : 'All dates');
@@ -2484,6 +2529,9 @@ class Component extends DCLogic {
       },
       filters: { ...f, isDirty },
       hourlyTrend, hourlyBars, daySlices, hourlyTotalLabel: this.fmtMoney(hourlyTotal), hourlyInvoicesLabel: this.fmtNum(hourlyInvoices), hourlyRangeLabel,
+      isHourlyByStore: st.hourlyView === 'byStore', hourlyChartBtnClass: st.hourlyView !== 'byStore' ? 'btn-primary' : 'btn-secondary', hourlyStoreBtnClass: st.hourlyView === 'byStore' ? 'btn-primary' : 'btn-secondary',
+      setHourlyViewChart: () => this.setState({ hourlyView: 'chart' }), setHourlyViewByStore: () => this.setState({ hourlyView: 'byStore' }),
+      storeDayPartRows, storeDayPartFooter, daySliceLabel0: daySliceDefs[0].label, daySliceLabel1: daySliceDefs[1].label, daySliceLabel2: daySliceDefs[2].label, daySliceLabel3: daySliceDefs[3].label,
       regionOptions: ['All', ...regions],
       cityOptions: ['All', ...citiesInRegion],
       storeOptions: [{ code: 'All', label: 'All' }, ...storesInScope.map(s => ({ code: s.code, label: s.shortName }))],
