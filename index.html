@@ -889,6 +889,120 @@ a:hover{color:var(--color-accent-300)}
 </div>
 </sc-if>
 
+<sc-if value="{{isSnapshot}}" hint-placeholder-val="{{false}}">
+<section>
+<div style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:var(--space-4);margin-bottom:var(--space-6)">
+<div class="field" style="min-width:190px">
+<label>Business date</label>
+<select class="input" value="{{snapDate}}" onChange="{{setSnapDate}}">
+<sc-for list="{{snapDateOptions}}" as="d" hint-placeholder-count="5"><option value="{{d.value}}">{{d.label}}</option></sc-for>
+</select>
+</div>
+<button class="btn btn-primary" onClick="{{exportSnapshotPdf}}">Export PDF</button>
+<div style="font-size:12px;color:var(--color-neutral-500);padding-bottom:10px">4 pages · regions, stores, wholesale &amp; 3P, STC Qitaf</div>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;gap:{{kpiGap}};margin-bottom:var(--space-8)">
+<sc-for list="{{snapKpis}}" as="k" hint-placeholder-count="5">
+<div class="card elev-sm" style="flex:1 1 150px;min-width:150px">
+<div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-accent);margin-bottom:6px">{{k.label}}</div>
+<div style="font-family:var(--font-heading);font-size:26px;font-weight:600;line-height:1.1">{{k.value}}</div>
+<div style="font-size:12px;color:var(--color-neutral-500);margin-top:4px">{{k.sub}}</div>
+</div>
+</sc-for>
+</div>
+
+<h3 style="font-family:var(--font-heading);font-size:18px;margin:0 0 var(--space-3)">1 · Region performance</h3>
+<div style="overflow-x:auto;margin-bottom:var(--space-8)">
+<table class="table">
+<thead><tr><th style="text-align:left">Region</th><th>Net sales</th><th>Sold qty</th><th>Invoices</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Promo%</th><th>Single Inv%</th><th>Return Qty</th><th>Return%</th><th>Markup%</th></tr></thead>
+<tbody>
+<sc-for list="{{snapRegionRows}}" as="r" hint-placeholder-count="6">
+<tr><td style="font-weight:600;text-align:left;white-space:nowrap">{{r.region}}</td><td style="font-weight:600;white-space:nowrap">{{r.netSales}}</td><td>{{r.qty}}</td><td>{{r.invoices}}</td><td style="white-space:nowrap">{{r.atv}}</td><td>{{r.upt}}</td><td style="white-space:nowrap">{{r.asp}}</td><td>{{r.promo}}</td><td>{{r.singleInv}}</td><td>{{r.returnQty}}</td><td>{{r.returnPct}}</td><td>{{r.markup}}</td></tr>
+</sc-for>
+</tbody>
+<tfoot><tr style="border-top:2px solid var(--color-divider)"><td style="font-weight:700;text-align:left">Total</td><td style="font-weight:700;white-space:nowrap">{{snapRegionTotal.netSales}}</td><td style="font-weight:700">{{snapRegionTotal.qty}}</td><td style="font-weight:700">{{snapRegionTotal.invoices}}</td><td style="font-weight:700;white-space:nowrap">{{snapRegionTotal.atv}}</td><td style="font-weight:700">{{snapRegionTotal.upt}}</td><td style="font-weight:700;white-space:nowrap">{{snapRegionTotal.asp}}</td><td style="font-weight:700">{{snapRegionTotal.promo}}</td><td style="font-weight:700">{{snapRegionTotal.singleInv}}</td><td style="font-weight:700">{{snapRegionTotal.returnQty}}</td><td style="font-weight:700">{{snapRegionTotal.returnPct}}</td><td style="font-weight:700">{{snapRegionTotal.markup}}</td></tr></tfoot>
+</table>
+</div>
+
+<h3 style="font-family:var(--font-heading);font-size:18px;margin:0 0 var(--space-3)">2 · Store ranking <span style="font-size:13px;color:var(--color-neutral-500);font-weight:400">{{snapStoreCountLabel}}</span></h3>
+<div style="overflow-x:auto;margin-bottom:var(--space-8)">
+<table class="table">
+<thead><tr><th>#</th><th style="text-align:left">Store</th><th>Net sales</th><th>Sold qty</th><th>Invoices</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Single Inv</th><th>Single Inv%</th></tr></thead>
+<tbody>
+<sc-for list="{{snapStoreRows}}" as="s" hint-placeholder-count="12">
+<tr style="background:{{s.rowBg}}"><td style="font-weight:600">{{s.rank}}</td><td style="font-weight:600;text-align:left;white-space:nowrap">{{s.name}}</td><td style="font-weight:600;white-space:nowrap">{{s.netSales}}</td><td>{{s.qty}}</td><td>{{s.invoices}}</td><td style="white-space:nowrap">{{s.atv}}</td><td>{{s.upt}}</td><td style="white-space:nowrap">{{s.asp}}</td><td>{{s.singleInv}}</td><td>{{s.singleInvPct}}</td></tr>
+</sc-for>
+</tbody>
+<tfoot><tr style="border-top:2px solid var(--color-divider)"><td></td><td style="font-weight:700;text-align:left">Total</td><td style="font-weight:700;white-space:nowrap">{{snapStoreTotal.netSales}}</td><td style="font-weight:700">{{snapStoreTotal.qty}}</td><td style="font-weight:700">{{snapStoreTotal.invoices}}</td><td style="font-weight:700;white-space:nowrap">{{snapStoreTotal.atv}}</td><td style="font-weight:700">{{snapStoreTotal.upt}}</td><td style="font-weight:700;white-space:nowrap">{{snapStoreTotal.asp}}</td><td style="font-weight:700">{{snapStoreTotal.singleInv}}</td><td style="font-weight:700">{{snapStoreTotal.singleInvPct}}</td></tr></tfoot>
+</table>
+</div>
+
+<h3 style="font-family:var(--font-heading);font-size:18px;margin:0 0 var(--space-3)">3 · Wholesale &amp; 3P</h3>
+<div style="display:grid;grid-template-columns:{{snapTwoCol}};gap:var(--space-6);margin-bottom:var(--space-8)">
+<div>
+<div style="font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-accent);margin-bottom:8px">Wholesale · {{snapWholesaleTotal}}</div>
+<table class="table">
+<thead><tr><th style="text-align:left">Salesman / account</th><th style="text-align:left">Type</th><th>Net sales</th></tr></thead>
+<tbody>
+<sc-for list="{{snapWholesaleRows}}" as="w" hint-placeholder-count="5">
+<tr><td style="font-weight:600;text-align:left;white-space:nowrap">{{w.name}}</td><td style="text-align:left;color:var(--color-neutral-500)">{{w.type}}</td><td style="font-weight:600;white-space:nowrap">{{w.amount}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+<sc-if value="{{snapWholesaleEmpty}}" hint-placeholder-val="{{false}}"><div style="font-size:13px;color:var(--color-neutral-500);padding:10px 0">No wholesale activity on this date.</div></sc-if>
+</div>
+<div>
+<div style="font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-accent);margin-bottom:8px">3P online · {{snapThreePTotal}}</div>
+<table class="table">
+<thead><tr><th style="text-align:left">Channel</th><th style="text-align:left">Type</th><th>Net sales</th></tr></thead>
+<tbody>
+<sc-for list="{{snapThreePRows}}" as="w" hint-placeholder-count="3">
+<tr><td style="font-weight:600;text-align:left;white-space:nowrap">{{w.name}}</td><td style="text-align:left;color:var(--color-neutral-500)">{{w.type}}</td><td style="font-weight:600;white-space:nowrap">{{w.amount}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+<sc-if value="{{snapThreePEmpty}}" hint-placeholder-val="{{false}}"><div style="font-size:13px;color:var(--color-neutral-500);padding:10px 0">No 3P activity on this date.</div></sc-if>
+</div>
+</div>
+
+<h3 style="font-family:var(--font-heading);font-size:18px;margin:0 0 var(--space-3)">4 · STC Qitaf</h3>
+<div style="display:flex;flex-wrap:wrap;gap:{{kpiGap}};margin-bottom:var(--space-4)">
+<sc-for list="{{snapQitafKpis}}" as="k" hint-placeholder-count="3">
+<div class="card elev-sm" style="flex:1 1 140px;min-width:140px">
+<div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-accent);margin-bottom:6px">{{k.label}}</div>
+<div style="font-family:var(--font-heading);font-size:22px;font-weight:600">{{k.value}}</div>
+</div>
+</sc-for>
+</div>
+<div style="display:grid;grid-template-columns:{{snapTwoCol}};gap:var(--space-6);margin-bottom:var(--space-8)">
+<div>
+<div style="font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-accent);margin-bottom:8px">By region</div>
+<table class="table">
+<thead><tr><th style="text-align:left">Region</th><th>Amount</th><th>Invoices</th><th>Stores</th></tr></thead>
+<tbody>
+<sc-for list="{{snapQitafRegionRows}}" as="r" hint-placeholder-count="3">
+<tr><td style="font-weight:600;text-align:left;white-space:nowrap">{{r.region}}</td><td style="font-weight:600;white-space:nowrap">{{r.amount}}</td><td>{{r.invoices}}</td><td>{{r.stores}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<div>
+<div style="font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-accent);margin-bottom:8px">By store</div>
+<table class="table">
+<thead><tr><th>#</th><th style="text-align:left">Store</th><th>Amount</th><th>Invoices</th></tr></thead>
+<tbody>
+<sc-for list="{{snapQitafStoreRows}}" as="r" hint-placeholder-count="6">
+<tr><td style="font-weight:600">{{r.rank}}</td><td style="font-weight:600;text-align:left;white-space:nowrap">{{r.store}}</td><td style="font-weight:600;white-space:nowrap">{{r.amount}}</td><td>{{r.invoices}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+<sc-if value="{{snapQitafEmpty}}" hint-placeholder-val="{{false}}"><div style="font-size:13px;color:var(--color-neutral-500);padding:10px 0">No STC Qitaf activity on this date.</div></sc-if>
+</div>
+</div>
+</section>
+</sc-if>
+
 <sc-if value="{{isYoy}}" hint-placeholder-val="{{false}}">
 <section>
 <sc-if value="{{showYoyFilterToggle}}" hint-placeholder-val="{{false}}">
@@ -1710,6 +1824,7 @@ class Component extends DCLogic {
     yoyView: 'category',
     yoySearch: '',
     yoyFilters: { region: 'All', city: 'All', store: 'All', month: 'All', date: 'All' },
+    snapDate: null,
     yoyFiltersOpen: false,
     yoyDrillStore: null,
     yoyDimDrill: null,
@@ -1917,6 +2032,199 @@ class Component extends DCLogic {
   }
 
   goTo(page) { return () => { if (page === 'yoy') this._ensureYoy(); this.setState({ page }); }; }
+
+  // ===== Daily snapshot (admin / mathew only) =====
+  snapshotData(date) {
+    const st = this.state;
+    const money = v => this.fmtMoney(v);
+    const num = v => this.fmtNum(v);
+    const pct = v => Math.abs(v).toFixed(1) + '%';
+    const byStore = {};
+    (st.buckets || []).forEach(r => {
+      if (r.date !== date) return;
+      const a = byStore[r.store] || (byStore[r.store] = { code: r.store, netSales: 0, qty: 0, invoices: 0, discountedQty: 0, returnQty: 0, cost: 0, single: 0 });
+      a.netSales += r.netSales; a.qty += r.qty; a.invoices += r.invoices;
+      a.discountedQty += r.discountedQty || 0; a.returnQty += r.returnQty || 0;
+    });
+    (st.receiptDay || []).forEach(r => { if (r.date === date && byStore[r.store]) byStore[r.store].single += r.singleItemInvoices || 0; });
+    (st.itemsByStoreDate || []).forEach(row => {
+      if (row[1] !== date) return;
+      const a = byStore[row[0]];
+      if (!a) return;
+      a.cost += ((this.itemMeta[row[2]] || {}).unitCost || 0) * row[4];
+    });
+    const stores = Object.values(byStore).filter(s => s.netSales || s.invoices);
+    const region = code => (this.storeIndex[code] || {}).region || 'Other';
+    const label = code => { const sm = this.storeIndex[code] || {}; return sm.shortName || sm.nameEn || code; };
+    const derive = a => ({
+      atv: a.invoices ? a.netSales / a.invoices : 0,
+      upt: a.invoices ? a.qty / a.invoices : 0,
+      asp: a.qty ? a.netSales / a.qty : 0,
+      promo: a.qty ? 100 * a.discountedQty / a.qty : 0,
+      singlePct: a.invoices ? 100 * a.single / a.invoices : null,
+      returnPct: (a.qty + a.returnQty) ? 100 * a.returnQty / (a.qty + a.returnQty) : 0,
+      markup: a.cost ? 100 * (a.netSales - a.cost) / a.cost : 0
+    });
+    const regAgg = {};
+    stores.forEach(s => {
+      const k = region(s.code);
+      const a = regAgg[k] || (regAgg[k] = { region: k, netSales: 0, qty: 0, invoices: 0, discountedQty: 0, returnQty: 0, cost: 0, single: 0 });
+      a.netSales += s.netSales; a.qty += s.qty; a.invoices += s.invoices;
+      a.discountedQty += s.discountedQty; a.returnQty += s.returnQty; a.cost += s.cost; a.single += s.single;
+    });
+    const regionRaw = Object.values(regAgg).sort((a, b) => b.netSales - a.netSales);
+    const fmtRow = a => { const d = derive(a); return {
+      netSales: money(a.netSales), qty: num(a.qty), invoices: num(a.invoices),
+      atv: money(d.atv), upt: Math.abs(d.upt).toFixed(2), asp: money(d.asp), promo: pct(d.promo),
+      singleInv: d.singlePct === null ? '—' : pct(d.singlePct), returnQty: num(a.returnQty),
+      returnPct: pct(d.returnPct), markup: a.cost ? pct(d.markup) : '—'
+    }; };
+    const snapRegionRows = regionRaw.map(a => ({ region: a.region, ...fmtRow(a) }));
+    const totalRaw = regionRaw.reduce((t, a) => {
+      ['netSales', 'qty', 'invoices', 'discountedQty', 'returnQty', 'cost', 'single'].forEach(k => t[k] += a[k]);
+      return t;
+    }, { netSales: 0, qty: 0, invoices: 0, discountedQty: 0, returnQty: 0, cost: 0, single: 0 });
+    const snapRegionTotal = fmtRow(totalRaw);
+
+    const ranked = stores.slice().sort((a, b) => b.netSales - a.netSales);
+    const maxSales = ranked.length ? ranked[0].netSales : 0;
+    const snapStoreRows = ranked.map((s, i) => {
+      const d = derive(s);
+      const share = maxSales ? s.netSales / maxSales : 0;
+      return {
+        rank: i + 1, name: label(s.code), netSales: money(s.netSales), qty: num(s.qty), invoices: num(s.invoices),
+        atv: money(d.atv), upt: Math.abs(d.upt).toFixed(2), asp: money(d.asp),
+        singleInv: num(s.single), singleInvPct: d.singlePct === null ? '—' : pct(d.singlePct),
+        rowBg: share > 0.5 ? 'rgba(76,175,125,0.14)' : share > 0.2 ? 'rgba(76,175,125,0.07)' : share > 0.08 ? 'transparent' : 'rgba(226,112,95,0.07)'
+      };
+    });
+    const snapStoreTotal = { ...fmtRow(totalRaw), singleInv: num(totalRaw.single), singleInvPct: totalRaw.invoices ? pct(100 * totalRaw.single / totalRaw.invoices) : '—' };
+
+    const threePNames = ['Amazon E-Market', 'Noon E-Market'];
+    const wMap = {}, tMap = {};
+    (st.wholesale || []).forEach(w => {
+      if (w.date !== date) return;
+      const sm = this.storeIndex[w.storeCode];
+      if (sm && sm.type === 'Store') return;
+      const name = this.wholesaleName(w);
+      const bucket = threePNames.includes(name) ? tMap : wMap;
+      const e = bucket[name] || (bucket[name] = { name, type: this.wholesaleEffType(w), amount: 0 });
+      e.amount += w.amount;
+    });
+    const toRows = m => Object.values(m).sort((a, b) => b.amount - a.amount).map(e => ({ name: e.name, type: e.type, amount: money(e.amount), raw: e.amount }));
+    const snapWholesaleRows = toRows(wMap), snapThreePRows = toRows(tMap);
+    const sum = rows => rows.reduce((a, r) => a + r.raw, 0);
+
+    const qAgg = {}, qRegAgg = {};
+    let qAmount = 0, qInvoices = 0;
+    (st.stcQitaf || []).forEach(r => {
+      if (r.date !== date) return;
+      qAmount += r.amount; qInvoices += r.invoices || 0;
+      const s = qAgg[r.store] || (qAgg[r.store] = { store: label(r.store), amount: 0, invoices: 0 });
+      s.amount += r.amount; s.invoices += r.invoices || 0;
+      const k = region(r.store);
+      const g = qRegAgg[k] || (qRegAgg[k] = { region: k, amount: 0, invoices: 0, stores: new Set() });
+      g.amount += r.amount; g.invoices += r.invoices || 0; g.stores.add(r.store);
+    });
+    const snapQitafStoreRows = Object.values(qAgg).sort((a, b) => b.amount - a.amount)
+      .map((s, i) => ({ rank: i + 1, store: s.store, amount: money(s.amount), invoices: num(s.invoices) }));
+    const snapQitafRegionRows = Object.values(qRegAgg).sort((a, b) => b.amount - a.amount)
+      .map(g => ({ region: g.region, amount: money(g.amount), invoices: num(g.invoices), stores: num(g.stores.size) }));
+
+    return {
+      snapRegionRows, snapRegionTotal, snapStoreRows, snapStoreTotal,
+      snapStoreCountLabel: snapStoreRows.length + ' stores trading',
+      snapWholesaleRows, snapThreePRows,
+      snapWholesaleTotal: money(sum(snapWholesaleRows)), snapThreePTotal: money(sum(snapThreePRows)),
+      snapWholesaleEmpty: !snapWholesaleRows.length, snapThreePEmpty: !snapThreePRows.length,
+      snapQitafRegionRows, snapQitafStoreRows, snapQitafEmpty: !snapQitafStoreRows.length,
+      snapQitafKpis: [
+        { label: 'Total sales', value: money(qAmount) },
+        { label: 'Invoices', value: num(qInvoices) },
+        { label: 'Stores', value: num(snapQitafStoreRows.length) }
+      ],
+      snapKpis: [
+        { label: 'Retail net sales', value: money(totalRaw.netSales), sub: num(snapStoreRows.length) + ' stores' },
+        { label: 'Invoices', value: num(totalRaw.invoices), sub: money(totalRaw.invoices ? totalRaw.netSales / totalRaw.invoices : 0) + ' ATV' },
+        { label: 'Sold qty', value: num(totalRaw.qty), sub: Math.abs(totalRaw.invoices ? totalRaw.qty / totalRaw.invoices : 0).toFixed(2) + ' UPT' },
+        { label: 'Wholesale + 3P', value: money(sum(snapWholesaleRows) + sum(snapThreePRows)), sub: 'wholesale ' + money(sum(snapWholesaleRows)) },
+        { label: 'STC Qitaf', value: money(qAmount), sub: num(qInvoices) + ' invoices' }
+      ]
+    };
+  }
+
+  exportSnapshotPdf() {
+    const st = this.state;
+    const date = st.snapDate;
+    if (!window.jspdf || !date) return;
+    const S = this.snapshotData(date);
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const accent = [106, 94, 207];
+    const W = 210;
+    const head = (title, sub) => {
+      doc.setFillColor(106, 94, 207);
+      doc.rect(0, 0, W, 22, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(13); doc.text(title, 10, 11);
+      doc.setFontSize(8.5); doc.text(sub, 10, 17.5);
+      doc.setTextColor(30, 28, 40);
+    };
+    const opts = { theme: 'grid', styles: { fontSize: 7.5, cellPadding: 1.5, overflow: 'linebreak' }, headStyles: { fillColor: accent, textColor: 255, fontSize: 7 }, margin: { left: 10, right: 10 } };
+    const footStyles = { fillColor: [240, 239, 250], textColor: [30, 28, 40], fontStyle: 'bold' };
+    head('Daily Snapshot — Region performance', date);
+    doc.autoTable({
+      ...opts, startY: 28,
+      head: [['Region', 'Net sales', 'Qty', 'Inv', 'ATV', 'UPT', 'ASP', 'Promo', 'S.Inv', 'R.Qty', 'Ret%', 'Mkp%']],
+      body: S.snapRegionRows.map(r => [r.region, r.netSales, r.qty, r.invoices, r.atv, r.upt, r.asp, r.promo, r.singleInv, r.returnQty, r.returnPct, r.markup]),
+      foot: [['Total', S.snapRegionTotal.netSales, S.snapRegionTotal.qty, S.snapRegionTotal.invoices, S.snapRegionTotal.atv, S.snapRegionTotal.upt, S.snapRegionTotal.asp, S.snapRegionTotal.promo, S.snapRegionTotal.singleInv, S.snapRegionTotal.returnQty, S.snapRegionTotal.returnPct, S.snapRegionTotal.markup]],
+      columnStyles: { 0: { cellWidth: 30, fontStyle: 'bold' } },
+      footStyles
+    });
+    doc.addPage();
+    head('Daily Snapshot — Store ranking', date + '  ·  ' + S.snapStoreCountLabel);
+    doc.autoTable({
+      ...opts, startY: 28,
+      head: [['#', 'Store', 'Net sales', 'Qty', 'Inv', 'ATV', 'UPT', 'ASP', 'S.Inv', 'S.Inv%']],
+      body: S.snapStoreRows.map(s => [s.rank, s.name, s.netSales, s.qty, s.invoices, s.atv, s.upt, s.asp, s.singleInv, s.singleInvPct]),
+      foot: [['', 'Total', S.snapStoreTotal.netSales, S.snapStoreTotal.qty, S.snapStoreTotal.invoices, S.snapStoreTotal.atv, S.snapStoreTotal.upt, S.snapStoreTotal.asp, S.snapStoreTotal.singleInv, S.snapStoreTotal.singleInvPct]],
+      columnStyles: { 0: { cellWidth: 8 }, 1: { cellWidth: 36, fontStyle: 'bold' } },
+      footStyles
+    });
+    doc.addPage();
+    head('Daily Snapshot — Wholesale & 3P', date + '  ·  wholesale ' + S.snapWholesaleTotal + '  ·  3P ' + S.snapThreePTotal);
+    doc.autoTable({
+      ...opts, startY: 28,
+      head: [['Wholesale — salesman / account', 'Type', 'Net sales']],
+      body: S.snapWholesaleRows.length ? S.snapWholesaleRows.map(w => [w.name, w.type, w.amount]) : [['No wholesale activity', '', '']],
+      foot: [['Total', '', S.snapWholesaleTotal]],
+      columnStyles: { 0: { fontStyle: 'bold' }, 2: { halign: 'right' } },
+      footStyles
+    });
+    doc.autoTable({
+      ...opts, startY: doc.lastAutoTable.finalY + 8,
+      head: [['3P online — channel', 'Type', 'Net sales']],
+      body: S.snapThreePRows.length ? S.snapThreePRows.map(w => [w.name, w.type, w.amount]) : [['No 3P activity', '', '']],
+      foot: [['Total', '', S.snapThreePTotal]],
+      columnStyles: { 0: { fontStyle: 'bold' }, 2: { halign: 'right' } },
+      footStyles
+    });
+    doc.addPage();
+    head('Daily Snapshot — STC Qitaf', date + '  ·  ' + S.snapQitafKpis.map(k => k.label + ' ' + k.value).join('   ·   '));
+    doc.autoTable({
+      ...opts, startY: 28,
+      head: [['Region', 'Amount', 'Invoices', 'Stores']],
+      body: S.snapQitafRegionRows.length ? S.snapQitafRegionRows.map(r => [r.region, r.amount, r.invoices, r.stores]) : [['No activity', '', '', '']],
+      columnStyles: { 0: { fontStyle: 'bold' } }
+    });
+    doc.autoTable({
+      ...opts, startY: doc.lastAutoTable.finalY + 8,
+      head: [['#', 'Store', 'Amount', 'Invoices']],
+      body: S.snapQitafStoreRows.length ? S.snapQitafStoreRows.map(r => [r.rank, r.store, r.amount, r.invoices]) : [['', 'No activity', '', '']],
+      columnStyles: { 0: { cellWidth: 10 }, 1: { fontStyle: 'bold' } }
+    });
+    doc.save('daily-snapshot-' + date + '.pdf');
+  }
 
   async _ensureYoyItems() {
     if (this.state.yoyItems || this.state.yoyItemsLoading) return;
@@ -3338,10 +3646,14 @@ class Component extends DCLogic {
         + (absentRetail.length ? ' — no data for ' + absentRetail.slice(0, 6).join(', ') + (absentRetail.length > 6 ? ' +' + (absentRetail.length - 6) + ' more' : '') : '');
     }
     const yoyDimLabel = { sub: 'sub-category', brand: 'brand', stores: 'store', region: 'region', city: 'city', items: 'item' }[st.yoyView] || 'category';
-    const titles = { overview: 'Executive Overview', stores: 'Branch Comparison', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', hourlySales: 'Hourly Sales', wholesale: 'Wholesale', daily: 'Daily Sales', regionDetail: 'Region Detail', stcQitaf: 'STC Qitaf', yoy: 'YOY Comparison' };
-    const shortTitles = { overview: 'Overview', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily', regionDetail: 'Region', hourlySales: 'Hourly', wholesale: 'Wholesale', stcQitaf: 'Qitaf', yoy: 'YOY' };
-    const navIcons = { overview: '▣', categories: '▤', items: '◫', discounts: '%', invoices: '⌂', daily: '◷', regionDetail: '◈', hourlySales: '◔', wholesale: '◊', stcQitaf: '⊙', yoy: '⇄' };
-    const pageOrder = ['overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'hourlySales', 'yoy', 'wholesale', 'stcQitaf'].filter(p => !(st.auth && st.auth.region !== 'All' && p === 'wholesale'));
+    const titles = { snapshot: 'Daily Snapshot', overview: 'Executive Overview', stores: 'Branch Comparison', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', hourlySales: 'Hourly Sales', wholesale: 'Wholesale', daily: 'Daily Sales', regionDetail: 'Region Detail', stcQitaf: 'STC Qitaf', yoy: 'YOY Comparison' };
+    const shortTitles = { snapshot: 'Snapshot', overview: 'Overview', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily', regionDetail: 'Region', hourlySales: 'Hourly', wholesale: 'Wholesale', stcQitaf: 'Qitaf', yoy: 'YOY' };
+    const navIcons = { snapshot: '☷', overview: '▣', categories: '▤', items: '◫', discounts: '%', invoices: '⌂', daily: '◷', regionDetail: '◈', hourlySales: '◔', wholesale: '◊', stcQitaf: '⊙', yoy: '⇄' };
+    const isSnapshotUser = !!(st.auth && (st.auth.id === 'admin' || st.auth.id === 'mathew'));
+    const snapDates = [...new Set((st.buckets || []).map(r => r.date))].sort().reverse();
+    const snapDate = st.snapDate && snapDates.includes(st.snapDate) ? st.snapDate : (snapDates[0] || null);
+    const snapVals = (st.page === 'snapshot' && snapDate) ? this.snapshotData(snapDate) : {};
+    const pageOrder = [...(isSnapshotUser ? ['snapshot'] : []), 'overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'hourlySales', 'yoy', 'wholesale', 'stcQitaf'].filter(p => !(st.auth && st.auth.region !== 'All' && p === 'wholesale'));
     const isMobile = st.isMobile;
 
     return {
@@ -3509,8 +3821,15 @@ class Component extends DCLogic {
       setYoyViewBrand: () => this.setState({ yoyView: 'brand', yoySearch: '' }),
       setYoyViewStores: () => this.setState({ yoyView: 'stores', yoySearch: '' }),
       isOverview: st.page === 'overview', isRegionDetail: st.page === 'regionDetail', isCategories: st.page === 'categories', isInvoices: st.page === 'invoices', isItems: st.page === 'items', isDiscounts: st.page === 'discounts', isDaily: st.page === 'daily', isWholesale: st.page === 'wholesale', isStcQitaf: st.page === 'stcQitaf',
-      globalFiltersDisplay: (st.page === 'wholesale' || st.page === 'yoy') ? 'none' : (isMobile && !st.filtersOpen ? 'none' : 'flex'),
-      showFilterToggle: isMobile && st.page !== 'wholesale' && st.page !== 'yoy',
+      globalFiltersDisplay: (st.page === 'wholesale' || st.page === 'yoy' || st.page === 'snapshot') ? 'none' : (isMobile && !st.filtersOpen ? 'none' : 'flex'),
+      showFilterToggle: isMobile && st.page !== 'wholesale' && st.page !== 'yoy' && st.page !== 'snapshot',
+      isSnapshot: st.page === 'snapshot',
+      snapDate: snapDate,
+      snapDateOptions: snapDates.map(d => ({ value: d, label: new Date(d + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) })),
+      setSnapDate: e => this.setState({ snapDate: e.target.value }),
+      exportSnapshotPdf: () => this.exportSnapshotPdf(),
+      snapTwoCol: isMobile ? '1fr' : '1fr 1fr',
+      ...snapVals,
       stcByStoreRows, stcByDateRows, stcKpiCards, stcRegionCards,
       stcStoreTotalLabel: this.fmtMoney(stcStoreTotal), stcStoreInvoicesTotalLabel: this.fmtNum(stcStoreInvoicesTotal),
       stcStoreDaysTotalLabel: this.fmtNum(new Set(stcFiltered.map(r => r.date)).size),
