@@ -2181,69 +2181,131 @@ class Component extends DCLogic {
     const S = this.snapshotData(date);
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    const accent = [106, 94, 207];
-    const W = 210;
+    const ACC = [106, 94, 207], INK = [30, 28, 40], SOFT = [244, 243, 251];
+    const W = 210, M = 12;
+    const nice = new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     const head = (title, sub) => {
-      doc.setFillColor(106, 94, 207);
-      doc.rect(0, 0, W, 22, 'F');
+      doc.setFillColor.apply(doc, ACC);
+      doc.rect(0, 0, W, 30, 'F');
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(13); doc.text(title, 10, 11);
-      doc.setFontSize(8.5); doc.text(sub, 10, 17.5);
-      doc.setTextColor(30, 28, 40);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(17); doc.text(title, M, 14);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(10.5); doc.text(sub, M, 22.5);
+      doc.setTextColor.apply(doc, INK);
     };
-    const opts = { theme: 'grid', styles: { fontSize: 7.5, cellPadding: 1.5, overflow: 'linebreak' }, headStyles: { fillColor: accent, textColor: 255, fontSize: 7 }, margin: { left: 10, right: 10 } };
-    const footStyles = { fillColor: [240, 239, 250], textColor: [30, 28, 40], fontStyle: 'bold' };
-    head('Daily Snapshot — Region performance', date);
-    doc.autoTable({
-      ...opts, startY: 28,
-      head: [['Region', 'Net sales', 'Qty', 'Inv', 'ATV', 'UPT', 'ASP', 'Promo', 'S.Inv', 'R.Qty', 'Ret%', 'Mkp%']],
-      body: S.snapRegionRows.map(r => [r.region, r.netSales, r.qty, r.invoices, r.atv, r.upt, r.asp, r.promo, r.singleInv, r.returnQty, r.returnPct, r.markup]),
-      foot: [['Total', S.snapRegionTotal.netSales, S.snapRegionTotal.qty, S.snapRegionTotal.invoices, S.snapRegionTotal.atv, S.snapRegionTotal.upt, S.snapRegionTotal.asp, S.snapRegionTotal.promo, S.snapRegionTotal.singleInv, S.snapRegionTotal.returnQty, S.snapRegionTotal.returnPct, S.snapRegionTotal.markup]],
-      columnStyles: { 0: { cellWidth: 30, fontStyle: 'bold' } },
-      footStyles
+    const base = size => ({
+      theme: 'striped',
+      styles: { fontSize: size, cellPadding: { top: 2.4, bottom: 2.4, left: 2.2, right: 2.2 }, overflow: 'linebreak', textColor: INK, lineColor: [225, 222, 240], lineWidth: 0.1, halign: 'right' },
+      headStyles: { fillColor: ACC, textColor: 255, fontSize: size - 0.5, fontStyle: 'bold', halign: 'right' },
+      alternateRowStyles: { fillColor: SOFT },
+      footStyles: { fillColor: [232, 229, 247], textColor: INK, fontStyle: 'bold', fontSize: size, halign: 'right' },
+      margin: { left: M, right: M }
     });
-    doc.addPage();
-    head('Daily Snapshot — Store ranking', date + '  ·  ' + S.snapStoreCountLabel);
-    doc.autoTable({
-      ...opts, startY: 28,
-      head: [['#', 'Store', 'Net sales', 'Qty', 'Inv', 'ATV', 'UPT', 'ASP', 'S.Inv', 'S.Inv%']],
-      body: S.snapStoreRows.map(s => [s.rank, s.name, s.netSales, s.qty, s.invoices, s.atv, s.upt, s.asp, s.singleInv, s.singleInvPct]),
-      foot: [['', 'Total', S.snapStoreTotal.netSales, S.snapStoreTotal.qty, S.snapStoreTotal.invoices, S.snapStoreTotal.atv, S.snapStoreTotal.upt, S.snapStoreTotal.asp, S.snapStoreTotal.singleInv, S.snapStoreTotal.singleInvPct]],
-      columnStyles: { 0: { cellWidth: 8 }, 1: { cellWidth: 36, fontStyle: 'bold' } },
-      footStyles
+    const nameCol = width => ({ 0: { halign: 'left', fontStyle: 'bold', cellWidth: width } });
+    const caption = (text, y) => {
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor.apply(doc, ACC);
+      doc.text(text, M, y);
+      doc.setTextColor.apply(doc, INK); doc.setFont('helvetica', 'normal');
+    };
+
+    // ---- Page 1: region performance, split into two readable blocks
+    head('Region performance', nice);
+    const kpiY = 38;
+    const cardW = (W - 2 * M - 3 * 4) / 4;
+    S.snapKpis.slice(0, 4).forEach((k, i) => {
+      const x = M + i * (cardW + 4);
+      doc.setFillColor.apply(doc, SOFT);
+      doc.roundedRect(x, kpiY, cardW, 20, 2, 2, 'F');
+      doc.setFontSize(7.5); doc.setTextColor.apply(doc, ACC);
+      doc.text(k.label.toUpperCase(), x + 3, kpiY + 6);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.setTextColor.apply(doc, INK);
+      doc.text(String(k.value), x + 3, kpiY + 14);
+      doc.setFont('helvetica', 'normal');
     });
-    doc.addPage();
-    head('Daily Snapshot — Wholesale & 3P', date + '  ·  wholesale ' + S.snapWholesaleTotal + '  ·  3P ' + S.snapThreePTotal);
+    caption('Sales', kpiY + 32);
     doc.autoTable({
-      ...opts, startY: 28,
-      head: [['Wholesale — salesman / account', 'Type', 'Net sales']],
-      body: S.snapWholesaleRows.length ? S.snapWholesaleRows.map(w => [w.name, w.type, w.amount]) : [['No wholesale activity', '', '']],
+      ...base(11), startY: kpiY + 36,
+      head: [['Region', 'Net sales', 'Sold qty', 'Invoices', 'ATV', 'ASP']],
+      body: S.snapRegionRows.map(r => [r.region, r.netSales, r.qty, r.invoices, r.atv, r.asp]),
+      foot: [['Total', S.snapRegionTotal.netSales, S.snapRegionTotal.qty, S.snapRegionTotal.invoices, S.snapRegionTotal.atv, S.snapRegionTotal.asp]],
+      columnStyles: nameCol(38)
+    });
+    caption('Quality of sale', doc.lastAutoTable.finalY + 10);
+    doc.autoTable({
+      ...base(11), startY: doc.lastAutoTable.finalY + 14,
+      head: [['Region', 'UPT', 'Promo%', 'Single Inv%', 'Return Qty', 'Return%', 'Markup%']],
+      body: S.snapRegionRows.map(r => [r.region, r.upt, r.promo, r.singleInv, r.returnQty, r.returnPct, r.markup]),
+      foot: [['Total', S.snapRegionTotal.upt, S.snapRegionTotal.promo, S.snapRegionTotal.singleInv, S.snapRegionTotal.returnQty, S.snapRegionTotal.returnPct, S.snapRegionTotal.markup]],
+      columnStyles: nameCol(38)
+    });
+
+    // ---- Page 2: store ranking
+    doc.addPage();
+    head('Store ranking', nice + '   ·   ' + S.snapStoreCountLabel);
+    doc.autoTable({
+      ...base(10), startY: 38,
+      head: [['#', 'Store', 'Net sales', 'Qty', 'Inv', 'ATV', 'UPT', 'Single Inv%']],
+      body: S.snapStoreRows.map(s => [s.rank, s.name, s.netSales, s.qty, s.invoices, s.atv, s.upt, s.singleInvPct]),
+      foot: [['', 'Total', S.snapStoreTotal.netSales, S.snapStoreTotal.qty, S.snapStoreTotal.invoices, S.snapStoreTotal.atv, S.snapStoreTotal.upt, S.snapStoreTotal.singleInvPct]],
+      columnStyles: { 0: { halign: 'right', cellWidth: 9 }, 1: { halign: 'left', fontStyle: 'bold', cellWidth: 42 } }
+    });
+
+    // ---- Page 3: wholesale & 3P
+    doc.addPage();
+    head('Wholesale & 3P', nice);
+    caption('Wholesale  ·  ' + S.snapWholesaleTotal, 38);
+    doc.autoTable({
+      ...base(11), startY: 42,
+      head: [['Salesman / account', 'Type', 'Net sales']],
+      body: S.snapWholesaleRows.length ? S.snapWholesaleRows.map(w => [w.name, w.type, w.amount]) : [['No wholesale activity', '', '—']],
       foot: [['Total', '', S.snapWholesaleTotal]],
-      columnStyles: { 0: { fontStyle: 'bold' }, 2: { halign: 'right' } },
-      footStyles
+      columnStyles: { 0: { halign: 'left', fontStyle: 'bold' }, 1: { halign: 'left', textColor: [107, 111, 128] } }
     });
+    caption('3P online  ·  ' + S.snapThreePTotal, doc.lastAutoTable.finalY + 12);
     doc.autoTable({
-      ...opts, startY: doc.lastAutoTable.finalY + 8,
-      head: [['3P online — channel', 'Type', 'Net sales']],
-      body: S.snapThreePRows.length ? S.snapThreePRows.map(w => [w.name, w.type, w.amount]) : [['No 3P activity', '', '']],
+      ...base(11), startY: doc.lastAutoTable.finalY + 16,
+      head: [['Channel', 'Type', 'Net sales']],
+      body: S.snapThreePRows.length ? S.snapThreePRows.map(w => [w.name, w.type, w.amount]) : [['No 3P activity', '', '—']],
       foot: [['Total', '', S.snapThreePTotal]],
-      columnStyles: { 0: { fontStyle: 'bold' }, 2: { halign: 'right' } },
-      footStyles
+      columnStyles: { 0: { halign: 'left', fontStyle: 'bold' }, 1: { halign: 'left', textColor: [107, 111, 128] } }
     });
+
+    // ---- Page 4: STC Qitaf
     doc.addPage();
-    head('Daily Snapshot — STC Qitaf', date + '  ·  ' + S.snapQitafKpis.map(k => k.label + ' ' + k.value).join('   ·   '));
+    head('STC Qitaf', nice);
+    const qy = 38;
+    const qw = (W - 2 * M - 2 * 4) / 3;
+    S.snapQitafKpis.forEach((k, i) => {
+      const x = M + i * (qw + 4);
+      doc.setFillColor.apply(doc, SOFT);
+      doc.roundedRect(x, qy, qw, 20, 2, 2, 'F');
+      doc.setFontSize(8); doc.setTextColor.apply(doc, ACC);
+      doc.text(k.label.toUpperCase(), x + 4, qy + 7);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(14); doc.setTextColor.apply(doc, INK);
+      doc.text(String(k.value), x + 4, qy + 15);
+      doc.setFont('helvetica', 'normal');
+    });
+    caption('By region', qy + 32);
     doc.autoTable({
-      ...opts, startY: 28,
+      ...base(11), startY: qy + 36,
       head: [['Region', 'Amount', 'Invoices', 'Stores']],
-      body: S.snapQitafRegionRows.length ? S.snapQitafRegionRows.map(r => [r.region, r.amount, r.invoices, r.stores]) : [['No activity', '', '', '']],
-      columnStyles: { 0: { fontStyle: 'bold' } }
+      body: S.snapQitafRegionRows.length ? S.snapQitafRegionRows.map(r => [r.region, r.amount, r.invoices, r.stores]) : [['No activity', '—', '—', '—']],
+      columnStyles: nameCol(45)
     });
+    caption('By store', doc.lastAutoTable.finalY + 12);
     doc.autoTable({
-      ...opts, startY: doc.lastAutoTable.finalY + 8,
+      ...base(11), startY: doc.lastAutoTable.finalY + 16,
       head: [['#', 'Store', 'Amount', 'Invoices']],
-      body: S.snapQitafStoreRows.length ? S.snapQitafStoreRows.map(r => [r.rank, r.store, r.amount, r.invoices]) : [['', 'No activity', '', '']],
-      columnStyles: { 0: { cellWidth: 10 }, 1: { fontStyle: 'bold' } }
+      body: S.snapQitafStoreRows.length ? S.snapQitafStoreRows.map(r => [r.rank, r.store, r.amount, r.invoices]) : [['', 'No activity', '—', '—']],
+      columnStyles: { 0: { halign: 'right', cellWidth: 10 }, 1: { halign: 'left', fontStyle: 'bold' } }
     });
+
+    const pages = doc.getNumberOfPages();
+    for (let p = 1; p <= pages; p++) {
+      doc.setPage(p);
+      doc.setFontSize(8.5); doc.setTextColor(107, 111, 128);
+      doc.text('Retail Sales · Daily Snapshot · ' + date, M, 290);
+      doc.text('Page ' + p + ' of ' + pages, W - M, 290, { align: 'right' });
+    }
     this._savePdf(doc, 'daily-snapshot-' + date + '.pdf');
     this.setState({ snapPdfNote: '' });
   }
