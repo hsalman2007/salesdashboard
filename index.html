@@ -905,12 +905,12 @@ a:hover{color:var(--color-accent-300)}
 <div style="font-size:13px;color:var(--color-accent-300);margin:-12px 0 var(--space-4)">{{snapPdfNote}}</div>
 </sc-if>
 
-<div style="display:flex;flex-wrap:wrap;gap:{{kpiGap}};margin-bottom:var(--space-8)">
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(136px,1fr));gap:10px;margin-bottom:var(--space-8)">
 <sc-for list="{{snapKpis}}" as="k" hint-placeholder-count="5">
-<div class="card elev-sm" style="flex:1 1 150px;min-width:150px">
-<div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-accent);margin-bottom:6px">{{k.label}}</div>
-<div style="font-family:var(--font-heading);font-size:26px;font-weight:600;line-height:1.1">{{k.value}}</div>
-<div style="font-size:12px;color:var(--color-neutral-500);margin-top:4px">{{k.sub}}</div>
+<div class="card elev-sm" style="padding:12px 14px">
+<div style="font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-accent);margin-bottom:6px">{{k.label}}</div>
+<div style="font-family:var(--font-heading);font-size:21px;font-weight:600;line-height:1.1">{{k.value}}</div>
+<div style="font-size:11px;color:var(--color-neutral-500);margin-top:4px">{{k.sub}}</div>
 </div>
 </sc-for>
 </div>
@@ -2045,15 +2045,18 @@ class Component extends DCLogic {
     const byStore = {};
     (st.buckets || []).forEach(r => {
       if (r.date !== date) return;
-      const a = byStore[r.store] || (byStore[r.store] = { code: r.store, netSales: 0, qty: 0, invoices: 0, discountedQty: 0, returnQty: 0, cost: 0, single: 0 });
+      const a = byStore[r.store] || (byStore[r.store] = { code: r.store, netSales: 0, qty: 0, invoices: 0, discountedQty: 0, returnQty: 0, cost: 0, single: 0, discount: 0, returnValue: 0 });
       a.netSales += r.netSales; a.qty += r.qty; a.invoices += r.invoices;
+      a.discount += r.discount || 0; a.returnValue += r.returnValue || 0;
       a.discountedQty += r.discountedQty || 0; a.returnQty += r.returnQty || 0;
     });
     (st.receiptDay || []).forEach(r => { if (r.date === date && byStore[r.store]) byStore[r.store].single += r.singleItemInvoices || 0; });
+    const skusSold = new Set();
     (st.itemsByStoreDate || []).forEach(row => {
       if (row[1] !== date) return;
       const a = byStore[row[0]];
       if (!a) return;
+      if (row[4]) skusSold.add(row[2]);
       a.cost += ((this.itemMeta[row[2]] || {}).unitCost || 0) * row[4];
     });
     const stores = Object.values(byStore).filter(s => s.netSales || s.invoices);
@@ -2071,8 +2074,9 @@ class Component extends DCLogic {
     const regAgg = {};
     stores.forEach(s => {
       const k = region(s.code);
-      const a = regAgg[k] || (regAgg[k] = { region: k, netSales: 0, qty: 0, invoices: 0, discountedQty: 0, returnQty: 0, cost: 0, single: 0 });
+      const a = regAgg[k] || (regAgg[k] = { region: k, netSales: 0, qty: 0, invoices: 0, discountedQty: 0, returnQty: 0, cost: 0, single: 0, discount: 0, returnValue: 0 });
       a.netSales += s.netSales; a.qty += s.qty; a.invoices += s.invoices;
+      a.discount += s.discount; a.returnValue += s.returnValue;
       a.discountedQty += s.discountedQty; a.returnQty += s.returnQty; a.cost += s.cost; a.single += s.single;
     });
     const regionRaw = Object.values(regAgg).sort((a, b) => b.netSales - a.netSales);
@@ -2084,12 +2088,13 @@ class Component extends DCLogic {
     }; };
     const snapRegionRows = regionRaw.map(a => ({ region: a.region, ...fmtRow(a) }));
     const totalRaw = regionRaw.reduce((t, a) => {
-      ['netSales', 'qty', 'invoices', 'discountedQty', 'returnQty', 'cost', 'single'].forEach(k => t[k] += a[k]);
+      ['netSales', 'qty', 'invoices', 'discountedQty', 'returnQty', 'cost', 'single', 'discount', 'returnValue'].forEach(k => t[k] += a[k]);
       return t;
-    }, { netSales: 0, qty: 0, invoices: 0, discountedQty: 0, returnQty: 0, cost: 0, single: 0 });
+    }, { netSales: 0, qty: 0, invoices: 0, discountedQty: 0, returnQty: 0, cost: 0, single: 0, discount: 0, returnValue: 0 });
     const snapRegionTotal = fmtRow(totalRaw);
 
     const ranked = stores.slice().sort((a, b) => b.netSales - a.netSales);
+    const topStore = ranked[0] || null;
     const maxSales = ranked.length ? ranked[0].netSales : 0;
     const snapStoreRows = ranked.map((s, i) => {
       const d = derive(s);
@@ -2150,6 +2155,10 @@ class Component extends DCLogic {
         { label: 'Total net sales', value: money(totalRaw.netSales + sum(snapWholesaleRows) + sum(snapThreePRows)), sub: 'retail ' + money(totalRaw.netSales) + ' \u00b7 ' + num(snapStoreRows.length) + ' stores' },
         { label: 'Invoices', value: num(totalRaw.invoices), sub: money(totalRaw.invoices ? totalRaw.netSales / totalRaw.invoices : 0) + ' ATV' },
         { label: 'Sold qty', value: num(totalRaw.qty), sub: Math.abs(totalRaw.invoices ? totalRaw.qty / totalRaw.invoices : 0).toFixed(2) + ' UPT' },
+        { label: 'Returns value', value: money(totalRaw.returnValue), sub: num(totalRaw.returnQty) + ' units returned' },
+        { label: 'Discounts given', value: money(totalRaw.discount), sub: pct(totalRaw.qty ? 100 * totalRaw.discountedQty / totalRaw.qty : 0) + ' of qty on promo' },
+        { label: 'SKUs sold', value: num(skusSold.size), sub: 'distinct items' },
+        { label: 'Top store sales', value: money(topStore ? topStore.netSales : 0), sub: topStore ? label(topStore.code) : '—' },
         { label: 'Wholesale + 3P', value: money(sum(snapWholesaleRows) + sum(snapThreePRows)), sub: 'wholesale ' + money(sum(snapWholesaleRows)) },
         { label: 'STC Qitaf', value: money(qAmount), sub: num(qInvoices) + ' invoices' }
       ]
@@ -2211,19 +2220,24 @@ class Component extends DCLogic {
     head('Region performance', nice);
     const kpiY = 38;
     const cardW = (W - 2 * M - 3 * 4) / 4;
-    S.snapKpis.slice(0, 4).forEach((k, i) => {
-      const x = M + i * (cardW + 4);
+    const kpis = S.snapKpis.slice(0, 8);
+    kpis.forEach((k, i) => {
+      const x = M + (i % 4) * (cardW + 4);
+      const y = kpiY + Math.floor(i / 4) * 24;
       doc.setFillColor.apply(doc, SOFT);
-      doc.roundedRect(x, kpiY, cardW, 20, 2, 2, 'F');
-      doc.setFontSize(7.5); doc.setTextColor.apply(doc, ACC);
-      doc.text(k.label.toUpperCase(), x + 3, kpiY + 6);
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.setTextColor.apply(doc, INK);
-      doc.text(String(k.value), x + 3, kpiY + 14);
-      doc.setFont('helvetica', 'normal');
+      doc.roundedRect(x, y, cardW, 20, 2, 2, 'F');
+      doc.setFontSize(6.8); doc.setTextColor.apply(doc, ACC);
+      doc.text(k.label.toUpperCase(), x + 3, y + 6);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.setTextColor.apply(doc, INK);
+      doc.text(String(k.value), x + 3, y + 13);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5); doc.setTextColor(107, 111, 128);
+      doc.text(String(k.sub || ''), x + 3, y + 17.5, { maxWidth: cardW - 6 });
+      doc.setTextColor.apply(doc, INK);
     });
-    caption('Sales', kpiY + 32);
+    const afterKpis = kpiY + Math.ceil(kpis.length / 4) * 24 + 8;
+    caption('Sales', afterKpis);
     doc.autoTable({
-      ...base(11), startY: kpiY + 36,
+      ...base(11), startY: afterKpis + 4,
       head: [['Region', 'Net sales', 'Sold qty', 'Invoices', 'ATV', 'ASP']],
       body: S.snapRegionRows.map(r => [r.region, r.netSales, r.qty, r.invoices, r.atv, r.asp]),
       foot: [['Total', S.snapRegionTotal.netSales, S.snapRegionTotal.qty, S.snapRegionTotal.invoices, S.snapRegionTotal.atv, S.snapRegionTotal.asp]],
