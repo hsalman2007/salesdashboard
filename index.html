@@ -901,6 +901,9 @@ a:hover{color:var(--color-accent-300)}
 <button class="btn btn-primary" onClick="{{exportSnapshotPdf}}">Export PDF</button>
 <div style="font-size:12px;color:var(--color-neutral-500);padding-bottom:10px">4 pages · regions, stores, wholesale &amp; 3P, STC Qitaf</div>
 </div>
+<sc-if value="{{snapPdfNote}}" hint-placeholder-val="{{false}}">
+<div style="font-size:13px;color:var(--color-accent-300);margin:-12px 0 var(--space-4)">{{snapPdfNote}}</div>
+</sc-if>
 
 <div style="display:flex;flex-wrap:wrap;gap:{{kpiGap}};margin-bottom:var(--space-8)">
 <sc-for list="{{snapKpis}}" as="k" hint-placeholder-count="5">
@@ -2144,7 +2147,7 @@ class Component extends DCLogic {
         { label: 'Stores', value: num(snapQitafStoreRows.length) }
       ],
       snapKpis: [
-        { label: 'Retail net sales', value: money(totalRaw.netSales), sub: num(snapStoreRows.length) + ' stores' },
+        { label: 'Total net sales', value: money(totalRaw.netSales + sum(snapWholesaleRows) + sum(snapThreePRows)), sub: 'retail ' + money(totalRaw.netSales) + ' \u00b7 ' + num(snapStoreRows.length) + ' stores' },
         { label: 'Invoices', value: num(totalRaw.invoices), sub: money(totalRaw.invoices ? totalRaw.netSales / totalRaw.invoices : 0) + ' ATV' },
         { label: 'Sold qty', value: num(totalRaw.qty), sub: Math.abs(totalRaw.invoices ? totalRaw.qty / totalRaw.invoices : 0).toFixed(2) + ' UPT' },
         { label: 'Wholesale + 3P', value: money(sum(snapWholesaleRows) + sum(snapThreePRows)), sub: 'wholesale ' + money(sum(snapWholesaleRows)) },
@@ -2153,10 +2156,28 @@ class Component extends DCLogic {
     };
   }
 
+  _savePdf(doc, filename) {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    let url = null;
+    try { url = URL.createObjectURL(doc.output('blob')); } catch (e) {}
+    if (!url) { try { doc.save(filename); } catch (e) {} return; }
+    if (isIOS) {
+      // iOS ignores the download attribute for blobs — open the file so it can be shared or saved
+      const w = window.open(url, '_blank');
+      if (!w) window.location.href = url;
+    } else {
+      const a = document.createElement('a');
+      a.href = url; a.download = filename; a.rel = 'noopener';
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  }
+
   exportSnapshotPdf() {
     const st = this.state;
     const date = st.snapDate;
-    if (!window.jspdf || !date) return;
+    if (!date) return;
+    if (!window.jspdf) { this.setState({ snapPdfNote: 'PDF library still loading — wait a moment and tap Export again.' }); return; }
     const S = this.snapshotData(date);
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -2223,7 +2244,8 @@ class Component extends DCLogic {
       body: S.snapQitafStoreRows.length ? S.snapQitafStoreRows.map(r => [r.rank, r.store, r.amount, r.invoices]) : [['', 'No activity', '', '']],
       columnStyles: { 0: { cellWidth: 10 }, 1: { fontStyle: 'bold' } }
     });
-    doc.save('daily-snapshot-' + date + '.pdf');
+    this._savePdf(doc, 'daily-snapshot-' + date + '.pdf');
+    this.setState({ snapPdfNote: '' });
   }
 
   async _ensureYoyItems() {
@@ -3828,6 +3850,7 @@ class Component extends DCLogic {
       snapDateOptions: snapDates.map(d => ({ value: d, label: new Date(d + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) })),
       setSnapDate: e => this.setState({ snapDate: e.target.value }),
       exportSnapshotPdf: () => this.exportSnapshotPdf(),
+      snapPdfNote: st.snapPdfNote || '',
       snapTwoCol: isMobile ? '1fr' : '1fr 1fr',
       ...snapVals,
       stcByStoreRows, stcByDateRows, stcKpiCards, stcRegionCards,
