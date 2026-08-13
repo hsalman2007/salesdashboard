@@ -1047,10 +1047,10 @@ a:hover{color:var(--color-accent-300)}
 <span style="font-size:11px;color:var(--color-neutral-500)">▾</span>
 </button>
 <sc-if value="{{yoyCalOpen}}" hint-placeholder-val="{{false}}">
-<div style="position:absolute;top:100%;left:0;z-index:80;margin-top:6px;padding:12px;width:270px;background:var(--color-neutral-0,#fff);border:1px solid var(--color-neutral-200);border-radius:var(--radius-md);box-shadow:0 14px 36px rgba(16,24,40,.18)">
+<div style="position:absolute;top:100%;left:0;z-index:80;margin-top:6px;padding:12px;width:292px;background:var(--color-surface);border:1px solid var(--color-neutral-200);border-radius:var(--radius-md);box-shadow:0 14px 36px rgba(16,24,40,.18)">
 <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px">
 <button onClick="{{yoyCalPrev}}" disabled="{{yoyCalPrevOff}}" style="width:26px;height:26px;border:1px solid var(--color-neutral-200);background:transparent;border-radius:var(--radius-sm);cursor:pointer;color:var(--color-neutral-700);font-size:12px;line-height:1">‹</button>
-<div style="font-family:var(--font-heading);font-size:13px;font-weight:600">{{yoyCalLabel}}</div>
+<div style="font-family:var(--font-heading);font-size:13px;font-weight:600;white-space:nowrap">{{yoyCalLabel}}</div>
 <button onClick="{{yoyCalNext}}" disabled="{{yoyCalNextOff}}" style="width:26px;height:26px;border:1px solid var(--color-neutral-200);background:transparent;border-radius:var(--radius-sm);cursor:pointer;color:var(--color-neutral-700);font-size:12px;line-height:1">›</button>
 </div>
 <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px">
@@ -1070,8 +1070,8 @@ a:hover{color:var(--color-accent-300)}
 <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px">
 <span style="font-size:11px;color:var(--color-neutral-500)">{{yoyCalHint}}</span>
 <div style="display:flex;gap:6px">
-<button class="btn btn-ghost" style="font-size:11px;padding:4px 8px" onClick="{{clearYoyDate}}">All days</button>
-<button class="btn btn-secondary" style="font-size:11px;padding:4px 10px" onClick="{{toggleYoyCal}}">Done</button>
+<button class="btn btn-ghost" style="font-size:11px;padding:4px 8px;white-space:nowrap" onClick="{{clearYoyDate}}">All days</button>
+<button class="btn btn-secondary" style="font-size:11px;padding:4px 10px;white-space:nowrap" onClick="{{toggleYoyCal}}">Done</button>
 </div>
 </div>
 </div>
@@ -2491,7 +2491,7 @@ class Component extends DCLogic {
       const monthKey = monthKeys[idx];
       const [my, mm] = monthKey.split('-').map(Number);
       const monthStart = new Date(my, mm - 1, 1);
-      calendarMonthLabel = monthStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      calendarMonthLabel = monthStart.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
       calendarAtStart = idx === 0;
       calendarAtEnd = idx === monthKeys.length - 1;
       calendarPrevMonth = () => this.setState({ calendarMonthIndex: Math.max(0, idx - 1) });
@@ -3115,7 +3115,7 @@ class Component extends DCLogic {
       const wMonthKey = wMonthKeys[wIdx];
       const [wmy, wmm] = wMonthKey.split('-').map(Number);
       const wMonthStart = new Date(wmy, wmm - 1, 1);
-      wholesaleCalendarMonthLabel = wMonthStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      wholesaleCalendarMonthLabel = wMonthStart.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
       wholesaleCalendarAtStart = wIdx === 0;
       wholesaleCalendarAtEnd = wIdx === wMonthKeys.length - 1;
       wholesaleCalendarPrevMonth = () => this.setState({ wholesaleCalendarMonthIndex: Math.max(0, wIdx - 1) });
@@ -3500,7 +3500,7 @@ class Component extends DCLogic {
       const mIdx = Number(calMonth) - 1;
       const firstDow = new Date(yr, mIdx, 1).getDay();
       const nDays = new Date(yr, mIdx + 1, 0).getDate();
-      yoyCalLabel = new Date(yr, mIdx, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      yoyCalLabel = new Date(yr, mIdx, 1).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
       yoyCalPrevOff = months.indexOf(calMonth) <= 0;
       yoyCalNextOff = months.indexOf(calMonth) >= months.length - 1;
       const from = yf.date === 'All' ? null : yf.date, to = from ? (yf.dateTo || from) : null;
@@ -3521,7 +3521,7 @@ class Component extends DCLogic {
         yoyCalCells.push({
           num: String(n),
           disabled: !has,
-          bg: edge ? 'var(--color-primary-600,#4f46e5)' : inSel ? 'var(--color-primary-50,#eef2ff)' : 'transparent',
+          bg: edge ? 'var(--color-accent)' : inSel ? 'var(--color-accent-200)' : 'transparent',
           fg: edge ? '#fff' : has ? 'var(--color-neutral-800,#1f2937)' : 'var(--color-neutral-400,#9ca3af)',
           radius: from && to && from !== to ? (isStart ? '6px 0 0 6px' : isEnd ? '0 6px 6px 0' : inSel ? '0' : '6px') : '6px',
           cursor: has ? 'pointer' : 'default',
@@ -4062,7 +4062,7 @@ class Component extends DCLogic {
       regionSorted: regionRows, regionTotals,
       dailySorted: dailyRows, dailyKpiCards,
       kpiCards, dailyBars, dailyTrend, regionBars, topStores, topCategories, topStoresKpi,
-      chartRangeLabel: f.dateRange ? (f.dateRange.start + ' \u2013 ' + f.dateRange.end) : (chartMonth ? new Date(chartMonth + '-02').toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'current month'),
+      chartRangeLabel: f.dateRange ? (f.dateRange.start + ' \u2013 ' + f.dateRange.end) : (chartMonth ? new Date(chartMonth + '-02').toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'current month'),
       storesSorted: storeRows, categoriesSorted: catRows, topCategoriesSorted: topCatRows, brandsSorted: brandRows, categorySearch: st.categorySearch || '', setCategorySearch: e => this.setState({ categorySearch: e.target.value }),
       categoryView: st.categoryView || 'sub', isCategorySub: (st.categoryView || 'sub') !== 'top' && (st.categoryView || 'sub') !== 'brand', isCategoryTop: st.categoryView === 'top', isCategoryBrand: st.categoryView === 'brand',
       categorySubBtnClass: (st.categoryView || 'sub') !== 'top' && (st.categoryView || 'sub') !== 'brand' ? 'btn-primary' : 'btn-secondary', categoryTopBtnClass: st.categoryView === 'top' ? 'btn-primary' : 'btn-secondary', categoryBrandBtnClass: st.categoryView === 'brand' ? 'btn-primary' : 'btn-secondary',
