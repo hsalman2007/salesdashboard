@@ -1705,7 +1705,7 @@ a:hover{color:var(--color-accent-300)}
 <div style="display:flex;flex-direction:column;gap:10px;min-width:320px">
 <sc-for list="{{hourlyBars}}" as="b" hint-placeholder-count="12">
 <div style="display:flex;align-items:center;gap:8px">
-<div style="width:44px;flex:0 0 44px;font-size:11px;color:var(--color-neutral-500);text-align:right">{{b.label}}</div>
+<div style="width:74px;flex:0 0 74px;font-size:11px;color:var(--color-neutral-500);text-align:right;white-space:nowrap">{{b.label}}</div>
 <div style="flex:0 1 220px;max-width:220px;position:relative;height:22px">
 <div style="height:100%;width:{{b.pct}}%;min-width:4px;background:var(--color-accent-500);border-radius:0 4px 4px 0"></div>
 <div style="position:absolute;left:calc({{b.pct}}% + 8px);top:50%;transform:translateY(-50%);font-size:10px;font-weight:700;color:var(--color-text);white-space:nowrap">{{b.valueLabel}} · {{b.pctLabel}}</div>
@@ -2609,10 +2609,13 @@ class Component extends DCLogic {
       points: hourlyPoints.map(p => ({ cx: p.x.toFixed(1), cy: p.y.toFixed(1), labelY: Math.min(hChartH - 4, p.y + 16).toFixed(1), label: hourLabel(p.h), valueLabel: this.fmtShort(p.val), pctLabel: (hourlyEntries.reduce((s, e) => s + e[1], 0) ? (100 * p.val / hourlyEntries.reduce((s, e) => s + e[1], 0)).toFixed(1) : '0.0') + '%' }))
     };
     const hourlyPctTotal = hourlyEntries.reduce((s, e) => s + e[1], 0);
-    const hourlyBars = hourlyEntries.map(([h, val]) => ({
-      label: hourLabel(h), valueLabel: this.fmtShort(val),
+    const nightVal = hourlyEntries.filter(e => e[0] <= 8).reduce((a, e) => a + e[1], 0);
+    const barDefs = [[-1, nightVal, '12AM \u2013 8AM'], ...hourlyEntries.filter(e => e[0] > 8).map(e => [e[0], e[1], hourLabel(e[0])])];
+    const maxBar = Math.max(1, ...barDefs.map(b => b[1]));
+    const hourlyBars = barDefs.map(([h, val, label]) => ({
+      label, valueLabel: this.fmtShort(val),
       pctLabel: (hourlyPctTotal ? (100 * val / hourlyPctTotal).toFixed(1) : '0.0') + '%',
-      pct: Math.max(2, Math.round(100 * val / maxHourly))
+      pct: Math.max(2, Math.round(100 * val / maxBar))
     }));
     const daySliceDefs = [
       { label: '9AM \u2013 3PM', hours: [9, 10, 11, 12, 13, 14] },
