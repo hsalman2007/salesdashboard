@@ -2024,6 +2024,17 @@ class Component extends DCLogic {
   exportYoyDimDrillPdf = async () => {
     const d = this._lastYoyDimDrill;
     if (!d || !d.rows.length || !window.jspdf) return;
+    const isArabic = t => /[\u0600-\u06FF]/.test(t || '');
+    const arabicToImg = t => {
+      const scale = 4, w = 260, h = 40;
+      const c = document.createElement('canvas'); c.width = w * scale; c.height = h * scale;
+      const ctx = c.getContext('2d'); ctx.scale(scale, scale);
+      ctx.font = '600 20px Arial, "Noto Sans Arabic", "Segoe UI", sans-serif';
+      ctx.direction = 'rtl'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#1a1a1a';
+      ctx.fillText(t, w - 4, h / 2, w - 8);
+      return c.toDataURL('image/png');
+    };
+    const pdfSafe = t => isArabic(t) ? '' : (t || '');
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     doc.setFontSize(13);
@@ -2037,7 +2048,7 @@ class Component extends DCLogic {
     else { head.push(d.header, 'CY Sales', 'LY Sales', '\u0394%', 'CY Sold', 'LY Sold'); if (d.showMarkup) head.push('CY Mkp%', 'LY Mkp%'); }
     const imgDataUrls = d.itemsMode ? await Promise.all(d.rows.map(r => this.loadImageDataUrl(r.imageSrc))) : [];
     const body = d.rows.map(r => d.itemsMode
-      ? ['', r.sku, r.desc, r.cySold, r.lySold, this.fmtNum(r.cySoldNum - r.lySoldNum), r.soldDelta]
+      ? ['', r.sku, isArabic(r.desc) ? '' : (pdfSafe(r.desc) || r.sku), r.cySold, r.lySold, this.fmtNum(r.cySoldNum - r.lySoldNum), r.soldDelta]
       : [r.name, r.cySales, r.lySales, r.delta, r.cySold, r.lySold, ...(d.showMarkup ? [r.cyMarkup, r.lyMarkup] : [])]);
     const diffCol = d.itemsMode ? 5 : -1, deltaCol = d.itemsMode ? 6 : 3;
     doc.autoTable({
@@ -2055,6 +2066,17 @@ class Component extends DCLogic {
         if (d.itemsMode && data.column.index === 0 && data.cell.section === 'body') {
           const url = imgDataUrls[data.row.index];
           if (url) { const dim = Math.min(data.cell.height - 4, data.cell.width - 4, 12.1); try { doc.addImage(url, 'JPEG', data.cell.x + 2, data.cell.y + (data.cell.height - dim) / 2, dim, dim); } catch (e) {} }
+        }
+        if (d.itemsMode && data.column.index === 2 && data.cell.section === 'body') {
+          const desc = d.rows[data.row.index].desc;
+          if (isArabic(desc)) {
+            try {
+              const img = arabicToImg(desc);
+              const ih = Math.min(data.cell.height - 3, 7);
+              const iw = Math.min(data.cell.width - 3, ih * (260 / 40));
+              doc.addImage(img, 'PNG', data.cell.x + data.cell.width - iw - 1.5, data.cell.y + (data.cell.height - ih) / 2, iw, ih);
+            } catch (e) {}
+          }
         }
       }
     });
@@ -2064,6 +2086,17 @@ class Component extends DCLogic {
   exportYoyDrillPdf = async () => {
     const d = this._lastYoyDrill;
     if (!d || !d.rows.length || !window.jspdf) return;
+    const isArabic = t => /[\u0600-\u06FF]/.test(t || '');
+    const arabicToImg = t => {
+      const scale = 4, w = 260, h = 40;
+      const c = document.createElement('canvas'); c.width = w * scale; c.height = h * scale;
+      const ctx = c.getContext('2d'); ctx.scale(scale, scale);
+      ctx.font = '600 20px Arial, "Noto Sans Arabic", "Segoe UI", sans-serif';
+      ctx.direction = 'rtl'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#1a1a1a';
+      ctx.fillText(t, w - 4, h / 2, w - 8);
+      return c.toDataURL('image/png');
+    };
+    const pdfSafe = t => isArabic(t) ? '' : (t || '');
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     doc.setFontSize(13);
@@ -2077,7 +2110,7 @@ class Component extends DCLogic {
     else { head.push(d.header, 'CY Sales', 'LY Sales', '\u0394%', 'CY Sold', 'LY Sold'); if (d.showMarkup) head.push('CY Mkp%', 'LY Mkp%'); }
     const imgDataUrls = d.itemsMode ? await Promise.all(d.rows.map(r => this.loadImageDataUrl(r.imageSrc))) : [];
     const body = d.rows.map(r => d.itemsMode
-      ? ['', r.sku, r.desc, r.cySold, r.lySold, this.fmtNum(r.cySoldNum - r.lySoldNum), r.soldDelta]
+      ? ['', r.sku, isArabic(r.desc) ? '' : (pdfSafe(r.desc) || r.sku), r.cySold, r.lySold, this.fmtNum(r.cySoldNum - r.lySoldNum), r.soldDelta]
       : [r.name, r.cySales, r.lySales, r.delta, r.cySold, r.lySold, ...(d.showMarkup ? [r.cyMarkup, r.lyMarkup] : [])]);
     const diffCol = d.itemsMode ? 5 : -1, deltaCol = d.itemsMode ? 6 : 3;
     doc.autoTable({
@@ -2095,6 +2128,17 @@ class Component extends DCLogic {
         if (d.itemsMode && data.column.index === 0 && data.cell.section === 'body') {
           const url = imgDataUrls[data.row.index];
           if (url) { const dim = Math.min(data.cell.height - 4, data.cell.width - 4, 12.1); try { doc.addImage(url, 'JPEG', data.cell.x + 2, data.cell.y + (data.cell.height - dim) / 2, dim, dim); } catch (e) {} }
+        }
+        if (d.itemsMode && data.column.index === 2 && data.cell.section === 'body') {
+          const desc = d.rows[data.row.index].desc;
+          if (isArabic(desc)) {
+            try {
+              const img = arabicToImg(desc);
+              const ih = Math.min(data.cell.height - 3, 7);
+              const iw = Math.min(data.cell.width - 3, ih * (260 / 40));
+              doc.addImage(img, 'PNG', data.cell.x + data.cell.width - iw - 1.5, data.cell.y + (data.cell.height - ih) / 2, iw, ih);
+            } catch (e) {}
+          }
         }
       }
     });
