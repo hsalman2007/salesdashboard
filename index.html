@@ -1264,7 +1264,10 @@ a:hover{color:var(--color-accent-300)}
 <div class="card-kicker">{{yoyDimDrillKicker}}</div>
 <h3 style="font-family:var(--font-heading);font-size:20px;margin:2px 0 0">{{yoyDimDrillName}}</h3>
 </div>
+<div style="display:flex;gap:8px;flex:0 0 auto">
+<button class="btn btn-secondary" onClick="{{exportYoyDimDrillPdf}}" style="font-size:12px;padding:6px 10px;white-space:nowrap">Export PDF</button>
 <button class="btn btn-ghost" onClick="{{closeYoyDimDrill}}" style="font-size:13px;padding:4px 10px">Close ✕</button>
+</div>
 </div>
 <sc-if value="{{yoyDimDrillSwitchVisible}}" hint-placeholder-val="{{false}}">
 <div style="display:flex;gap:8px;margin-bottom:var(--space-4)">
@@ -1355,18 +1358,28 @@ a:hover{color:var(--color-accent-300)}
 <div class="card-kicker">Store · {{yoyPeriodLabel}}</div>
 <h3 style="font-family:var(--font-heading);font-size:20px;margin:2px 0 0">{{yoyDrillName}}</h3>
 </div>
+<div style="display:flex;gap:8px;flex:0 0 auto">
+<button class="btn btn-secondary" onClick="{{exportYoyDrillPdf}}" style="font-size:12px;padding:6px 10px;white-space:nowrap">Export PDF</button>
 <button class="btn btn-ghost" onClick="{{closeYoyDrill}}" style="font-size:13px;padding:4px 10px">Close ✕</button>
+</div>
 </div>
 <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:var(--space-4)">
 <button class="btn {{yoyDrillCatBtnClass}}" onClick="{{setYoyDrillCat}}">Category</button>
 <button class="btn {{yoyDrillSubBtnClass}}" onClick="{{setYoyDrillSub}}">Sub-Category</button>
 <button class="btn {{yoyDrillBrandBtnClass}}" onClick="{{setYoyDrillBrand}}">Brand</button>
+<button class="btn {{yoyDrillItemsBtnClass}}" onClick="{{setYoyDrillItems}}">Items</button>
 </div>
+<sc-if value="{{yoyDrillItemsLoading}}" hint-placeholder-val="{{false}}">
+<div style="font-size:13px;color:var(--color-neutral-500);margin-bottom:var(--space-3)">Loading item-level data…</div>
+</sc-if>
 <div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow:auto;max-height:60vh;touch-action:pan-y">
 <table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
 <thead>
 <tr>
-<th rowspan="2" style="text-align:left">{{yoyDrillHeader}}</th>
+<sc-if value="{{yoyDrillItemsMode}}" hint-placeholder-val="{{false}}">
+<th rowspan="2" style="text-align:left">Image</th><th rowspan="2" style="text-align:left">SKU</th><th rowspan="2" style="text-align:left">Item</th>
+</sc-if>
+<sc-if value="{{yoyDrillNotItemsMode}}" hint-placeholder-val="{{true}}"><th rowspan="2" style="text-align:left">{{yoyDrillHeader}}</th></sc-if>
 <th colspan="3">Sales</th><th colspan="2">Sold</th>
 <sc-if value="{{yoyShowMarkup}}" hint-placeholder-val="{{true}}"><th colspan="2">Markup %</th></sc-if>
 </tr>
@@ -1378,7 +1391,16 @@ a:hover{color:var(--color-accent-300)}
 <tbody>
 <sc-for list="{{yoyDrillRows}}" as="r" hint-placeholder-count="10">
 <tr>
+<sc-if value="{{yoyDrillItemsMode}}" hint-placeholder-val="{{false}}">
+<td style="text-align:left;width:52px">
+<img src="{{r.imageSrc}}" alt="" style="width:44px;height:44px;object-fit:contain;background:#fff;border-radius:var(--radius-sm);display:block" />
+</td>
+<td style="text-align:left;font-weight:600;white-space:nowrap">{{r.sku}}</td>
+<td style="text-align:left;font-weight:600">{{r.desc}}</td>
+</sc-if>
+<sc-if value="{{yoyDrillNotItemsMode}}" hint-placeholder-val="{{true}}">
 <td style="text-align:left;font-weight:600">{{r.name}}</td>
+</sc-if>
 <td style="font-weight:600;white-space:nowrap">{{r.cySales}}</td>
 <td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.lySales}}</td>
 <td style="white-space:nowrap;font-weight:700;color:{{r.deltaColor}}">{{r.delta}}</td>
@@ -1393,7 +1415,8 @@ a:hover{color:var(--color-accent-300)}
 </tbody>
 <tfoot>
 <tr>
-<td style="text-align:left;font-weight:700">Total</td>
+<sc-if value="{{yoyDrillItemsMode}}" hint-placeholder-val="{{false}}"><td colspan="3" style="text-align:left;font-weight:700">Total</td></sc-if>
+<sc-if value="{{yoyDrillNotItemsMode}}" hint-placeholder-val="{{true}}"><td style="text-align:left;font-weight:700">Total</td></sc-if>
 <td style="font-weight:700;white-space:nowrap">{{yoyDrillFooter.cySales}}</td>
 <td style="font-weight:700;white-space:nowrap">{{yoyDrillFooter.lySales}}</td>
 <td style="font-weight:700;white-space:nowrap;color:{{yoyDrillFooter.deltaColor}}">{{yoyDrillFooter.delta}}</td>
@@ -1992,11 +2015,91 @@ class Component extends DCLogic {
     // cross-origin canvas read silently fails; proxy through a CORS-safe image resizer first,
     // also asking it to pre-resize so we never pull down a full-resolution original.
     const noScheme = url.replace(/^https?:\/\//, '');
-    const proxied = 'https://images.weserv.nl/?url=' + encodeURIComponent(noScheme) + '&w=80&h=80&fit=cover';
+    const proxied = 'https://images.weserv.nl/?url=' + encodeURIComponent(noScheme) + '&w=160&h=160&fit=cover';
     const viaProxy = await this.loadImageViaSrc(proxied);
     if (viaProxy) return viaProxy;
     return this.loadImageViaSrc(url);
   }
+
+  exportYoyDimDrillPdf = async () => {
+    const d = this._lastYoyDimDrill;
+    if (!d || !d.rows.length || !window.jspdf) return;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(13);
+    doc.text(d.title, 14, 15);
+    doc.setFontSize(9);
+    doc.setTextColor(120);
+    doc.text(d.kicker, 14, 21);
+    doc.setTextColor(0);
+    const head = [];
+    if (d.itemsMode) { head.push('Image', 'SKU', 'Item', 'CY Sold', 'LY Sold', 'Diff', '\u0394%'); }
+    else { head.push(d.header, 'CY Sales', 'LY Sales', '\u0394%', 'CY Sold', 'LY Sold'); if (d.showMarkup) head.push('CY Mkp%', 'LY Mkp%'); }
+    const imgDataUrls = d.itemsMode ? await Promise.all(d.rows.map(r => this.loadImageDataUrl(r.imageSrc))) : [];
+    const body = d.rows.map(r => d.itemsMode
+      ? ['', r.sku, r.desc, r.cySold, r.lySold, this.fmtNum(r.cySoldNum - r.lySoldNum), r.soldDelta]
+      : [r.name, r.cySales, r.lySales, r.delta, r.cySold, r.lySold, ...(d.showMarkup ? [r.cyMarkup, r.lyMarkup] : [])]);
+    const diffCol = d.itemsMode ? 5 : -1, deltaCol = d.itemsMode ? 6 : 3;
+    doc.autoTable({
+      startY: 26,
+      head: [head], body,
+      styles: { fontSize: d.itemsMode ? 9 : 8, valign: 'middle', minCellHeight: d.itemsMode ? 12.1 : undefined },
+      columnStyles: d.itemsMode ? { 0: { cellWidth: 14.3 } } : {},
+      didParseCell: data => {
+        if ((data.column.index === diffCol || data.column.index === deltaCol) && data.cell.section !== 'head') {
+          data.cell.styles.textColor = [178, 34, 52];
+          data.cell.styles.fontStyle = 'bold';
+        }
+      },
+      didDrawCell: data => {
+        if (d.itemsMode && data.column.index === 0 && data.cell.section === 'body') {
+          const url = imgDataUrls[data.row.index];
+          if (url) { const dim = Math.min(data.cell.height - 4, data.cell.width - 4, 12.1); try { doc.addImage(url, 'JPEG', data.cell.x + 2, data.cell.y + (data.cell.height - dim) / 2, dim, dim); } catch (e) {} }
+        }
+      }
+    });
+    this._savePdf(doc, 'yoy-' + (d.slug || 'drill') + '.pdf');
+  };
+
+  exportYoyDrillPdf = async () => {
+    const d = this._lastYoyDrill;
+    if (!d || !d.rows.length || !window.jspdf) return;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(13);
+    doc.text(d.title, 14, 15);
+    doc.setFontSize(9);
+    doc.setTextColor(120);
+    doc.text(d.kicker, 14, 21);
+    doc.setTextColor(0);
+    const head = [];
+    if (d.itemsMode) { head.push('Image', 'SKU', 'Item', 'CY Sold', 'LY Sold', 'Diff', '\u0394%'); }
+    else { head.push(d.header, 'CY Sales', 'LY Sales', '\u0394%', 'CY Sold', 'LY Sold'); if (d.showMarkup) head.push('CY Mkp%', 'LY Mkp%'); }
+    const imgDataUrls = d.itemsMode ? await Promise.all(d.rows.map(r => this.loadImageDataUrl(r.imageSrc))) : [];
+    const body = d.rows.map(r => d.itemsMode
+      ? ['', r.sku, r.desc, r.cySold, r.lySold, this.fmtNum(r.cySoldNum - r.lySoldNum), r.soldDelta]
+      : [r.name, r.cySales, r.lySales, r.delta, r.cySold, r.lySold, ...(d.showMarkup ? [r.cyMarkup, r.lyMarkup] : [])]);
+    const diffCol = d.itemsMode ? 5 : -1, deltaCol = d.itemsMode ? 6 : 3;
+    doc.autoTable({
+      startY: 26,
+      head: [head], body,
+      styles: { fontSize: d.itemsMode ? 9 : 8, valign: 'middle', minCellHeight: d.itemsMode ? 12.1 : undefined },
+      columnStyles: d.itemsMode ? { 0: { cellWidth: 14.3 } } : {},
+      didParseCell: data => {
+        if ((data.column.index === diffCol || data.column.index === deltaCol) && data.cell.section !== 'head') {
+          data.cell.styles.textColor = [178, 34, 52];
+          data.cell.styles.fontStyle = 'bold';
+        }
+      },
+      didDrawCell: data => {
+        if (d.itemsMode && data.column.index === 0 && data.cell.section === 'body') {
+          const url = imgDataUrls[data.row.index];
+          if (url) { const dim = Math.min(data.cell.height - 4, data.cell.width - 4, 12.1); try { doc.addImage(url, 'JPEG', data.cell.x + 2, data.cell.y + (data.cell.height - dim) / 2, dim, dim); } catch (e) {} }
+        }
+      }
+    });
+    this._savePdf(doc, 'yoy-store-' + (d.slug || 'drill') + '.pdf');
+  };
 
   exportDailyStoreItemPdf = async () => {
     const rows = this._lastDailyStoreItemRows || [];
@@ -3474,7 +3577,8 @@ class Component extends DCLogic {
     const dayOk = d => (yf.month === 'All' || d.slice(0, 2) === yf.month)
       && (yf.date === 'All' || (d >= yf.date && d <= (yf.dateTo || yf.date)));
     let yoyRows = [], yoyFooter = {}, yoyKpiCards = [], yoyRowCountLabel = '', yoyPeriodLabel = '', yoyCoverageLabel = '';
-    let yoyDrillRows = [], yoyDrillFooter = {}, yoyDrillOpen = false;
+    let yoyDrillRows = [], yoyDrillFooter = {}, yoyDrillOpen = false, yoyDrillItemsMode = false;
+    const yoyDrillHeaderFor = dv => dv === 'sub' ? 'Sub-Category' : dv === 'brand' ? 'Brand' : 'Category';
     let yoyDimDrillRows = [], yoyDimDrillFooter = {}, yoyDimDrillOpen = false, yoyDimItemsMode = false;
     let yoyItemPage = 0, yoyItemMaxPage = 0, yoyItemTotalRows = 0;
     let yoyRegionOptions = ['All'], yoyCityOptions = ['All'], yoyStoreOptions = [{ code: 'All', label: 'All' }];
@@ -3752,7 +3856,9 @@ class Component extends DCLogic {
             }
           }
         }
-        yoyDimDrillRows = Object.entries(sAgg).sort((a, b) => b[1][0] - a[1][0]).slice(0, 200).map(([name, a]) => ({
+        let sEntries = Object.entries(sAgg).sort((a, b) => b[1][0] - a[1][0]);
+        if (st.yoyLosersOnly) sEntries = sEntries.filter(([, a]) => a[0] < a[4]);
+        yoyDimDrillRows = sEntries.slice(0, 200).map(([name, a]) => ({
           name: dimItemsMode ? ((this.itemMeta[name] || {}).itemDesc ? name + ' · ' + this.itemMeta[name].itemDesc : name) : name,
           sku: dimItemsMode ? name : '',
           desc: dimItemsMode ? ((this.itemMeta[name] || {}).itemDesc || '') : '',
@@ -3764,24 +3870,74 @@ class Component extends DCLogic {
             : null,
           cySales: this.fmtMoney(a[0]), lySales: this.fmtMoney(a[4]),
           delta: deltaLabel(a[0], a[4]), deltaColor: deltaColor(delta(a[0], a[4])),
-          cySold: this.fmtNum(a[1]), lySold: this.fmtNum(a[5]),
+          cySold: this.fmtNum(a[1]), lySold: this.fmtNum(a[5]), cySoldNum: a[1], lySoldNum: a[5],
+          soldDelta: deltaLabel(a[1], a[5]), soldDeltaColor: deltaColor(delta(a[1], a[5])),
           cyRcpt: this.fmtNum(a[3]), lyRcpt: this.fmtNum(a[7]),
           cyMarkup: mkp(a[0], a[2]), lyMarkup: mkp(a[4], a[6])
         }));
-        const sTot = Object.values(sAgg).reduce((t, a) => t.map((v, i) => v + a[i]), [0, 0, 0, 0, 0, 0, 0, 0]);
+        const sTot = sEntries.reduce((t, [, a]) => t.map((v, i) => v + a[i]), [0, 0, 0, 0, 0, 0, 0, 0]);
         yoyDimDrillFooter = {
           cySales: this.fmtMoney(sTot[0]), lySales: this.fmtMoney(sTot[4]),
           delta: deltaLabel(sTot[0], sTot[4]), deltaColor: deltaColor(delta(sTot[0], sTot[4])),
-          cySold: this.fmtNum(sTot[1]), lySold: this.fmtNum(sTot[5]),
+          cySold: this.fmtNum(sTot[1]), lySold: this.fmtNum(sTot[5]), cySoldNum: sTot[1], lySoldNum: sTot[5],
+          soldDelta: deltaLabel(sTot[1], sTot[5]), soldDeltaColor: deltaColor(delta(sTot[1], sTot[5])),
           cyRcpt: this.fmtNum(sTot[3]), lyRcpt: this.fmtNum(sTot[7]),
           cyMarkup: mkp(sTot[0], sTot[2]), lyMarkup: mkp(sTot[4], sTot[6])
         };
         yoyDimDrillOpen = true;
+        this._lastYoyDimDrill = {
+          rows: yoyDimDrillRows, footer: yoyDimDrillFooter, itemsMode: dimItemsMode,
+          header: dimItemsMode ? null : 'Store', showMarkup: !hideMarkup,
+          title: (dd.label || dd.value) + (st.yoyDimDrillStoreLabel ? ' \u2014 ' + st.yoyDimDrillStoreLabel : ''),
+          kicker: yoyPeriodLabel,
+          slug: ((dd.label || dd.value) + '-' + (st.yoyDimDrillStoreLabel || '')).toLowerCase().replace(/[^a-z0-9]+/gi, '-')
+        };
       }
 
-      // store drill-down: same measures for one store, grouped by category / sub-category / brand
+      // store drill-down: same measures for one store, grouped by category / sub-category / brand, or item-level
       if (st.yoyDrillStore && Y.rows[st.yoyDrillStore]) {
         const dv = st.yoyDrillView || 'category';
+        const drillItemsMode = dv === 'items';
+        yoyDrillItemsMode = drillItemsMode;
+        if (drillItemsMode) {
+          const IT = st.yoyItems;
+          let iEntries = [];
+          if (IT) {
+            const iMask = IT.days.map(d => dayOk(d));
+            const rowsFor = IT.rows[st.yoyDrillStore] || [];
+            const iAgg = {};
+            rowsFor.forEach(r => {
+              if (!iMask[r[0]]) return;
+              const sku = IT.skus[r[1]];
+              let a = iAgg[sku];
+              if (!a) a = iAgg[sku] = [0, 0, 0, 0, 0, 0, 0, 0];
+              a[0] += r[2]; a[1] += r[3]; a[2] += r[4]; a[3] += r[5];
+              a[4] += r[6]; a[5] += r[7]; a[6] += r[8]; a[7] += r[9];
+            });
+            iEntries = Object.entries(iAgg).sort((a, b) => b[1][0] - a[1][0]);
+            if (st.yoyLosersOnly) iEntries = iEntries.filter(([, a]) => a[0] < a[4]);
+          }
+          yoyDrillRows = iEntries.slice(0, 200).map(([sku, a]) => ({
+            name: (this.itemMeta[sku] || {}).itemDesc ? sku + ' · ' + this.itemMeta[sku].itemDesc : sku,
+            sku, desc: (this.itemMeta[sku] || {}).itemDesc || '',
+            imageSrc: (this.itemMeta[sku] || {}).image || blankImg,
+            cySales: this.fmtMoney(a[0]), lySales: this.fmtMoney(a[4]),
+            delta: deltaLabel(a[0], a[4]), deltaColor: deltaColor(delta(a[0], a[4])),
+            cySold: this.fmtNum(a[1]), lySold: this.fmtNum(a[5]), cySoldNum: a[1], lySoldNum: a[5],
+            soldDelta: deltaLabel(a[1], a[5]), soldDeltaColor: deltaColor(delta(a[1], a[5])),
+            cyRcpt: this.fmtNum(a[3]), lyRcpt: this.fmtNum(a[7]),
+            cyMarkup: mkp(a[0], a[2]), lyMarkup: mkp(a[4], a[6])
+          }));
+          const iTot = iEntries.reduce((t, [, a]) => t.map((v, i) => v + a[i]), [0, 0, 0, 0, 0, 0, 0, 0]);
+          yoyDrillFooter = {
+            cySales: this.fmtMoney(iTot[0]), lySales: this.fmtMoney(iTot[4]),
+            delta: deltaLabel(iTot[0], iTot[4]), deltaColor: deltaColor(delta(iTot[0], iTot[4])),
+            cySold: this.fmtNum(iTot[1]), lySold: this.fmtNum(iTot[5]), cySoldNum: iTot[1], lySoldNum: iTot[5],
+            soldDelta: deltaLabel(iTot[1], iTot[5]), soldDeltaColor: deltaColor(delta(iTot[1], iTot[5])),
+            cyRcpt: this.fmtNum(iTot[3]), lyRcpt: this.fmtNum(iTot[7]),
+            cyMarkup: mkp(iTot[0], iTot[2]), lyMarkup: mkp(iTot[4], iTot[6])
+          };
+        } else {
         const dArr = dv === 'sub' ? Y.subs : dv === 'brand' ? Y.brands : Y.cats;
         const dCol = dv === 'sub' ? 2 : dv === 'brand' ? 3 : 1;
         const dAgg = {};
@@ -3793,7 +3949,7 @@ class Component extends DCLogic {
           a[0] += r[4]; a[1] += r[5]; a[2] += r[6]; a[3] += r[7];
           a[4] += r[8]; a[5] += r[9]; a[6] += r[10]; a[7] += r[11];
         });
-        yoyDrillRows = Object.entries(dAgg).sort((a, b) => b[1][0] - a[1][0]).map(([name, a]) => ({
+        yoyDrillRows = Object.entries(dAgg).sort((a, b) => b[1][0] - a[1][0]).filter(([, a]) => !st.yoyLosersOnly || a[0] < a[4]).map(([name, a]) => ({
           name,
           cySales: this.fmtMoney(a[0]), lySales: this.fmtMoney(a[4]),
           delta: deltaLabel(a[0], a[4]), deltaColor: deltaColor(delta(a[0], a[4])),
@@ -3801,7 +3957,7 @@ class Component extends DCLogic {
           cyRcpt: this.fmtNum(a[3]), lyRcpt: this.fmtNum(a[7]),
           cyMarkup: mkp(a[0], a[2]), lyMarkup: mkp(a[4], a[6])
         }));
-        const dTot = Object.values(dAgg).reduce((t, a) => t.map((v, i) => v + a[i]), [0, 0, 0, 0, 0, 0, 0, 0]);
+        const dTot = Object.entries(dAgg).filter(([, a]) => !st.yoyLosersOnly || a[0] < a[4]).reduce((t, [, a]) => t.map((v, i) => v + a[i]), [0, 0, 0, 0, 0, 0, 0, 0]);
         yoyDrillFooter = {
           cySales: this.fmtMoney(dTot[0]), lySales: this.fmtMoney(dTot[4]),
           delta: deltaLabel(dTot[0], dTot[4]), deltaColor: deltaColor(delta(dTot[0], dTot[4])),
@@ -3809,7 +3965,14 @@ class Component extends DCLogic {
           cyRcpt: this.fmtNum(dTot[3]), lyRcpt: this.fmtNum(dTot[7]),
           cyMarkup: mkp(dTot[0], dTot[2]), lyMarkup: mkp(dTot[4], dTot[6])
         };
+        }
         yoyDrillOpen = true;
+        this._lastYoyDrill = {
+          rows: yoyDrillRows, footer: yoyDrillFooter, itemsMode: drillItemsMode,
+          header: drillItemsMode ? null : yoyDrillHeaderFor(dv), showMarkup: !hideMarkup,
+          title: st.yoyDrillName || '', kicker: yoyPeriodLabel,
+          slug: (st.yoyDrillName || 'store').toLowerCase().replace(/[^a-z0-9]+/gi, '-')
+        };
       }
       const inScopeCount = Object.keys(storeOk).length;
       const retailTotal = Object.keys(this.storeIndex).filter(c => (this.storeIndex[c] || {}).type === 'Store').length;
@@ -3941,7 +4104,11 @@ class Component extends DCLogic {
       yoyShowMarkup: !hideMarkup,
       yoyShowRcpt: ['stores', 'region', 'city'].includes(st.yoyView),
       yoyDimShowRcpt: false,
-      yoyDrillOpen, yoyDrillRows, yoyDrillFooter,
+      yoyDrillOpen, yoyDrillRows, yoyDrillFooter, exportYoyDrillPdf: this.exportYoyDrillPdf,
+      yoyDrillItemsMode, yoyDrillNotItemsMode: !yoyDrillItemsMode,
+      yoyDrillItemsBtnClass: st.yoyDrillView === 'items' ? 'btn-primary' : 'btn-secondary',
+      setYoyDrillItems: () => { this._ensureYoyItems(); this.setState({ yoyDrillView: 'items' }); },
+      yoyDrillItemsLoading: st.yoyDrillView === 'items' && st.yoyItemsLoading,
       yoyIsByStore: st.yoyView === 'stores', yoyIsNotByStore: st.yoyView !== 'stores',
       yoyIsItems: st.yoyView === 'items', yoyIsNotItems: st.yoyView !== 'items',
       yoyAllBtnClass: st.yoyLosersOnly ? 'btn-secondary' : 'btn-primary',
@@ -3949,10 +4116,10 @@ class Component extends DCLogic {
       setYoyAll: () => this.setState({ yoyLosersOnly: false, yoyItemPage: 0 }),
       setYoyLosers: () => this.setState({ yoyLosersOnly: true, yoyItemPage: 0 }),
       yoyDrillName: st.yoyDrillName || '',
-      yoyDrillHeader: st.yoyDrillView === 'sub' ? 'Sub-Category' : st.yoyDrillView === 'brand' ? 'Brand' : 'Category',
+      yoyDrillHeader: yoyDrillHeaderFor(st.yoyDrillView || 'category'),
       closeYoyDrill: () => this.setState({ yoyDrillStore: null, tableZoom: 1 }),
       stopPropagation: e => e.stopPropagation(),
-      yoyDimDrillOpen, yoyDimDrillRows, yoyDimDrillFooter,
+      yoyDimDrillOpen, yoyDimDrillRows, yoyDimDrillFooter, exportYoyDimDrillPdf: this.exportYoyDimDrillPdf,
       yoyDimDrillName: st.yoyDimDrill ? ((st.yoyDimDrill.label || st.yoyDimDrill.value) + (st.yoyDimDrillStore ? ' · ' + st.yoyDimDrillStoreLabel : '')) : '',
       yoyDimDrillKicker: st.yoyDimDrill ? (({ sub: 'Sub-Category', brand: 'Brand', region: 'Region', city: 'City', items: 'Item' }[st.yoyDimDrill.type] || 'Category') + ' · ' + yoyPeriodLabel) : '',
       closeYoyDimDrill: () => this.setState({ yoyDimDrill: null, yoyDimDrillStore: null, yoyDimDrillStoreLabel: '', tableZoom: 1 }),

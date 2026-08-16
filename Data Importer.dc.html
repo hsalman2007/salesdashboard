@@ -75,6 +75,64 @@
 <button class="btn btn-primary btn-block" onClick="{{downloadWholesale}}" style="margin-bottom:var(--space-6)">Download wholesale.json ({{wholesaleCount}} rows)</button>
 </sc-if>
 
+<div class="card elev-sm" style="margin-bottom:var(--space-6)">
+<label style="display:block;font-size:13px;margin-bottom:8px;color:var(--color-neutral-500)">YOY comparison — item-level daily sales .csv exports (columns: TransactionDate, Store No#, Receipt No#, Item No#, TotalSales, TotalSold, TotalCost). Receipt No# repeats across the SKUs of an invoice and is counted as distinct invoices per store/day, so yoy.json, yoy-items.json and yoy-invoices.json all come from this one upload. Columns are matched by header name, so order can vary. Days present in an upload replace that year's existing days.</label>
+<div style="display:flex;flex-direction:column;gap:var(--space-3)">
+<div>
+<label style="display:block;font-size:12px;margin-bottom:4px;color:var(--color-neutral-500)">Current year (CY) .csv</label>
+<input type="file" accept=".csv" onChange="{{onYoyCyFile}}" style="font-size:14px;color:var(--color-text)">
+<span style="font-size:12px;color:var(--color-neutral-500);margin-left:8px">{{yoyCyFileName}}</span>
+</div>
+<div>
+<label style="display:block;font-size:12px;margin-bottom:4px;color:var(--color-neutral-500)">Last year (LY) .csv</label>
+<input type="file" accept=".csv" onChange="{{onYoyLyFile}}" style="font-size:14px;color:var(--color-text)">
+<span style="font-size:12px;color:var(--color-neutral-500);margin-left:8px">{{yoyLyFileName}}</span>
+</div>
+<button class="btn btn-primary" onClick="{{mergeYoyFiles}}" disabled="{{!canMergeYoy}}" style="align-self:flex-start">Merge into yoy.json</button>
+</div>
+</div>
+
+<div class="card elev-sm" style="margin-bottom:var(--space-6)">
+<label style="display:block;font-size:13px;margin-bottom:8px;color:var(--color-neutral-500)">YOY invoices — legacy fallback for dates before 11 Aug 2026. Store/day counts .csv (TransactionDate, Store No#, DistinctInvoices). Not needed once the YOY upload above carries an invoice-number column.</label>
+<div style="display:flex;flex-direction:column;gap:var(--space-3)">
+<div>
+<label style="display:block;font-size:12px;margin-bottom:4px;color:var(--color-neutral-500)">Current year (CY) .csv</label>
+<input type="file" accept=".csv" onChange="{{onYoyInvCyFile}}" style="font-size:14px;color:var(--color-text)">
+<span style="font-size:12px;color:var(--color-neutral-500);margin-left:8px">{{yoyInvCyFileName}}</span>
+</div>
+<div>
+<label style="display:block;font-size:12px;margin-bottom:4px;color:var(--color-neutral-500)">Last year (LY) .csv</label>
+<input type="file" accept=".csv" onChange="{{onYoyInvLyFile}}" style="font-size:14px;color:var(--color-text)">
+<span style="font-size:12px;color:var(--color-neutral-500);margin-left:8px">{{yoyInvLyFileName}}</span>
+</div>
+<button class="btn btn-primary" onClick="{{mergeYoyInvFiles}}" disabled="{{!canMergeYoyInv}}" style="align-self:flex-start">Merge into yoy-invoices.json</button>
+</div>
+</div>
+
+<sc-if value="{{yoyInvStatus}}" hint-placeholder-val="{{false}}">
+<div class="card elev-sm" style="margin-bottom:var(--space-6);white-space:pre-wrap;font-size:13px;line-height:1.6">{{yoyInvStatus}}</div>
+</sc-if>
+<sc-if value="{{hasYoyInvResult}}" hint-placeholder-val="{{false}}">
+<div style="margin-bottom:var(--space-6)">
+<button class="btn btn-primary btn-block" onClick="{{downloadYoyInv}}">Download yoy-invoices.json ({{yoyInvCount}} rows)</button>
+</div>
+</sc-if>
+
+<sc-if value="{{yoyStatus}}" hint-placeholder-val="{{false}}">
+<div class="card elev-sm" style="margin-bottom:var(--space-6);white-space:pre-wrap;font-size:13px;line-height:1.6">{{yoyStatus}}</div>
+</sc-if>
+
+<sc-if value="{{hasYoyResult}}" hint-placeholder-val="{{false}}">
+<h3 style="font-family:var(--font-heading);font-size:17px;margin:0 0 var(--space-3)">Updated YOY files — download both and replace in your repo's <code>data/</code> folder</h3>
+<div style="display:flex;flex-direction:column;gap:var(--space-2);margin-bottom:var(--space-6)">
+<button class="btn btn-primary btn-block" onClick="{{downloadYoy}}">Download yoy.json ({{yoyCount}} rows)</button>
+<button class="btn btn-secondary btn-block" onClick="{{downloadYoyItems}}">Download yoy-items.json ({{yoyItemsCount}} rows)</button>
+<sc-if value="{{hasYoyInvBundle}}" hint-placeholder-val="{{false}}">
+<button class="btn btn-secondary btn-block" onClick="{{downloadYoyInvBundle}}">Download yoy-invoices.json ({{yoyInvBundleCount}} rows)</button>
+</sc-if>
+</div>
+</sc-if>
+
 <sc-if value="{{status}}" hint-placeholder-val="{{false}}">
 <div class="card elev-sm" style="margin-bottom:var(--space-6);white-space:pre-wrap;font-size:13px;line-height:1.6">{{status}}</div>
 </sc-if>
@@ -94,7 +152,7 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
-  state = { status: '', hasResult: false, downloads: [], wholesaleStatus: '', hasWholesaleResult: false, wholesaleDownload: null, wholesaleCount: 0, wholesaleSalesFile: null, wholesaleReturnsFile: null, stcQitafStatus: '', hasStcQitafResult: false, stcQitafDownload: null, stcQitafCount: 0 };
+  state = { status: '', hasResult: false, downloads: [], wholesaleStatus: '', hasWholesaleResult: false, wholesaleDownload: null, wholesaleCount: 0, wholesaleSalesFile: null, wholesaleReturnsFile: null, stcQitafStatus: '', hasStcQitafResult: false, stcQitafDownload: null, stcQitafCount: 0, yoyCyFile: null, yoyLyFile: null, yoyStatus: '', hasYoyResult: false, yoyDownload: null, yoyCount: 0, yoyItemsDownload: null, yoyItemsCount: 0, yoyInvCyFile: null, yoyInvLyFile: null, yoyInvStatus: '', hasYoyInvResult: false, yoyInvDownload: null, yoyInvCount: 0, yoyInvBundleDownload: null, yoyInvBundleCount: 0 };
 
   fmtStatus(lines) { return lines.join('\n'); }
 
@@ -516,6 +574,284 @@ class Component extends DCLogic {
     return s.includes('-') ? s.split('-').pop() : s;
   }
 
+  onYoyCyFile(e) { this.setState({ yoyCyFile: (e.target.files && e.target.files[0]) || null }); }
+  onYoyInvCyFile(e) { this.setState({ yoyInvCyFile: (e.target.files && e.target.files[0]) || null }); }
+  onYoyInvLyFile(e) { this.setState({ yoyInvLyFile: (e.target.files && e.target.files[0]) || null }); }
+  downloadYoyInv() { if (this.state.yoyInvDownload) this.download('yoy-invoices.json', this.state.yoyInvDownload); }
+
+  async mergeYoyInvFiles() {
+    const cyFile = this.state.yoyInvCyFile, lyFile = this.state.yoyInvLyFile;
+    if (!cyFile && !lyFile) return;
+    this.setState({ yoyInvStatus: 'Reading files…', hasYoyInvResult: false });
+    try {
+      const base = await this.loadJson('data/yoy-invoices.json', null);
+      const map = {};
+      const daySet = new Set();
+      let cyYear = base && base.cyYear, lyYear = base && base.lyYear;
+      if (base && base.rows) {
+        base.days.forEach(d => daySet.add(d));
+        for (const code in base.rows) base.rows[code].forEach(r => { map[code + '|' + base.days[r[0]]] = [r[1], r[2]]; });
+      }
+      const lines = [];
+      let parsed = 0;
+      const ingest = async (file, off) => {
+        if (!file) return null;
+        const rows = (await file.text()).split(/\r?\n/);
+        const affected = new Set(), years = new Set();
+        const recs = [];
+        for (let i = 1; i < rows.length; i++) {
+          if (!rows[i]) continue;
+          const p = this.parseCsvLine(rows[i]);
+          if (p.length < 3) continue;
+          const iso = p[0].trim();
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) continue;
+          years.add(iso.slice(0, 4));
+          const day = iso.slice(5);
+          affected.add(day); daySet.add(day);
+          recs.push([p[1].trim() + '|' + day, this.csvNum(p[2])]);
+        }
+        for (const key in map) if (affected.has(key.split('|')[1])) map[key][off] = 0;
+        recs.forEach(([key, v]) => { (map[key] || (map[key] = [0, 0]))[off] += v; parsed++; });
+        return { days: affected.size, year: [...years].sort().pop() };
+      };
+      const cyInfo = await ingest(cyFile, 0);
+      const lyInfo = await ingest(lyFile, 1);
+      if (cyInfo && cyInfo.year) cyYear = +cyInfo.year;
+      if (lyInfo && lyInfo.year) lyYear = +lyInfo.year;
+      const days = [...daySet].sort();
+      const dayIdx = {}; days.forEach((d, i) => dayIdx[d] = i);
+      const outRows = {};
+      let rowCount = 0;
+      for (const key in map) {
+        const a = map[key];
+        if (!a[0] && !a[1]) continue;
+        const [code, day] = key.split('|');
+        (outRows[code] || (outRows[code] = [])).push([dayIdx[day], a[0], a[1]]);
+        rowCount++;
+      }
+      const out = { generated: new Date().toISOString(), cyYear: cyYear || new Date().getFullYear(), lyYear: lyYear || (new Date().getFullYear() - 1), days, rows: outRows };
+      lines.push('Parsed ' + parsed.toLocaleString('en-US') + ' CSV lines.');
+      if (cyInfo) lines.push('CY ' + (cyInfo.year || '?') + ': ' + cyInfo.days + ' day(s) replaced.');
+      if (lyInfo) lines.push('LY ' + (lyInfo.year || '?') + ': ' + lyInfo.days + ' day(s) replaced.');
+      lines.push('Result: ' + rowCount.toLocaleString('en-US') + ' store-days across ' + Object.keys(outRows).length + ' stores.');
+      this.setState({ yoyInvStatus: this.fmtStatus(lines), hasYoyInvResult: true, yoyInvDownload: out, yoyInvCount: rowCount });
+    } catch (err) {
+      console.error(err);
+      this.setState({ yoyInvStatus: 'Merge failed: ' + (err && err.message ? err.message : String(err)), hasYoyInvResult: false });
+    }
+  }
+
+  onYoyLyFile(e) { this.setState({ yoyLyFile: (e.target.files && e.target.files[0]) || null }); }
+  downloadYoy() { if (this.state.yoyDownload) this.download('yoy.json', this.state.yoyDownload); }
+  downloadYoyItems() { if (this.state.yoyItemsDownload) this.download('yoy-items.json', this.state.yoyItemsDownload); }
+  downloadYoyInvBundle() { if (this.state.yoyInvBundleDownload) this.download('yoy-invoices.json', this.state.yoyInvBundleDownload); }
+
+  // quote-aware CSV split — these exports wrap thousands-separated numbers ("1,252.18")
+  parseCsvLine(L) {
+    const out = []; let cur = '', q = false;
+    for (let i = 0; i < L.length; i++) {
+      const ch = L[i];
+      if (q) { if (ch === '"') { if (L[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += ch; }
+      else if (ch === '"') q = true;
+      else if (ch === ',') { out.push(cur); cur = ''; }
+      else cur += ch;
+    }
+    out.push(cur); return out;
+  }
+
+  csvNum(v) { const n = parseFloat(String(v).replace(/[",\s]/g, '')); return isNaN(n) ? 0 : n; }
+
+  async mergeYoyFiles() {
+    const cyFile = this.state.yoyCyFile, lyFile = this.state.yoyLyFile;
+    if (!cyFile && !lyFile) return;
+    this.setState({ yoyStatus: 'Reading files…', hasYoyResult: false });
+    try {
+      const [base, itemBase, itemMaster, invBase] = await Promise.all([
+        this.loadJson('data/yoy.json', null),
+        this.loadJson('data/yoy-items.json', null),
+        this.loadJson('data/item-master.json', []),
+        this.loadJson('data/yoy-invoices.json', null)
+      ]);
+      // store|MM-DD -> [cyInvoices, lyInvoices], carried forward from the existing file
+      const invMap = {};
+      if (invBase && invBase.rows) {
+        for (const code in invBase.rows) invBase.rows[code].forEach(r => { invMap[code + '|' + invBase.days[r[0]]] = [r[1], r[2]]; });
+      }
+      let invFromCsv = 0;
+      // item-level map: store|MM-DD|sku -> 8 measures
+      const imap = {};
+      if (itemBase && itemBase.rows) {
+        for (const code in itemBase.rows) {
+          itemBase.rows[code].forEach(r => {
+            imap[code + '|' + itemBase.days[r[0]] + '|' + itemBase.skus[r[1]]] = [r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9]];
+          });
+        }
+      }
+      const meta = {};
+      itemMaster.forEach(i => meta[i.sku] = [i.category || '—', i.subCategory || '—', i.brand || '—']);
+
+      // rebuild a flat map from the existing file: store|MM-DD|cat|sub|brand -> 8 measures
+      const map = {};
+      const daySet = new Set();
+      let cyYear = null, lyYear = null;
+      if (base && base.rows) {
+        cyYear = base.cyYear; lyYear = base.lyYear;
+        base.days.forEach(d => daySet.add(d));
+        for (const code in base.rows) {
+          base.rows[code].forEach(r => {
+            const key = code + '|' + base.days[r[0]] + '|' + base.cats[r[1]] + '|' + base.subs[r[2]] + '|' + base.brands[r[3]];
+            map[key] = [r[4], r[5], r[6], r[7], r[8], r[9], r[10], r[11]];
+          });
+        }
+      }
+
+      const lines = [];
+      const lineSeen = new Set();
+      let missing = 0, parsed = 0;
+      const ingest = async (file, off) => {
+        if (!file) return null;
+        const text = await file.text();
+        const rows = text.split(/\r?\n/);
+        const affected = new Set();
+        const years = new Set();
+        // columns are resolved by header name — the export's column order has changed over time
+        const header = this.parseCsvLine(rows[0] || '').map(h => h.trim().toLowerCase().replace(/[^a-z0-9]/g, ''));
+        const find = (re, fallback) => { const i = header.findIndex(h => re.test(h)); return i >= 0 ? i : fallback; };
+        const C = {
+          date: find(/date/, 0),
+          store: find(/store/, 1),
+          item: find(/^item|itemno|sku/, 2),
+          sales: find(/sales/, 3),
+          sold: find(/sold|qty|quantity/, 4),
+          cost: find(/cost/, 5)
+        };
+        // Receipt No# repeats across the SKUs of one invoice — count DISTINCT values per store/day.
+        // A legacy TotalDistinctReceipts count column is not an id and is ignored.
+        const invCol = header.findIndex(h => /invoice|receipt|bill/.test(h) && !/distinct|count|total|lines/.test(h));
+        const hasInvoiceIds = invCol >= 0;
+        const invSets = {};
+        const minCols = Math.max(C.date, C.store, C.item, C.sales, C.sold, C.cost, invCol) + 1;
+        for (let i = 1; i < rows.length; i++) {
+          const L = rows[i];
+          if (!L) continue;
+          const p = this.parseCsvLine(L);
+          if (p.length < minCols) continue;
+          const iso = p[C.date].trim();
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) continue;
+          years.add(iso.slice(0, 4));
+          affected.add(iso.slice(5));
+        }
+        // clear this year's measures for every affected day before re-adding
+        for (const key in map) {
+          const day = key.split('|')[1];
+          if (affected.has(day)) { const m = map[key]; m[off] = 0; m[off + 1] = 0; m[off + 2] = 0; m[off + 3] = 0; }
+        }
+        for (const key in imap) {
+          const day = key.split('|')[1];
+          if (affected.has(day)) { const m = imap[key]; m[off] = 0; m[off + 1] = 0; m[off + 2] = 0; m[off + 3] = 0; }
+        }
+        for (let i = 1; i < rows.length; i++) {
+          const L = rows[i];
+          if (!L) continue;
+          const p = this.parseCsvLine(L);
+          if (p.length < minCols) continue;
+          const iso = p[C.date].trim();
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) continue;
+          const m = meta[p[C.item].trim()];
+          if (!m) { missing++; continue; }
+          const day = iso.slice(5);
+          daySet.add(day);
+          const key = p[C.store].trim() + '|' + day + '|' + m[0] + '|' + m[1] + '|' + m[2];
+          let a = map[key];
+          if (!a) a = map[key] = [0, 0, 0, 0, 0, 0, 0, 0];
+          a[off] += this.csvNum(p[C.sales]); a[off + 1] += this.csvNum(p[C.sold]); a[off + 2] += this.csvNum(p[C.cost]);
+          const ikey = p[C.store].trim() + '|' + day + '|' + p[C.item].trim();
+          // receipt lines = distinct item lines, not the sum of per-item receipt counts
+          if (!lineSeen.has(ikey + '|' + off)) { lineSeen.add(ikey + '|' + off); a[off + 3] += 1; }
+          let ia = imap[ikey];
+          if (!ia) ia = imap[ikey] = [0, 0, 0, 0, 0, 0, 0, 0];
+          ia[off] += this.csvNum(p[C.sales]); ia[off + 1] += this.csvNum(p[C.sold]); ia[off + 2] += this.csvNum(p[C.cost]); ia[off + 3] = 1;
+          if (hasInvoiceIds) {
+            const inv = (p[invCol] || '').trim();
+            if (inv) {
+              const ik = p[C.store].trim() + '|' + day;
+              (invSets[ik] || (invSets[ik] = new Set())).add(inv);
+            }
+          }
+          parsed++;
+        }
+        if (hasInvoiceIds) {
+          const invOff = off === 0 ? 0 : 1;
+          for (const key in invMap) if (affected.has(key.split('|')[1])) invMap[key][invOff] = 0;
+          for (const key in invSets) {
+            (invMap[key] || (invMap[key] = [0, 0]))[invOff] = invSets[key].size;
+            invFromCsv += invSets[key].size;
+          }
+        }
+        return { days: affected.size, year: [...years].sort().pop(), invoices: hasInvoiceIds };
+      };
+      const cyInfo = await ingest(cyFile, 0);
+      const lyInfo = await ingest(lyFile, 4);
+      if (cyInfo && cyInfo.year) cyYear = +cyInfo.year;
+      if (lyInfo && lyInfo.year) lyYear = +lyInfo.year;
+
+      const days = [...daySet].sort();
+      const dayIdx = {}; days.forEach((d, i) => dayIdx[d] = i);
+      const cats = [], subs = [], brands = [], ci = {}, si = {}, bi = {};
+      const idx = (arr, m, v) => { if (m[v] === undefined) { m[v] = arr.length; arr.push(v); } return m[v]; };
+      const outRows = {};
+      let rowCount = 0;
+      const r2 = v => Math.round(v * 100) / 100;
+      for (const key in map) {
+        const a = map[key];
+        if (!a.some(v => v)) continue;
+        const [code, day, cat, sub, brand] = key.split('|');
+        (outRows[code] || (outRows[code] = [])).push([dayIdx[day], idx(cats, ci, cat), idx(subs, si, sub), idx(brands, bi, brand),
+          r2(a[0]), a[1], r2(a[2]), a[3], r2(a[4]), a[5], r2(a[6]), a[7]]);
+        rowCount++;
+      }
+      const out = { generated: new Date().toISOString(), cyYear: cyYear || new Date().getFullYear(), lyYear: lyYear || (new Date().getFullYear() - 1), days, cats, subs, brands, rows: outRows };
+      const skus = [], sk = {};
+      const itemOutRows = {};
+      let itemRowCount = 0;
+      for (const key in imap) {
+        const a = imap[key];
+        if (!a.some(v => v)) continue;
+        const parts = key.split('|');
+        const code = parts[0], day = parts[1], sku = parts.slice(2).join('|');
+        (itemOutRows[code] || (itemOutRows[code] = [])).push([dayIdx[day], idx(skus, sk, sku),
+          r2(a[0]), a[1], r2(a[2]), a[3], r2(a[4]), a[5], r2(a[6]), a[7]]);
+        itemRowCount++;
+      }
+      const itemOut = { generated: out.generated, cyYear: out.cyYear, lyYear: out.lyYear, days, skus, rows: itemOutRows };
+      const invRows = {};
+      let invRowCount = 0;
+      for (const key in invMap) {
+        const a = invMap[key];
+        if (!a[0] && !a[1]) continue;
+        const [code, day] = key.split('|');
+        if (dayIdx[day] === undefined) continue;
+        (invRows[code] || (invRows[code] = [])).push([dayIdx[day], a[0], a[1]]);
+        invRowCount++;
+      }
+      const invOut = { generated: out.generated, cyYear: out.cyYear, lyYear: out.lyYear, days, rows: invRows };
+      lines.push('Parsed ' + parsed.toLocaleString('en-US') + ' CSV lines.');
+      if (cyInfo) lines.push('CY ' + (cyInfo.year || '?') + ': ' + cyInfo.days + ' day(s) replaced.');
+      if (lyInfo) lines.push('LY ' + (lyInfo.year || '?') + ': ' + lyInfo.days + ' day(s) replaced.');
+      if (missing) lines.push(missing.toLocaleString('en-US') + ' line(s) skipped — item not in item-master.json.');
+      lines.push('Result: ' + rowCount.toLocaleString('en-US') + ' rows across ' + Object.keys(outRows).length + ' stores, ' + days.length + ' calendar days.');
+      lines.push('Item-level: ' + itemRowCount.toLocaleString('en-US') + ' rows across ' + skus.length.toLocaleString('en-US') + ' SKUs.');
+      const sawInv = (cyInfo && cyInfo.invoices) || (lyInfo && lyInfo.invoices);
+      lines.push(sawInv
+        ? 'Invoices: ' + invFromCsv.toLocaleString('en-US') + ' distinct invoice(s) counted from the invoice column — ' + invRowCount.toLocaleString('en-US') + ' store-days.'
+        : 'Invoices: no invoice-number column found — existing yoy-invoices.json kept unchanged.');
+      this.setState({ yoyStatus: this.fmtStatus(lines), hasYoyResult: true, yoyDownload: out, yoyCount: rowCount, yoyItemsDownload: itemOut, yoyItemsCount: itemRowCount, yoyInvBundleDownload: invOut, yoyInvBundleCount: invRowCount });
+    } catch (err) {
+      console.error(err);
+      this.setState({ yoyStatus: 'Merge failed: ' + (err && err.message ? err.message : String(err)), hasYoyResult: false });
+    }
+  }
+
   onWholesaleSalesFile(e) {
     const f = e.target.files && e.target.files[0];
     this.setState({ wholesaleSalesFile: f || null });
@@ -679,7 +1015,22 @@ class Component extends DCLogic {
       canMergeWholesale: !!(this.state.wholesaleSalesFile || this.state.wholesaleReturnsFile),
       mergeWholesaleFiles: () => this.mergeWholesaleFiles(), downloadWholesale: () => this.downloadWholesale(),
       stcQitafStatus: this.state.stcQitafStatus, hasStcQitafResult: this.state.hasStcQitafResult, stcQitafCount: this.state.stcQitafCount,
-      onStcQitafFile: e => this.onStcQitafFile(e), downloadStcQitaf: () => this.downloadStcQitaf() };
+      onStcQitafFile: e => this.onStcQitafFile(e), downloadStcQitaf: () => this.downloadStcQitaf(),
+      yoyStatus: this.state.yoyStatus, hasYoyResult: this.state.hasYoyResult, yoyCount: this.state.yoyCount,
+      onYoyCyFile: e => this.onYoyCyFile(e), onYoyLyFile: e => this.onYoyLyFile(e),
+      yoyCyFileName: this.state.yoyCyFile ? this.state.yoyCyFile.name : 'no file chosen',
+      yoyLyFileName: this.state.yoyLyFile ? this.state.yoyLyFile.name : 'no file chosen',
+      canMergeYoy: !!(this.state.yoyCyFile || this.state.yoyLyFile),
+      mergeYoyFiles: () => this.mergeYoyFiles(), downloadYoy: () => this.downloadYoy(),
+      yoyItemsCount: this.state.yoyItemsCount, downloadYoyItems: () => this.downloadYoyItems(),
+      yoyInvBundleCount: this.state.yoyInvBundleCount, downloadYoyInvBundle: () => this.downloadYoyInvBundle(),
+      hasYoyInvBundle: !!this.state.yoyInvBundleDownload,
+      yoyInvStatus: this.state.yoyInvStatus, hasYoyInvResult: this.state.hasYoyInvResult, yoyInvCount: this.state.yoyInvCount,
+      onYoyInvCyFile: e => this.onYoyInvCyFile(e), onYoyInvLyFile: e => this.onYoyInvLyFile(e),
+      yoyInvCyFileName: this.state.yoyInvCyFile ? this.state.yoyInvCyFile.name : 'no file chosen',
+      yoyInvLyFileName: this.state.yoyInvLyFile ? this.state.yoyInvLyFile.name : 'no file chosen',
+      canMergeYoyInv: !!(this.state.yoyInvCyFile || this.state.yoyInvLyFile),
+      mergeYoyInvFiles: () => this.mergeYoyInvFiles(), downloadYoyInv: () => this.downloadYoyInv() };
   }
 }
 </script>
