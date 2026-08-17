@@ -1964,6 +1964,7 @@ class Component extends DCLogic {
         return m ? { ...it, itemDesc: m.descEn || it.itemDesc, image: m.image || '', unitCost: m.unitCost || 0, rsp: m.rspXVAT || 0, division: m.category || it.division, category: m.subCategory || it.category, brand: m.brand || 'Unknown' } : { ...it, image: '', unitCost: 0, brand: 'Unknown' };
       });
       this.itemMeta = {};
+      itemMaster.forEach(m => { this.itemMeta[m.sku] = { itemNo: m.sku, itemDesc: m.descEn || m.sku, image: m.image || '', unitCost: m.unitCost || 0, rsp: m.rspXVAT || 0, division: m.category, category: m.subCategory, brand: m.brand || 'Unknown' }; });
       itemsRaw.forEach(it => this.itemMeta[it.itemNo] = it);
       const leakedWholesaleBuckets = buckets.filter(b => b.store === 'RYVS03');
       buckets = buckets.filter(b => b.store !== 'RYVS03');
