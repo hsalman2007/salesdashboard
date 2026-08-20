@@ -548,9 +548,6 @@ a:hover{color:var(--color-accent-300)}
 
 <sc-if value="{{isInvoices}}" hint-placeholder-val="{{false}}">
 <section>
-<div style="display:flex;gap:8px;margin-bottom:var(--space-4)">
-<button class="btn {{storeDetailDailyBtnClass}}" onClick="{{setStoreDetailViewDaily}}">Daily</button><button class="btn {{storeDetailCategoryBtnClass}}" onClick="{{setStoreDetailViewCategory}}">By Category</button>
-</div>
 <div class="field" style="max-width:280px;margin-bottom:var(--space-4)">
 <label>Search store</label>
 <input class="input" type="text" placeholder="e.g. Abha" value="{{search}}" onChange="{{setSearch}}">
