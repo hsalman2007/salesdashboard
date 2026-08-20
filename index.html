@@ -889,11 +889,34 @@ a:hover{color:var(--color-accent-300)}
 <sc-if value="{{isSnapshot}}" hint-placeholder-val="{{false}}">
 <section>
 <div style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:var(--space-4);margin-bottom:var(--space-6)">
-<div class="field" style="min-width:190px">
+<div class="field" style="min-width:190px;position:relative">
 <label>Business date</label>
-<select class="input" value="{{snapDate}}" onChange="{{setSnapDate}}">
-<sc-for list="{{snapDateOptions}}" as="d" hint-placeholder-count="5"><option value="{{d.value}}">{{d.label}}</option></sc-for>
-</select>
+<button class="input" onClick="{{toggleSnapDateMenu}}" style="text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+<span>{{snapDateLabel}}</span><span style="font-size:10px">▾</span>
+</button>
+<sc-if value="{{snapDateMenuOpen}}" hint-placeholder-val="{{false}}">
+<div class="card elev-md" style="position:absolute;top:100%;left:0;z-index:20;margin-top:4px;padding:var(--space-3);width:240px">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-2)">
+<button class="btn btn-ghost" onClick="{{snapCalendarPrevMonth}}" disabled="{{snapCalendarAtStart}}" style="font-size:12px;padding:2px 8px">‹</button>
+<div style="font-weight:600;font-size:13px">{{snapCalendarMonthLabel}}</div>
+<button class="btn btn-ghost" onClick="{{snapCalendarNextMonth}}" disabled="{{snapCalendarAtEnd}}" style="font-size:12px;padding:2px 8px">›</button>
+</div>
+<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;font-size:11px;text-align:center;color:var(--color-neutral-500);margin-bottom:4px">
+<div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">
+<sc-for list="{{snapCalendarCells}}" as="c" hint-placeholder-count="30">
+<sc-if value="{{c.hasData}}" hint-placeholder-val="{{false}}">
+<button onClick="{{c.onClick}}" style="{{c.style}}" title="{{c.iso}}">{{c.day}}</button>
+</sc-if>
+<sc-if value="{{c.blank}}" hint-placeholder-val="{{false}}"><div></div></sc-if>
+</sc-for>
+</div>
+<div style="display:flex;justify-content:flex-end;margin-top:var(--space-3)">
+<button class="btn btn-ghost" onClick="{{toggleSnapDateMenu}}" style="font-size:12px;padding:4px 8px">Done</button>
+</div>
+</div>
+</sc-if>
 </div>
 <button class="btn btn-primary" onClick="{{exportSnapshotPdf}}">Export PDF</button>
 <div style="font-size:12px;color:var(--color-neutral-500);padding-bottom:10px">4 pages · regions, stores, wholesale &amp; 3P, STC Qitaf</div>
@@ -1881,6 +1904,8 @@ class Component extends DCLogic {
     yoyCalOpen: false,
     yoyCalMonth: null,
     snapDate: null,
+    snapDateMenuOpen: false,
+    snapCalendarMonthIndex: null,
     yoyFiltersOpen: false,
     yoyDrillStore: null,
     yoyDimDrill: null,
@@ -4036,6 +4061,37 @@ class Component extends DCLogic {
     const snapDates = [...new Set((st.buckets || []).map(r => r.date))].sort().reverse();
     const snapDate = st.snapDate && snapDates.includes(st.snapDate) ? st.snapDate : (snapDates[0] || null);
     const snapVals = (st.page === 'snapshot' && snapDate) ? this.snapshotData(snapDate) : {};
+    const snapDateSet = new Set(snapDates);
+    const snapMonthKeys = [...new Set(snapDates.map(d => d.slice(0, 7)))].sort();
+    const snapToISO = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    let snapCalendarCells = [], snapCalendarMonthLabel = '', snapCalendarAtStart = true, snapCalendarAtEnd = true;
+    let snapCalendarPrevMonth = () => {}, snapCalendarNextMonth = () => {};
+    if (snapMonthKeys.length) {
+      const defaultIdx = snapDate ? snapMonthKeys.indexOf(snapDate.slice(0, 7)) : snapMonthKeys.length - 1;
+      const sIdx = Math.min(st.snapCalendarMonthIndex == null ? (defaultIdx < 0 ? snapMonthKeys.length - 1 : defaultIdx) : st.snapCalendarMonthIndex, snapMonthKeys.length - 1);
+      const sMonthKey = snapMonthKeys[sIdx];
+      const [smy, smm] = sMonthKey.split('-').map(Number);
+      const sMonthStart = new Date(smy, smm - 1, 1);
+      snapCalendarMonthLabel = sMonthStart.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      snapCalendarAtStart = sIdx === 0;
+      snapCalendarAtEnd = sIdx === snapMonthKeys.length - 1;
+      snapCalendarPrevMonth = () => this.setState({ snapCalendarMonthIndex: Math.max(0, sIdx - 1) });
+      snapCalendarNextMonth = () => this.setState({ snapCalendarMonthIndex: Math.min(snapMonthKeys.length - 1, sIdx + 1) });
+      const sLeadBlanks = sMonthStart.getDay();
+      for (let i = 0; i < sLeadBlanks; i++) snapCalendarCells.push({ blank: true, hasData: false });
+      for (let d = new Date(sMonthStart); d.getMonth() === smm - 1; d.setDate(d.getDate() + 1)) {
+        const iso = snapToISO(d);
+        const hasData = snapDateSet.has(iso);
+        const isSelected = iso === snapDate;
+        let bg = 'transparent', color = hasData ? 'inherit' : 'var(--color-neutral-300)';
+        if (isSelected) { bg = 'var(--color-accent-500)'; color = '#fff'; }
+        snapCalendarCells.push({
+          blank: false, hasData: true, iso, day: d.getDate(),
+          style: 'padding:4px 0;border-radius:6px;font-size:12px;cursor:' + (hasData ? 'pointer' : 'default') + ';border:none;background:' + bg + ';color:' + color,
+          onClick: hasData ? (() => this.setState({ snapDate: iso, snapDateMenuOpen: false })) : (() => {})
+        });
+      }
+    }
     const pageOrder = [...(isSnapshotUser ? ['snapshot'] : []), 'overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'hourlySales', 'yoy', 'wholesale', 'stcQitaf'].filter(p => !(st.auth && st.auth.region !== 'All' && p === 'wholesale'));
     const isMobile = st.isMobile;
 
@@ -4218,8 +4274,10 @@ class Component extends DCLogic {
       showFilterToggle: isMobile && st.page !== 'wholesale' && st.page !== 'yoy' && st.page !== 'snapshot',
       isSnapshot: st.page === 'snapshot',
       snapDate: snapDate,
-      snapDateOptions: snapDates.map(d => ({ value: d, label: new Date(d + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) })),
-      setSnapDate: e => this.setState({ snapDate: e.target.value }),
+      snapDateLabel: snapDate ? new Date(snapDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : 'Select date',
+      snapDateMenuOpen: !!st.snapDateMenuOpen,
+      toggleSnapDateMenu: () => this.setState({ snapDateMenuOpen: !st.snapDateMenuOpen }),
+      snapCalendarCells, snapCalendarMonthLabel, snapCalendarAtStart, snapCalendarAtEnd, snapCalendarPrevMonth, snapCalendarNextMonth,
       exportSnapshotPdf: () => this.exportSnapshotPdf(),
       snapPdfNote: st.snapPdfNote || '',
       snapTwoCol: isMobile ? '1fr' : '1fr 1fr',
