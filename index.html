@@ -3503,7 +3503,11 @@ class Component extends DCLogic {
         const a = storeAggForDate[b.store];
         a.netSales += b.netSales; a.qty += b.qty; a.invoices += b.invoices;
       });
-      dailyDetailRows = Object.values(storeAggForDate).sort((a, b) => b.netSales - a.netSales).map((r, i) => {
+      const dailyDetailSortedArr = Object.values(storeAggForDate).sort((a, b) => b.netSales - a.netSales);
+      const ddTotal = dailyDetailSortedArr.length;
+      const ddGreenCut = Math.max(1, Math.ceil(ddTotal / 3));
+      const ddYellowCut = Math.max(ddGreenCut, Math.ceil(ddTotal * 2 / 3));
+      dailyDetailRows = dailyDetailSortedArr.map((r, i) => {
         const atv = r.invoices ? r.netSales / r.invoices : 0;
         const upt = r.invoices ? r.qty / r.invoices : 0;
         const singleInv = singleItemByStoreForDate.hasOwnProperty(r.store) ? singleItemByStoreForDate[r.store] : null;
@@ -3512,7 +3516,7 @@ class Component extends DCLogic {
         return {
           rank: i + 1, store: r.store, storeName: r.storeName, netSalesLabel: this.fmtMoney(r.netSales), qtyLabel: this.fmtNum(r.qty), invoicesLabel: this.fmtNum(r.invoices),
           atvLabel: this.fmtMoney(atv), uptLabel: Math.abs(upt).toFixed(2), aspLabel: this.fmtMoney(asp),
-          rowBg: i < 10 ? '#e3f5e6' : i < 20 ? '#f6f0e0' : '#fbe7e7',
+          rowBg: i < ddGreenCut ? '#e3f5e6' : i < ddYellowCut ? '#f6f0e0' : '#fbe7e7',
           singleItemInvoicesLabel: singleInv === null ? '—' : this.fmtNum(singleInv),
           singleItemPctLabel: singlePct === null ? '—' : Math.abs(singlePct).toFixed(1) + '%',
           onClick: () => this.setState({ selectedDailyStore: r.store, selectedDailyStoreLabel: r.storeName })
