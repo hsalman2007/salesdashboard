@@ -818,6 +818,7 @@ a:hover{color:var(--color-accent-300)}
 <div style="display:flex;gap:12px;align-items:center">
 <button onClick="{{closeDailyDetail}}" style="border:none;background:none;cursor:pointer;font-size:18px;line-height:1;color:var(--color-neutral-500);padding:4px">←</button>
 <div style="flex:1;min-width:0;font-weight:700;font-size:15px">Store ranking — {{dailyDetailLabel}}</div>
+<button class="btn btn-ghost" onClick="{{openDailyRanking}}" style="font-size:12px;padding:6px 10px;white-space:nowrap">Ranking</button>
 <button onClick="{{closeDailyDetail}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
 </div>
 <div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow-y:auto;overflow-x:hidden;flex:1;touch-action:pan-y">
@@ -826,6 +827,29 @@ a:hover{color:var(--color-accent-300)}
 <tbody>
 <sc-for list="{{dailyDetailRows}}" as="s" hint-placeholder-count="10">
 <tr onClick="{{s.onClick}}" style="cursor:pointer;background:{{s.rowBg}}"><td style="font-weight:600">{{s.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{s.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{s.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.singleItemInvoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.singleItemPctLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{dailyRankingOpen}}" hint-placeholder-val="{{false}}">
+<div onClick="{{closeDailyRanking}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:var(--space-4);z-index:52">
+<div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:700px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5);touch-action:pinch-zoom">
+<div style="display:flex;gap:12px;align-items:center">
+<button onClick="{{closeDailyRanking}}" style="border:none;background:none;cursor:pointer;font-size:18px;line-height:1;color:var(--color-neutral-500);padding:4px">←</button>
+<div style="flex:1;min-width:0;font-weight:700;font-size:15px">Ranking — {{dailyDetailLabel}}</div>
+<button class="btn btn-ghost" onClick="{{exportDailyRankingPdf}}" style="font-size:12px;padding:6px 10px;white-space:nowrap">Download PDF</button>
+<button onClick="{{closeDailyRanking}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
+</div>
+<div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow-y:auto;overflow-x:hidden;flex:1;touch-action:pan-y">
+<table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
+<thead><tr><th>#</th><th style="text-align:left">Store</th><th>Sold qty</th><th>Invoices</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Single Inv</th><th>Single Inv%</th></tr></thead>
+<tbody>
+<sc-for list="{{dailyDetailRows}}" as="s" hint-placeholder-count="10">
+<tr style="background:{{s.rowBg}}"><td style="font-weight:600">{{s.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{s.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{s.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.singleItemInvoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.singleItemPctLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -2196,6 +2220,25 @@ class Component extends DCLogic {
     doc.save('item-ranking-' + (st.selectedDailyDate || '') + '-' + (st.selectedDailyStoreLabel || 'store').replace(/[^a-z0-9]+/gi, '-') + '.pdf');
   };
 
+  exportDailyRankingPdf = () => {
+    const rows = this._lastDailyDetailRows || [];
+    const st = this.state;
+    if (!rows.length || !window.jspdf) return;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(13);
+    doc.text('Ranking \u2014 ' + (st.selectedDailyDate || ''), 14, 15);
+    doc.autoTable({
+      startY: 22,
+      head: [['#', 'Store', 'Sold Qty', 'Invoices', 'ATV', 'UPT', 'ASP', 'Single Inv', 'Single Inv%']],
+      body: rows.map(r => [r.rank, r.storeName, r.qtyLabel, r.invoicesLabel, r.atvLabel, r.uptLabel, r.aspLabel, r.singleItemInvoicesLabel, r.singleItemPctLabel]),
+      styles: { fontSize: 9, valign: 'middle' },
+      headStyles: { fillColor: [99, 91, 255] },
+      columnStyles: { 1: { halign: 'left' } }
+    });
+    doc.save('ranking-' + (st.selectedDailyDate || '') + '.pdf');
+  };
+
   fmtMoney(n) { const v = Math.round(n || 0); return (v < 0 ? '-' : '') + Math.abs(v).toLocaleString('en-US'); }
   fmtNum(n) { const v = Math.round(n || 0); return (v < 0 ? '-' : '') + Math.abs(v).toLocaleString('en-US'); }
   fmtShort(n) {
@@ -3547,6 +3590,7 @@ class Component extends DCLogic {
           onClick: () => this.setState({ selectedDailyStore: r.store, selectedDailyStoreLabel: r.storeName })
         };
       });
+      this._lastDailyDetailRows = dailyDetailRows;
     }
 
     // daily store item ranking — items sold by a specific store on the selected date
@@ -4345,7 +4389,10 @@ class Component extends DCLogic {
       itemsSorted: itemsRows, itemsTotalCount: itemsFiltered.length, itemSearch: st.itemSearch,
       itemDetailOpen: !!st.selectedItemNo, itemDetailLabel: st.selectedItemLabel, itemDetailItemNo: st.selectedItemNoLabel, itemDetailImage: st.selectedItemImage, itemDetailRows, closeItemDetail: () => this.setState({ selectedItemNo: null, tableZoom: 1 }), stopPropagation: e => e.stopPropagation(),
       categoryDetailOpen: !!st.selectedCategoryKey, categoryDetailLabel: st.selectedCategoryLabel, categoryDetailRows, categoryDetailTotals: typeof categoryDetailTotals !== 'undefined' ? categoryDetailTotals : { netSalesLabel: '', qtyLabel: '', pctLabel: '' }, closeCategoryDetail: () => this.setState({ selectedCategoryKey: null, tableZoom: 1 }),
-      dailyDetailOpen: !!st.selectedDailyDate, dailyDetailLabel: st.selectedDailyDate, dailyDetailRows, closeDailyDetail: () => this.setState({ selectedDailyDate: null, selectedDailyStore: null, tableZoom: 1 }),
+      dailyDetailOpen: !!st.selectedDailyDate, dailyDetailLabel: st.selectedDailyDate, dailyDetailRows,
+      dailyRankingOpen: !!(st.selectedDailyDate && st.dailyRankingOpen), exportDailyRankingPdf: this.exportDailyRankingPdf,
+      openDailyRanking: () => this.setState({ dailyRankingOpen: true }),
+      closeDailyRanking: () => this.setState({ dailyRankingOpen: false }), closeDailyDetail: () => this.setState({ selectedDailyDate: null, selectedDailyStore: null, dailyRankingOpen: false, tableZoom: 1 }),
       dailyStoreItemOpen: !!(st.selectedDailyDate && st.selectedDailyStore), dailyStoreItemLabel: st.selectedDailyStoreLabel, dailyStoreItemDate: st.selectedDailyDate, dailyStoreItemRows,
       closeDailyStoreItem: () => this.setState({ selectedDailyStore: null, tableZoom: 1 }), exportDailyStoreItemPdf: this.exportDailyStoreItemPdf,
       storeDailyOpen: !!st.selectedStoreCode, storeDailyLabel: st.selectedStoreLabel, storeDailyRows, closeStoreDaily: () => this.setState({ selectedStoreCode: null, tableZoom: 1 }),
