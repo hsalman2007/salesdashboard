@@ -848,7 +848,7 @@ a:hover{color:var(--color-accent-300)}
 <table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
 <thead><tr><th>#</th><th style="text-align:left">Store</th><th>Sold qty</th><th>Invoices</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Single Inv</th><th>Single Inv%</th></tr></thead>
 <tbody>
-<sc-for list="{{dailyDetailRows}}" as="s" hint-placeholder-count="10">
+<sc-for list="{{dailyRankingRows}}" as="s" hint-placeholder-count="10">
 <tr style="background:{{s.rowBg}}"><td style="font-weight:600">{{s.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{s.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{s.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.singleItemInvoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.singleItemPctLabel}}</td></tr>
 </sc-for>
 </tbody>
@@ -2221,7 +2221,7 @@ class Component extends DCLogic {
   };
 
   exportDailyRankingPdf = () => {
-    const rows = this._lastDailyDetailRows || [];
+    const rows = this._lastDailyRankingRows || [];
     const st = this.state;
     if (!rows.length || !window.jspdf) return;
     const { jsPDF } = window.jspdf;
@@ -3556,7 +3556,7 @@ class Component extends DCLogic {
     ];
 
     // daily detail modal — store ranking for the selected date
-    let dailyDetailRows = [];
+    let dailyDetailRows = [], dailyRankingRows = [];
     if (st.selectedDailyDate) {
       const singleItemByStoreForDate = {};
       (st.receiptDay || []).forEach(r => {
@@ -3591,6 +3591,39 @@ class Component extends DCLogic {
         };
       });
       this._lastDailyDetailRows = dailyDetailRows;
+
+      // Ranking sub-modal: ALL stores, ignoring region/city/store filters
+      const allSingleByStore = {};
+      (st.receiptDay || []).forEach(r => {
+        if (r.date !== st.selectedDailyDate) return;
+        allSingleByStore[r.store] = (allSingleByStore[r.store] || 0) + r.singleItemInvoices;
+      });
+      const allAgg = {};
+      (st.buckets || []).forEach(b => {
+        if (b.date !== st.selectedDailyDate) return;
+        if (!allAgg[b.store]) allAgg[b.store] = { store: b.store, storeName: b.storeName, netSales: 0, qty: 0, invoices: 0 };
+        const a = allAgg[b.store];
+        a.netSales += b.netSales; a.qty += b.qty; a.invoices += b.invoices;
+      });
+      const allSorted = Object.values(allAgg).sort((a, b) => b.netSales - a.netSales);
+      const arTotal = allSorted.length;
+      const arGreenCut = Math.max(1, Math.ceil(arTotal / 3));
+      const arYellowCut = Math.max(arGreenCut, Math.ceil(arTotal * 2 / 3));
+      dailyRankingRows = allSorted.map((r, i) => {
+        const atv = r.invoices ? r.netSales / r.invoices : 0;
+        const upt = r.invoices ? r.qty / r.invoices : 0;
+        const singleInv = allSingleByStore.hasOwnProperty(r.store) ? allSingleByStore[r.store] : null;
+        const singlePct = (singleInv !== null && r.invoices) ? 100 * singleInv / r.invoices : null;
+        const asp = r.qty ? r.netSales / r.qty : 0;
+        return {
+          rank: i + 1, store: r.store, storeName: r.storeName, qtyLabel: this.fmtNum(r.qty), invoicesLabel: this.fmtNum(r.invoices),
+          atvLabel: this.fmtMoney(atv), uptLabel: Math.abs(upt).toFixed(2), aspLabel: this.fmtMoney(asp),
+          rowBg: i < arGreenCut ? '#e3f5e6' : i < arYellowCut ? '#f6f0e0' : '#fbe7e7',
+          singleItemInvoicesLabel: singleInv === null ? '—' : this.fmtNum(singleInv),
+          singleItemPctLabel: singlePct === null ? '—' : Math.abs(singlePct).toFixed(1) + '%'
+        };
+      });
+      this._lastDailyRankingRows = dailyRankingRows;
     }
 
     // daily store item ranking — items sold by a specific store on the selected date
@@ -4390,7 +4423,7 @@ class Component extends DCLogic {
       itemDetailOpen: !!st.selectedItemNo, itemDetailLabel: st.selectedItemLabel, itemDetailItemNo: st.selectedItemNoLabel, itemDetailImage: st.selectedItemImage, itemDetailRows, closeItemDetail: () => this.setState({ selectedItemNo: null, tableZoom: 1 }), stopPropagation: e => e.stopPropagation(),
       categoryDetailOpen: !!st.selectedCategoryKey, categoryDetailLabel: st.selectedCategoryLabel, categoryDetailRows, categoryDetailTotals: typeof categoryDetailTotals !== 'undefined' ? categoryDetailTotals : { netSalesLabel: '', qtyLabel: '', pctLabel: '' }, closeCategoryDetail: () => this.setState({ selectedCategoryKey: null, tableZoom: 1 }),
       dailyDetailOpen: !!st.selectedDailyDate, dailyDetailLabel: st.selectedDailyDate, dailyDetailRows,
-      dailyRankingOpen: !!(st.selectedDailyDate && st.dailyRankingOpen), exportDailyRankingPdf: this.exportDailyRankingPdf,
+      dailyRankingOpen: !!(st.selectedDailyDate && st.dailyRankingOpen), exportDailyRankingPdf: this.exportDailyRankingPdf, dailyRankingRows,
       openDailyRanking: () => this.setState({ dailyRankingOpen: true }),
       closeDailyRanking: () => this.setState({ dailyRankingOpen: false }), closeDailyDetail: () => this.setState({ selectedDailyDate: null, selectedDailyStore: null, dailyRankingOpen: false, tableZoom: 1 }),
       dailyStoreItemOpen: !!(st.selectedDailyDate && st.selectedDailyStore), dailyStoreItemLabel: st.selectedDailyStoreLabel, dailyStoreItemDate: st.selectedDailyDate, dailyStoreItemRows,
