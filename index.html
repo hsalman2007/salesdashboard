@@ -18,17 +18,20 @@ a:hover{color:var(--color-accent-300)}
 .rl-th:hover{color:var(--color-accent-300)}
 /* Light re-theme — same blurple accent family as Nocturne, flipped to a light ground */
 :root{
-  --color-bg:#f6f5fb;
+  --color-bg:#f3f7f6;
   --color-surface:#ffffff;
-  --color-text:#1e1c28;
-  --color-accent:#6a5ecf;
-  --color-accent-300:#5c4fc4;
-  --color-accent-2:#8f7fd9;
-  --color-divider:color-mix(in srgb, #1e1c28 14%, transparent);
-  --color-neutral-500:#6b6f80;
-  --shadow-sm:0 0 0 1px #e3e1ef;
-  --shadow-md:0 0 0 1px #d8d5e8, 0 6px 18px rgba(30,28,40,0.10);
-  --shadow-lg:0 0 0 1px #cac6df, 0 16px 40px rgba(30,28,40,0.16);
+  --color-text:#182220;
+  --color-accent:#2d8f81;
+  --color-accent-200:#bfe0d9;
+  --color-accent-300:#24756a;
+  --color-accent-500:#2d8f81;
+  --color-accent-800:#e2efec;
+  --color-accent-2:#5fb3a5;
+  --color-divider:color-mix(in srgb, #182220 14%, transparent);
+  --color-neutral-500:#697672;
+  --shadow-sm:0 0 0 1px #dfe9e6;
+  --shadow-md:0 0 0 1px #d3e2de, 0 6px 18px rgba(24,34,32,0.10);
+  --shadow-lg:0 0 0 1px #c3d8d3, 0 16px 40px rgba(24,34,32,0.16);
 }
 </style>
 </helmet>
@@ -75,7 +78,7 @@ a:hover{color:var(--color-accent-300)}
 <sc-if value="{{showBackButton}}" hint-placeholder-val="{{false}}">
 <button onClick="{{goBack}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500);padding:0;align-self:center">←</button>
 </sc-if>
-<h1 style="font-family:var(--font-heading);font-size:30px;font-weight:500;margin:0">{{pageTitle}}</h1>
+<h1 style="font-family: var(--font-heading); font-size: 30px; font-weight: 700; margin: 0">{{pageTitle}}</h1>
 </div>
 </div>
 
@@ -150,10 +153,10 @@ a:hover{color:var(--color-accent-300)}
 <section>
 <div style="display:flex;gap:{{kpiGap}};flex-wrap:wrap;margin-bottom:var(--space-8)">
 <sc-for list="{{kpiCards}}" as="k" hint-placeholder-count="7">
-<div class="card elev-sm" style="flex:{{kpiFlex}};min-width:0;overflow:hidden">
-<div class="card-kicker">{{k.label}}</div>
-<div class="card-title" style="font-size:{{kpiValueSize}};margin-top:2px;white-space:{{kpiValueWrap}};overflow:hidden;text-overflow:ellipsis">{{k.value}}</div>
-<div class="card-meta" style="overflow-wrap:break-word">{{k.sub}}</div>
+<div class="card elev-sm" style="flex: {{kpiFlex}}; min-width: 0; overflow: hidden; background-color: #79C3B9">
+<div class="card-kicker" style="color: #FFFFFF; font-weight: 800">{{k.label}}</div>
+<div class="card-title" style="font-size: {{kpiValueSize}}; margin-top: 2px; white-space: {{kpiValueWrap}}; overflow: hidden; text-overflow: ellipsis; font-style: normal; font-weight: 800">{{k.value}}</div>
+<div class="card-meta" style="overflow-wrap: break-word; font-weight: 400; color: #1F360F">{{k.sub}}</div>
 </div>
 </sc-for>
 <div class="card elev-sm" style="flex:{{kpiFlex}};min-width:0;overflow:hidden">
@@ -183,7 +186,7 @@ a:hover{color:var(--color-accent-300)}
 </sc-for>
 </svg>
 <sc-for list="{{dailyTrend.points}}" as="p" hint-placeholder-count="3">
-<div style="position:absolute;left:{{p.cx}}px;top:{{p.labelY}}px;transform:translateX(-50%);font-size:7.5px;font-weight:700;color:var(--color-neutral-500);white-space:nowrap">{{p.valueLabel}}</div>
+<div style="position: absolute; left: {{p.cx}}px; top: {{p.labelY}}px; transform: translateX(-50%); font-size: 7.5px; font-weight: 700; color: #6B0505; white-space: nowrap">{{p.valueLabel}}</div>
 </sc-for>
 </div>
 <div style="display:flex;justify-content:space-between;width:{{dailyTrend.width}}px;margin-top:4px">
@@ -1169,7 +1172,7 @@ a:hover{color:var(--color-accent-300)}
 </div>
 <div class="field" style="max-width:300px;margin-bottom:var(--space-4)">
 <label>Search {{yoyDimLabel}}</label>
-<input class="input" type="text" value="{{yoySearch}}" onChange="{{setYoySearch}}" placeholder="Type to filter…" />
+<input class="input" type="text" value="{{yoySearch}}" onChange="{{setYoySearch}}" placeholder="Type to filter…">
 </div>
 
 <sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
@@ -1196,7 +1199,7 @@ a:hover{color:var(--color-accent-300)}
 <tr>
 <sc-if value="{{yoyIsItems}}" hint-placeholder-val="{{false}}">
 <td style="text-align:left;width:52px">
-<img src="{{r.imageSrc}}" alt="" style="width:44px;height:44px;object-fit:contain;background:#fff;border-radius:var(--radius-sm);display:block" />
+<img src="{{r.imageSrc}}" alt="" style="width:44px;height:44px;object-fit:contain;background:#fff;border-radius:var(--radius-sm);display:block">
 </td>
 <td style="text-align:left;font-weight:600;white-space:nowrap">
 <span onClick="{{r.onClick}}" style="cursor:pointer;color:var(--color-accent-300);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px">{{r.sku}}</span>
@@ -1256,7 +1259,7 @@ a:hover{color:var(--color-accent-300)}
 <div style="font-weight:700;font-size:14px;flex:1;min-width:0">
 <sc-if value="{{yoyIsItems}}" hint-placeholder-val="{{false}}">
 <div style="display:flex;gap:10px;align-items:flex-start">
-<img src="{{r.imageSrc}}" alt="" style="width:44px;height:44px;flex:0 0 44px;object-fit:contain;background:#fff;border-radius:var(--radius-sm)" />
+<img src="{{r.imageSrc}}" alt="" style="width:44px;height:44px;flex:0 0 44px;object-fit:contain;background:#fff;border-radius:var(--radius-sm)">
 <div style="min-width:0">
 <div style="color:var(--color-accent-300);font-size:13px">{{r.sku}}</div>
 <div style="font-size:13px;font-weight:600">{{r.desc}}</div>
@@ -1353,7 +1356,7 @@ a:hover{color:var(--color-accent-300)}
 <tr>
 <sc-if value="{{yoyDimItemsMode}}" hint-placeholder-val="{{false}}">
 <td style="text-align:left;width:52px">
-<img src="{{r.imageSrc}}" alt="" style="width:44px;height:44px;object-fit:contain;background:#fff;border-radius:var(--radius-sm);display:block" />
+<img src="{{r.imageSrc}}" alt="" style="width:44px;height:44px;object-fit:contain;background:#fff;border-radius:var(--radius-sm);display:block">
 </td>
 <td style="text-align:left;font-weight:600;white-space:nowrap">{{r.sku}}</td>
 <td style="text-align:left;font-weight:600">{{r.desc}}</td>
@@ -1445,7 +1448,7 @@ a:hover{color:var(--color-accent-300)}
 <tr>
 <sc-if value="{{yoyDrillItemsMode}}" hint-placeholder-val="{{false}}">
 <td style="text-align:left;width:52px">
-<img src="{{r.imageSrc}}" alt="" style="width:44px;height:44px;object-fit:contain;background:#fff;border-radius:var(--radius-sm);display:block" />
+<img src="{{r.imageSrc}}" alt="" style="width:44px;height:44px;object-fit:contain;background:#fff;border-radius:var(--radius-sm);display:block">
 </td>
 <td style="text-align:left;font-weight:600;white-space:nowrap">{{r.sku}}</td>
 <td style="text-align:left;font-weight:600">{{r.desc}}</td>
@@ -2110,6 +2113,7 @@ class Component extends DCLogic {
       startY: 26,
       head: [head], body,
       styles: { fontSize: d.itemsMode ? 9 : 8, valign: 'middle', minCellHeight: d.itemsMode ? 12.1 : undefined },
+      headStyles: { fillColor: [45, 143, 129], fontStyle: 'bold' },
       columnStyles: d.itemsMode ? { 0: { cellWidth: 14.3 } } : {},
       didParseCell: data => {
         if ((data.column.index === diffCol || data.column.index === deltaCol) && data.cell.section !== 'head') {
@@ -2172,6 +2176,7 @@ class Component extends DCLogic {
       startY: 26,
       head: [head], body,
       styles: { fontSize: d.itemsMode ? 9 : 8, valign: 'middle', minCellHeight: d.itemsMode ? 12.1 : undefined },
+      headStyles: { fillColor: [45, 143, 129], fontStyle: 'bold' },
       columnStyles: d.itemsMode ? { 0: { cellWidth: 14.3 } } : {},
       didParseCell: data => {
         if ((data.column.index === diffCol || data.column.index === deltaCol) && data.cell.section !== 'head') {
@@ -2215,6 +2220,7 @@ class Component extends DCLogic {
       body: rows.map((r, i) => [i + 1, '', r.itemNo, r.itemDesc, this.fmtNum(r.qty)]),
       columnStyles: { 1: { cellWidth: 20 } },
       styles: { minCellHeight: 16, valign: 'middle', fontSize: 9 },
+      headStyles: { fillColor: [45, 143, 129], fontStyle: 'bold' },
       didDrawCell: data => {
         if (data.column.index === 1 && data.cell.section === 'body') {
           const url = imgDataUrls[data.row.index];
@@ -2469,7 +2475,7 @@ class Component extends DCLogic {
     const S = this.snapshotData(date);
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    const ACC = [106, 94, 207], INK = [30, 28, 40], SOFT = [244, 243, 251];
+    const ACC = [45, 143, 129], INK = [24, 34, 32], SOFT = [240, 247, 245];
     const W = 210, M = 12;
     const nice = new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     const head = (title, sub) => {
@@ -2482,10 +2488,10 @@ class Component extends DCLogic {
     };
     const base = size => ({
       theme: 'striped',
-      styles: { fontSize: size, cellPadding: { top: 2.4, bottom: 2.4, left: 2.2, right: 2.2 }, overflow: 'linebreak', textColor: INK, lineColor: [225, 222, 240], lineWidth: 0.1, halign: 'right' },
+      styles: { fontSize: size, cellPadding: { top: 2.4, bottom: 2.4, left: 2.2, right: 2.2 }, overflow: 'linebreak', textColor: INK, lineColor: [214, 231, 227], lineWidth: 0.1, halign: 'right' },
       headStyles: { fillColor: ACC, textColor: 255, fontSize: size - 0.5, fontStyle: 'bold', halign: 'right' },
       alternateRowStyles: { fillColor: SOFT },
-      footStyles: { fillColor: [232, 229, 247], textColor: INK, fontStyle: 'bold', fontSize: size, halign: 'right' },
+      footStyles: { fillColor: [226, 239, 236], textColor: INK, fontStyle: 'bold', fontSize: size, halign: 'right' },
       margin: { left: M, right: M }
     });
     const nameCol = width => ({ 0: { halign: 'left', fontStyle: 'bold', cellWidth: width } });
@@ -2509,7 +2515,7 @@ class Component extends DCLogic {
       doc.text(k.label.toUpperCase(), x + 3, y + 6);
       doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.setTextColor.apply(doc, INK);
       doc.text(String(k.value), x + 3, y + 13);
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5); doc.setTextColor(107, 111, 128);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5); doc.setTextColor(105, 118, 114);
       doc.text(String(k.sub || ''), x + 3, y + 17.5, { maxWidth: cardW - 6 });
       doc.setTextColor.apply(doc, INK);
     });
@@ -2595,7 +2601,7 @@ class Component extends DCLogic {
     const pages = doc.getNumberOfPages();
     for (let p = 1; p <= pages; p++) {
       doc.setPage(p);
-      doc.setFontSize(8.5); doc.setTextColor(107, 111, 128);
+      doc.setFontSize(8.5); doc.setTextColor(105, 118, 114);
       doc.text('Retail Sales · Daily Snapshot · ' + date, M, 290);
       doc.text('Page ' + p + ' of ' + pages, W - M, 290, { align: 'right' });
     }
