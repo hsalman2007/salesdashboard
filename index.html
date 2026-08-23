@@ -2800,14 +2800,15 @@ class Component extends DCLogic {
     const discountPct = (netSales + discount) ? (100 * discount / (netSales + discount)) : 0;
     const returnRate = (qty + returnQty) ? (100 * returnQty / (qty + returnQty)) : 0;
     const returnMonthsCount = [...new Set(filteredBuckets.map(b => b.date.slice(0, 7)))].length || 1;
+    const activeDayCount = [...new Set(filteredBuckets.map(b => b.date))].length || 1;
 
     const kpiCards = [
       { label: 'Net Sales', value: this.fmtMoney(netSalesWithWholesale), sub: 'retail + wholesale, BO & 3P' },
       { label: 'ATV', value: this.fmtMoney(atv), sub: 'avg. transaction value' },
       { label: 'UPT', value: Math.abs(upt).toFixed(2), sub: 'units per transaction' },
       { label: 'ASP', value: this.fmtMoney(asp), sub: 'avg. selling price' },
-      { label: 'No of Invoices', value: this.fmtNum(invoiceCount), sub: this.fmtNum(Math.round(dates.length ? invoiceCount / dates.length : 0)) + ' avg. per day' },
-      { label: 'Sold Qty', value: this.fmtNum(qty), sub: this.fmtNum(Math.round(dates.length ? qty / dates.length : 0)) + ' avg. per day' },
+      { label: 'No of Invoices', value: this.fmtNum(invoiceCount), sub: this.fmtNum(Math.round(invoiceCount / activeDayCount)) + ' avg. per day' },
+      { label: 'Sold Qty', value: this.fmtNum(qty), sub: this.fmtNum(Math.round(qty / activeDayCount)) + ' avg. per day' },
       { label: '% of promo sold', value: Math.abs(discountPct).toFixed(1) + '%', sub: this.fmtMoney(discount) + ' given' },
       { label: 'Returns Rate', value: Math.abs(returnRate).toFixed(1) + '%', sub: this.fmtMoney(returnValue) + ' total \u00b7 ' + this.fmtNum(Math.round(returnMonthsCount ? returnQty / returnMonthsCount : 0)) + ' avg/month' }
     ];
