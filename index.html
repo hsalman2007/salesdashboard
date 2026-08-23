@@ -548,9 +548,15 @@ a:hover{color:var(--color-accent-300)}
 
 <sc-if value="{{isInvoices}}" hint-placeholder-val="{{false}}">
 <section>
-<div class="field" style="max-width:280px;margin-bottom:var(--space-4)">
+<div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:var(--space-4)">
+<div class="field" style="max-width:280px;flex:1;min-width:180px">
 <label>Search store</label>
 <input class="input" type="text" placeholder="e.g. Abha" value="{{search}}" onChange="{{setSearch}}">
+</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<button class="btn btn-secondary" onClick="{{exportStoreDetailFull}}" style="font-size:12px;padding:8px 12px;white-space:nowrap">PDF — all columns</button>
+<button class="btn btn-secondary" onClick="{{exportStoreDetailLean}}" style="font-size:12px;padding:8px 12px;white-space:nowrap">PDF — no net sales / qty</button>
+</div>
 </div>
 <sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x:auto">
@@ -565,11 +571,12 @@ a:hover{color:var(--color-accent-300)}
 <th class="rl-th" onClick="{{sortHandlers.invAtv}}">ATV {{sortArrow.invAtv}}</th>
 <th class="rl-th" onClick="{{sortHandlers.invUpt}}">UPT {{sortArrow.invUpt}}</th>
 <th>ASP</th>
+<th>Single Inv</th>
 <th>Single Inv%</th>
 </tr></thead>
 <tbody>
 <sc-for list="{{invoicesSorted}}" as="iv" hint-placeholder-count="12">
-<tr onClick="{{iv.onClick}}" style="cursor:pointer;background:{{iv.rowBg}}"><td style="font-weight:600;white-space:nowrap">{{iv.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{iv.storeName}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{iv.region}}</td><td style="font-weight:600;white-space:nowrap">{{iv.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.singleItemPctLabel}}</td></tr>
+<tr onClick="{{iv.onClick}}" style="cursor:pointer;background:{{iv.rowBg}}"><td style="font-weight:600;white-space:nowrap">{{iv.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{iv.storeName}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{iv.region}}</td><td style="font-weight:600;white-space:nowrap">{{iv.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.singleItemInvoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.singleItemPctLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -590,6 +597,7 @@ a:hover{color:var(--color-accent-300)}
 <div><div class="card-meta">ATV</div><div style="font-weight:600">{{iv.atvLabel}}</div></div>
 <div><div class="card-meta">UPT</div><div style="font-weight:600">{{iv.uptLabel}}</div></div>
 <div><div class="card-meta">ASP</div><div style="font-weight:600">{{iv.aspLabel}}</div></div>
+<div><div class="card-meta">Single Inv</div><div style="font-weight:600">{{iv.singleItemInvoicesLabel}}</div></div>
 <div><div class="card-meta">Single Inv%</div><div style="font-weight:600">{{iv.singleItemPctLabel}}</div></div>
 </div>
 </div>
@@ -2220,6 +2228,31 @@ class Component extends DCLogic {
     doc.save('item-ranking-' + (st.selectedDailyDate || '') + '-' + (st.selectedDailyStoreLabel || 'store').replace(/[^a-z0-9]+/gi, '-') + '.pdf');
   };
 
+  exportStoreDetailPdf = (withSales) => {
+    const rows = (withSales ? this._lastInvoicesSorted : this._lastAllStoreRows) || [];
+    if (!rows.length || !window.jspdf) return;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(13);
+    doc.text(withSales ? 'Store Detail' : 'Store Ranking', 14, 15);
+    const head = withSales
+      ? ['Rank', 'Store', 'Net Sales', 'Qty', 'Invoices', 'ATV', 'UPT', 'ASP', 'Single Inv', 'Single Inv%']
+      : ['Rank', 'Store', 'Invoices', 'ATV', 'UPT', 'ASP', 'Single Inv', 'Single Inv%'];
+    const body = rows.map(r => withSales
+      ? [r.rank, r.storeName, r.netSalesLabel, r.qtyLabel, r.invoicesLabel, r.atvLabel, r.uptLabel, r.aspLabel, r.singleItemInvoicesLabel, r.singleItemPctLabel]
+      : [r.rank, r.storeName, r.invoicesLabel, r.atvLabel, r.uptLabel, r.aspLabel, r.singleItemInvoicesLabel, r.singleItemPctLabel]);
+    doc.autoTable({
+      startY: 22, head: [head], body,
+      styles: { fontSize: 8, valign: 'middle', fontStyle: 'bold' },
+      headStyles: { fillColor: [45, 143, 129], fontStyle: 'bold' },
+      columnStyles: { 1: { halign: 'left' } }
+    });
+    doc.save('store-detail' + (withSales ? '' : '-performance') + '.pdf');
+  };
+
+  exportStoreDetailFull = () => this.exportStoreDetailPdf(true);
+  exportStoreDetailLean = () => this.exportStoreDetailPdf(false);
+
   exportDailyRankingPdf = () => {
     const rows = this._lastDailyRankingRows || [];
     const st = this.state;
@@ -2232,8 +2265,8 @@ class Component extends DCLogic {
       startY: 22,
       head: [['#', 'Store', 'Sold Qty', 'Invoices', 'ATV', 'UPT', 'ASP', 'Single Inv', 'Single Inv%']],
       body: rows.map(r => [r.rank, r.storeName, r.qtyLabel, r.invoicesLabel, r.atvLabel, r.uptLabel, r.aspLabel, r.singleItemInvoicesLabel, r.singleItemPctLabel]),
-      styles: { fontSize: 9, valign: 'middle' },
-      headStyles: { fillColor: [99, 91, 255] },
+      styles: { fontSize: 9, valign: 'middle', fontStyle: 'bold' },
+      headStyles: { fillColor: [45, 143, 129], fontStyle: 'bold' },
       columnStyles: { 1: { halign: 'left' } }
     });
     doc.save('ranking-' + (st.selectedDailyDate || '') + '.pdf');
@@ -3118,6 +3151,30 @@ class Component extends DCLogic {
     const rankByStore = {};
     [...invRows].sort((a, b) => b.netSales - a.netSales).forEach((r, i) => { rankByStore[r.storeName] = i + 1; });
 
+    // Store Ranking export: ALL stores in the date period, ignoring region/city/store filters
+    {
+      const f = st.filters || {};
+      const inPeriod = d => (f.month === 'All' || !f.month || d.slice(0, 7) === f.month) && (!f.dateRange || (d >= f.dateRange.start && d <= f.dateRange.end));
+      const allSingle = {};
+      (st.receiptDay || []).forEach(r => { if (inPeriod(r.date)) allSingle[r.store] = (allSingle[r.store] || 0) + r.singleItemInvoices; });
+      const agg = {};
+      (st.buckets || []).forEach(b => {
+        if (!inPeriod(b.date)) return;
+        if (!agg[b.store]) agg[b.store] = { code: b.store, storeName: b.storeName, netSales: 0, qty: 0, invoices: 0 };
+        const a = agg[b.store];
+        a.netSales += b.netSales; a.qty += b.qty; a.invoices += b.invoices;
+      });
+      this._lastAllStoreRows = Object.values(agg).sort((a, b) => b.netSales - a.netSales).map((r, i) => ({
+        rank: i + 1, storeName: r.storeName,
+        netSalesLabel: this.fmtMoney(r.netSales), qtyLabel: this.fmtNum(r.qty), invoicesLabel: this.fmtNum(r.invoices),
+        atvLabel: this.fmtMoney(r.invoices ? r.netSales / r.invoices : 0),
+        uptLabel: Math.abs(r.invoices ? r.qty / r.invoices : 0).toFixed(2),
+        aspLabel: this.fmtMoney(r.qty ? r.netSales / r.qty : 0),
+        singleItemInvoicesLabel: allSingle.hasOwnProperty(r.code) ? this.fmtNum(allSingle[r.code]) : '—',
+        singleItemPctLabel: (allSingle.hasOwnProperty(r.code) && r.invoices) ? Math.abs(100 * allSingle[r.code] / r.invoices).toFixed(1) + '%' : '—'
+      }));
+    }
+
     // day-wise sales for a selected store (Store Detail drill-down)
     let storeDailyRows = [];
     if (st.selectedStoreCode) {
@@ -3218,7 +3275,7 @@ class Component extends DCLogic {
       })).sort((a, b) => b.score - a.score);
       topStoresKpi = scored.slice(0, 3).map((c, i) => ({ rank: i + 1, name: c.name, netSalesLabel: this.fmtMoney(c.netSales), onClick: () => this.setState({ page: 'invoices', filters: { ...st.filters, store: c.code } }) }));
     }
-    invRows = invRows.map(d => ({ ...d, markupLabel: markupLabelFor(d.code, d.netSales), singleItemPctLabel: (singleItemByStoreEarly.hasOwnProperty(d.code) && d.invoices) ? Math.abs(100 * singleItemByStoreEarly[d.code] / d.invoices).toFixed(1) + '%' : '—' }));
+    invRows = invRows.map(d => ({ ...d, markupLabel: markupLabelFor(d.code, d.netSales), singleItemInvoicesLabel: singleItemByStoreEarly.hasOwnProperty(d.code) ? this.fmtNum(singleItemByStoreEarly[d.code]) : '—', singleItemPctLabel: (singleItemByStoreEarly.hasOwnProperty(d.code) && d.invoices) ? Math.abs(100 * singleItemByStoreEarly[d.code] / d.invoices).toFixed(1) + '%' : '—' }));
     const discMarkupLabelFor = (code, discountedValue, discountedQty, totalQty) => {
       const cost = storeCost[code] ? storeCost[code].cost : 0;
       const costPortion = totalQty ? cost * (discountedQty / totalQty) : 0;
@@ -3267,6 +3324,7 @@ class Component extends DCLogic {
     }
     const isort = st.sort.invoices;
     invRows = this.sortRows(invRows, isort.col, isort.dir).map(iv => ({ ...iv, rank: rankByStore[iv.storeName], rowBg: rankByStore[iv.storeName] <= 10 ? '#e3f5e6' : rankByStore[iv.storeName] <= 20 ? '#f6f0e0' : '#fbe7e7', netSalesLabel: this.fmtMoney(iv.netSales), discountLabel: this.fmtMoney(iv.discount), atvLabel: this.fmtMoney(iv.atv), uptLabel: Math.abs(iv.upt).toFixed(2), aspLabel: this.fmtMoney(iv.asp), qtyLabel: this.fmtNum(iv.qty), invoicesLabel: this.fmtNum(iv.invoices), onClick: st.storeDetailView === 'category' ? (() => this.setState({ selectedDrillStore: iv.code, selectedDrillStoreLabel: iv.storeName, tableZoom: 1 })) : (() => this.setState({ selectedStoreCode: iv.code, selectedStoreLabel: iv.storeName, tableZoom: 1 })) }));
+    this._lastInvoicesSorted = invRows;
 
     // store drill-down: category -> brand -> item (Store Detail sub-page)
     let drillCategoryRows = [];
@@ -4419,6 +4477,7 @@ class Component extends DCLogic {
       categorySubBtnClass: (st.categoryView || 'sub') !== 'top' && (st.categoryView || 'sub') !== 'brand' ? 'btn-primary' : 'btn-secondary', categoryTopBtnClass: st.categoryView === 'top' ? 'btn-primary' : 'btn-secondary', categoryBrandBtnClass: st.categoryView === 'brand' ? 'btn-primary' : 'btn-secondary',
       setCategoryViewSub: () => this.setState({ categoryView: 'sub' }), setCategoryViewTop: () => this.setState({ categoryView: 'top' }), setCategoryViewBrand: () => this.setState({ categoryView: 'brand' }),
       invoicesSorted: invRows, discountsSorted: discRows,
+      exportStoreDetailFull: this.exportStoreDetailFull, exportStoreDetailLean: this.exportStoreDetailLean,
       itemsSorted: itemsRows, itemsTotalCount: itemsFiltered.length, itemSearch: st.itemSearch,
       itemDetailOpen: !!st.selectedItemNo, itemDetailLabel: st.selectedItemLabel, itemDetailItemNo: st.selectedItemNoLabel, itemDetailImage: st.selectedItemImage, itemDetailRows, closeItemDetail: () => this.setState({ selectedItemNo: null, tableZoom: 1 }), stopPropagation: e => e.stopPropagation(),
       categoryDetailOpen: !!st.selectedCategoryKey, categoryDetailLabel: st.selectedCategoryLabel, categoryDetailRows, categoryDetailTotals: typeof categoryDetailTotals !== 'undefined' ? categoryDetailTotals : { netSalesLabel: '', qtyLabel: '', pctLabel: '' }, closeCategoryDetail: () => this.setState({ selectedCategoryKey: null, tableZoom: 1 }),
