@@ -2432,7 +2432,7 @@ class Component extends DCLogic {
     (st.wholesale || []).forEach(w => {
       if (w.date !== date) return;
       const sm = this.storeIndex[w.storeCode];
-      if (sm && sm.type === 'Store') return;
+      if (sm && sm.type === 'Store' && !['Wholesale', 'ADES', 'SASCO'].includes(w.type)) return;
       const name = this.wholesaleName(w);
       const bucket = threePNames.includes(name) ? tMap : wMap;
       const e = bucket[name] || (bucket[name] = { name, type: this.wholesaleEffType(w), amount: 0 });
@@ -3462,7 +3462,7 @@ class Component extends DCLogic {
         });
       }
     }
-    const storeTypeExceptions = [];
+    const storeTypeExceptions = ['Wholesale', 'ADES', 'SASCO'];
     const threePNames = ['Amazon E-Market', 'Noon E-Market'];
     const wholesaleMonthScope = st.wholesale.filter(w => {      const sm = this.storeIndex[w.storeCode];
       if (sm && sm.type === 'Store' && !storeTypeExceptions.includes(w.type)) return false;
