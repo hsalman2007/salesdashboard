@@ -2113,13 +2113,28 @@ class Component extends DCLogic {
       ? ['', r.sku, isArabic(r.desc) ? '' : (pdfSafe(r.desc) || r.sku), r.cySold, r.lySold, this.fmtNum(r.cySoldNum - r.lySoldNum), r.soldDelta]
       : [r.name, r.cySales, r.lySales, r.delta, r.cySold, r.lySold, ...(d.showRcpt ? [r.cyRcpt, r.lyRcpt, r.rcptDelta] : []), ...(d.showMarkup ? [r.cyMarkup, r.lyMarkup] : [])]);
     const diffCol = d.itemsMode ? 5 : -1, deltaCol = d.itemsMode ? 6 : 3;
+    const ft = d.footer || {};
+    let foot;
+    if (d.itemsMode) {
+      const cyT = d.rows.reduce((s, r) => s + (r.cySoldNum || 0), 0);
+      const lyT = d.rows.reduce((s, r) => s + (r.lySoldNum || 0), 0);
+      const pct = lyT ? ((cyT - lyT) / lyT) * 100 : 0;
+      foot = ['', '', 'Total', this.fmtNum(cyT), this.fmtNum(lyT), this.fmtNum(cyT - lyT), (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%'];
+    } else {
+      foot = ['Total', ft.cySales, ft.lySales, ft.delta, ft.cySold, ft.lySold,
+        ...(d.showRcpt ? [ft.cyRcpt, ft.lyRcpt, ft.rcptDelta] : []),
+        ...(d.showMarkup ? [ft.cyMarkup, ft.lyMarkup] : [])];
+    }
     doc.autoTable({
       startY: 26,
-      head: [head], body,
+      head: [head], body, foot: [foot.map(v => v == null ? '' : String(v))],
+      showFoot: 'lastPage',
+      footStyles: { fillColor: [235, 240, 239], textColor: [26, 26, 26], fontStyle: 'bold', fontSize: d.itemsMode ? 9 : 8, minCellHeight: 7 },
       styles: { fontSize: d.itemsMode ? 9 : 8, valign: 'middle', minCellHeight: d.itemsMode ? 12.1 : undefined },
       headStyles: { fillColor: [45, 143, 129], fontStyle: 'bold' },
       columnStyles: d.itemsMode ? { 0: { cellWidth: 14.3 } } : {},
       didParseCell: data => {
+        if (data.cell.section === 'foot') { data.cell.styles.minCellHeight = 7; return; }
         if ((data.column.index === diffCol || data.column.index === deltaCol) && data.cell.section !== 'head') {
           data.cell.styles.textColor = [178, 34, 52];
           data.cell.styles.fontStyle = 'bold';
@@ -2176,13 +2191,28 @@ class Component extends DCLogic {
       ? ['', r.sku, isArabic(r.desc) ? '' : (pdfSafe(r.desc) || r.sku), r.cySold, r.lySold, this.fmtNum(r.cySoldNum - r.lySoldNum), r.soldDelta]
       : [r.name, r.cySales, r.lySales, r.delta, r.cySold, r.lySold, ...(d.showRcpt ? [r.cyRcpt, r.lyRcpt, r.rcptDelta] : []), ...(d.showMarkup ? [r.cyMarkup, r.lyMarkup] : [])]);
     const diffCol = d.itemsMode ? 5 : -1, deltaCol = d.itemsMode ? 6 : 3;
+    const ft = d.footer || {};
+    let foot;
+    if (d.itemsMode) {
+      const cyT = d.rows.reduce((s, r) => s + (r.cySoldNum || 0), 0);
+      const lyT = d.rows.reduce((s, r) => s + (r.lySoldNum || 0), 0);
+      const pct = lyT ? ((cyT - lyT) / lyT) * 100 : 0;
+      foot = ['', '', 'Total', this.fmtNum(cyT), this.fmtNum(lyT), this.fmtNum(cyT - lyT), (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%'];
+    } else {
+      foot = ['Total', ft.cySales, ft.lySales, ft.delta, ft.cySold, ft.lySold,
+        ...(d.showRcpt ? [ft.cyRcpt, ft.lyRcpt, ft.rcptDelta] : []),
+        ...(d.showMarkup ? [ft.cyMarkup, ft.lyMarkup] : [])];
+    }
     doc.autoTable({
       startY: 26,
-      head: [head], body,
+      head: [head], body, foot: [foot.map(v => v == null ? '' : String(v))],
+      showFoot: 'lastPage',
+      footStyles: { fillColor: [235, 240, 239], textColor: [26, 26, 26], fontStyle: 'bold', fontSize: d.itemsMode ? 9 : 8, minCellHeight: 7 },
       styles: { fontSize: d.itemsMode ? 9 : 8, valign: 'middle', minCellHeight: d.itemsMode ? 12.1 : undefined },
       headStyles: { fillColor: [45, 143, 129], fontStyle: 'bold' },
       columnStyles: d.itemsMode ? { 0: { cellWidth: 14.3 } } : {},
       didParseCell: data => {
+        if (data.cell.section === 'foot') { data.cell.styles.minCellHeight = 7; return; }
         if ((data.column.index === diffCol || data.column.index === deltaCol) && data.cell.section !== 'head') {
           data.cell.styles.textColor = [178, 34, 52];
           data.cell.styles.fontStyle = 'bold';
