@@ -1497,6 +1497,39 @@ a:hover{color:var(--color-accent-300)}
 
 <sc-if value="{{isLink}}" hint-placeholder-val="{{false}}">
 <section>
+<sc-if value="{{linkStrongOpen}}" hint-placeholder-val="{{false}}">
+<div onClick="{{closeLinkStrong}}" style="position:fixed;inset:0;z-index:60;background:rgba(12,10,22,0.55);display:flex;align-items:flex-start;justify-content:center;padding:var(--space-6) var(--space-4);overflow:auto">
+<div onClick="{{stopPropagation}}" class="card elev-lg" style="width:100%;max-width:780px;background:var(--color-surface);padding:var(--space-6)">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:var(--space-4);margin-bottom:var(--space-4)">
+<div>
+<div class="card-kicker">Strong pairs</div>
+<h3 style="font-family:var(--font-heading);font-size:19px;margin:2px 0 0">How co-purchase strength is distributed</h3>
+<div style="font-size:12px;color:var(--color-neutral-500);margin-top:4px">{{linkStrongKicker}}</div>
+</div>
+<button class="btn btn-ghost" onClick="{{closeLinkStrong}}" style="font-size:13px;padding:4px 10px;flex:0 0 auto">Close ✕</button>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:var(--space-6)">
+<sc-for list="{{linkStrongBands}}" as="b" hint-placeholder-count="4">
+<div style="display:grid;grid-template-columns:140px 1fr 100px;align-items:center;gap:var(--space-3)">
+<div style="font-size:13px">{{b.label}}</div>
+<div style="height:8px;border-radius:999px;background:var(--color-neutral-100);overflow:hidden"><div style="height:100%;background:#2d8f81;width:{{b.barWidth}}"></div></div>
+<div style="font-size:13px;text-align:right;color:var(--color-neutral-500)">{{b.count}} · {{b.share}}</div>
+</div>
+</sc-for>
+</div>
+<div class="card-kicker" style="margin-bottom:var(--space-3)">Top 20 strongest pairs</div>
+<table class="data-table" style="width:100%">
+<thead><tr><th style="text-align:left;width:36px">#</th><th style="width:44px"></th><th style="text-align:left">Item A</th><th style="width:44px"></th><th style="text-align:left">Item B</th><th>Baskets</th></tr></thead>
+<tbody>
+<sc-for list="{{linkStrongTop}}" as="s" hint-placeholder-count="8">
+<tr onClick="{{s.onClick}}" style="cursor:pointer"><td style="text-align:left;color:var(--color-neutral-500)">{{s.rank}}</td><td><div style="width:36px;height:36px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden"><img src="{{s.aImage}}" loading="lazy" style="width:100%;height:100%;object-fit:cover" /></div></td><td style="text-align:left">{{s.aDesc}}</td><td><div style="width:36px;height:36px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden"><img src="{{s.bImage}}" loading="lazy" style="width:100%;height:100%;object-fit:cover" /></div></td><td style="text-align:left">{{s.bDesc}}</td><td style="text-align:right;font-variant-numeric:tabular-nums">{{s.together}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</div>
+</sc-if>
+
 <sc-if value="{{linkDrillOpen}}" hint-placeholder-val="{{false}}">
 <div onClick="{{closeLinkDrill}}" style="position:fixed;inset:0;z-index:60;background:rgba(12,10,22,0.55);display:flex;align-items:flex-start;justify-content:center;padding:var(--space-6) var(--space-4);overflow:auto">
 <div onClick="{{stopPropagation}}" class="card elev-lg" style="width:100%;max-width:840px;background:var(--color-surface);padding:var(--space-6)">
@@ -1536,7 +1569,7 @@ a:hover{color:var(--color-accent-300)}
 <sc-if value="{{linkReady}}" hint-placeholder-val="{{false}}">
 <div style="display:flex;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-5)">
 <sc-for list="{{linkKpis}}" as="k" hint-placeholder-count="4">
-<div class="card elev-sm" style="flex:1 1 180px;min-width:150px">
+<div class="card elev-sm" onClick="{{k.onClick}}" style="flex:1 1 180px;min-width:150px;cursor:{{k.cursor}}">
 <div class="card-meta">{{k.label}}</div>
 <div style="font-family:var(--font-heading);font-size:24px;font-weight:600;line-height:1.15;margin-top:2px">{{k.value}}</div>
 <div style="font-size:11px;color:var(--color-neutral-500);margin-top:2px">{{k.sub}}</div>
@@ -2054,7 +2087,7 @@ class Component extends DCLogic {
     wholesaleCustomerSearch: '',
     wsDrillStore: null,
     linkPairs: null, linkLoading: false, linkFailed: false,
-    linkMonth: 'All', linkMinCount: 5, linkSearch: '', linkDrillSku: null, linkPage: 0,
+    linkMonth: 'All', linkMinCount: 5, linkSearch: '', linkDrillSku: null, linkPage: 0, linkStrongOpen: false,
     itemSearch: '',
     categorySearch: '',
     itemsPage: 0,
@@ -2946,13 +2979,25 @@ class Component extends DCLogic {
         };
       }
     }
+    const bandDefs = [[min, 9, min + '–9 baskets'], [10, 24, '10–24 baskets'], [25, 49, '25–49 baskets'], [50, 99, '50–99 baskets'], [100, Infinity, '100+ baskets']];
+    const strongDetail = {
+      bands: bandDefs.filter(b => b[1] >= b[0]).map(([lo, hi, label]) => {
+        const n = all.filter(p => p.c >= lo && p.c <= hi).length;
+        return { label, count: this.fmtNum(n), share: all.length ? (100 * n / all.length).toFixed(1) + '%' : '—', barWidth: (all.length ? (100 * n / all.length) : 0).toFixed(1) + '%' };
+      }),
+      top: all.slice(0, 20).map((p, i) => {
+        const A = meta(p.ai), B = meta(p.bi);
+        return { rank: i + 1, aDesc: A.desc, bDesc: B.desc, aImage: A.image, bImage: B.image, together: this.fmtNum(p.c), onClick: () => this.setState({ linkStrongOpen: false, linkDrillSku: A.sku }) };
+      }),
+      kicker: this.fmtNum(all.length) + ' pairs share at least ' + min + ' baskets · out of ' + this.fmtNum(pairC.size) + ' pairs seen'
+    };
     const kpis = [
       { label: 'Multi-item invoices', value: this.fmtNum(baskets), sub: 'single-item invoices excluded' },
       { label: 'Avg. items per basket', value: baskets ? (lines / baskets).toFixed(2) : '—', sub: 'distinct SKUs per invoice' },
       { label: 'Linked pairs', value: this.fmtNum(pairC.size), sub: 'distinct SKU combinations' },
-      { label: 'Strong pairs', value: this.fmtNum(all.length), sub: 'at least ' + min + ' baskets' }
+      { label: 'Strong pairs', value: this.fmtNum(all.length), sub: 'at least ' + min + ' baskets · view details', cursor: 'pointer', onClick: () => this.setState({ linkStrongOpen: true }) }
     ];
-    return { rows, kpis, months, baskets, drill, strong: all.length, matched: matched.length, page, totalPages, perPage };
+    return { rows, kpis, months, baskets, drill, strongDetail, strong: all.length, matched: matched.length, page, totalPages, perPage };
   }
 
   exportLinkPdf = async () => {
@@ -4866,7 +4911,12 @@ class Component extends DCLogic {
       linkLoading: st.linkLoading,
       linkMissing: st.page === 'linkSales' && !st.linkLoading && !st.linkPairs,
       linkReady: st.page === 'linkSales' && !!st.linkPairs,
-      linkKpis: L.kpis,
+      linkKpis: (L.kpis || []).map(k => ({ cursor: 'default', onClick: () => {}, ...k })),
+      linkStrongOpen: !!(st.linkStrongOpen && L.strongDetail),
+      linkStrongKicker: L.strongDetail ? L.strongDetail.kicker : '',
+      linkStrongBands: L.strongDetail ? L.strongDetail.bands : [],
+      linkStrongTop: L.strongDetail ? L.strongDetail.top : [],
+      closeLinkStrong: () => this.setState({ linkStrongOpen: false }),
       linkRows: L.rows,
       linkMonth: st.linkMonth,
       linkMonthOptions: [{ value: 'All', label: 'All months' }, ...L.months.map(m => ({ value: m, label: new Date(m + '-01T00:00:00').toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) }))],
