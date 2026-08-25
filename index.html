@@ -1495,6 +1495,117 @@ a:hover{color:var(--color-accent-300)}
 </section>
 </sc-if>
 
+<sc-if value="{{isLink}}" hint-placeholder-val="{{false}}">
+<section>
+<sc-if value="{{linkDrillOpen}}" hint-placeholder-val="{{false}}">
+<div onClick="{{closeLinkDrill}}" style="position:fixed;inset:0;z-index:60;background:rgba(12,10,22,0.55);display:flex;align-items:flex-start;justify-content:center;padding:var(--space-6) var(--space-4);overflow:auto">
+<div onClick="{{stopPropagation}}" class="card elev-lg" style="width:100%;max-width:840px;background:var(--color-surface);padding:var(--space-6)">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:var(--space-4);margin-bottom:var(--space-4)">
+<div>
+<div class="card-kicker">{{linkDrillKicker}}</div>
+<h3 style="font-family:var(--font-heading);font-size:19px;margin:2px 0 0;max-width:520px">{{linkDrillName}}</h3>
+</div>
+<div style="display:flex;gap:8px;flex:0 0 auto">
+<button class="btn btn-secondary" onClick="{{exportLinkDrillPdf}}" style="font-size:12px;padding:6px 10px;white-space:nowrap">Export PDF</button>
+<button class="btn btn-ghost" onClick="{{closeLinkDrill}}" style="font-size:13px;padding:4px 10px">Close ✕</button>
+</div>
+</div>
+<div style="overflow:auto;max-height:62vh">
+<table class="table">
+<thead><tr><th style="text-align:left;width:40px">#</th><th style="width:52px"></th><th style="text-align:left">Bought together with</th><th style="text-align:left">Sub-category</th><th>Baskets</th><th>Attach%</th><th>Lift</th></tr></thead>
+<tbody>
+<sc-for list="{{linkDrillRows}}" as="p" hint-placeholder-count="8">
+<tr><td style="text-align:left;color:var(--color-neutral-500)">{{p.rank}}</td><td><div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{p.image}}" hint-placeholder-val="{{false}}"><img src="{{p.image}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain" /></sc-if></div></td><td style="text-align:left"><div style="font-weight:600">{{p.desc}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{p.sku}}</div></td><td style="text-align:left;font-size:12px;color:var(--color-neutral-500)">{{p.category}}</td><td style="font-weight:600">{{p.together}}</td><td style="font-weight:600">{{p.confLabel}}</td><td>{{p.liftLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{linkLoading}}" hint-placeholder-val="{{false}}">
+<div class="card elev-sm" style="text-align:center;padding:var(--space-8);color:var(--color-neutral-500)">Loading basket data…</div>
+</sc-if>
+<sc-if value="{{linkMissing}}" hint-placeholder-val="{{false}}">
+<div class="card elev-sm" style="padding:var(--space-6)">
+<h3 style="font-family:var(--font-heading);font-size:17px;margin:0 0 8px">Basket data not generated yet</h3>
+<p style="margin:0;color:var(--color-neutral-500);font-size:13px;max-width:620px;text-wrap:pretty">Link Sales reads <strong>data/link-pairs.json</strong>, which lists which SKUs share an invoice. Re-run the item-level daily sales import in the Data Importer and place the new <strong>link-pairs.json</strong> in the data folder — the importer now produces it alongside the other files.</p>
+</div>
+</sc-if>
+<sc-if value="{{linkReady}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-5)">
+<sc-for list="{{linkKpis}}" as="k" hint-placeholder-count="4">
+<div class="card elev-sm" style="flex:1 1 180px;min-width:150px">
+<div class="card-meta">{{k.label}}</div>
+<div style="font-family:var(--font-heading);font-size:24px;font-weight:600;line-height:1.15;margin-top:2px">{{k.value}}</div>
+<div style="font-size:11px;color:var(--color-neutral-500);margin-top:2px">{{k.sub}}</div>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:var(--space-4);align-items:flex-end;margin-bottom:var(--space-5)">
+<div class="field" style="min-width:170px">
+<label>Period</label>
+<select value="{{linkMonth}}" onChange="{{setLinkMonth}}">
+<sc-for list="{{linkMonthOptions}}" as="m" hint-placeholder-count="3">
+<option value="{{m.value}}">{{m.label}}</option>
+</sc-for>
+</select>
+</div>
+<div class="field" style="min-width:150px">
+<label>Min. baskets</label>
+<select value="{{linkMinCount}}" onChange="{{setLinkMinCount}}">
+<sc-for list="{{linkMinOptions}}" as="m" hint-placeholder-count="4">
+<option value="{{m.value}}">{{m.label}}</option>
+</sc-for>
+</select>
+</div>
+<div class="field" style="flex:1 1 240px;min-width:200px">
+<label>Search item or SKU</label>
+<input type="text" value="{{linkSearch}}" onInput="{{setLinkSearch}}" placeholder="e.g. gas cartridge" />
+</div>
+<button class="btn btn-secondary" onClick="{{exportLinkPdf}}" style="white-space:nowrap">Export PDF</button>
+</div>
+<div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-3)">{{linkCountLabel}} · single-item invoices excluded · click a row to see everything an item attaches to</div>
+<sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
+<div style="overflow-x:auto">
+<table class="table">
+<thead><tr><th style="text-align:left;width:44px">#</th><th style="text-align:left">Item A</th><th style="text-align:left">Item B</th><th>Baskets</th><th>% of baskets</th><th>A → B</th><th>B → A</th><th>Lift</th></tr></thead>
+<tbody>
+<sc-for list="{{linkRows}}" as="p" hint-placeholder-count="12">
+<tr onClick="{{p.onClick}}" style="cursor:pointer"><td style="text-align:left;color:var(--color-neutral-500)">{{p.rank}}</td><td style="text-align:left"><div style="display:flex;gap:10px;align-items:center"><div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{p.aImage}}" hint-placeholder-val="{{false}}"><img src="{{p.aImage}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain" /></sc-if></div><div style="min-width:0"><div style="font-weight:600;color:var(--color-accent-300)">{{p.aDesc}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{p.aSku}} · {{p.aCat}}</div></div></div></td><td style="text-align:left"><div style="display:flex;gap:10px;align-items:center"><div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{p.bImage}}" hint-placeholder-val="{{false}}"><img src="{{p.bImage}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain" /></sc-if></div><div style="min-width:0"><div style="font-weight:600">{{p.bDesc}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{p.bSku}} · {{p.bCat}}</div></div></div></td><td style="font-weight:700;white-space:nowrap">{{p.together}}</td><td style="white-space:nowrap">{{p.supportLabel}}</td><td style="white-space:nowrap">{{p.confABLabel}}</td><td style="white-space:nowrap">{{p.confBALabel}}</td><td style="font-weight:600;white-space:nowrap;color:{{p.liftColor}}">{{p.liftLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</sc-if>
+<sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:var(--space-3)">
+<sc-for list="{{linkRows}}" as="p" hint-placeholder-count="8">
+<div onClick="{{p.onClick}}" class="card elev-sm" style="cursor:pointer">
+<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">
+<div style="display:flex;gap:8px;align-items:center;flex:1;min-width:0"><div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{p.aImage}}" hint-placeholder-val="{{false}}"><img src="{{p.aImage}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain" /></sc-if></div><div style="font-weight:700;font-size:13px;color:var(--color-accent-300);min-width:0">{{p.aDesc}}</div></div>
+<div style="font-family:var(--font-heading);font-size:18px;font-weight:600">{{p.together}}</div>
+</div>
+<div style="display:flex;gap:8px;align-items:center;margin-top:6px"><div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{p.bImage}}" hint-placeholder-val="{{false}}"><img src="{{p.bImage}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain" /></sc-if></div><div style="font-size:13px;font-weight:600;min-width:0">{{p.bDesc}}</div></div>
+<div style="display:flex;flex-wrap:wrap;gap:6px 12px;font-size:11px;color:var(--color-neutral-500);margin-top:6px">
+<span>{{p.supportLabel}} of baskets</span><span>A→B {{p.confABLabel}}</span><span>Lift {{p.liftLabel}}</span>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{linkPagerVisible}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;align-items:center;justify-content:center;gap:var(--space-4);margin-top:var(--space-5)">
+<button class="btn btn-secondary" onClick="{{linkPrev}}" disabled="{{linkPrevDisabled}}">← Previous</button>
+<div style="font-size:13px;color:var(--color-neutral-500);white-space:nowrap">{{linkPageLabel}}</div>
+<button class="btn btn-secondary" onClick="{{linkNext}}" disabled="{{linkNextDisabled}}">Next →</button>
+</div>
+</sc-if>
+</sc-if>
+</section>
+</sc-if>
+
 <sc-if value="{{isWholesale}}" hint-placeholder-val="{{false}}">
 <section>
 <sc-if value="{{wsDrillOpen}}" hint-placeholder-val="{{false}}">
@@ -1942,6 +2053,8 @@ class Component extends DCLogic {
     wholesaleChannel: 'wholesale',
     wholesaleCustomerSearch: '',
     wsDrillStore: null,
+    linkPairs: null, linkLoading: false, linkFailed: false,
+    linkMonth: 'All', linkMinCount: 5, linkSearch: '', linkDrillSku: null, linkPage: 0,
     itemSearch: '',
     categorySearch: '',
     itemsPage: 0,
@@ -2430,7 +2543,7 @@ class Component extends DCLogic {
     return name;
   }
 
-  goTo(page) { return () => { if (page === 'yoy') this._ensureYoy(); this.setState({ page }); }; }
+  goTo(page) { return () => { if (page === 'linkSales' && !(this.state.auth && this.state.auth.id === 'admin')) return; if (page === 'yoy') this._ensureYoy(); if (page === 'linkSales') this._ensureLinkPairs(); this.setState({ page }); }; }
 
   // ===== Daily snapshot (admin / mathew only) =====
   snapshotData(date) {
@@ -2732,6 +2845,157 @@ class Component extends DCLogic {
       this.setState({ yoyItemsLoading: false });
     }
   }
+
+  async _ensureLinkPairs() {
+    if (this.state.linkPairs || this.state.linkLoading || this.state.linkFailed) return;
+    this.setState({ linkLoading: true });
+    try {
+      const r = await fetch('data/link-pairs.json');
+      const d = r.ok ? await r.json() : null;
+      this.setState({ linkPairs: d && d.days ? d : null, linkFailed: !(d && d.days), linkLoading: false });
+    } catch (e) {
+      this.setState({ linkFailed: true, linkLoading: false });
+    }
+  }
+
+  linkData() {
+    const st = this.state, D = st.linkPairs;
+    const empty = { rows: [], kpis: [], months: [], baskets: 0 };
+    if (!D) return empty;
+    const month = st.linkMonth || 'All';
+    const dates = Object.keys(D.days).filter(d => month === 'All' || d.slice(0, 7) === month).sort();
+    const months = [...new Set(Object.keys(D.days).map(d => d.slice(0, 7)))].sort();
+    let baskets = 0, lines = 0;
+    const itemC = new Map(), pairC = new Map();
+    dates.forEach(d => {
+      const L = D.days[d];
+      baskets += L.b || 0; lines += L.l || 0;
+      (L.i || []).forEach(([i, c]) => itemC.set(i, (itemC.get(i) || 0) + c));
+      (L.p || []).forEach(([a, b, c]) => { const k = a + ',' + b; pairC.set(k, (pairC.get(k) || 0) + c); });
+    });
+    const meta = i => {
+      const sku = D.skus[i];
+      const m = this.itemMeta[sku] || {};
+      return { sku, desc: m.itemDesc || sku, cat: m.category || m.division || '—', image: m.image || '' };
+    };
+    const min = st.linkMinCount || 5;
+    const q = (st.linkSearch || '').trim().toLowerCase();
+    const all = [];
+    pairC.forEach((c, k) => {
+      if (c < min) return;
+      const [ai, bi] = k.split(',').map(Number);
+      all.push({ ai, bi, c });
+    });
+    all.sort((x, y) => y.c - x.c);
+    const lift = (c, an, bn) => (an && bn && baskets) ? (c / baskets) / ((an / baskets) * (bn / baskets)) : 0;
+    const matched = [];
+    for (const p of all) {
+      if (q) {
+        const A = meta(p.ai), B = meta(p.bi);
+        if (!(A.desc + ' ' + A.sku + ' ' + B.desc + ' ' + B.sku).toLowerCase().includes(q)) continue;
+      }
+      matched.push(p);
+    }
+    const perPage = 50;
+    const totalPages = Math.max(1, Math.ceil(matched.length / perPage));
+    const page = Math.min(st.linkPage || 0, totalPages - 1);
+    const rows = [];
+    for (const p of matched.slice(page * perPage, page * perPage + perPage)) {
+      const A = meta(p.ai), B = meta(p.bi);
+      const an = itemC.get(p.ai) || 0, bn = itemC.get(p.bi) || 0;
+      const lf = lift(p.c, an, bn);
+      rows.push({
+        rank: page * perPage + rows.length + 1,
+        aImage: A.image, bImage: B.image,
+        aSku: A.sku, aDesc: A.desc, aCat: A.cat, bSku: B.sku, bDesc: B.desc, bCat: B.cat,
+        together: this.fmtNum(p.c),
+        supportLabel: baskets ? (100 * p.c / baskets).toFixed(2) + '%' : '—',
+        confABLabel: an ? (100 * p.c / an).toFixed(1) + '%' : '—',
+        confBALabel: bn ? (100 * p.c / bn).toFixed(1) + '%' : '—',
+        liftLabel: lf ? lf.toFixed(1) + '×' : '—',
+        liftColor: lf >= 3 ? '#2d8f81' : 'inherit',
+        onClick: () => this.setState({ linkDrillSku: A.sku })
+      });
+    }
+    let drill = null;
+    if (st.linkDrillSku) {
+      const si = D.skus.indexOf(st.linkDrillSku);
+      if (si >= 0) {
+        const partners = [];
+        pairC.forEach((c, k) => {
+          const [a, b] = k.split(',').map(Number);
+          if (a !== si && b !== si) return;
+          const o = a === si ? b : a;
+          partners.push({ o, c });
+        });
+        const an = itemC.get(si) || 0;
+        partners.sort((x, y) => y.c - x.c);
+        const M = meta(si);
+        drill = {
+          name: M.desc, sku: M.sku,
+          kicker: 'Attaches to ' + partners.length + ' item' + (partners.length === 1 ? '' : 's') + ' · ' + this.fmtNum(an) + ' multi-item baskets',
+          rows: partners.slice(0, 100).map((p, i) => {
+            const O = meta(p.o);
+            const lf = lift(p.c, an, itemC.get(p.o) || 0);
+            return {
+              rank: i + 1, sku: O.sku, desc: O.desc, category: O.cat, image: O.image, together: this.fmtNum(p.c),
+              confLabel: an ? (100 * p.c / an).toFixed(1) + '%' : '—',
+              liftLabel: lf ? lf.toFixed(1) + '×' : '—'
+            };
+          })
+        };
+      }
+    }
+    const kpis = [
+      { label: 'Multi-item invoices', value: this.fmtNum(baskets), sub: 'single-item invoices excluded' },
+      { label: 'Avg. items per basket', value: baskets ? (lines / baskets).toFixed(2) : '—', sub: 'distinct SKUs per invoice' },
+      { label: 'Linked pairs', value: this.fmtNum(pairC.size), sub: 'distinct SKU combinations' },
+      { label: 'Strong pairs', value: this.fmtNum(all.length), sub: 'at least ' + min + ' baskets' }
+    ];
+    return { rows, kpis, months, baskets, drill, strong: all.length, matched: matched.length, page, totalPages, perPage };
+  }
+
+  exportLinkPdf = async () => {
+    const d = this._lastLink;
+    if (!d || !d.rows.length || !window.jspdf) return;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'landscape' });
+    doc.setFontSize(13);
+    doc.text('Link Sales — items bought together', 14, 14);
+    doc.setFontSize(9); doc.setTextColor(120);
+    doc.text(d.subtitle, 14, 20);
+    doc.setTextColor(0);
+    doc.autoTable({
+      startY: 25,
+      head: [['#', 'SKU A', 'Item A', 'SKU B', 'Item B', 'Baskets', '% of baskets', 'A→B', 'B→A', 'Lift']],
+      body: d.rows.map(r => [r.rank, r.aSku, r.aDesc, r.bSku, r.bDesc, r.together, r.supportLabel, r.confABLabel, r.confBALabel, r.liftLabel]),
+      styles: { fontSize: 8, valign: 'middle', fontStyle: 'bold' },
+      headStyles: { fillColor: [45, 143, 129], fontStyle: 'bold' },
+      columnStyles: { 0: { cellWidth: 10 }, 1: { cellWidth: 22 }, 2: { cellWidth: 62 }, 3: { cellWidth: 22 }, 4: { cellWidth: 62 } }
+    });
+    this._savePdf(doc, 'link-sales.pdf');
+  };
+
+  exportLinkDrillPdf = async () => {
+    const d = this._lastLinkDrill;
+    if (!d || !d.rows.length || !window.jspdf) return;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(12);
+    doc.text(d.name.slice(0, 70), 14, 14);
+    doc.setFontSize(9); doc.setTextColor(120);
+    doc.text(d.sku + ' · ' + d.kicker, 14, 20);
+    doc.setTextColor(0);
+    doc.autoTable({
+      startY: 25,
+      head: [['#', 'SKU', 'Bought together with', 'Baskets', 'Attach%', 'Lift']],
+      body: d.rows.map(r => [r.rank, r.sku, r.desc, r.together, r.confLabel, r.liftLabel]),
+      styles: { fontSize: 8, valign: 'middle', fontStyle: 'bold' },
+      headStyles: { fillColor: [45, 143, 129], fontStyle: 'bold' },
+      columnStyles: { 0: { cellWidth: 10 }, 1: { cellWidth: 24 }, 2: { cellWidth: 82 } }
+    });
+    this._savePdf(doc, 'link-sales-' + d.sku + '.pdf');
+  };
 
   async _ensureYoy() {
     if (this.state.yoy || this.state.yoyLoading) return;
@@ -4331,10 +4595,16 @@ class Component extends DCLogic {
         + (absentRetail.length ? ' — no data for ' + absentRetail.slice(0, 6).join(', ') + (absentRetail.length > 6 ? ' +' + (absentRetail.length - 6) + ' more' : '') : '');
     }
     const yoyDimLabel = { sub: 'sub-category', brand: 'brand', stores: 'store', region: 'region', city: 'city', items: 'item' }[st.yoyView] || 'category';
-    const titles = { snapshot: 'Daily Snapshot', overview: 'Executive Overview', stores: 'Branch Comparison', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', hourlySales: 'Hourly Sales', wholesale: 'Wholesale', daily: 'Daily Sales', regionDetail: 'Region Detail', stcQitaf: 'STC Qitaf', yoy: 'YOY Comparison' };
-    const shortTitles = { snapshot: 'Snapshot', overview: 'Overview', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily', regionDetail: 'Region', hourlySales: 'Hourly', wholesale: 'Wholesale', stcQitaf: 'Qitaf', yoy: 'YOY' };
-    const navIcons = { snapshot: '☷', overview: '▣', categories: '▤', items: '◫', discounts: '%', invoices: '⌂', daily: '◷', regionDetail: '◈', hourlySales: '◔', wholesale: '◊', stcQitaf: '⊙', yoy: '⇄' };
+    const L = st.page === 'linkSales' ? this.linkData() : { rows: [], kpis: [], months: [], strong: 0, drill: null };
+    if (st.page === 'linkSales') {
+      this._lastLink = { rows: L.rows, subtitle: (st.linkMonth === 'All' ? 'All months' : st.linkMonth) + ' · ' + this.fmtNum(L.baskets) + ' multi-item invoices · min ' + st.linkMinCount + ' baskets' };
+      if (L.drill) this._lastLinkDrill = L.drill;
+    }
+    const titles = { snapshot: 'Daily Snapshot', overview: 'Executive Overview', stores: 'Branch Comparison', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', hourlySales: 'Hourly Sales', wholesale: 'Wholesale', daily: 'Daily Sales', regionDetail: 'Region Detail', stcQitaf: 'STC Qitaf', yoy: 'YOY Comparison', linkSales: 'Link Sales' };
+    const shortTitles = { snapshot: 'Snapshot', overview: 'Overview', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily', regionDetail: 'Region', hourlySales: 'Hourly', wholesale: 'Wholesale', stcQitaf: 'Qitaf', yoy: 'YOY', linkSales: 'Link' };
+    const navIcons = { snapshot: '☷', overview: '▣', categories: '▤', items: '◫', discounts: '%', invoices: '⌂', daily: '◷', regionDetail: '◈', hourlySales: '◔', wholesale: '◊', stcQitaf: '⊙', yoy: '⇄', linkSales: '⧉' };
     const isSnapshotUser = !!(st.auth && (st.auth.id === 'admin' || st.auth.id === 'mathew'));
+    const isAdminUser = !!(st.auth && st.auth.id === 'admin');
     const snapDates = [...new Set((st.buckets || []).map(r => r.date))].sort().reverse();
     const snapDate = st.snapDate && snapDates.includes(st.snapDate) ? st.snapDate : (snapDates[0] || null);
     const snapVals = (st.page === 'snapshot' && snapDate) ? this.snapshotData(snapDate) : {};
@@ -4369,7 +4639,7 @@ class Component extends DCLogic {
         });
       }
     }
-    const pageOrder = [...(isSnapshotUser ? ['snapshot'] : []), 'overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'hourlySales', 'yoy', 'wholesale', 'stcQitaf'].filter(p => !(st.auth && st.auth.region !== 'All' && p === 'wholesale'));
+    const pageOrder = [...(isSnapshotUser ? ['snapshot'] : []), 'overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'hourlySales', 'yoy', ...(isAdminUser ? ['linkSales'] : []), 'wholesale', 'stcQitaf'].filter(p => !(st.auth && st.auth.region !== 'All' && p === 'wholesale'));
     const isMobile = st.isMobile;
 
     return {
@@ -4547,8 +4817,8 @@ class Component extends DCLogic {
       setYoyViewBrand: () => this.setState({ yoyView: 'brand', yoySearch: '' }),
       setYoyViewStores: () => this.setState({ yoyView: 'stores', yoySearch: '' }),
       isOverview: st.page === 'overview', isRegionDetail: st.page === 'regionDetail', isCategories: st.page === 'categories', isInvoices: st.page === 'invoices', isItems: st.page === 'items', isDiscounts: st.page === 'discounts', isDaily: st.page === 'daily', isWholesale: st.page === 'wholesale', isStcQitaf: st.page === 'stcQitaf',
-      globalFiltersDisplay: (st.page === 'wholesale' || st.page === 'yoy' || st.page === 'snapshot') ? 'none' : (isMobile && !st.filtersOpen ? 'none' : 'flex'),
-      showFilterToggle: isMobile && st.page !== 'wholesale' && st.page !== 'yoy' && st.page !== 'snapshot',
+      globalFiltersDisplay: (st.page === 'wholesale' || st.page === 'yoy' || st.page === 'snapshot' || st.page === 'linkSales') ? 'none' : (isMobile && !st.filtersOpen ? 'none' : 'flex'),
+      showFilterToggle: isMobile && st.page !== 'wholesale' && st.page !== 'yoy' && st.page !== 'snapshot' && st.page !== 'linkSales',
       isSnapshot: st.page === 'snapshot',
       snapDate: snapDate,
       snapDateLabel: snapDate ? new Date(snapDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : 'Select date',
@@ -4592,6 +4862,34 @@ class Component extends DCLogic {
       wholesaleKpiCards,
       wholesaleTypeCards,
       wholesaleTotalLabel: this.fmtMoney(wholesaleTotal),
+      isLink: st.page === 'linkSales',
+      linkLoading: st.linkLoading,
+      linkMissing: st.page === 'linkSales' && !st.linkLoading && !st.linkPairs,
+      linkReady: st.page === 'linkSales' && !!st.linkPairs,
+      linkKpis: L.kpis,
+      linkRows: L.rows,
+      linkMonth: st.linkMonth,
+      linkMonthOptions: [{ value: 'All', label: 'All months' }, ...L.months.map(m => ({ value: m, label: new Date(m + '-01T00:00:00').toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) }))],
+      linkMinCount: st.linkMinCount,
+      linkMinOptions: [2, 3, 5, 10, 25, 50].map(n => ({ value: n, label: n + '+ baskets' })),
+      linkSearch: st.linkSearch,
+      setLinkMonth: e => this.setState({ linkMonth: e.target.value, linkPage: 0 }),
+      setLinkMinCount: e => this.setState({ linkMinCount: Number(e.target.value), linkPage: 0 }),
+      setLinkSearch: e => this.setState({ linkSearch: e.target.value, linkPage: 0 }),
+      linkCountLabel: 'Showing ' + (L.matched ? (L.page * L.perPage + 1) : 0) + '–' + (L.page * L.perPage + L.rows.length) + ' of ' + this.fmtNum(L.matched || 0) + ' pairs',
+      linkPagerVisible: (L.totalPages || 1) > 1,
+      linkPageLabel: 'Page ' + ((L.page || 0) + 1) + ' of ' + (L.totalPages || 1),
+      linkPrevDisabled: (L.page || 0) === 0,
+      linkNextDisabled: (L.page || 0) >= (L.totalPages || 1) - 1,
+      linkPrev: () => this.setState({ linkPage: Math.max(0, (st.linkPage || 0) - 1) }),
+      linkNext: () => this.setState({ linkPage: (st.linkPage || 0) + 1 }),
+      linkDrillOpen: !!(L.drill && L.drill.rows.length),
+      linkDrillRows: L.drill ? L.drill.rows : [],
+      linkDrillName: L.drill ? L.drill.name : '',
+      linkDrillKicker: L.drill ? L.drill.kicker : '',
+      closeLinkDrill: () => this.setState({ linkDrillSku: null }),
+      exportLinkPdf: this.exportLinkPdf,
+      exportLinkDrillPdf: this.exportLinkDrillPdf,
       isWholesaleStores: st.wholesaleView !== 'daily' && st.wholesaleView !== 'customers',
       isWholesaleDaily: st.wholesaleView === 'daily',
       isWholesaleCustomers: st.wholesaleView === 'customers',
