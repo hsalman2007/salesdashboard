@@ -1522,7 +1522,7 @@ a:hover{color:var(--color-accent-300)}
 <thead><tr><th style="text-align:left;width:36px">#</th><th style="width:44px"></th><th style="text-align:left">Item A</th><th style="width:44px"></th><th style="text-align:left">Item B</th><th>Baskets</th></tr></thead>
 <tbody>
 <sc-for list="{{linkStrongTop}}" as="s" hint-placeholder-count="8">
-<tr onClick="{{s.onClick}}" style="cursor:pointer"><td style="text-align:left;color:var(--color-neutral-500)">{{s.rank}}</td><td><div style="width:36px;height:36px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden"><img src="{{s.aImage}}" loading="lazy" style="width:100%;height:100%;object-fit:cover" /></div></td><td style="text-align:left">{{s.aDesc}}</td><td><div style="width:36px;height:36px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden"><img src="{{s.bImage}}" loading="lazy" style="width:100%;height:100%;object-fit:cover" /></div></td><td style="text-align:left">{{s.bDesc}}</td><td style="text-align:right;font-variant-numeric:tabular-nums">{{s.together}}</td></tr>
+<tr onClick="{{s.onClick}}" style="cursor:pointer"><td style="text-align:left;color:var(--color-neutral-500)">{{s.rank}}</td><td><div style="width:36px;height:36px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden"><img src="{{s.aImage}}" loading="lazy" style="width:100%;height:100%;object-fit:cover"></div></td><td style="text-align:left">{{s.aDesc}}</td><td><div style="width:36px;height:36px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden"><img src="{{s.bImage}}" loading="lazy" style="width:100%;height:100%;object-fit:cover"></div></td><td style="text-align:left">{{s.bDesc}}</td><td style="text-align:right;font-variant-numeric:tabular-nums">{{s.together}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -1548,7 +1548,7 @@ a:hover{color:var(--color-accent-300)}
 <thead><tr><th style="text-align:left;width:40px">#</th><th style="width:52px"></th><th style="text-align:left">Bought together with</th><th style="text-align:left">Sub-category</th><th>Baskets</th><th>Attach%</th><th>Lift</th></tr></thead>
 <tbody>
 <sc-for list="{{linkDrillRows}}" as="p" hint-placeholder-count="8">
-<tr><td style="text-align:left;color:var(--color-neutral-500)">{{p.rank}}</td><td><div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{p.image}}" hint-placeholder-val="{{false}}"><img src="{{p.image}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain" /></sc-if></div></td><td style="text-align:left"><div style="font-weight:600">{{p.desc}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{p.sku}}</div></td><td style="text-align:left;font-size:12px;color:var(--color-neutral-500)">{{p.category}}</td><td style="font-weight:600">{{p.together}}</td><td style="font-weight:600">{{p.confLabel}}</td><td>{{p.liftLabel}}</td></tr>
+<tr><td style="text-align:left;color:var(--color-neutral-500)">{{p.rank}}</td><td><div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{p.image}}" hint-placeholder-val="{{false}}"><img src="{{p.image}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></sc-if></div></td><td style="text-align:left"><div style="font-weight:600">{{p.desc}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{p.sku}}</div></td><td style="text-align:left;font-size:12px;color:var(--color-neutral-500)">{{p.category}}</td><td style="font-weight:600">{{p.together}}</td><td style="font-weight:600">{{p.confLabel}}</td><td>{{p.liftLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -1567,16 +1567,11 @@ a:hover{color:var(--color-accent-300)}
 </div>
 </sc-if>
 <sc-if value="{{linkReady}}" hint-placeholder-val="{{false}}">
-<div style="display:flex;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-5)">
-<sc-for list="{{linkKpis}}" as="k" hint-placeholder-count="4">
-<div class="card elev-sm" onClick="{{k.onClick}}" style="flex:1 1 180px;min-width:150px;cursor:{{k.cursor}}">
-<div class="card-meta">{{k.label}}</div>
-<div style="font-family:var(--font-heading);font-size:24px;font-weight:600;line-height:1.15;margin-top:2px">{{k.value}}</div>
-<div style="font-size:11px;color:var(--color-neutral-500);margin-top:2px">{{k.sub}}</div>
+<div style="display:flex;gap:8px;padding:4px;border-radius:var(--radius-md);background:var(--color-neutral-100);width:max-content;margin-bottom:var(--space-4)">
+<button onClick="{{showLinkPairs}}" style="{{linkPairsTabStyle}}">Pairs</button>
+<button onClick="{{showLinkSuggested}}" style="{{linkSuggTabStyle}}">Suggested</button>
 </div>
-</sc-for>
-</div>
-<div style="display:flex;flex-wrap:wrap;gap:var(--space-4);align-items:flex-end;margin-bottom:var(--space-5)">
+<div style="display:flex;flex-wrap:wrap;gap:var(--space-4);align-items:flex-end;margin-bottom:24px">
 <div class="field" style="min-width:170px">
 <label>Period</label>
 <select value="{{linkMonth}}" onChange="{{setLinkMonth}}">
@@ -1593,20 +1588,92 @@ a:hover{color:var(--color-accent-300)}
 </sc-for>
 </select>
 </div>
+<sc-if value="{{linkIsSuggested}}" hint-placeholder-val="{{false}}">
+<div class="field" style="min-width:170px">
+<label>Items per bundle</label>
+<select value="{{linkSize}}" onChange="{{setLinkSize}}">
+<sc-for list="{{linkSizeOptions}}" as="s" hint-placeholder-count="6">
+<option value="{{s.value}}">{{s.label}}</option>
+</sc-for>
+</select>
+</div>
+</sc-if>
 <div class="field" style="flex:1 1 240px;min-width:200px">
 <label>Search item or SKU</label>
-<input type="text" value="{{linkSearch}}" onInput="{{setLinkSearch}}" placeholder="e.g. gas cartridge" />
+<input type="text" value="{{linkSearch}}" onInput="{{setLinkSearch}}" placeholder="e.g. gas cartridge">
 </div>
 <button class="btn btn-secondary" onClick="{{exportLinkPdf}}" style="white-space:nowrap">Export PDF</button>
 </div>
+<sc-if value="{{linkIsPairs}}" hint-placeholder-val="{{true}}">
 <div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-3)">{{linkCountLabel}} · single-item invoices excluded · click a row to see everything an item attaches to</div>
+</sc-if>
+<sc-if value="{{linkIsSuggested}}" hint-placeholder-val="{{false}}">
+<div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4);max-width:900px;text-wrap:pretty">{{linkSuggNote}} — basket counts are upper bounds (the weakest pair in the bundle), so treat them as “no more than”.</div>
+<div style="display:flex;flex-direction:column;gap:var(--space-3)">
+<sc-for list="{{linkSuggRows}}" as="s" hint-placeholder-count="6">
+<div onClick="{{s.onClick}}" class="card elev-sm" style="cursor:pointer;padding:var(--space-4)">
+<div style="display:flex;justify-content:space-between;gap:var(--space-4);align-items:flex-start;flex-wrap:wrap">
+<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;flex:1 1 420px;min-width:0">
+<div style="font-size:12px;font-weight:700;color:var(--color-neutral-500);width:26px;flex:0 0 26px">{{s.rank}}</div>
+<sc-for list="{{s.items}}" as="it" hint-placeholder-count="3">
+<div style="display:flex;gap:6px;align-items:center">
+<div style="font-size:15px;font-weight:700;color:var(--color-neutral-500);padding:0 2px">{{it.plus}}</div>
+<div style="display:flex;gap:8px;align-items:center;max-width:230px">
+<div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden"><img src="{{it.image}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></div>
+<div style="min-width:0">
+<div style="font-size:13px;font-weight:600;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{it.desc}}</div>
+<div style="font-size:11px;color:var(--color-neutral-500)">{{it.sku}} · {{it.roleLabel}}</div>
+<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+<div style="font-size:11px;font-weight:600;color:var(--color-neutral-700)">{{it.rspLabel}}</div>
+<sc-if value="{{it.newLabel}}" hint-placeholder-val="{{false}}"><div style="font-size:11px;font-weight:700;color:var(--color-accent)">→ {{it.newLabel}}</div></sc-if>
+<sc-if value="{{it.costLabel}}" hint-placeholder-val="{{false}}"><div style="font-size:11px;color:var(--color-neutral-500)">{{it.costLabel}}</div></sc-if>
+<sc-if value="{{it.itemMarkupLabel}}" hint-placeholder-val="{{false}}"><div style="font-size:11px;color:var(--color-neutral-500)">{{it.itemMarkupLabel}}</div></sc-if>
+</div>
+<div onClick="{{it.stop}}" style="display:flex;gap:4px;align-items:center;margin-top:3px">
+<input value="{{it.discValue}}" onChange="{{it.onDisc}}" onClick="{{it.stop}}" type="number" min="0" max="100" step="1" placeholder="0" style="width:46px;font:inherit;font-size:11px;padding:2px 4px;border:1px solid var(--color-neutral-300);border-radius:var(--radius-sm);background:var(--color-surface);color:inherit">
+<div style="font-size:10px;color:var(--color-neutral-500)">% off</div>
+</div>
+</div>
+</div>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap;flex:0 0 auto">
+<div>
+<div style="font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-neutral-500)">Baskets</div>
+<div style="font-family:var(--font-heading);font-size:17px;font-weight:600;white-space:nowrap">{{s.togetherLabel}}</div>
+</div>
+<div>
+<div style="font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-neutral-500)">Attach</div>
+<div style="font-family:var(--font-heading);font-size:17px;font-weight:600">{{s.attachLabel}}</div>
+</div>
+<div>
+<div style="font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-neutral-500)">Markup</div>
+<div style="font-family:var(--font-heading);font-size:17px;font-weight:600">{{s.markupLabel}}</div>
+</div>
+<div>
+<div style="font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-neutral-500)">Bundle price </div>
+<div style="font-family:var(--font-heading);font-size:17px;font-weight:600;white-space:nowrap">{{s.bundleValueLabel}}</div>
+<sc-if value="{{s.showNet}}" hint-placeholder-val="{{false}}"><div style="font-family:var(--font-heading);font-size:15px;font-weight:700;color:var(--color-accent);white-space:nowrap">{{s.bundleNetLabel}} after discount</div></sc-if>
+</div>
+</div>
+</div>
+
+</div>
+</sc-for>
+</div>
+<sc-if value="{{linkSuggEmpty}}" hint-placeholder-val="{{false}}">
+<div class="card elev-sm" style="padding:var(--space-6);color:var(--color-neutral-500);font-size:13px;text-wrap:pretty">No bundles clear the bar for this period. Lower “Min. baskets” or widen the period — bundles need every pair inside them to hit the threshold and sell together more often than chance.</div>
+</sc-if>
+</sc-if>
+<sc-if value="{{linkIsPairs}}" hint-placeholder-val="{{true}}">
 <sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x:auto">
 <table class="table">
 <thead><tr><th style="text-align:left;width:44px">#</th><th style="text-align:left">Item A</th><th style="text-align:left">Item B</th><th>Baskets</th><th>% of baskets</th><th>A → B</th><th>B → A</th><th>Lift</th></tr></thead>
 <tbody>
 <sc-for list="{{linkRows}}" as="p" hint-placeholder-count="12">
-<tr onClick="{{p.onClick}}" style="cursor:pointer"><td style="text-align:left;color:var(--color-neutral-500)">{{p.rank}}</td><td style="text-align:left"><div style="display:flex;gap:10px;align-items:center"><div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{p.aImage}}" hint-placeholder-val="{{false}}"><img src="{{p.aImage}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain" /></sc-if></div><div style="min-width:0"><div style="font-weight:600;color:var(--color-accent-300)">{{p.aDesc}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{p.aSku}} · {{p.aCat}}</div></div></div></td><td style="text-align:left"><div style="display:flex;gap:10px;align-items:center"><div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{p.bImage}}" hint-placeholder-val="{{false}}"><img src="{{p.bImage}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain" /></sc-if></div><div style="min-width:0"><div style="font-weight:600">{{p.bDesc}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{p.bSku}} · {{p.bCat}}</div></div></div></td><td style="font-weight:700;white-space:nowrap">{{p.together}}</td><td style="white-space:nowrap">{{p.supportLabel}}</td><td style="white-space:nowrap">{{p.confABLabel}}</td><td style="white-space:nowrap">{{p.confBALabel}}</td><td style="font-weight:600;white-space:nowrap;color:{{p.liftColor}}">{{p.liftLabel}}</td></tr>
+<tr onClick="{{p.onClick}}" style="cursor:pointer"><td style="text-align:left;color:var(--color-neutral-500)">{{p.rank}}</td><td style="text-align:left"><div style="display:flex;gap:10px;align-items:center"><div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{p.aImage}}" hint-placeholder-val="{{false}}"><img src="{{p.aImage}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></sc-if></div><div style="min-width:0"><div style="font-weight:600;color:var(--color-accent-300)">{{p.aDesc}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{p.aSku}} · {{p.aCat}}</div></div></div></td><td style="text-align:left"><div style="display:flex;gap:10px;align-items:center"><div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{p.bImage}}" hint-placeholder-val="{{false}}"><img src="{{p.bImage}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></sc-if></div><div style="min-width:0"><div style="font-weight:600">{{p.bDesc}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{p.bSku}} · {{p.bCat}}</div></div></div></td><td style="font-weight:700;white-space:nowrap">{{p.together}}</td><td style="white-space:nowrap">{{p.supportLabel}}</td><td style="white-space:nowrap">{{p.confABLabel}}</td><td style="white-space:nowrap">{{p.confBALabel}}</td><td style="font-weight:600;white-space:nowrap;color:{{p.liftColor}}">{{p.liftLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -1617,10 +1684,10 @@ a:hover{color:var(--color-accent-300)}
 <sc-for list="{{linkRows}}" as="p" hint-placeholder-count="8">
 <div onClick="{{p.onClick}}" class="card elev-sm" style="cursor:pointer">
 <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">
-<div style="display:flex;gap:8px;align-items:center;flex:1;min-width:0"><div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{p.aImage}}" hint-placeholder-val="{{false}}"><img src="{{p.aImage}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain" /></sc-if></div><div style="font-weight:700;font-size:13px;color:var(--color-accent-300);min-width:0">{{p.aDesc}}</div></div>
+<div style="display:flex;gap:8px;align-items:center;flex:1;min-width:0"><div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{p.aImage}}" hint-placeholder-val="{{false}}"><img src="{{p.aImage}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></sc-if></div><div style="font-weight:700;font-size:13px;color:var(--color-accent-300);min-width:0">{{p.aDesc}}</div></div>
 <div style="font-family:var(--font-heading);font-size:18px;font-weight:600">{{p.together}}</div>
 </div>
-<div style="display:flex;gap:8px;align-items:center;margin-top:6px"><div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{p.bImage}}" hint-placeholder-val="{{false}}"><img src="{{p.bImage}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain" /></sc-if></div><div style="font-size:13px;font-weight:600;min-width:0">{{p.bDesc}}</div></div>
+<div style="display:flex;gap:8px;align-items:center;margin-top:6px"><div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{p.bImage}}" hint-placeholder-val="{{false}}"><img src="{{p.bImage}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></sc-if></div><div style="font-size:13px;font-weight:600;min-width:0">{{p.bDesc}}</div></div>
 <div style="display:flex;flex-wrap:wrap;gap:6px 12px;font-size:11px;color:var(--color-neutral-500);margin-top:6px">
 <span>{{p.supportLabel}} of baskets</span><span>A→B {{p.confABLabel}}</span><span>Lift {{p.liftLabel}}</span>
 </div>
@@ -1628,8 +1695,9 @@ a:hover{color:var(--color-accent-300)}
 </sc-for>
 </div>
 </sc-if>
+</sc-if>
 <sc-if value="{{linkPagerVisible}}" hint-placeholder-val="{{false}}">
-<div style="display:flex;align-items:center;justify-content:center;gap:var(--space-4);margin-top:var(--space-5)">
+<div style="display:flex;align-items:center;justify-content:center;gap:var(--space-4);margin-top:24px">
 <button class="btn btn-secondary" onClick="{{linkPrev}}" disabled="{{linkPrevDisabled}}">← Previous</button>
 <div style="font-size:13px;color:var(--color-neutral-500);white-space:nowrap">{{linkPageLabel}}</div>
 <button class="btn btn-secondary" onClick="{{linkNext}}" disabled="{{linkNextDisabled}}">Next →</button>
@@ -2087,7 +2155,7 @@ class Component extends DCLogic {
     wholesaleCustomerSearch: '',
     wsDrillStore: null,
     linkPairs: null, linkLoading: false, linkFailed: false,
-    linkMonth: 'All', linkMinCount: 5, linkSearch: '', linkDrillSku: null, linkPage: 0, linkStrongOpen: false,
+    linkMonth: 'All', linkMinCount: 5, linkSearch: '', linkDrillSku: null, linkPage: 0, linkStrongOpen: false, linkView: 'pairs', linkSize: 'Any',
     itemSearch: '',
     categorySearch: '',
     itemsPage: 0,
@@ -2891,6 +2959,84 @@ class Component extends DCLogic {
     }
   }
 
+  // Suggested bundles: grows itemsets (2–4 SKUs) out of the strong-pair graph for the selected
+  // period. link-pairs.json stores pairs only, so a bundle's basket count is the minimum of its
+  // pairwise counts — an upper bound, hence "up to". Ranked by revenue headroom: anchor baskets
+  // that left WITHOUT the partners, at the attach rate the pair already demonstrates, priced at RSP.
+  _linkSuggestions(all, itemC, meta, baskets, min, maxSize) {
+    const cap = Math.max(2, Math.min(6, maxSize || 4));
+    const liftOf = (c, an, bn) => (an && bn && baskets) ? (c / baskets) / ((an / baskets) * (bn / baskets)) : 0;
+    const priceOf = i => Number((this.itemMeta[meta(i).sku] || {}).rsp) || 0;
+    const costOf = i => Number((this.itemMeta[meta(i).sku] || {}).unitCost) || 0;
+    const adj = new Map();
+    const edges = [];
+    for (const p of all) {
+      const an = itemC.get(p.ai) || 0, bn = itemC.get(p.bi) || 0;
+      const lf = liftOf(p.c, an, bn);
+      if (lf < 1.2) continue; // sold together more than chance alone explains
+      edges.push({ ai: p.ai, bi: p.bi, c: p.c, lf });
+      if (!adj.has(p.ai)) adj.set(p.ai, new Map());
+      if (!adj.has(p.bi)) adj.set(p.bi, new Map());
+      adj.get(p.ai).set(p.bi, p.c);
+      adj.get(p.bi).set(p.ai, p.c);
+    }
+    const seeds = edges.sort((a, b) => (b.c * (priceOf(b.ai) + priceOf(b.bi))) - (a.c * (priceOf(a.ai) + priceOf(a.bi)))).slice(0, 4000);
+    const found = new Map();
+    for (const e of seeds) {
+      const members = [e.ai, e.bi];
+      let est = e.c;
+      while (members.length < cap) {
+        let best = null;
+        for (const [cand, cc] of adj.get(members[0])) {
+          if (members.indexOf(cand) >= 0) continue;
+          let low = cc, ok = true;
+          for (let k = 1; k < members.length; k++) {
+            const c2 = (adj.get(members[k]) || new Map()).get(cand);
+            if (!c2) { ok = false; break; }
+            if (c2 < low) low = c2;
+          }
+          if (!ok) continue;
+          const newEst = Math.min(est, low);
+          if (newEst < min) continue;
+          const gain = newEst * priceOf(cand);
+          if (!best || gain > best.gain) best = { cand, newEst, gain };
+        }
+        if (!best) break;
+        members.push(best.cand);
+        est = best.newEst;
+      }
+      const key = members.slice().sort((a, b) => a - b).join(',');
+      if (!found.has(key)) found.set(key, { members, est });
+    }
+    const kept = [];
+    for (const b of [...found.values()].sort((a, b) => b.members.length - a.members.length)) {
+      if (kept.some(k => b.members.every(m => k.set.has(m)))) continue; // subset of a bigger bundle
+      kept.push({ members: b.members, est: b.est, set: new Set(b.members) });
+    }
+    return kept.map(b => {
+      const anchor = b.members.reduce((w, i) => (itemC.get(i) || 0) > (itemC.get(w) || 0) ? i : w, b.members[0]);
+      const anchorN = itemC.get(anchor) || 0;
+      const others = b.members.filter(i => i !== anchor);
+      const attach = anchorN ? b.est / anchorN : 0;
+      const partnerValue = others.reduce((s, i) => s + priceOf(i), 0);
+      const partnerMargin = others.reduce((s, i) => s + Math.max(0, priceOf(i) - costOf(i)), 0);
+      const headroom = Math.max(0, anchorN - b.est);
+      const lifts = [];
+      for (let i = 0; i < b.members.length; i++) for (let j = i + 1; j < b.members.length; j++) {
+        const x = b.members[i], y = b.members[j];
+        lifts.push(liftOf((adj.get(x) || new Map()).get(y) || 0, itemC.get(x) || 0, itemC.get(y) || 0));
+      }
+      return {
+        members: b.members, anchor, anchorN, others, est: b.est, attach, headroom,
+        upside: headroom * attach * partnerValue,
+        marginUpside: headroom * attach * partnerMargin,
+        avgLift: lifts.length ? lifts.reduce((s, x) => s + x, 0) / lifts.length : 0,
+        bundleValue: b.members.reduce((s, i) => s + priceOf(i), 0),
+        priced: b.members.every(i => priceOf(i) > 0)
+      };
+    }).sort((x, y) => y.upside - x.upside || y.est - x.est);
+  }
+
   linkData() {
     const st = this.state, D = st.linkPairs;
     const empty = { rows: [], kpis: [], months: [], baskets: 0 };
@@ -2979,6 +3125,71 @@ class Component extends DCLogic {
         };
       }
     }
+    let suggested = null;
+    if (st.linkView === 'suggested') {
+      const wantSize = st.linkSize && st.linkSize !== 'Any' ? Number(st.linkSize) : 0;
+      const sugAll = this._linkSuggestions(all, itemC, meta, baskets, min, wantSize || 4)
+        .filter(b => !wantSize || b.members.length === wantSize);
+      const filtered = q ? sugAll.filter(b => b.members.some(i => { const M = meta(i); return (M.desc + ' ' + M.sku).toLowerCase().includes(q); })) : sugAll;
+      const periodLabel = month === 'All' ? 'across all months on file' : 'in ' + new Date(month + '-01T00:00:00').toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      const sugPages = Math.max(1, Math.ceil(filtered.length / perPage));
+      const sugPage = Math.min(st.linkPage || 0, sugPages - 1);
+      suggested = {
+        total: filtered.length,
+        page: sugPage, totalPages: sugPages,
+        upsideTotal: this.fmtMoney(filtered.reduce((s, b) => s + b.upside, 0)),
+        periodLabel,
+        rows: filtered.slice(sugPage * perPage, sugPage * perPage + perPage).map((b, n) => {
+          const A = meta(b.anchor);
+          const disc = st.suggDisc || {};
+          const bKey = b.members.map(i => meta(i).sku).join('|');
+          let bundleNet = 0, bundleCost = 0, allPriced = true, anyDisc = false;
+          const items = [b.anchor, ...b.others].map((i, k) => {
+            const M = meta(i);
+            const rsp = Number((this.itemMeta[M.sku] || {}).rsp) || 0;
+            const dKey = bKey + '::' + M.sku;
+            const raw = disc[dKey];
+            const pct = Math.max(0, Math.min(100, Number(raw) || 0));
+            if (raw !== undefined && raw !== '' && pct > 0) anyDisc = true;
+            const unitCost = Number((this.itemMeta[M.sku] || {}).unitCost) || 0;
+            const net = rsp * (1 - pct / 100);
+            if (!rsp) allPriced = false;
+            bundleNet += net;
+            bundleCost += unitCost;
+            return {
+              sku: M.sku, desc: M.desc, cat: M.cat, image: M.image,
+              roleLabel: k === 0 ? 'Anchor' : 'Add-on', plus: k === 0 ? '' : '+',
+              rspLabel: rsp ? 'RSP ' + this.fmtMoney(rsp * 1.15) : '—',
+              itemMarkupLabel: (st.auth && st.auth.region !== 'All') ? '' : (rsp && unitCost) ? 'mkp ' + (100 * (net - unitCost) / unitCost).toFixed(1) + '%' : '',
+              costLabel: (st.auth && st.auth.region !== 'All') ? '' : unitCost ? 'cost ' + this.fmtMoney(unitCost * 1.15) : '',
+              newLabel: rsp && pct > 0 ? this.fmtMoney(net * 1.15) : '',
+              discValue: raw === undefined ? '' : raw,
+              onDisc: e => {
+                const v = e.target.value;
+                this.setState(s => ({ suggDisc: Object.assign({}, s.suggDisc, { [dKey]: v }) }));
+              },
+              stop: e => e.stopPropagation()
+            };
+          });
+          return {
+            rank: sugPage * perPage + n + 1,
+            sizeLabel: b.members.length + ' items',
+            items,
+            bundleNetLabel: allPriced ? this.fmtMoney(bundleNet * 1.15) : '—',
+            markupLabel: (st.auth && st.auth.region !== 'All') ? '—' : (allPriced && bundleCost) ? (100 * (bundleNet - bundleCost) / bundleCost).toFixed(1) + '%' : '—',
+            showNet: anyDisc && allPriced,
+            togetherLabel: 'up to ' + this.fmtNum(b.est),
+            attachLabel: (100 * b.attach).toFixed(1) + '%',
+            liftLabel: b.avgLift ? b.avgLift.toFixed(1) + '×' : '—',
+            bundleValueLabel: b.priced ? this.fmtMoney(b.bundleValue * 1.15) : '—',
+            upsideLabel: b.priced ? this.fmtMoney(b.upside) : '—',
+            marginLabel: b.priced ? this.fmtMoney(b.marginUpside) : '—',
+            why: this.fmtNum(b.headroom) + ' of ' + this.fmtNum(b.anchorN) + ' “' + A.desc.slice(0, 42) + '” baskets left without ' + (b.others.length === 1 ? 'the partner' : 'these partners') + ' — today’s attach rate is ' + (100 * b.attach).toFixed(1) + '%.',
+            onClick: () => this.setState({ linkDrillSku: A.sku })
+          };
+        })
+      };
+    }
     const bandDefs = [[min, 9, min + '–9 baskets'], [10, 24, '10–24 baskets'], [25, 49, '25–49 baskets'], [50, 99, '50–99 baskets'], [100, Infinity, '100+ baskets']];
     const strongDetail = {
       bands: bandDefs.filter(b => b[1] >= b[0]).map(([lo, hi, label]) => {
@@ -2997,10 +3208,11 @@ class Component extends DCLogic {
       { label: 'Linked pairs', value: this.fmtNum(pairC.size), sub: 'distinct SKU combinations' },
       { label: 'Strong pairs', value: this.fmtNum(all.length), sub: 'at least ' + min + ' baskets · view details', cursor: 'pointer', onClick: () => this.setState({ linkStrongOpen: true }) }
     ];
-    return { rows, kpis, months, baskets, drill, strongDetail, strong: all.length, matched: matched.length, page, totalPages, perPage };
+    return { rows, kpis, months, baskets, drill, strongDetail, suggested, strong: all.length, matched: matched.length, page, totalPages, perPage };
   }
 
   exportLinkPdf = async () => {
+    if (this.state.linkView === 'suggested') return this.exportLinkSuggestedPdf();
     const d = this._lastLink;
     if (!d || !d.rows.length || !window.jspdf) return;
     const { jsPDF } = window.jspdf;
@@ -3019,6 +3231,32 @@ class Component extends DCLogic {
       columnStyles: { 0: { cellWidth: 10 }, 1: { cellWidth: 22 }, 2: { cellWidth: 62 }, 3: { cellWidth: 22 }, 4: { cellWidth: 62 } }
     });
     this._savePdf(doc, 'link-sales.pdf');
+  };
+
+  exportLinkSuggestedPdf = async () => {
+    const d = this._lastLinkSuggested;
+    if (!d || !d.rows.length || !window.jspdf) return;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'landscape' });
+    doc.setFontSize(13);
+    doc.text('Link Sales — suggested bundles', 14, 14);
+    doc.setFontSize(9); doc.setTextColor(120);
+    doc.text(d.subtitle, 14, 20);
+    doc.setTextColor(0);
+    doc.autoTable({
+      startY: 25,
+      head: [['#', 'Bundle', 'SKUs', 'Baskets', 'Attach', 'Markup', 'Bundle price (incl. VAT)']],
+      body: d.rows.map(r => [
+        r.rank,
+        r.items.map(i => i.desc).join('  +  '),
+        r.items.map(i => i.sku).join(', '),
+        r.togetherLabel, r.attachLabel, r.markupLabel, r.bundleValueLabel
+      ]),
+      styles: { fontSize: 8, valign: 'middle', fontStyle: 'bold', cellPadding: 2 },
+      headStyles: { fillColor: [45, 143, 129], fontStyle: 'bold' },
+      columnStyles: { 0: { cellWidth: 10 }, 1: { cellWidth: 96 }, 2: { cellWidth: 40 } }
+    });
+    this._savePdf(doc, 'link-sales-suggested.pdf');
   };
 
   exportLinkDrillPdf = async () => {
@@ -4644,6 +4882,7 @@ class Component extends DCLogic {
     if (st.page === 'linkSales') {
       this._lastLink = { rows: L.rows, subtitle: (st.linkMonth === 'All' ? 'All months' : st.linkMonth) + ' · ' + this.fmtNum(L.baskets) + ' multi-item invoices · min ' + st.linkMinCount + ' baskets' };
       if (L.drill) this._lastLinkDrill = L.drill;
+      if (L.suggested) this._lastLinkSuggested = { rows: L.suggested.rows, subtitle: (st.linkMonth === 'All' ? 'All months' : st.linkMonth) + ' · ' + this.fmtNum(L.baskets) + ' multi-item invoices · min ' + st.linkMinCount + ' baskets · ranked by revenue headroom · basket counts are upper bounds (pairwise minimum)' };
     }
     const titles = { snapshot: 'Daily Snapshot', overview: 'Executive Overview', stores: 'Branch Comparison', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', hourlySales: 'Hourly Sales', wholesale: 'Wholesale', daily: 'Daily Sales', regionDetail: 'Region Detail', stcQitaf: 'STC Qitaf', yoy: 'YOY Comparison', linkSales: 'Link Sales' };
     const shortTitles = { snapshot: 'Snapshot', overview: 'Overview', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily', regionDetail: 'Region', hourlySales: 'Hourly', wholesale: 'Wholesale', stcQitaf: 'Qitaf', yoy: 'YOY', linkSales: 'Link' };
@@ -4918,19 +5157,32 @@ class Component extends DCLogic {
       linkStrongTop: L.strongDetail ? L.strongDetail.top : [],
       closeLinkStrong: () => this.setState({ linkStrongOpen: false }),
       linkRows: L.rows,
+      linkView: st.linkView || 'pairs',
+      linkIsPairs: (st.linkView || 'pairs') === 'pairs',
+      linkIsSuggested: (st.linkView || 'pairs') === 'suggested',
+      showLinkPairs: () => this.setState({ linkView: 'pairs', linkPage: 0 }),
+      showLinkSuggested: () => this.setState({ linkView: 'suggested', linkPage: 0 }),
+      linkPairsTabStyle: (st.linkView || 'pairs') === 'pairs' ? 'padding:7px 14px;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;background:var(--color-accent-500);color:#fff' : 'padding:7px 14px;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:var(--color-neutral-500)',
+      linkSuggTabStyle: (st.linkView || 'pairs') === 'suggested' ? 'padding:7px 14px;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;background:var(--color-accent-500);color:#fff' : 'padding:7px 14px;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:var(--color-neutral-500)',
+      linkSuggRows: L.suggested ? L.suggested.rows : [],
+      linkSuggEmpty: (st.linkView || 'pairs') === 'suggested' && !!st.linkPairs && !(L.suggested && L.suggested.rows.length),
+      linkSuggNote: L.suggested ? ('Showing ' + (L.suggested.total ? (L.suggested.page * (L.perPage || 50) + 1) : 0) + '–' + (L.suggested.page * (L.perPage || 50) + L.suggested.rows.length) + ' of ' + this.fmtNum(L.suggested.total) + ' bundles ' + L.suggested.periodLabel + ', ranked strongest first') : '',
       linkMonth: st.linkMonth,
       linkMonthOptions: [{ value: 'All', label: 'All months' }, ...L.months.map(m => ({ value: m, label: new Date(m + '-01T00:00:00').toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) }))],
       linkMinCount: st.linkMinCount,
       linkMinOptions: [2, 3, 5, 10, 25, 50].map(n => ({ value: n, label: n + '+ baskets' })),
+      linkSize: st.linkSize || 'Any',
+      linkSizeOptions: [{ value: 'Any', label: 'Any size (up to 4)' }, { value: '2', label: '2 items' }, { value: '3', label: '3 items' }, { value: '4', label: '4 items' }, { value: '5', label: '5 items' }, { value: '6', label: '6 items' }],
+      setLinkSize: e => this.setState({ linkSize: e.target.value, linkPage: 0 }),
       linkSearch: st.linkSearch,
       setLinkMonth: e => this.setState({ linkMonth: e.target.value, linkPage: 0 }),
       setLinkMinCount: e => this.setState({ linkMinCount: Number(e.target.value), linkPage: 0 }),
       setLinkSearch: e => this.setState({ linkSearch: e.target.value, linkPage: 0 }),
       linkCountLabel: 'Showing ' + (L.matched ? (L.page * L.perPage + 1) : 0) + '–' + (L.page * L.perPage + L.rows.length) + ' of ' + this.fmtNum(L.matched || 0) + ' pairs',
-      linkPagerVisible: (L.totalPages || 1) > 1,
-      linkPageLabel: 'Page ' + ((L.page || 0) + 1) + ' of ' + (L.totalPages || 1),
-      linkPrevDisabled: (L.page || 0) === 0,
-      linkNextDisabled: (L.page || 0) >= (L.totalPages || 1) - 1,
+      linkPagerVisible: ((st.linkView === 'suggested' ? (L.suggested ? L.suggested.totalPages : 1) : L.totalPages) || 1) > 1,
+      linkPageLabel: 'Page ' + (((st.linkView === 'suggested' ? (L.suggested ? L.suggested.page : 0) : L.page) || 0) + 1) + ' of ' + ((st.linkView === 'suggested' ? (L.suggested ? L.suggested.totalPages : 1) : L.totalPages) || 1),
+      linkPrevDisabled: ((st.linkView === 'suggested' ? (L.suggested ? L.suggested.page : 0) : L.page) || 0) === 0,
+      linkNextDisabled: ((st.linkView === 'suggested' ? (L.suggested ? L.suggested.page : 0) : L.page) || 0) >= ((st.linkView === 'suggested' ? (L.suggested ? L.suggested.totalPages : 1) : L.totalPages) || 1) - 1,
       linkPrev: () => this.setState({ linkPage: Math.max(0, (st.linkPage || 0) - 1) }),
       linkNext: () => this.setState({ linkPage: (st.linkPage || 0) + 1 }),
       linkDrillOpen: !!(L.drill && L.drill.rows.length),
