@@ -1629,10 +1629,12 @@ a:hover{color:var(--color-accent-300)}
 <sc-if value="{{it.costLabel}}" hint-placeholder-val="{{false}}"><div style="font-size:11px;color:var(--color-neutral-500)">{{it.costLabel}}</div></sc-if>
 <sc-if value="{{it.itemMarkupLabel}}" hint-placeholder-val="{{false}}"><div style="font-size:11px;color:var(--color-neutral-500)">{{it.itemMarkupLabel}}</div></sc-if>
 </div>
+<sc-if value="{{it.showDisc}}" hint-placeholder-val="{{true}}">
 <div onClick="{{it.stop}}" style="display:flex;gap:4px;align-items:center;margin-top:3px">
 <input value="{{it.discValue}}" onChange="{{it.onDisc}}" onClick="{{it.stop}}" type="number" min="0" max="100" step="1" placeholder="0" style="width:46px;font:inherit;font-size:11px;padding:2px 4px;border:1px solid var(--color-neutral-300);border-radius:var(--radius-sm);background:var(--color-surface);color:inherit">
 <div style="font-size:10px;color:var(--color-neutral-500)">% off</div>
 </div>
+</sc-if>
 </div>
 </div>
 </div>
@@ -1647,10 +1649,12 @@ a:hover{color:var(--color-accent-300)}
 <div style="font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-neutral-500)">Attach</div>
 <div style="font-family:var(--font-heading);font-size:17px;font-weight:600">{{s.attachLabel}}</div>
 </div>
+<sc-if value="{{s.showMarkup}}" hint-placeholder-val="{{true}}">
 <div>
 <div style="font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-neutral-500)">Markup</div>
 <div style="font-family:var(--font-heading);font-size:17px;font-weight:600">{{s.markupLabel}}</div>
 </div>
+</sc-if>
 <div>
 <div style="font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-neutral-500)">Bundle price </div>
 <div style="font-family:var(--font-heading);font-size:17px;font-weight:600;white-space:nowrap">{{s.bundleValueLabel}}</div>
@@ -2644,7 +2648,7 @@ class Component extends DCLogic {
     return name;
   }
 
-  goTo(page) { return () => { if (page === 'linkSales' && !(this.state.auth && this.state.auth.id === 'admin')) return; if (page === 'yoy') this._ensureYoy(); if (page === 'linkSales') this._ensureLinkPairs(); this.setState({ page }); }; }
+  goTo(page) { return () => { if (page === 'linkSales' && !this.state.auth) return; if (page === 'yoy') this._ensureYoy(); if (page === 'linkSales') this._ensureLinkPairs(); this.setState({ page }); }; }
 
   // ===== Daily snapshot (admin / mathew only) =====
   snapshotData(date) {
@@ -3163,6 +3167,7 @@ class Component extends DCLogic {
               itemMarkupLabel: (st.auth && st.auth.region !== 'All') ? '' : (rsp && unitCost) ? 'mkp ' + (100 * (net - unitCost) / unitCost).toFixed(1) + '%' : '',
               costLabel: (st.auth && st.auth.region !== 'All') ? '' : unitCost ? 'cost ' + this.fmtMoney(unitCost * 1.15) : '',
               newLabel: rsp && pct > 0 ? this.fmtMoney(net * 1.15) : '',
+              showDisc: !(st.auth && st.auth.region !== 'All'),
               discValue: raw === undefined ? '' : raw,
               onDisc: e => {
                 const v = e.target.value;
@@ -3177,6 +3182,7 @@ class Component extends DCLogic {
             items,
             bundleNetLabel: allPriced ? this.fmtMoney(bundleNet * 1.15) : '—',
             markupLabel: (st.auth && st.auth.region !== 'All') ? '—' : (allPriced && bundleCost) ? (100 * (bundleNet - bundleCost) / bundleCost).toFixed(1) + '%' : '—',
+            showMarkup: !(st.auth && st.auth.region !== 'All'),
             showNet: anyDisc && allPriced,
             togetherLabel: 'up to ' + this.fmtNum(b.est),
             attachLabel: (100 * b.attach).toFixed(1) + '%',
@@ -3243,10 +3249,16 @@ class Component extends DCLogic {
     doc.setFontSize(9); doc.setTextColor(120);
     doc.text(d.subtitle, 14, 20);
     doc.setTextColor(0);
+    const hideCost = !!(this.state.auth && this.state.auth.region !== 'All');
     doc.autoTable({
       startY: 25,
-      head: [['#', 'Bundle', 'SKUs', 'Baskets', 'Attach', 'Markup', 'Bundle price (incl. VAT)']],
-      body: d.rows.map(r => [
+      head: [hideCost ? ['#', 'Bundle', 'SKUs', 'Baskets', 'Attach', 'Bundle price (incl. VAT)'] : ['#', 'Bundle', 'SKUs', 'Baskets', 'Attach', 'Markup', 'Bundle price (incl. VAT)']],
+      body: d.rows.map(r => hideCost ? [
+        r.rank,
+        r.items.map(i => i.desc).join('  +  '),
+        r.items.map(i => i.sku).join(', '),
+        r.togetherLabel, r.attachLabel, r.bundleValueLabel
+      ] : [
         r.rank,
         r.items.map(i => i.desc).join('  +  '),
         r.items.map(i => i.sku).join(', '),
@@ -4923,7 +4935,7 @@ class Component extends DCLogic {
         });
       }
     }
-    const pageOrder = [...(isSnapshotUser ? ['snapshot'] : []), 'overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'hourlySales', 'yoy', ...(isAdminUser ? ['linkSales'] : []), 'wholesale', 'stcQitaf'].filter(p => !(st.auth && st.auth.region !== 'All' && p === 'wholesale'));
+    const pageOrder = [...(isSnapshotUser ? ['snapshot'] : []), 'overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'hourlySales', 'yoy', 'linkSales', 'wholesale', 'stcQitaf'].filter(p => !(st.auth && st.auth.region !== 'All' && p === 'wholesale'));
     const isMobile = st.isMobile;
 
     return {
