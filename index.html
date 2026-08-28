@@ -506,6 +506,27 @@ a:hover{color:var(--color-accent-300)}
 
 <sc-if value="{{isDiscounts}}" hint-placeholder-val="{{false}}">
 <section>
+<div style="display:flex;gap:8px;padding:4px;border-radius:var(--radius-md);background:var(--color-neutral-100);width:max-content;margin-bottom:var(--space-4);flex-wrap:wrap">
+<button onClick="{{showDiscStores}}" style="{{discStoresTabStyle}}">By store</button>
+<button onClick="{{showDiscEff}}" style="{{discEffTabStyle}}">Effectiveness</button>
+</div>
+<sc-if value="{{discViewIsEff}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;gap:12px;align-items:flex-end;margin-bottom:var(--space-4)">
+<button class="btn btn-secondary" onClick="{{exportDiscEffPdf}}" style="white-space:nowrap">Export PDF</button>
+</div>
+<div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4);max-width:900px;text-wrap:pretty">{{discEffNote}}</div>
+<div style="overflow-x:auto">
+<table class="table">
+<thead><tr><th style="text-align:left;width:44px">#</th><th>Image</th><th style="text-align:left">SKU</th><th style="text-align:left">Item</th><th>Units</th><th>Net sales</th><th>RSP</th><th>Achieved</th><th>Depth</th><th>Given away</th><sc-if value="{{showCostCols}}" hint-placeholder-val="{{true}}"><th>Markup%</th><th style="text-align:left">Verdict</th></sc-if></tr></thead>
+<tbody>
+<sc-for list="{{discEffRows}}" as="r" hint-placeholder-count="12">
+<tr><td style="text-align:left;color:var(--color-neutral-500)">{{r.rank}}</td><td><img src="{{r.imageSrc}}" alt="" loading="lazy" style="width:40px;height:40px;object-fit:contain;background:var(--color-neutral-100);border-radius:var(--radius-sm);display:block"></td><td style="font-weight:600;white-space:nowrap;text-align:left">{{r.sku}}</td><td style="font-weight:600;text-align:left;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{r.desc}}">{{r.desc}}</td><td style="font-weight:600;white-space:nowrap">{{r.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.netSalesLabel}}</td><td style="white-space:nowrap">{{r.rspLabel}}</td><td style="white-space:nowrap">{{r.aspLabel}}</td><td style="font-weight:700;white-space:nowrap">{{r.depthLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.givenLabel}}</td><sc-if value="{{showCostCols}}" hint-placeholder-val="{{true}}"><td style="font-weight:600;white-space:nowrap">{{r.markupLabel}}</td><td style="text-align:left;font-weight:600;white-space:nowrap;color:{{r.verdictColor}}">{{r.verdict}}</td></sc-if></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</sc-if>
+<sc-if value="{{discViewIsStores}}" hint-placeholder-val="{{true}}">
 <sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x:auto">
 <table class="table">
@@ -546,11 +567,54 @@ a:hover{color:var(--color-accent-300)}
 </sc-for>
 </div>
 </sc-if>
+</sc-if>
 </section>
 </sc-if>
 
 <sc-if value="{{isInvoices}}" hint-placeholder-val="{{false}}">
 <section>
+<div style="display:flex;gap:8px;padding:4px;border-radius:var(--radius-md);background:var(--color-neutral-100);width:max-content;margin-bottom:var(--space-4);flex-wrap:wrap">
+<button onClick="{{showInvStores}}" style="{{invStoresTabStyle}}">Branch table</button>
+<button onClick="{{showInvReturns}}" style="{{invReturnsTabStyle}}">Return outliers</button>
+</div>
+<sc-if value="{{invViewIsReturns}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;gap:12px;align-items:flex-end;margin-bottom:var(--space-4)">
+<button class="btn btn-secondary" onClick="{{exportReturnsPdf}}" style="white-space:nowrap">Export PDF</button>
+</div>
+<div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4);max-width:900px;text-wrap:pretty">{{returnNote}}</div>
+<div style="overflow-x:auto;margin-bottom:var(--space-6)">
+<table class="table">
+<thead><tr><th style="text-align:left">Store</th><th style="text-align:left">Region</th><th>Units sold</th><th>Returned</th><th>Return%</th><th>Return value</th><th>Return% of sales</th><th>vs chain</th><th style="text-align:left">Flag</th></tr></thead>
+<tbody>
+<sc-for list="{{returnStoreRows}}" as="r" hint-placeholder-count="12">
+<tr onClick="{{r.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;text-align:left">{{r.storeName}}</td><td style="text-align:left;white-space:nowrap;color:var(--color-neutral-500)">{{r.region}}</td><td style="font-weight:600;white-space:nowrap">{{r.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.returnQtyLabel}}</td><td style="font-weight:700;white-space:nowrap">{{r.rateLabel}}</td><td style="white-space:nowrap">{{r.returnValueLabel}}</td><td style="white-space:nowrap">{{r.valuePctLabel}}</td><td style="font-weight:600;white-space:nowrap;color:{{r.diffColor}}">{{r.diffLabel}}</td><td style="text-align:left;font-weight:600;white-space:nowrap;color:{{r.diffColor}}">{{r.flag}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:var(--space-3)">
+<div style="font-size:12px;font-weight:600">Worst-returning SKUs</div>
+<div style="font-size:12px;color:var(--color-neutral-500)">{{returnSkuNote}}</div>
+</div>
+<div style="overflow-x:auto">
+<table class="table">
+<thead><tr><th style="text-align:left;width:44px">#</th><th>Image</th><th style="text-align:left">SKU</th><th style="text-align:left">Item</th><th>Units sold</th><th>Returned</th><th>Return%</th><th>vs chain</th></tr></thead>
+<tbody>
+<sc-for list="{{returnSkuRows}}" as="r" hint-placeholder-count="10">
+<tr onClick="{{r.onClick}}" style="cursor:pointer"><td style="text-align:left;color:var(--color-neutral-500)">{{r.rank}}</td><td><img src="{{r.imageSrc}}" alt="" loading="lazy" style="width:40px;height:40px;object-fit:contain;background:var(--color-neutral-100);border-radius:var(--radius-sm);display:block"></td><td style="font-weight:600;white-space:nowrap;text-align:left">{{r.sku}}</td><td style="font-weight:600;text-align:left;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{r.desc}}">{{r.desc}}</td><td style="font-weight:600;white-space:nowrap">{{r.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.returnQtyLabel}}</td><td style="font-weight:700;white-space:nowrap">{{r.rateLabel}}</td><td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.diffLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<sc-if value="{{returnSkuPagerVisible}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;align-items:center;justify-content:center;gap:var(--space-4);margin-top:var(--space-4)">
+<button class="btn btn-secondary" onClick="{{returnSkuPrev}}" disabled="{{returnSkuPrevDisabled}}">← Previous</button>
+<div style="font-size:13px;color:var(--color-neutral-500);white-space:nowrap">{{returnSkuPageLabel}}</div>
+<button class="btn btn-secondary" onClick="{{returnSkuNext}}" disabled="{{returnSkuNextDisabled}}">Next →</button>
+</div>
+</sc-if>
+</sc-if>
+<sc-if value="{{invViewIsStores}}" hint-placeholder-val="{{true}}">
 <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:var(--space-4)">
 <div class="field" style="max-width:280px;flex:1;min-width:180px">
 <label>Search store</label>
@@ -607,7 +671,60 @@ a:hover{color:var(--color-accent-300)}
 </sc-for>
 </div>
 </sc-if>
+</sc-if>
 </section>
+</sc-if>
+
+<sc-if value="{{bandDrillOpen}}" hint-placeholder-val="{{false}}">
+<div onClick="{{closeBandDrill}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:var(--space-4);z-index:50">
+<div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:820px;max-height:82vh;display:flex;flex-direction:column;gap:var(--space-3);padding:var(--space-5)">
+<div style="display:flex;gap:12px;align-items:center">
+<button onClick="{{closeBandDrill}}" style="border:none;background:none;cursor:pointer;font-size:18px;line-height:1;color:var(--color-neutral-500);padding:4px">←</button>
+<div style="flex:1;min-width:0;font-weight:700;font-size:15px">{{bandDrillTitle}}</div>
+<button onClick="{{closeBandDrill}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
+</div>
+<div style="font-size:12px;color:var(--color-neutral-500)">{{bandDrillNote}}</div>
+<div style="overflow-y:auto;flex:1">
+<table class="table">
+<thead><tr><th style="text-align:left;width:44px">#</th><th>Image</th><th style="text-align:left">SKU</th><th style="text-align:left">Item</th><th>Units</th><th>Net sales</th><th>RSP</th><th>Achieved</th><sc-if value="{{showCostCols}}" hint-placeholder-val="{{true}}"><th>Markup%</th></sc-if></tr></thead>
+<tbody>
+<sc-for list="{{bandDrillRows}}" as="r" hint-placeholder-count="10">
+<tr><td style="text-align:left;color:var(--color-neutral-500)">{{r.rank}}</td><td><div style="width:40px;height:40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{r.image}}" hint-placeholder-val="{{false}}"><img src="{{r.image}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></sc-if></div></td><td style="font-weight:600;white-space:nowrap;text-align:left">{{r.sku}}</td><td style="font-weight:600;text-align:left;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{r.desc}}">{{r.desc}}</td><td style="font-weight:600;white-space:nowrap">{{r.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.netSalesLabel}}</td><td style="white-space:nowrap">{{r.rspLabel}}</td><td style="white-space:nowrap">{{r.aspLabel}}</td><sc-if value="{{showCostCols}}" hint-placeholder-val="{{true}}"><td style="font-weight:600;white-space:nowrap">{{r.markupLabel}}</td></sc-if></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<sc-if value="{{bandDrillPagerVisible}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;align-items:center;justify-content:center;gap:var(--space-4)">
+<button class="btn btn-secondary" onClick="{{bandDrillPrev}}" disabled="{{bandDrillPrevDisabled}}">← Previous</button>
+<div style="font-size:13px;color:var(--color-neutral-500);white-space:nowrap">{{bandDrillPageLabel}}</div>
+<button class="btn btn-secondary" onClick="{{bandDrillNext}}" disabled="{{bandDrillNextDisabled}}">Next →</button>
+</div>
+</sc-if>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{retDrillOpen}}" hint-placeholder-val="{{false}}">
+<div onClick="{{closeRetDrill}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:var(--space-4);z-index:50">
+<div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:680px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5)">
+<div style="display:flex;gap:12px;align-items:center">
+<button onClick="{{closeRetDrill}}" style="border:none;background:none;cursor:pointer;font-size:18px;line-height:1;color:var(--color-neutral-500);padding:4px">←</button>
+<div style="flex:1;min-width:0;font-weight:700;font-size:15px">{{retDrillTitle}}</div>
+<button onClick="{{closeRetDrill}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
+</div>
+<div style="overflow-y:auto;flex:1">
+<table class="table">
+<thead><tr><th style="text-align:left;width:44px">#</th><sc-if value="{{retDrillHasImages}}" hint-placeholder-val="{{false}}"><th>Image</th></sc-if><th style="text-align:left">{{retDrillFirstCol}}</th><th>Units sold</th><th>Returned</th><th>Return%</th></tr></thead>
+<tbody>
+<sc-for list="{{retDrillRows}}" as="r" hint-placeholder-count="8">
+<tr><td style="text-align:left;color:var(--color-neutral-500)">{{r.rank}}</td><sc-if value="{{retDrillHasImages}}" hint-placeholder-val="{{false}}"><td><div style="width:40px;height:40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{r.image}}" hint-placeholder-val="{{false}}"><img src="{{r.image}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></sc-if></div></td></sc-if><td style="text-align:left;font-weight:600;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{r.name}}">{{r.name}}</td><td style="font-weight:600;white-space:nowrap">{{r.qtyLabel}}</td><td style="font-weight:700;white-space:nowrap">{{r.retLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.rateLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</div>
+</div>
 </sc-if>
 
 <sc-if value="{{storeDailyOpen}}" hint-placeholder-val="{{false}}">
@@ -703,6 +820,27 @@ a:hover{color:var(--color-accent-300)}
 
 <sc-if value="{{isItems}}" hint-placeholder-val="{{false}}">
 <section>
+<div style="display:flex;gap:8px;padding:4px;border-radius:var(--radius-md);background:var(--color-neutral-100);width:max-content;margin-bottom:var(--space-4);flex-wrap:wrap">
+<button onClick="{{showItemsTop}}" style="{{itemsTopTabStyle}}">Top items</button>
+<button onClick="{{showItemsBands}}" style="{{itemsBandsTabStyle}}">Price bands</button>
+</div>
+<sc-if value="{{itemViewIsBands}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;gap:12px;align-items:flex-end;margin-bottom:var(--space-4)">
+<button class="btn btn-secondary" onClick="{{exportBandsPdf}}" style="white-space:nowrap">Export PDF</button>
+</div>
+<div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4);max-width:900px;text-wrap:pretty">{{bandNote}}</div>
+<div style="overflow-x:auto">
+<table class="table">
+<thead><tr><th style="text-align:left">Band · RSP incl. VAT</th><th>SKUs sold</th><th>Units</th><th>Net sales</th><th style="text-align:left">Share of sales</th><th>ASP</th><th>Sales / SKU</th><sc-if value="{{showCostCols}}" hint-placeholder-val="{{true}}"><th>Markup%</th></sc-if></tr></thead>
+<tbody>
+<sc-for list="{{bandRows}}" as="b" hint-placeholder-count="6">
+<tr onClick="{{b.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;text-align:left">{{b.label}}</td><td style="font-weight:600;white-space:nowrap">{{b.skusLabel}}</td><td style="font-weight:600;white-space:nowrap">{{b.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{b.netSalesLabel}}</td><td style="text-align:left;min-width:180px"><div style="display:flex;gap:8px;align-items:center"><div style="flex:1;height:8px;border-radius:4px;background:var(--color-neutral-100);overflow:hidden"><div style="height:100%;width:{{b.barWidth}};background:var(--color-accent-500)"></div></div><span style="font-weight:600;font-size:12px;white-space:nowrap">{{b.shareLabel}}</span></div></td><td style="font-weight:600;white-space:nowrap">{{b.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{b.salesPerSkuLabel}}</td><sc-if value="{{showCostCols}}" hint-placeholder-val="{{true}}"><td style="font-weight:600;white-space:nowrap">{{b.markupLabel}}</td></sc-if></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</sc-if>
+<sc-if value="{{itemViewIsTop}}" hint-placeholder-val="{{true}}">
 <div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4)">Top 100 items by net sales — respects region, city, store and date filters</div>
 <div class="field" style="max-width:280px;margin-bottom:var(--space-4)">
 <label>Search item</label>
@@ -769,6 +907,7 @@ a:hover{color:var(--color-accent-300)}
 <button class="btn btn-ghost" onClick="{{itemsNext}}" disabled="{{!itemsHasNext}}">Next 100 →</button>
 </div>
 </div>
+</sc-if>
 </section>
 </sc-if>
 
@@ -880,10 +1019,10 @@ a:hover{color:var(--color-accent-300)}
 </div>
 <div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow-y:auto;overflow-x:hidden;flex:1;touch-action:pan-y">
 <table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
-<thead><tr><th>#</th><th>Image</th><th style="text-align:left">SKU</th><th style="text-align:left">Description</th><th>Sold qty</th></tr></thead>
+<thead><tr><th>#</th><th>Image</th><th style="text-align:left">SKU</th><th style="text-align:left">Description</th><th>Net sales</th><th>Sold qty</th></tr></thead>
 <tbody>
 <sc-for list="{{dailyStoreItemRows}}" as="it" hint-placeholder-count="10">
-<tr><td style="font-weight:600">{{it.rank}}</td><td><img src="{{it.imageSrc}}" style="width:40px;height:40px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block"></td><td style="font-weight:600;white-space:nowrap;text-align:left">{{it.itemNo}}</td><td style="font-weight:600;text-align:left">{{it.itemDesc}}</td><td style="font-weight:600;white-space:nowrap">{{it.qtyLabel}}</td></tr>
+<tr><td style="font-weight:600">{{it.rank}}</td><td><img src="{{it.imageSrc}}" style="width:40px;height:40px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block"></td><td style="font-weight:600;white-space:nowrap;text-align:left">{{it.itemNo}}</td><td style="font-weight:600;text-align:left">{{it.itemDesc}}</td><td style="font-weight:600;white-space:nowrap">{{it.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.qtyLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -2545,8 +2684,8 @@ class Component extends DCLogic {
     const imgDataUrls = await Promise.all(rows.map(r => this.loadImageDataUrl(r.image)));
     doc.autoTable({
       startY: 22,
-      head: [['#', 'Image', 'SKU', 'Description', 'Sold Qty']],
-      body: rows.map((r, i) => [i + 1, '', r.itemNo, r.itemDesc, this.fmtNum(r.qty)]),
+      head: [['#', 'Image', 'SKU', 'Description', 'Net Sales', 'Sold Qty']],
+      body: rows.map((r, i) => [i + 1, '', r.itemNo, r.itemDesc, this.fmtMoney(r.netSales), this.fmtNum(r.qty)]),
       columnStyles: { 1: { cellWidth: 20 } },
       styles: { minCellHeight: 16, valign: 'middle', fontSize: 9 },
       headStyles: { fillColor: [45, 143, 129], fontStyle: 'bold' },
@@ -3216,6 +3355,85 @@ class Component extends DCLogic {
     ];
     return { rows, kpis, months, baskets, drill, strongDetail, suggested, strong: all.length, matched: matched.length, page, totalPages, perPage };
   }
+
+  tabStyle(active) {
+    return active
+      ? 'padding:7px 14px;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;background:var(--color-accent-500);color:#fff'
+      : 'padding:7px 14px;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:var(--color-neutral-500)';
+  }
+
+  exportDiscEffPdf = async () => {
+    const d = this._lastDiscEff;
+    if (!d || !d.rows.length || !window.jspdf) return;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'landscape' });
+    doc.setFontSize(13);
+    doc.text('Discount effectiveness', 14, 14);
+    doc.setFontSize(9); doc.setTextColor(120);
+    doc.text(d.subtitle.slice(0, 170), 14, 20);
+    doc.setTextColor(0);
+    const cost = d.showCost;
+    doc.autoTable({
+      startY: 25,
+      head: [['#', 'SKU', 'Item', 'Units', 'Net sales', 'RSP', 'Achieved', 'Depth', 'Given away', ...(cost ? ['Markup%', 'Verdict'] : [])]],
+      body: d.rows.map(r => [r.rank, r.sku, r.desc, r.qtyLabel, r.netSalesLabel, r.rspLabel, r.aspLabel, r.depthLabel, r.givenLabel, ...(cost ? [r.markupLabel, r.verdict] : [])]),
+      styles: { fontSize: 8, valign: 'middle', fontStyle: 'bold', cellPadding: 2 },
+      headStyles: { fillColor: [45, 143, 129], fontStyle: 'bold' },
+      columnStyles: { 0: { cellWidth: 10 }, 2: { cellWidth: 70 } }
+    });
+    this._savePdf(doc, 'discount-effectiveness.pdf');
+  };
+
+  exportReturnsPdf = async () => {
+    const d = this._lastReturns;
+    if (!d || !d.storeRows.length || !window.jspdf) return;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(13);
+    doc.text('Return-rate outliers', 14, 14);
+    doc.setFontSize(9); doc.setTextColor(120);
+    doc.text(doc.splitTextToSize(d.subtitle, 180), 14, 20);
+    doc.setTextColor(0);
+    doc.autoTable({
+      startY: 36,
+      head: [['Store', 'Region', 'Units sold', 'Returned', 'Return%', 'Return value', 'vs chain', 'Flag']],
+      body: d.storeRows.map(r => [r.storeName, r.region, r.qtyLabel, r.returnQtyLabel, r.rateLabel, r.returnValueLabel, r.diffLabel, r.flag]),
+      styles: { fontSize: 8, valign: 'middle', fontStyle: 'bold', cellPadding: 2 },
+      headStyles: { fillColor: [45, 143, 129], fontStyle: 'bold' }
+    });
+    if (d.skuRows.length) {
+      doc.autoTable({
+        startY: doc.lastAutoTable.finalY + 12,
+        head: [['#', 'SKU', 'Item', 'Units sold', 'Returned', 'Return%', 'vs chain']],
+        body: d.skuRows.map(r => [r.rank, r.sku, r.desc, r.qtyLabel, r.returnQtyLabel, r.rateLabel, r.diffLabel]),
+        styles: { fontSize: 8, valign: 'middle', fontStyle: 'bold', cellPadding: 2 },
+        headStyles: { fillColor: [45, 143, 129], fontStyle: 'bold' },
+        columnStyles: { 0: { cellWidth: 10 }, 2: { cellWidth: 70 } }
+      });
+    }
+    this._savePdf(doc, 'return-rate-outliers.pdf');
+  };
+
+  exportBandsPdf = async () => {
+    const d = this._lastBands;
+    if (!d || !d.rows.length || !window.jspdf) return;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(13);
+    doc.text('Price-band performance', 14, 14);
+    doc.setFontSize(9); doc.setTextColor(120);
+    doc.text(d.subtitle.slice(0, 120), 14, 20);
+    doc.setTextColor(0);
+    const cost = d.showCost;
+    doc.autoTable({
+      startY: 25,
+      head: [['Band (RSP incl. VAT)', 'SKUs sold', 'Units', 'Net sales', 'Share', 'ASP', 'Sales / SKU', ...(cost ? ['Markup%'] : [])]],
+      body: d.rows.map(r => [r.label, r.skusLabel, r.qtyLabel, r.netSalesLabel, r.shareLabel, r.aspLabel, r.salesPerSkuLabel, ...(cost ? [r.markupLabel] : [])]),
+      styles: { fontSize: 9, valign: 'middle', fontStyle: 'bold', cellPadding: 2.5 },
+      headStyles: { fillColor: [45, 143, 129], fontStyle: 'bold' }
+    });
+    this._savePdf(doc, 'price-band-performance.pdf');
+  };
 
   exportLinkPdf = async () => {
     if (this.state.linkView === 'suggested') return this.exportLinkSuggestedPdf();
@@ -4241,6 +4459,184 @@ class Component extends DCLogic {
       return { ...it, rank: itemsPage * 100 + i + 1, imageSrc: it.image || blankImg, netSalesLabel: this.fmtMoney(it.netSales), markupLabel, returnQtyLabel, returnPctLabel, qtyLabel: this.fmtNum(it.qty), invoicesLabel: this.fmtNum(it.invoices), uptLabel: Math.abs(it.upt).toFixed(2), regionQtyList, avgPerDayLabel, onClick: () => this.setState({ selectedItemNo: it.itemNo, selectedItemLabel: it.itemDesc, selectedItemNoLabel: it.itemNo, selectedItemImage: it.image || blankImg }) };
     });
 
+    // Item Detail alternate view: price-band performance
+    const hideCostCols = !!(st.auth && st.auth.region !== 'All');
+    let bandRows = [], bandNote = '', bandDrillRows = [], bandDrillTotal = 0, bandDrillPage = 0, bandDrillPages = 1;
+    if (st.page === 'items' && st.itemView === 'bands') {
+      const defs = [[0, 50, 'Under 50'], [50, 100, '50 – 100'], [100, 250, '250 and under'], [250, 500, '250 – 500'], [500, 1000, '500 – 1,000'], [1000, 2500, '1,000 – 2,500'], [2500, Infinity, '2,500 +']];
+      defs[2][2] = '100 – 250';
+      const agg = defs.map(([lo, hi, label]) => ({ lo, hi, label, skus: 0, qty: 0, netSales: 0, cost: 0 }));
+      let unpriced = 0, grandSales = 0;
+      itemsWithMeasures.forEach(it => {
+        const rsp = (Number((this.itemMeta[it.itemNo] || {}).rsp) || 0) * 1.15;
+        if (!rsp) { unpriced++; return; }
+        const b = agg.find(a => rsp >= a.lo && rsp < a.hi);
+        if (!b) return;
+        b.skus++; b.qty += it.qty; b.netSales += it.netSales; b.cost += (it.unitCost || 0) * it.qty;
+        grandSales += it.netSales;
+      });
+      bandRows = agg.filter(b => b.skus).map(b => ({
+        label: b.label,
+        onClick: () => this.setState({ bandDrill: b.label, bandDrillPage: 0 }),
+        skusLabel: this.fmtNum(b.skus),
+        qtyLabel: this.fmtNum(b.qty),
+        netSalesLabel: this.fmtMoney(b.netSales),
+        shareLabel: grandSales ? (100 * b.netSales / grandSales).toFixed(1) + '%' : '—',
+        barWidth: (grandSales ? Math.max(1, 100 * b.netSales / grandSales) : 0).toFixed(1) + '%',
+        aspLabel: b.qty ? this.fmtMoney(b.netSales / b.qty) : '—',
+        markupLabel: hideCostCols ? '—' : b.cost ? (100 * (b.netSales - b.cost) / b.cost).toFixed(1) + '%' : '—',
+        salesPerSkuLabel: this.fmtMoney(b.netSales / b.skus)
+      }));
+      bandNote = 'Where the range sells versus where it is stocked — bands are RSP incl. VAT, measures are actuals for the selected filters. Click a band to list its items.' + (unpriced ? ' ' + this.fmtNum(unpriced) + ' SKUs have no RSP on file and are excluded.' : '');
+      if (st.bandDrill) {
+        const band = agg.find(b => b.label === st.bandDrill);
+        if (band) {
+          const list = itemsWithMeasures.filter(it => {
+            const rsp = (Number((this.itemMeta[it.itemNo] || {}).rsp) || 0) * 1.15;
+            return rsp && rsp >= band.lo && rsp < band.hi;
+          }).sort((a, b) => b.netSales - a.netSales);
+          bandDrillTotal = list.length;
+          bandDrillPages = Math.max(1, Math.ceil(list.length / 100));
+          bandDrillPage = Math.min(st.bandDrillPage || 0, bandDrillPages - 1);
+          bandDrillRows = list.slice(bandDrillPage * 100, bandDrillPage * 100 + 100).map((it, i) => {
+            const cost = (it.unitCost || 0) * it.qty;
+            const im = it.image;
+            return {
+              rank: bandDrillPage * 100 + i + 1, sku: it.itemNo, desc: it.itemDesc,
+              image: (im && im !== '0') ? im : '',
+              qtyLabel: this.fmtNum(it.qty),
+              netSalesLabel: this.fmtMoney(it.netSales),
+              rspLabel: this.fmtMoney((Number((this.itemMeta[it.itemNo] || {}).rsp) || 0) * 1.15),
+              aspLabel: it.qty ? this.fmtMoney(it.netSales * 1.15 / it.qty) : '—',
+              markupLabel: hideCostCols ? '—' : cost ? (100 * (it.netSales - cost) / cost).toFixed(1) + '%' : '—'
+            };
+          });
+        }
+      }
+    }
+
+    if (st.page === 'items' && st.itemView === 'bands') this._lastBands = { rows: bandRows, subtitle: bandNote, showCost: !hideCostCols };
+
+    // Discount effectiveness (Discount Detail alternate view) — where markdown money actually went
+    let discEffRows = [], discEffNote = '';
+    if (st.page === 'discounts' && st.discView === 'eff') {
+      const blankImg4 = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect width="40" height="40" fill="%23252b3a"/%3E%3C/svg%3E';
+      const raw = [];
+      let chainCost = 0, chainSales = 0, givenTotal = 0;
+      itemsForPeriod.forEach(it => {
+        if (String(it.itemNo).startsWith('SRV-')) return;
+        const rsp = Number((this.itemMeta[it.itemNo] || {}).rsp) || 0;
+        if (!rsp || it.qty <= 0) return;
+        const asp = it.netSales / it.qty;
+        const depth = 100 * (rsp - asp) / rsp;
+        if (depth <= 0.5) return;
+        const cost = (it.unitCost || 0) * it.qty;
+        const given = (rsp - asp) * it.qty;
+        chainCost += cost; chainSales += it.netSales; givenTotal += given;
+        raw.push({ it, rsp, asp, depth, cost, given, markup: cost ? 100 * (it.netSales - cost) / cost : null });
+      });
+      const chainMarkup = chainCost ? 100 * (chainSales - chainCost) / chainCost : 0;
+      raw.sort((a, b) => b.given - a.given);
+      discEffRows = raw.slice(0, 200).map((r, i) => {
+        const verdict = r.markup === null ? '—'
+          : r.markup < 0 ? 'Below cost'
+          : r.markup < chainMarkup * 0.5 ? 'Margin leak'
+          : r.markup >= chainMarkup ? 'Working' : 'Watch';
+        return {
+          rank: i + 1, sku: r.it.itemNo, desc: r.it.itemDesc, imageSrc: r.it.image || blankImg4,
+          qtyLabel: this.fmtNum(r.it.qty),
+          netSalesLabel: this.fmtMoney(r.it.netSales),
+          rspLabel: this.fmtMoney(r.rsp * 1.15),
+          aspLabel: this.fmtMoney(r.asp * 1.15),
+          depthLabel: r.depth.toFixed(1) + '%',
+          givenLabel: this.fmtMoney(r.given),
+          markupLabel: hideCostCols ? '—' : r.markup === null ? '—' : r.markup.toFixed(1) + '%',
+          verdict: hideCostCols ? '—' : verdict,
+          verdictColor: verdict === 'Working' ? '#2d8f81' : (verdict === 'Below cost' || verdict === 'Margin leak') ? '#b45309' : 'var(--color-neutral-500)'
+        };
+      });
+      discEffNote = this.fmtNum(raw.length) + ' SKUs sold below RSP in the selected period · ' + this.fmtMoney(givenTotal) + ' of RSP value given away'
+        + (hideCostCols ? '' : ' · chain markup on these lines ' + chainMarkup.toFixed(1) + '%. “Working” means the SKU still earns at or above chain markup after the discount; “Margin leak” means it does not.')
+        + (raw.length > 200 ? ' Showing the 200 biggest givebacks.' : '');
+    }
+
+    // Return-rate outliers (Store Detail alternate view)
+    let returnStoreRows = [], returnSkuRows = [], returnNote = '', returnSkuTotal = 0, returnSkuPage = 0, returnSkuPages = 1, retDrillRows = [];
+    if (st.page === 'invoices' && st.invView === 'returns') {
+      const agg = {};
+      let tQty = 0, tRet = 0;
+      filteredBuckets.forEach(b => {
+        const a = agg[b.store] || (agg[b.store] = { code: b.store, name: b.storeName, region: b.region, qty: 0, returnQty: 0, returnValue: 0, netSales: 0 });
+        a.qty += b.qty; a.returnQty += (b.returnQty || 0); a.returnValue += (b.returnValue || 0); a.netSales += b.netSales;
+        tQty += b.qty; tRet += (b.returnQty || 0);
+      });
+      const chainRate = (tQty + tRet) ? 100 * tRet / (tQty + tRet) : 0;
+      returnStoreRows = Object.values(agg).map(a => {
+        const rate = (a.qty + a.returnQty) ? 100 * a.returnQty / (a.qty + a.returnQty) : 0;
+        const diff = rate - chainRate;
+        return {
+          ...a, rate,
+          storeName: a.name, region: a.region,
+          qtyLabel: this.fmtNum(a.qty),
+          returnQtyLabel: this.fmtNum(a.returnQty),
+          rateLabel: rate.toFixed(2) + '%',
+          returnValueLabel: this.fmtMoney(a.returnValue),
+          valuePctLabel: a.netSales ? (100 * a.returnValue / a.netSales).toFixed(2) + '%' : '—',
+          diffLabel: (diff >= 0 ? '+' : '') + diff.toFixed(2) + ' pp',
+          diffColor: diff > chainRate * 0.5 && a.returnQty >= 5 ? '#b45309' : diff < 0 ? '#2d8f81' : 'var(--color-neutral-500)',
+          flag: diff > chainRate * 0.5 && a.returnQty >= 5 ? 'Outlier' : diff > 0 ? 'Above chain' : 'Below chain',
+          onClick: () => this.setState({ retDrillStore: a.code, retDrillStoreLabel: a.name, retDrillSku: null, tableZoom: 1 })
+        };
+      }).sort((a, b) => b.rate - a.rate);
+      const skuAll = itemsForPeriod
+        .filter(it => !String(it.itemNo).startsWith('SRV-') && it.qty >= 20 && (it.returnQty || 0) > 0)
+        .map(it => ({ it, rate: 100 * it.returnQty / (it.qty + it.returnQty) }))
+        .sort((a, b) => b.rate - a.rate);
+      returnSkuTotal = skuAll.length;
+      returnSkuPages = Math.max(1, Math.ceil(skuAll.length / 50));
+      returnSkuPage = Math.min(st.returnSkuPage || 0, returnSkuPages - 1);
+      returnSkuRows = skuAll
+        .slice(returnSkuPage * 50, returnSkuPage * 50 + 50)
+        .map((r, i) => ({
+          rank: returnSkuPage * 50 + i + 1, sku: r.it.itemNo, desc: r.it.itemDesc,
+          imageSrc: (r.it.image && r.it.image !== '0') ? r.it.image : 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect width="40" height="40" fill="%23252b3a"/%3E%3C/svg%3E',
+          qtyLabel: this.fmtNum(r.it.qty),
+          returnQtyLabel: this.fmtNum(r.it.returnQty),
+          rateLabel: r.rate.toFixed(1) + '%',
+          onClick: () => this.setState({ retDrillSku: r.it.itemNo, retDrillSkuLabel: r.it.itemDesc, retDrillStore: null, tableZoom: 1 }),
+          diffLabel: ((r.rate - chainRate) >= 0 ? '+' : '') + (r.rate - chainRate).toFixed(1) + ' pp'
+        }));
+      returnNote = 'Chain return rate for the selected filters is ' + chainRate.toFixed(2) + '% of units. “Outlier” flags a branch running more than 50% above that rate with at least 5 returned units. SKU list covers items with 20+ units sold. Click any row to see the other side of the split.';
+      if (st.retDrillSku || st.retDrillStore) {
+        const bySku = {}, byStore = {};
+        st.itemsByStoreDate.forEach(row => {
+          const [store, date, itemNo, netSales, qty, invoices, retQty] = row;
+          if (!inDateRange(date) || !bucketMatches(store)) return;
+          if (st.retDrillSku && itemNo === st.retDrillSku) {
+            const a = bySku[store] || (bySku[store] = { key: store, qty: 0, ret: 0 });
+            a.qty += qty; a.ret += (retQty || 0);
+          }
+          if (st.retDrillStore && store === st.retDrillStore) {
+            if (String(itemNo).startsWith('SRV-')) return;
+            const a = byStore[itemNo] || (byStore[itemNo] = { key: itemNo, qty: 0, ret: 0 });
+            a.qty += qty; a.ret += (retQty || 0);
+          }
+        });
+        const fmtDrill = (list, nameOf) => list.filter(a => a.ret > 0).sort((x, y) => y.ret - x.ret || y.qty - x.qty).map((a, i) => ({
+          rank: i + 1, name: nameOf(a.key), key: a.key,
+          qtyLabel: this.fmtNum(a.qty), retLabel: this.fmtNum(a.ret),
+          rateLabel: (a.qty + a.ret) ? (100 * a.ret / (a.qty + a.ret)).toFixed(1) + '%' : '—'
+        }));
+        if (st.retDrillSku) retDrillRows = fmtDrill(Object.values(bySku), c => (this.storeIndex[c] || {}).shortName || c);
+        if (st.retDrillStore) retDrillRows = fmtDrill(Object.values(byStore), s => (this.itemMeta[s] || {}).itemDesc || s).map(r => {
+          const im = (this.itemMeta[r.key] || {}).image;
+          return { ...r, name: r.key + ' · ' + r.name, image: (im && im !== '0') ? im : '' };
+        });
+      }    }
+    if (st.page === 'discounts' && st.discView === 'eff') this._lastDiscEff = { rows: discEffRows, subtitle: discEffNote, showCost: !hideCostCols };
+    if (st.page === 'invoices' && st.invView === 'returns') this._lastReturns = { storeRows: returnStoreRows, skuRows: returnSkuRows, subtitle: returnNote };
+
+
     // item detail modal — store-wise breakdown for the selected item, respects all filters
     let itemDetailRows = [];
     if (st.selectedItemNo) {
@@ -4395,11 +4791,12 @@ class Component extends DCLogic {
         if (store !== st.selectedDailyStore || date !== st.selectedDailyDate) return;
         if (excludedSkus.has(itemNo) || String(itemNo).startsWith('SRV-')) return;
         const meta = this.itemMeta[itemNo] || {};
-        if (!itemAggForStoreDate[itemNo]) itemAggForStoreDate[itemNo] = { itemNo, itemDesc: meta.itemDesc || itemNo, image: meta.image || '', qty: 0 };
+        if (!itemAggForStoreDate[itemNo]) itemAggForStoreDate[itemNo] = { itemNo, itemDesc: meta.itemDesc || itemNo, image: meta.image || '', qty: 0, netSales: 0 };
         itemAggForStoreDate[itemNo].qty += qty;
+        itemAggForStoreDate[itemNo].netSales += netSales;
       });
-      const storeItemsAll = Object.values(itemAggForStoreDate).sort((a, b) => b.qty - a.qty);
-      dailyStoreItemRows = storeItemsAll.map((it, i) => ({ ...it, rank: i + 1, imageSrc: it.image || blankImg2, qtyLabel: this.fmtNum(it.qty) }));
+      const storeItemsAll = Object.values(itemAggForStoreDate).sort((a, b) => b.netSales - a.netSales);
+      dailyStoreItemRows = storeItemsAll.map((it, i) => ({ ...it, rank: i + 1, imageSrc: it.image || blankImg2, qtyLabel: this.fmtNum(it.qty), netSalesLabel: this.fmtMoney(it.netSales) }));
       this._lastDailyStoreItemRows = storeItemsAll;
     }
 
@@ -5234,8 +5631,55 @@ class Component extends DCLogic {
       categorySubBtnClass: (st.categoryView || 'sub') !== 'top' && (st.categoryView || 'sub') !== 'brand' ? 'btn-primary' : 'btn-secondary', categoryTopBtnClass: st.categoryView === 'top' ? 'btn-primary' : 'btn-secondary', categoryBrandBtnClass: st.categoryView === 'brand' ? 'btn-primary' : 'btn-secondary',
       setCategoryViewSub: () => this.setState({ categoryView: 'sub' }), setCategoryViewTop: () => this.setState({ categoryView: 'top' }), setCategoryViewBrand: () => this.setState({ categoryView: 'brand' }),
       invoicesSorted: invRows, discountsSorted: discRows,
+      discViewIsStores: (st.discView || 'stores') === 'stores',
+      discViewIsEff: st.discView === 'eff',
+      showDiscStores: () => this.setState({ discView: 'stores' }),
+      showDiscEff: () => this.setState({ discView: 'eff' }),
+      discStoresTabStyle: this.tabStyle((st.discView || 'stores') === 'stores'),
+      discEffTabStyle: this.tabStyle(st.discView === 'eff'),
+      discEffRows, discEffNote, exportDiscEffPdf: this.exportDiscEffPdf,
+      invViewIsStores: (st.invView || 'stores') === 'stores',
+      invViewIsReturns: st.invView === 'returns',
+      showInvStores: () => this.setState({ invView: 'stores' }),
+      showInvReturns: () => this.setState({ invView: 'returns' }),
+      invStoresTabStyle: this.tabStyle((st.invView || 'stores') === 'stores'),
+      invReturnsTabStyle: this.tabStyle(st.invView === 'returns'),
+      returnStoreRows, returnSkuRows, returnNote, exportReturnsPdf: this.exportReturnsPdf,
+      retDrillOpen: !!((st.retDrillSku || st.retDrillStore) && retDrillRows.length),
+      retDrillRows,
+      retDrillTitle: st.retDrillSku ? 'Stores returning — ' + (st.retDrillSkuLabel || st.retDrillSku) : 'Returns by item — ' + (st.retDrillStoreLabel || ''),
+      retDrillFirstCol: st.retDrillSku ? 'Store' : 'Item',
+      retDrillHasImages: !!st.retDrillStore,
+      closeRetDrill: () => this.setState({ retDrillSku: null, retDrillStore: null }),
+      returnSkuNote: returnSkuTotal ? 'Showing ' + (returnSkuPage * 50 + 1) + '–' + (returnSkuPage * 50 + returnSkuRows.length) + ' of ' + this.fmtNum(returnSkuTotal) + ' SKUs' : '',
+      returnSkuPagerVisible: returnSkuPages > 1,
+      returnSkuPageLabel: 'Page ' + (returnSkuPage + 1) + ' of ' + returnSkuPages,
+      returnSkuPrevDisabled: returnSkuPage === 0,
+      returnSkuNextDisabled: returnSkuPage >= returnSkuPages - 1,
+      returnSkuPrev: () => this.setState({ returnSkuPage: Math.max(0, (st.returnSkuPage || 0) - 1) }),
+      returnSkuNext: () => this.setState({ returnSkuPage: (st.returnSkuPage || 0) + 1 }),
       exportStoreDetailFull: this.exportStoreDetailFull, exportStoreDetailLean: this.exportStoreDetailLean,
       itemsSorted: itemsRows, itemsTotalCount: itemsFiltered.length, itemSearch: st.itemSearch,
+      itemViewIsTop: (st.itemView || 'top') === 'top',
+      itemViewIsBands: st.itemView === 'bands',
+      showItemsTop: () => this.setState({ itemView: 'top' }),
+      showItemsBands: () => this.setState({ itemView: 'bands' }),
+      itemsTopTabStyle: this.tabStyle((st.itemView || 'top') === 'top'),
+      itemsBandsTabStyle: this.tabStyle(st.itemView === 'bands'),
+      bandRows, bandNote,
+      bandDrillOpen: !!(st.bandDrill && bandDrillRows.length),
+      bandDrillRows,
+      bandDrillTitle: 'Items · ' + (st.bandDrill || '') + ' (RSP incl. VAT)',
+      bandDrillNote: bandDrillTotal ? 'Showing ' + (bandDrillPage * 100 + 1) + '–' + (bandDrillPage * 100 + bandDrillRows.length) + ' of ' + this.fmtNum(bandDrillTotal) + ' items, highest net sales first' : '',
+      bandDrillPagerVisible: bandDrillPages > 1,
+      bandDrillPageLabel: 'Page ' + (bandDrillPage + 1) + ' of ' + bandDrillPages,
+      bandDrillPrevDisabled: bandDrillPage === 0,
+      bandDrillNextDisabled: bandDrillPage >= bandDrillPages - 1,
+      bandDrillPrev: () => this.setState({ bandDrillPage: Math.max(0, (st.bandDrillPage || 0) - 1) }),
+      bandDrillNext: () => this.setState({ bandDrillPage: (st.bandDrillPage || 0) + 1 }),
+      closeBandDrill: () => this.setState({ bandDrill: null }),
+      showCostCols: !hideCostCols,
+      exportBandsPdf: this.exportBandsPdf,
       itemDetailOpen: !!st.selectedItemNo, itemDetailLabel: st.selectedItemLabel, itemDetailItemNo: st.selectedItemNoLabel, itemDetailImage: st.selectedItemImage, itemDetailRows, closeItemDetail: () => this.setState({ selectedItemNo: null, tableZoom: 1 }), stopPropagation: e => e.stopPropagation(),
       categoryDetailOpen: !!st.selectedCategoryKey, categoryDetailLabel: st.selectedCategoryLabel, categoryDetailRows, categoryDetailTotals: typeof categoryDetailTotals !== 'undefined' ? categoryDetailTotals : { netSalesLabel: '', qtyLabel: '', pctLabel: '' }, closeCategoryDetail: () => this.setState({ selectedCategoryKey: null, tableZoom: 1 }),
       dailyDetailOpen: !!st.selectedDailyDate, dailyDetailLabel: st.selectedDailyDate, dailyDetailRows,
