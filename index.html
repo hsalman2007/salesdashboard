@@ -711,6 +711,7 @@ a:hover{color:var(--color-accent-300)}
 <div style="display:flex;gap:12px;align-items:center">
 <button onClick="{{closeRetDrill}}" style="border:none;background:none;cursor:pointer;font-size:18px;line-height:1;color:var(--color-neutral-500);padding:4px">←</button>
 <div style="flex:1;min-width:0;font-weight:700;font-size:15px">{{retDrillTitle}}</div>
+<button onClick="{{exportRetDrillPdf}}" style="border:1px solid var(--color-neutral-300);background:var(--color-neutral-0);cursor:pointer;font-size:12px;font-weight:600;line-height:1;color:var(--color-neutral-700);padding:7px 12px;border-radius:var(--radius-sm);white-space:nowrap">Export PDF</button>
 <button onClick="{{closeRetDrill}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
 </div>
 <div style="overflow-y:auto;flex:1">
@@ -2700,6 +2701,46 @@ class Component extends DCLogic {
       }
     });
     doc.save('item-ranking-' + (st.selectedDailyDate || '') + '-' + (st.selectedDailyStoreLabel || 'store').replace(/[^a-z0-9]+/gi, '-') + '.pdf');
+  };
+
+  exportRetDrillPdf = async () => {
+    const rows = this._lastRetDrillRows || [];
+    const st = this.state;
+    if (!rows.length || !window.jspdf) return;
+    const hasImages = !!st.retDrillStore;
+    const title = st.retDrillSku
+      ? 'Stores returning \u2014 ' + (st.retDrillSkuLabel || st.retDrillSku)
+      : 'Returns by item \u2014 ' + (st.retDrillStoreLabel || '');
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(13);
+    doc.text(title, 14, 15);
+    const imgDataUrls = hasImages ? await Promise.all(rows.map(r => this.loadImageDataUrl(r.image))) : [];
+    const head = hasImages
+      ? ['#', 'Image', 'Item', 'Units Sold', 'Returned']
+      : ['#', 'Store', 'Units Sold', 'Returned'];
+    doc.autoTable({
+      startY: 22,
+      head: [head],
+      body: rows.map((r, i) => hasImages
+        ? [i + 1, '', r.name, r.qtyLabel, r.retLabel]
+        : [i + 1, r.name, r.qtyLabel, r.retLabel]),
+      columnStyles: hasImages
+        ? { 0: { cellWidth: 10 }, 1: { cellWidth: 20 }, 2: { halign: 'left' } }
+        : { 0: { cellWidth: 10 }, 1: { halign: 'left' } },
+      styles: { fontSize: 9, valign: 'middle', minCellHeight: hasImages ? 16 : 8 },
+      headStyles: { fillColor: [45, 143, 129], fontStyle: 'bold' },
+      didDrawCell: data => {
+        if (hasImages && data.column.index === 1 && data.cell.section === 'body') {
+          const url = imgDataUrls[data.row.index];
+          if (url) {
+            const dim = Math.min(data.cell.height - 4, 14);
+            try { doc.addImage(url, 'JPEG', data.cell.x + 3, data.cell.y + 2, dim, dim); } catch (e) {}
+          }
+        }
+      }
+    });
+    this._savePdf(doc, 'returns-drill-' + (st.retDrillSku || st.retDrillStore || 'export').toString().replace(/[^a-z0-9]+/gi, '-') + '.pdf');
   };
 
   exportStoreDetailPdf = (withSales) => {
@@ -5646,10 +5687,12 @@ class Component extends DCLogic {
       invReturnsTabStyle: this.tabStyle(st.invView === 'returns'),
       returnStoreRows, returnSkuRows, returnNote, exportReturnsPdf: this.exportReturnsPdf,
       retDrillOpen: !!((st.retDrillSku || st.retDrillStore) && retDrillRows.length),
+      _retDrillCache: (this._lastRetDrillRows = retDrillRows) && undefined,
       retDrillRows,
       retDrillTitle: st.retDrillSku ? 'Stores returning — ' + (st.retDrillSkuLabel || st.retDrillSku) : 'Returns by item — ' + (st.retDrillStoreLabel || ''),
       retDrillFirstCol: st.retDrillSku ? 'Store' : 'Item',
       retDrillHasImages: !!st.retDrillStore,
+      exportRetDrillPdf: this.exportRetDrillPdf,
       closeRetDrill: () => this.setState({ retDrillSku: null, retDrillStore: null }),
       returnSkuNote: returnSkuTotal ? 'Showing ' + (returnSkuPage * 50 + 1) + '–' + (returnSkuPage * 50 + returnSkuRows.length) + ' of ' + this.fmtNum(returnSkuTotal) + ' SKUs' : '',
       returnSkuPagerVisible: returnSkuPages > 1,
