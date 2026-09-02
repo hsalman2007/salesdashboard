@@ -593,7 +593,7 @@ a:hover{color:var(--color-accent-300)}
 </table>
 </div>
 <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:var(--space-3)">
-<div style="font-size:12px;font-weight:600">Worst-returning SKUs</div>
+<div style="font-size:12px;font-weight:600">All returned items</div>
 <div style="font-size:12px;color:var(--color-neutral-500)">{{returnSkuNote}}</div>
 </div>
 <div style="overflow-x:auto">
@@ -4630,9 +4630,9 @@ class Component extends DCLogic {
         };
       }).sort((a, b) => b.rate - a.rate);
       const skuAll = itemsForPeriod
-        .filter(it => !String(it.itemNo).startsWith('SRV-') && it.qty >= 20 && (it.returnQty || 0) > 0)
+        .filter(it => !String(it.itemNo).startsWith('SRV-') && (it.returnQty || 0) > 0)
         .map(it => ({ it, rate: 100 * it.returnQty / (it.qty + it.returnQty) }))
-        .sort((a, b) => b.rate - a.rate);
+        .sort((a, b) => (b.it.returnQty - a.it.returnQty) || (b.rate - a.rate));
       returnSkuTotal = skuAll.length;
       returnSkuPages = Math.max(1, Math.ceil(skuAll.length / 50));
       returnSkuPage = Math.min(st.returnSkuPage || 0, returnSkuPages - 1);
@@ -4647,7 +4647,7 @@ class Component extends DCLogic {
           onClick: () => this.setState({ retDrillSku: r.it.itemNo, retDrillSkuLabel: r.it.itemDesc, retDrillStore: null, tableZoom: 1 }),
           diffLabel: ((r.rate - chainRate) >= 0 ? '+' : '') + (r.rate - chainRate).toFixed(1) + ' pp'
         }));
-      returnNote = 'Chain return rate for the selected filters is ' + chainRate.toFixed(2) + '% of units. “Outlier” flags a branch running more than 50% above that rate with at least 5 returned units. SKU list covers items with 20+ units sold. Click any row to see the other side of the split.';
+      returnNote = 'Chain return rate for the selected filters is ' + chainRate.toFixed(2) + '% of units. “Outlier” flags a branch running more than 50% above that rate with at least 5 returned units. SKU list covers every item with at least one return, ranked by units returned. Click any row to see the other side of the split.';
       if (st.retDrillSku || st.retDrillStore) {
         const bySku = {}, byStore = {};
         st.itemsByStoreDate.forEach(row => {
