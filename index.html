@@ -9,6 +9,8 @@
 <x-dc>
 <helmet>
 <link rel="stylesheet" href="nocturne/styles.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
@@ -16,6 +18,7 @@ body{margin:0}
 a:hover{color:var(--color-accent-300)}
 .rl-th{cursor:pointer;user-select:none;white-space:nowrap}
 .rl-th:hover{color:var(--color-accent-300)}
+body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[data-lang="ar"] h3, body[data-lang="ar"] .btn, body[data-lang="ar"] .input, body[data-lang="ar"] label, body[data-lang="ar"] th, body[data-lang="ar"] td{font-family:'IBM Plex Sans Arabic',var(--font-body)}
 /* Light re-theme — same blurple accent family as Nocturne, flipped to a light ground */
 :root{
   --color-bg:#f3f7f6;
@@ -79,6 +82,10 @@ a:hover{color:var(--color-accent-300)}
 <button onClick="{{goBack}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500);padding:0;align-self:center">←</button>
 </sc-if>
 <h1 style="font-family: var(--font-heading); font-size: 30px; font-weight: 700; margin: 0">{{pageTitle}}</h1>
+</div>
+<div style="display:flex;gap:2px;padding:3px;border-radius:var(--radius-pill);background:var(--color-neutral-100);flex:none;align-self:center">
+<button onClick="{{setLangEn}}" style="border:none;cursor:pointer;font-size:12px;font-weight:600;padding:5px 12px;border-radius:var(--radius-pill);background:{{langEnBg}};color:{{langEnColor}}">EN</button>
+<button onClick="{{setLangAr}}" style="border:none;cursor:pointer;font-family:'IBM Plex Sans Arabic',var(--font-body);font-size:12px;font-weight:600;padding:5px 12px;border-radius:var(--radius-pill);background:{{langArBg}};color:{{langArColor}}">عربي</button>
 </div>
 </div>
 
@@ -2356,7 +2363,369 @@ class Component extends DCLogic {
     receiptDay: []
   };
 
+  AR = {
+    'Retail Sales': 'مبيعات التجزئة', 'Sales Dashboard': 'لوحة المبيعات', 'Loading…': 'جارٍ التحميل…',
+    'Overview': 'نظرة عامة', 'Stores': 'الفروع', 'Store': 'الفرع', 'Items': 'الأصناف', 'Item': 'الصنف',
+    'Categories': 'الفئات', 'Category': 'الفئة', 'Wholesale': 'الجملة', 'Daily': 'اليومي', 'Discounts': 'الخصومات',
+    'Link Sales': 'المبيعات المرتبطة', 'STC Qitaf': 'قطاف STC', 'YoY': 'مقارنة سنوية', 'Snapshot': 'الملخص اليومي',
+    'Daily Snapshot': 'الملخص اليومي', 'Executive Overview': 'النظرة التنفيذية', 'Region Detail': 'تفاصيل المنطقة',
+    'Category Performance': 'أداء الفئات', 'Item Detail': 'تفاصيل الصنف', 'Discount Detail': 'تفاصيل الخصومات',
+    'Store Detail': 'تفاصيل الفرع', 'Daily Sales': 'المبيعات اليومية', 'Hourly Sales': 'المبيعات بالساعة',
+    'YOY Comparison': 'المقارنة السنوية', 'YoY Comparison': 'المقارنة السنوية',
+    'Wholesale Detail': 'تفاصيل الجملة', 'Link Sales Detail': 'تفاصيل المبيعات المرتبطة',
+    'Log out': 'تسجيل الخروج', 'branches tracked': 'فرعاً مشمولاً',
+    'Net Sales': 'صافي المبيعات', 'Net sales': 'صافي المبيعات', 'Total net sales': 'إجمالي صافي المبيعات',
+    'Total sales': 'إجمالي المبيعات', 'Retail Sales ': 'مبيعات التجزئة', 'Retail sales': 'مبيعات التجزئة',
+    'Sold Qty': 'الكمية المباعة', 'Sold qty': 'الكمية المباعة', 'Qty': 'الكمية', 'Units': 'الوحدات',
+    'Units Sold': 'الوحدات المباعة', 'Units sold': 'الوحدات المباعة', 'Returned': 'المرتجع',
+    'Losers': 'المتراجعة', 'Gainers': 'المتقدمة',
+    'Receipts': 'الإيصالات', 'Receipt': 'الإيصال', 'Rcpt': 'الإيصالات',
+    'CY': 'الحالي', 'LY': 'السابق',
+    'Invoices': 'الفواتير', 'Invoice': 'الفاتورة', 'No of Invoices': 'عدد الفواتير', 'Total invoices': 'إجمالي الفواتير', 'Inv': 'فواتير',
+    'ATV': 'متوسط قيمة الفاتورة (ATV)', 'UPT': 'عدد القطع للفاتورة (UPT)', 'ASP': 'متوسط سعر البيع (ASP)',
+    'RSP': 'سعر البيع للجمهور (RSP)', 'SKU': 'رمز الصنف (SKU)', 'SKUs sold': 'الأصناف المباعة', 'SKUs': 'الأصناف',
+    'Returns Rate': 'نسبة المرتجعات', 'Return%': 'نسبة المرتجع', 'Return Qty': 'كمية المرتجع',
+    'Returns value': 'قيمة المرتجعات', 'Returns': 'المرتجعات', 'Return outliers': 'المرتجعات الشاذة',
+    'All returned items': 'كل الأصناف المرتجعة', 'Returns by item': 'المرتجعات حسب الصنف',
+    'Markup%': 'نسبة الربح', 'Gross Markup%': 'إجمالي نسبة الربح', 'Markup': 'نسبة الربح', 'Cost': 'التكلفة',
+    'Promo%': 'نسبة العروض', '% of promo sold': 'نسبة المبيعات بالعرض', 'Discounts given': 'الخصومات الممنوحة',
+    'Discount': 'الخصم', 'Depth': 'عمق الخصم', 'Effectiveness': 'فعالية الخصم', 'Achieved price': 'السعر المحقق',
+    'Working': 'فعّال', 'Watch': 'للمراقبة', 'Margin leak': 'تسرب الربح',
+    'Single Inv%': 'نسبة الفاتورة المفردة', 'Single Inv': 'فاتورة مفردة', 'Price bands': 'نطاقات السعر', 'Band': 'النطاق',
+    'Top store sales': 'أعلى فرع مبيعات', 'Store ranking': 'ترتيب الفروع', 'Region performance': 'أداء المناطق',
+    'Wholesale & 3P': 'الجملة والقنوات الأخرى', 'Wholesale &amp; 3P': 'الجملة والقنوات الأخرى',
+    '3P online': 'البيع الإلكتروني', 'Wholesale + 3P': 'الجملة والقنوات الأخرى',
+    'Wholesale, BO & 3P': 'الجملة والقنوات الأخرى', 'Salesman / account': 'المندوب / الحساب', 'Channel': 'القناة',
+    'Region': 'المنطقة', 'City': 'المدينة', 'Month': 'الشهر', 'Date': 'التاريخ', 'Days': 'الأيام', 'Day': 'اليوم',
+    'All': 'الكل', 'All months': 'كل الأشهر', 'All regions': 'كل المناطق', 'All stores': 'كل الفروع',
+    'Select Filters': 'اختيار الفلاتر', 'Export PDF': 'تصدير PDF', 'Total': 'الإجمالي', 'Type': 'النوع',
+    'Image': 'الصورة', 'Description': 'الوصف', 'Rank': 'الترتيب', 'Prev': 'السابق', 'Next': 'التالي', 'Page': 'صفحة',
+    'Central': 'المنطقة الوسطى', 'East': 'المنطقة الشرقية', 'West': 'المنطقة الغربية',
+    'North': 'المنطقة الشمالية', 'South': 'المنطقة الجنوبية',
+    'All dates': 'كل التواريخ', 'Clear': 'إلغاء', 'Clear date': 'إلغاء التاريخ', 'Clear filters': 'إلغاء الفلاتر',
+    'Today': 'اليوم', 'Yesterday': 'أمس', 'This month': 'هذا الشهر', 'Last month': 'الشهر الماضي',
+    'Last 7 days': 'آخر ٧ أيام', 'Last 30 days': 'آخر ٣٠ يوماً', 'Custom range': 'فترة مخصصة',
+    'Hourly': 'بالساعة', 'Link': 'المرتبطة', 'Qitaf': 'قطاف', 'Data updated': 'تم التحديث',
+    'active branches': 'فرع نشط', 'Grand Total': 'الإجمالي العام', 'Subtotal': 'الإجمالي الجزئي', 'Total Qty': 'إجمالي الكمية',
+    'Khorais': 'خريص', 'Thager Plaza': 'ثاجر بلازا', 'Thager': 'ثاجر', 'Plaza': 'بلازا',
+    'Wadi Namar': 'وادي نمار', 'Taqasussi': 'التخصصي', 'Aqiq': 'العقيق', 'Al Falah': 'الفلاح',
+    'Kharj': 'الخرج', 'Wadi Laban': 'وادي لبن', 'Tuwaiq': 'طويق', 'Badia': 'البديعة',
+    'Abha': 'أبها', 'Khamis': 'خميس مشيط', 'Sabia': 'صبيا', 'Namas': 'النماص', 'Jizan': 'جيزان',
+    'Al Baha': 'الباحة', 'Najran': 'نجران', 'Muhayil Aseer': 'محايل عسير', 'Bisha': 'بيشة',
+    'Taif': 'الطائف', 'Jeddah': 'جدة', 'Jeddah Andlous': 'جدة الأندلس', 'Andlous': 'الأندلس',
+    'Madina': 'المدينة المنورة', 'Haramain': 'الحرمين', 'Makkah': 'مكة المكرمة', 'Yanbu': 'ينبع',
+    'Tabuk': 'تبوك', 'Qaseem': 'القصيم', 'Hail': 'حائل', 'Majma': 'المجمعة', 'Arar': 'عرعر',
+    'Dawadmi': 'الدوادمي', 'Unaiza': 'عنيزة', 'Sakaka': 'سكاكا', 'Tabarjal': 'طبرجل', 'Zulfi': 'الزلفي',
+    'Dammam': 'الدمام', 'Al Ahsa': 'الأحساء', 'Ahsa': 'الأحساء', 'Khobar': 'الخبر', 'Jubail': 'الجبيل',
+    'Hafr Al Batin': 'حفر الباطن', 'Riyadh': 'الرياض', 'Alrimaya.com': 'الرمايه.كوم',
+    'Al Rimaya Online': 'الرمايه أونلاين', 'Online': 'أونلاين', 'Al Rimaya': 'الرمايه',
+    'Pairs': 'الأزواج المرتبطة', 'Suggested': 'المقترحة', 'Anchor': 'الصنف الأساسي', 'Add-on': 'صنف إضافي',
+    'Lift': 'معامل الارتباط', 'Baskets': 'السلال', 'Multi-item invoices': 'فواتير متعددة الأصناف',
+    'Avg. items per basket': 'متوسط الأصناف للسلة', 'Linked pairs': 'الأزواج المرتبطة', 'Strong pairs': 'أزواج قوية',
+    'January': 'يناير', 'February': 'فبراير', 'March': 'مارس', 'April': 'أبريل', 'May': 'مايو', 'June': 'يونيو',
+    'July': 'يوليو', 'August': 'أغسطس', 'September': 'سبتمبر', 'October': 'أكتوبر', 'November': 'نوفمبر', 'December': 'ديسمبر',
+    'Jan': 'يناير', 'Feb': 'فبراير', 'Mar': 'مارس', 'Apr': 'أبريل', 'Jun': 'يونيو', 'Jul': 'يوليو',
+    'Aug': 'أغسطس', 'Sep': 'سبتمبر', 'Oct': 'أكتوبر', 'Nov': 'نوفمبر', 'Dec': 'ديسمبر',
+    'avg. transaction value': 'متوسط قيمة الفاتورة', 'units per transaction': 'عدد القطع للفاتورة',
+    'avg. selling price': 'متوسط سعر البيع', 'avg. per day': 'المتوسط اليومي', 'distinct items': 'أصناف مختلفة',
+    'units returned': 'وحدة مرتجعة', 'retail + wholesale, BO & 3P': 'التجزئة + الجملة والقنوات الأخرى',
+    'By region': 'حسب المنطقة', 'By store': 'حسب الفرع', 'view details': 'عرض التفاصيل'
+  };
+
+  AR_CAT = {
+    '#N/A': 'غير محدد', '(blank)': 'غير محدد', 'Others': 'أخرى', 'Other': 'أخرى', 'Miscellaneous': 'متنوعة',
+    'APPAREL': 'الملابس', 'BAGS': 'الحقائب', 'BBQ ESSENTIALS': 'مستلزمات الشوي',
+    'BINOCULARS & SCOPES': 'المناظير والمقربات', 'CHAIRS': 'الكراسي', 'COFFEE ESSENTIALS': 'مستلزمات القهوة',
+    'DRINKWARE': 'أدوات الشرب', 'ELECTRONICS': 'الإلكترونيات', 'FIREWOOD & CHARCOAL': 'الحطب والفحم',
+    'FISHING': 'صيد الأسماك', 'FOLDING BEDS': 'الأسرّة القابلة للطي', 'GUNS & ACCESSORIES': 'الأسلحة وملحقاتها',
+    'HAND TOOLS': 'الأدوات اليدوية', 'HOUSEWARE': 'الأدوات المنزلية', 'KETTLES & THERMOS': 'الدلال والترامس',
+    'KNIVES': 'السكاكين', 'LIGHTS': 'الإضاءة', 'MATS & CUSHIONS': 'الفرش والوسائد', 'NON TRADING': 'غير تجاري',
+    'OUTDOORS': 'الرحلات والتخييم', 'REFRIGERATORS & ACC': 'الثلاجات وملحقاتها', 'SAMPLES': 'العينات',
+    'SERVICES': 'الخدمات', 'SLEEPING BAGS': 'أكياس النوم', 'SPARE PARTS': 'قطع الغيار', 'TABLES': 'الطاولات',
+    'TENTS': 'الخيام', 'VEHICLE ACCESSORIES': 'ملحقات السيارات', 'WALKING STICKS': 'عصي المشي',
+    'ARB Spare Parts': 'قطع غيار ARB', 'Adaptors & Multi-Outlets': 'الوصلات والمشتركات',
+    'Air Compressors': 'كمبروسرات الهواء', 'Air Cylinder Bags': 'حقائب أسطوانات الهواء',
+    'Air Cylinders & Accessories': 'أسطوانات الهواء وملحقاتها', 'Air Lockers': 'قافلات الفرق',
+    'Air Rifles': 'بنادق الهواء', 'Air Tanks': 'خزانات الهواء', 'Aluminum Kettles': 'دلال ألمنيوم',
+    'Ammunition': 'الذخائر', 'Aprons & Raincots': 'المرايل وملابس المطر', 'Arm Rests': 'مساند الذراع',
+    'Asiri Kettles': 'الدلال العسيرية', 'Awning Tents': 'مظلات الخيام', 'Axe & Shovels': 'الفؤوس والمجارف',
+    'BBQ Grills': 'شوايات', 'BBQ Nets': 'شبك الشوي', 'BBQ Tool Sets': 'أطقم أدوات الشوي',
+    'Baby Care Bags': 'حقائب مستلزمات الأطفال', 'Backpacks': 'حقائب الظهر', 'Baking Tools': 'أدوات الخبز',
+    'Baserack & Roofracks': 'قواعد وحمالات السطح', 'Batteries & Battery Chargers': 'البطاريات والشواحن',
+    'Biking Accessories': 'ملحقات الدراجات', 'Binoculars': 'المناظير', 'Blankets': 'البطانيات',
+    'Blow Guns': 'مسدسات الهواء', 'Blowers': 'النافخات', 'Bottles': 'القوارير', 'Burners & Stoves': 'الأفران والبوابير',
+    'Camera': 'الكاميرات', 'Camping & Beach Tents': 'خيام التخييم والبحر', 'Camping Lights': 'إضاءة التخييم',
+    'Canopies': 'المظلات', 'Caps & Hats': 'القبعات', 'Car Roof Tents': 'خيام سطح السيارة',
+    'Cargo Carriers': 'حمالات الأمتعة', 'Cash On Delviery - COD': 'الدفع عند الاستلام', 'Charcoal': 'الفحم',
+    'Cleaning Liquids': 'سوائل التنظيف', 'Cleaning Tools': 'أدوات التنظيف', 'Cleavers & Machete': 'السواطير',
+    'Coffee Dalla': 'دلال القهوة', 'Coffee Grinders': 'مطاحن القهوة', 'Coffee Roasters': 'محامص القهوة',
+    'Coffee Warmers': 'مسخنات القهوة', 'Coil Springs': 'الردايترات اللولبية', 'Compressed Blowers': 'نافخات الهواء المضغوط',
+    'Cooker Spare Parts': 'قطع غيار الطباخات', 'Cooking Pots': 'قدور الطهي', 'Cooler Bags': 'حقائب التبريد',
+    'Cooler Boxes': 'صناديق التبريد', 'Cups & Mugs': 'الأكواب والفناجين', 'Cushions': 'الوسائد',
+    'Cutting & Shredding': 'القطع والفرم', 'Deflators & Pressure Gauges': 'منقصات ومقاييس الضغط',
+    'Delivery Smsa Riyadh': 'توصيل سمسا الرياض', 'Delivery Smsa Jeddah': 'توصيل سمسا جدة', 'Delivery service': 'خدمة التوصيل',
+    'Differential Covers': 'أغطية الفرق', 'Dish Covers': 'أغطية الأطباق', 'Duffel Bags': 'حقائب السفر',
+    'Décor': 'الديكور', 'Electric Kettles': 'الغلايات الكهربائية', 'Fans & Coolers': 'المراوح والمبردات',
+    'Filled Ezba': 'العزبة الجاهزة', 'Fire Boxes': 'صناديق النار', 'Fire Grills': 'شبكات النار',
+    'Fire Pits': 'مواقد النار', 'Fire Starters & Torch': 'مشاعل وأدوات إشعال', 'Firewood': 'الحطب',
+    'Firewood & Gas Bags': 'حقائب الحطب والغاز', 'Fishing Kits & Accessories': 'أدوات الصيد وملحقاتها',
+    'Flashlights': 'الكشافات', 'Floodlights & Spotlights': 'الكشافات والأضواء الموجهة',
+    'Floor Chairs': 'كراسي أرضية', 'Floor Mats': 'الفرش الأرضية', 'Fog Lights': 'أضواء الضباب',
+    'Folding Beds': 'الأسرّة القابلة للطي', 'Folding Chairs': 'الكراسي القابلة للطي',
+    'Folding Tables': 'الطاولات القابلة للطي', 'Footwear & Footgear': 'الأحذية', 'Freight Service': 'خدمة الشحن',
+    'Fridge Connect Modules': 'وحدات توصيل الثلاجات', 'Fridge Sliders': 'مزالق الثلاجات',
+    'Fridge Transit Covers': 'أغطية نقل الثلاجات', 'Frying Pans': 'المقالي', 'Fuel Containers': 'أوعية الوقود',
+    'Garden Fire Pits': 'مواقد الحديقة', 'Gas Adaptors': 'وصلات الغاز', 'Gas Cartridges': 'عبوات الغاز',
+    'Gift Cards': 'بطاقات الهدايا', 'Glass Tea Kettles': 'براد الشاي الزجاجي', 'Goat Stands': 'حمالات الذبائح',
+    'Grabbers': 'الملاقط', 'Grooming Kits': 'أطقم العناية', 'Gun Cleaning Tools': 'أدوات تنظيف الأسلحة',
+    'Gun License': 'رخصة السلاح', 'Gun Safe': 'خزائن الأسلحة', 'Gun Spare Parts': 'قطع غيار الأسلحة',
+    'Hand Tools': 'الأدوات اليدوية', 'Hanging Hooks & Winches': 'الخطافات والرافعات', 'Headlamps': 'كشافات الرأس',
+    'Hiking & Hunting Bags': 'حقائب المشي والصيد', 'Holsters, Cases & Covers': 'الجعب والحوافظ والأغطية',
+    'Hose': 'الخراطيم', 'Incense Burners': 'المباخر', 'Inflatable': 'القابل للنفخ',
+    'Installation Service': 'خدمة التركيب', 'Jackets': 'الجاكيتات', 'Jars & Containers': 'المرطبانات والعلب',
+    'Jerry Cans': 'الجوالين', 'Kettle Bags': 'حقائب الدلال', 'Keychains & Biners': 'الميداليات والمشابك',
+    'Kitchen Knives': 'سكاكين المطبخ', 'Kitchen Tables': 'طاولات المطبخ', 'Knife Bags': 'حقائب السكاكين',
+    'Knife Sets': 'أطقم السكاكين', 'Lamp Consoles': 'قواعد الكشافات', 'Leaf Springs': 'الردايترات الورقية',
+    'Light Bars': 'كشافات الشريط', 'Lower Control Arms': 'الأذرع السفلية', 'Lowers': 'الأجزاء السفلية',
+    'Maintenance Service': 'خدمة الصيانة', 'Mandi Makers': 'أجهزة المندي', 'Masks & Gloves': 'الكمامات والقفازات',
+    'Metal Sticks': 'العصي المعدنية', 'Milk Dalla': 'دلال الحليب', 'Mobile Phone Accessories': 'ملحقات الجوال',
+    'Monoculars': 'المناظير الأحادية', 'Mosquito Tents': 'خيام الحماية من الحشرات',
+    'Mounting & Fitting Kits': 'أطقم التثبيت والتركيب', 'Multitools': 'الأدوات متعددة الاستخدام',
+    'OTF Knives': 'سكاكين OTF', 'Oil Bottles': 'قوارير الزيت', 'Other Service': 'خدمات أخرى',
+    'Other Spare Parts': 'قطع غيار أخرى', 'Outdoor Games': 'الألعاب الخارجية', 'Outdoor Knives': 'سكاكين الرحلات',
+    'Outdoor Lights': 'إضاءة خارجية', 'Ovens': 'الأفران', 'Panhards': 'أذرع البانهارد',
+    'Picnic & Camping Bags': 'حقائب الرحلات والتخييم', 'Picnic Set': 'طقم الرحلات',
+    'Portable Electronics': 'إلكترونيات محمولة', 'Power Banks & Invertors': 'بنوك الطاقة والمحولات',
+    'Pressure Control Units': 'وحدات التحكم بالضغط', 'Pressure Cookers': 'قدور الضغط',
+    'Recovery Kits & Tools': 'أطقم وأدوات الإنقاذ', 'Refrigerator Accessories': 'ملحقات الثلاجات',
+    'Refrigerator Spare Parts': 'قطع غيار الثلاجات', 'Refrigerators': 'الثلاجات', 'Riflescopes': 'مقربات البنادق',
+    'Roasters': 'المحامص', 'Roofracks': 'حمالات السطح', 'SS Tea Kettles': 'براد شاي ستانلس',
+    'Samples': 'العينات', 'Sand Sliders': 'ألواح الرمل', 'Saws & Cutters': 'المناشير والقواطع',
+    'Scope Mounts': 'قواعد المقربات', 'Serving Plates & Dishes': 'أطباق وصحون التقديم', 'Sharpeners': 'المسنّات',
+    'Shock Absorbers': 'المساعدات', 'Shocks Accessories': 'ملحقات المساعدات', 'Shoe Covers': 'أغطية الأحذية',
+    'Shopping Bags': 'حقائب التسوق', 'Silicone Utensils': 'أدوات السيليكون', 'Sinnara & Lamps': 'السنارة والكشافات',
+    'Skewers': 'الأسياخ', 'Sleeping Bags': 'أكياس النوم', 'Sleeping Tents': 'خيام النوم',
+    'Sling Shots': 'النبالة', 'Snake Catchers': 'ملاقط الثعابين',
+    'Snatch Ropes, Blocks & Shackles': 'حبال ومشابك السحب', 'Solar Panels': 'الألواح الشمسية',
+    'Steering Damper': 'مخمد المقود', 'Stools': 'الكراسي الصغيرة', 'Storage Boxes': 'صناديق التخزين',
+    'Storage Cans': 'عبوات التخزين', 'Strainers': 'المصافي', 'String Lights': 'إضاءة الأسلاك',
+    'Survival Gear': 'عتاد النجاة', 'Survival Kit': 'طقم النجاة', 'Sway Bar Accessories': 'ملحقات قضيب الاتزان',
+    'Swaybars': 'قضبان الاتزان', 'T-Shirts': 'التيشرتات', 'Tableware & Cutlery': 'أدوات المائدة',
+    'Targets & Accessories': 'الأهداف وملحقاتها', 'Tarp Clips': 'مشابك المشمع', 'Tea / Sugar Bags': 'حقائب الشاي والسكر',
+    'Teacup Bags': 'حقائب الفناجين', 'Thermos': 'الترامس', 'Thermos Bags': 'حقائب الترامس',
+    'Toasters': 'المحامص الكهربائية', 'Toilet Chairs': 'كراسي الحمام', 'Toilet Tents': 'خيام الحمام',
+    'Toiletries Bags': 'حقائب مستلزمات النظافة', 'Tongs & Grabbers': 'الملاقط', 'Tools & Utility Bags': 'حقائب الأدوات',
+    'Towel': 'المناشف', 'Trash Bags': 'أكياس النفايات', 'Travel Bags': 'حقائب السفر',
+    'Tred Pro Accessories': 'ملحقات ألواح الرمل', 'Trolleys & Wagons': 'العربات', 'Umbrellas': 'المظلات',
+    'Upper Control Arms': 'الأذرع العلوية', 'Vegetable Bags': 'حقائب الخضار', 'Vehicle Interior Acc': 'ملحقات السيارة الداخلية',
+    'Vehicle Jacks': 'رافعات السيارات', 'Water Gallons & Buckets': 'قوارير ودلاء الماء', 'Water Sports': 'الرياضات المائية',
+    'Water Sprayers & Pumps': 'مضخات ورشاشات الماء', 'Weighing Scales': 'الميازين', 'Winch': 'الرافعة',
+    'Winch Accessories': 'ملحقات الرافعة', 'Winchbars, Bumpers & Siderails': 'الصدامات والقضبان الجانبية',
+    'Wind Breaks': 'صادات الهواء', 'Wind Screens': 'حواجز الرياح', 'Windshields': 'الزجاج الأمامي',
+    'Wirings & Looms': 'الأسلاك والضفائر', 'Wooden Sticks': 'العصي الخشبية',
+    'Accessories': 'الملحقات', 'Air Bag Kits': 'أطقم وسائد الهواء', 'Air Hose': 'خرطوم الهواء',
+    'Assembly Items': 'أصناف التجميع', 'Binocular Spare Parts': 'قطع غيار المناظير', 'Carrier Lights': 'إضاءة الحمالات',
+    'Consummables': 'المستهلكات', 'Cup Holder': 'حامل الأكواب', 'Driving Lights': 'أضواء القيادة',
+    'Drones': 'الطائرات المسيّرة', 'Falcon Accessories': 'ملحقات الصقور', 'Fixtures': 'التجهيزات',
+    'Fuel Tanks': 'خزانات الوقود', 'Gearbox Accessories': 'ملحقات ناقل الحركة', 'Heaters': 'المدافئ',
+    'Hunting': 'الصيد', 'Inflatable Tents': 'الخيام القابلة للنفخ', 'Light Covers': 'أغطية الكشافات',
+    'Range Finders': 'أجهزة قياس المسافة', 'Repair Services For Warranty Items': 'خدمات إصلاح الضمان',
+    'Roller Drawers': 'الأدراج المتحركة', 'Snorkels': 'السنوركل', 'Tag Cards, Logos & Stickers': 'البطاقات والملصقات',
+    'Tailoring Materials': 'مواد الخياطة', 'Telescopes': 'التلسكوبات', 'Tools': 'الأدوات',
+    'Torsion Bars': 'قضبان الالتواء', 'Towbars': 'قضبان السحب', 'U Bolts': 'مسامير U',
+    'UVP (Under Vehicle Protection)': 'حماية أسفل السيارة', 'Vehicle Covers': 'أغطية السيارات',
+    'Vehicle Fitted Tables': 'طاولات مثبتة بالسيارة', 'Walking Stick Spare Parts': 'قطع غيار عصي المشي',
+    'Watches': 'الساعات', 'Wheel Carriers': 'حمالات العجلات',
+    'Sub-Categories': 'الفئات الفرعية', 'Sub-Category': 'الفئة الفرعية', 'Sub-categories': 'الفئات الفرعية',
+    'sub-categories': 'الفئات الفرعية', 'Brands': 'العلامات', 'brands': 'العلامات', 'Divisions': 'الأقسام',
+    'Branches': 'الفروع', 'Branch': 'فرع', 'given': 'ممنوحة', 'margin': 'ربح', 'total': 'الإجمالي',
+    'Admin': 'مدير النظام', 'Central Region Manager': 'مدير المنطقة الوسطى',
+    'East Region Manager': 'مدير المنطقة الشرقية', 'West Region Manager': 'مدير المنطقة الغربية',
+    'North Region Manager': 'مدير المنطقة الشمالية', 'South Region Manager': 'مدير المنطقة الجنوبية',
+    'Region Manager': 'مدير المنطقة',
+    'Sales': 'المبيعات', 'Top': 'أفضل', 'Trending': 'الأكثر نمواً', 'blended score': 'تقييم مركب',
+    'promo': 'العروض', 'avg': 'متوسط', 'score': 'التقييم',
+    'Store-wise': 'حسب الفرع', 'Day-wise': 'حسب اليوم', 'Item-wise': 'حسب الصنف', 'Month-wise': 'حسب الشهر',
+    'By Customer': 'حسب العميل', 'By Store': 'حسب الفرع', 'By Item': 'حسب الصنف', 'By Date': 'حسب التاريخ',
+    'By Brand': 'حسب العلامة', 'By Category': 'حسب الفئة', 'Customer': 'العميل', 'Customers': 'العملاء',
+    'Showroom': 'معرض', 'Warehouse': 'مستودع', 'WH': 'مستودع', 'Workshop': 'ورشة', 'Road': 'طريق',
+    'Rd': 'طريق', 'Street': 'شارع', 'Mall': 'مول', 'Center': 'مركز', 'Centre': 'مركز', 'Exit': 'مخرج',
+    'Sub': 'فرعي', 'Main': 'الرئيسي', 'Head Office': 'المركز الرئيسي', 'HO': 'المركز الرئيسي',
+    'HO Sales': 'مبيعات المركز الرئيسي', 'HQ Salesman': 'مندوب المركز الرئيسي',
+    'Checking & Review': 'الفحص والمراجعة', 'Check & Review': 'الفحص والمراجعة',
+    'Damages & Shortages': 'التوالف والنواقص', 'Shorts and Damages Warehouse': 'مستودع النواقص والتوالف',
+    'Damage WH': 'مستودع التوالف', 'Photoshoot': 'التصوير', 'Photo Shoot': 'التصوير',
+    'Photoshoot Location': 'موقع التصوير', 'Location': 'موقع', 'Refrigeration': 'التبريد',
+    'Referigeration Workshop Warehouse': 'مستودع ورشة التبريد', 'Technician': 'فني',
+    'Guns Technician': 'فني الأسلحة', 'Gun Technician Stock': 'مخزون فني الأسلحة', 'Tailor': 'الخياطة',
+    'Tailor Workshop': 'ورشة الخياطة', 'Rimaya Tailor Workshop': 'ورشة خياطة الرمايه',
+    'Items Samples': 'عينات الأصناف', 'Marketing Samples': 'عينات التسويق', 'Seasonal': 'موسمي',
+    'Temporary': 'مؤقت', 'Seasonal Store': 'فرع موسمي', 'Intransit': 'قيد النقل', 'IN-TRANSIT': 'قيد النقل',
+    'Transit': 'النقل', 'KSA': 'السعودية', 'Exhibition': 'المعرض', 'Qatar': 'قطر', 'Online': 'أونلاين',
+    'Virtual': 'افتراضي', 'Wholesale Transfer': 'تحويلات الجملة', 'Wholesale Transfers': 'تحويلات الجملة',
+    'Whole Sales Transfers': 'تحويلات الجملة', 'Transfers': 'تحويلات', 'Carrefour': 'كارفور',
+    'Carfour Shop': 'متجر كارفور', 'Sadhan': 'السدحان', 'Al Saif Gallery': 'السيف غاليري',
+    'Gallery': 'غاليري', 'B&Q': 'بي آند كيو', 'Fordeal': 'فورديل', 'Fadfad': 'فدفد', 'FadFad Store': 'فرع فدفد',
+    'Manarah': 'المنارة', 'Jahez': 'جاهز', 'JAHEZ': 'جاهز', 'JAHEZWH': 'مستودع جاهز', 'Trendyol': 'ترينديول',
+    'E-Market': 'المتجر الإلكتروني', 'Dark Store': 'المتجر المعتم',
+    'Baljuraishi': 'بلجرشي', 'Beljarshi': 'بلجرشي', 'Al Jouf': 'الجوف', 'Jouf': 'الجوف', 'Buraidah': 'بريدة',
+    'Al Ula': 'العلا', 'Unayzah': 'عنيزة', 'Unaiza': 'عنيزة', 'Uniza': 'عنيزة', 'Sebia': 'صبيا', 'Sabya': 'صبيا',
+    'Gazan': 'جيزان', 'Nagran': 'نجران', 'Khamis Mushait': 'خميس مشيط', 'Khamis Mushayt': 'خميس مشيط',
+    'Prince Sultan': 'الأمير سلطان', 'King Fahad': 'الملك فهد', 'Zahran': 'الظهران', 'Ihsa': 'الأحساء',
+    'Al Ihsa': 'الأحساء', 'Coastal': 'الساحلي', 'Ring Road': 'الطريق الدائري', 'Alqots': 'القدس',
+    'Al Qods': 'القدس', 'Al Quds': 'القدس', 'Airport': 'المطار', 'Althager': 'ثاجر', 'Taqassosi': 'التخصصي',
+    'Khoraix': 'خريص', 'Shifa': 'الشفا', 'Al Shifa': 'الشفا', 'Al Zolfy': 'الزلفي', 'Muhayil Asir': 'محايل عسير',
+    'Al Namas': 'النماص', 'Alkhaldiah': 'الخالدية', 'Garnata': 'غرناطة', 'Flamingo': 'فلامنجو',
+    'Al Khaima': 'الخيمة', 'Qasr': 'القصر', 'Tala': 'تالا', 'Sondos': 'سندس', 'Shatea': 'الشاطئ',
+    'West Avenue': 'ويست أفنيو', 'Rashid': 'راشد', 'Qulaibat': 'القليبات', 'Rawaf': 'رواف',
+    'Bin Sulaiman': 'بن سليمان', 'Aziziya': 'العزيزية', 'Al Manar': 'المنار', 'Al Fursan': 'الفرسان',
+    'City Center': 'سيتي سنتر', 'Al Baha': 'الباحة', 'Baha': 'الباحة', 'Alharamain': 'الحرمين',
+    'Al Andlous': 'الأندلس', 'AL Andlous': 'الأندلس', 'Hafr Albatin': 'حفر الباطن', 'Al Kharj': 'الخرج',
+    'Al Jubail': 'الجبيل', 'Al Qaseem': 'القصيم', 'Al Taif': 'الطائف', 'AL Madina': 'المدينة المنورة',
+    'Al Falah': 'الفلاح', 'Sharif': 'شريف', 'A.Mamdouh': 'ممدوح', 'Ahmed Mamdouh': 'أحمد ممدوح',
+    'AL Than': 'الزان', 'Mutawali': 'متولي', 'Shabaan': 'شعبان', 'Mohammed Shabaan': 'محمد شعبان',
+    'Mohammed Zuhair': 'محمد زهير', 'Aramco': 'أرامكو', 'Store BO Sales': 'مبيعات الفروع الخاصة', 'Cash Customer': 'عميل نقدي',
+    'Amazon': 'أمازون', 'Noon': 'نون', 'SASCO': 'ساسكو', 'Panda': 'بنده', 'MEED': 'ميد',
+    'Al Jomaih': 'الجميح', 'Intercompany': 'بين الشركات', 'ADES': 'أديس',
+    'Ahmed Al Zan': 'أحمد الزان', 'Aydaros': 'عيدروس', 'Shareif': 'شريف', 'Yasir': 'ياسر',
+    'Ahmed': 'أحمد', 'Mamdouh': 'ممدوح', 'Adnan': 'عدنان', 'Mohammed': 'محمد', 'Fadil': 'فاضل',
+    'Shaban': 'شعبان', 'Mutawalli': 'متولي', 'Zuhair': 'زهير', 'Mahmoud': 'محمود', 'Salesman': 'مندوب',
+    'ACCUSHARP': 'أكوشارب', 'ACROPOLIS': 'أكروبوليس', 'AKINOD': 'أكينود', 'ALAZRAQ': 'الأزرق',
+    'ALKHAWY': 'الخاوي', 'ALTINBOGA': 'ألتينبوغا', 'ARB': 'إيه آر بي', 'ARCOS': 'أركوس',
+    'BALLISTOL': 'باليستول', 'BESTWAY': 'بست واي', 'BIRCHWOOD': 'بيرشوود', 'BODYSPONGE': 'بودي سبونج',
+    'BRE': 'بي آر إي', 'BUSHNELL': 'بوشنيل', 'CLEAN': 'كلين', 'COLD STEEL': 'كولد ستيل',
+    'DEEJO': 'ديجو', 'DEEM': 'ديم', 'DESERT WOLVES': 'ذئاب الصحراء', 'DIAVOLINA': 'ديافولينا',
+    'DISCOVERY': 'ديسكفري', 'DJI': 'دي جي آي', 'DR HUNTER': 'دكتور هنتر', 'DURACELL': 'دوراسيل',
+    'ELEMENT OPTICS': 'إليمنت أوبتكس', 'EURO CAMP': 'يورو كامب', 'F.W.KLEVER': 'إف دبليو كليفر',
+    'FIVE STAR': 'فايف ستار', 'FLAME': 'فليم', 'FX': 'إف إكس', 'GALCO': 'غالكو', 'GAMO': 'غامو',
+    'GO KAMP': 'جو كامب', 'GREE': 'جري', 'GUN FLOWER': 'غن فلاور', 'GUN POWER': 'غن باور',
+    'H&N': 'إتش آند إن', 'HATSAN': 'هاتسان', 'HOPPES': 'هوبس', 'Hi-Lift': 'هاي ليفت',
+    'INDEL B': 'إنديل بي', 'INNOVA': 'إنوفا', 'INTEX': 'إنتكس', 'KERSHAW': 'كيرشو',
+    'KING CAMP': 'كينغ كامب', 'KINGGEAR': 'كينغ غير', 'KITASHO': 'كيتاشو', 'KITE OPTICS': 'كايت أوبتكس',
+    'KOVEA': 'كوفيا', 'KOZAP': 'كوزاب', 'KUNMING': 'كونمينغ', 'LASTING SPORTS': 'لاستنغ سبورتس',
+    'LEATHERMAN': 'ليثرمان', 'M.I.T LIMITED': 'إم آي تي ليمتد', 'M.T.M (USA)': 'إم تي إم (أمريكا)',
+    'MASC HOLSTER': 'ماسك هولستر', 'MASERIN': 'ماسرين', 'MAURIA': 'موريا', 'MEGALINE': 'ميغالاين',
+    'MIDLAND': 'ميدلاند', 'MINITISSUE': 'ميني تيشو', 'MR. BLADE': 'مستر بليد', 'NAPOLEAN': 'نابليون',
+    'NEXTOOL': 'نكستول', 'NITECORE': 'نايتكور', 'NITEIZE': 'نايت آيز', 'OKEY': 'أوكي',
+    'OPINEL': 'أوبينيل', 'POLARSON': 'بولارسون', 'PRICE WESTERN': 'برايس ويسترن', 'PRIMUS': 'بريموس',
+    'PWL': 'بي دبليو إل', 'Q20': 'كيو 20', 'Q90': 'كيو 90', 'RADAR': 'رادار', 'RITARGET': 'ريتارجت',
+    'ROTHCO': 'روثكو', 'SAFIX': 'سافكس', 'SAMPLE': 'عينة', 'SKINNERS': 'سكينرز', 'SNOWPEAK': 'سنو بيك',
+    'STANLEY': 'ستانلي', 'SULTAN GARDENS': 'حدائق سلطان', 'TECHNO EST': 'تكنو إست', 'VICTORY': 'فيكتوري',
+    'VORTEX': 'فورتكس', 'WABOBA': 'وابوبا', 'WANDER': 'واندر', 'WARNE': 'وارن', 'WEBLEY': 'ويبلي',
+    'WENGER': 'وينجر', 'WILDLAND': 'وايلد لاند', 'ZEISS': 'زايس', 'Unknown': 'غير معروف',
+    'AL RIMAYA': 'الرمايه', 'LOCAL': 'محلي', 'Division': 'القسم', 'Brand': 'العلامة', 'Sub-category': 'الفئة الفرعية',
+    'Subcategory': 'الفئة الفرعية', 'Sub category': 'الفئة الفرعية'
+  };
+
+  _hasArabic = (s) => /[\u0600-\u06FF]/.test(s);
+
+  _trSeg = (seg) => {
+    if (this._hasArabic(seg)) return seg;
+    const k = seg.trim();
+    if (!k || /^[\d\s.,%×+\-—–:/()]*$/.test(k)) return seg;
+    if (!this._arLower) {
+      this._dict = Object.assign({}, this.AR_CAT, this._itemAr || {}, this.AR);
+      this._arLower = {};
+      Object.keys(this._dict).forEach(key => { this._arLower[key.toLowerCase()] = this._dict[key]; });
+    }
+    let hit = this._dict[k] || this._arLower[k.toLowerCase()];
+    if (hit) return seg.replace(k, hit);
+    const m = k.match(/^[▸▾▴▼►▶\u25b8\u25be+\-–—>\s]*(.+?)[\s:]*$/);
+    if (m && m[1] && m[1] !== k) {
+      hit = this._dict[m[1]] || this._arLower[m[1].toLowerCase()];
+      if (hit) return seg.replace(m[1], hit);
+    }
+    return seg;
+  };
+
+  _trTokens = (s) => {
+    if (this._hasArabic(s)) return s;
+    if (!this._arLower) this._trSeg('x');
+    return s.replace(/[A-Za-z][A-Za-z.&%'’\- ]*[A-Za-z%]|[A-Za-z]/g, run => {
+      const key = run.trim();
+      if (!key) return run;
+      const hit = this._dict[key] || this._arLower[key.toLowerCase()];
+      if (hit) return run.replace(key, hit);
+      const words = key.split(/\s+/);
+      let changed = false;
+      const out = [];
+      let i = 0;
+      while (i < words.length) {
+        let matched = false;
+        for (let j = words.length; j > i; j--) {
+          const phrase = words.slice(i, j).join(' ');
+          const h = this._dict[phrase] || this._arLower[phrase.toLowerCase()];
+          if (h) { out.push(h); i = j; matched = true; changed = true; break; }
+        }
+        if (!matched) { out.push(words[i]); i++; }
+      }
+      return changed ? run.replace(key, out.join(' ')) : run;
+    });
+  };
+
+  _trText = (s) => {
+    if (this._hasArabic(s)) return s;
+    if (this._dict && this._dict[s.trim()]) return this._trSeg(s);
+    if (s.indexOf('·') >= 0) {
+      const parts = s.split('·').map(this._trSeg);
+      const joined = parts.join('·');
+      if (joined !== s) return joined;
+    }
+    const direct = this._trSeg(s);
+    if (direct !== s) return direct;
+    return this._trTokens(s);
+  };
+
+  _applyLang = () => {
+    const ar = this.state.lang === 'ar';
+    try { document.body.setAttribute('data-lang', ar ? 'ar' : 'en'); } catch (e) {}
+    if (!this._i18n) this._i18n = new WeakMap();
+    const root = document.body;
+    if (!root) return;
+    this._i18nBusy = true;
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode: n => {
+        const p = n.parentNode;
+        if (!p || p.nodeName === 'SCRIPT' || p.nodeName === 'STYLE' || p.nodeName === 'TEMPLATE' || p.nodeName === 'NOSCRIPT') return NodeFilter.FILTER_REJECT;
+        if (!n.nodeValue || !n.nodeValue.trim() || n.nodeValue.length > 400) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    const nodes = [];
+    while (w.nextNode()) nodes.push(w.currentNode);
+    nodes.forEach(n => {
+      const rec = this._i18n.get(n);
+      const en = (rec && n.nodeValue === rec.ar) ? rec.en : n.nodeValue;
+      const arv = this._trText(en);
+      this._i18n.set(n, { en, ar: arv });
+      const want = ar ? arv : en;
+      if (n.nodeValue !== want) n.nodeValue = want;
+    });
+    this._i18nBusy = false;
+    if (!this._i18nObs && window.MutationObserver) {
+      this._i18nObs = new MutationObserver(() => { if (!this._i18nBusy) this._scheduleLang(); });
+      this._i18nObs.observe(root, { childList: true, subtree: true, characterData: true });
+    }
+  };
+
+  _scheduleLang = () => {
+    if (this._langRaf) cancelAnimationFrame(this._langRaf);
+    this._langRaf = requestAnimationFrame(() => { this._langRaf = null; this._applyLang(); });
+  };
+
+  setLang = (lang) => {
+    try { localStorage.setItem('rsdLang', lang); } catch (e) {}
+    this.setState({ lang });
+  };
+
+  componentDidUpdate() { this._scheduleLang(); }
+
   componentDidMount() {
+    try {
+      const l = localStorage.getItem('rsdLang');
+      if (l === 'ar') this.setState({ lang: 'ar' });
+    } catch (e) {}
+    this._scheduleLang();
     this.MANAGERS = {
       '32340': { pin: '0192', region: 'Central', name: 'Central Region Manager' },
       '25120': { pin: '4756', region: 'East', name: 'East Region Manager' },
@@ -2413,6 +2782,9 @@ class Component extends DCLogic {
         const m = masterIndex[it.itemNo];
         return m ? { ...it, itemDesc: m.descEn || it.itemDesc, image: m.image || '', unitCost: m.unitCost || 0, rsp: m.rspXVAT || 0, division: m.category || it.division, category: m.subCategory || it.category, brand: m.brand || 'Unknown' } : { ...it, image: '', unitCost: 0, brand: 'Unknown' };
       });
+      this._itemAr = {};
+      itemMaster.forEach(m => { if (m.descEn && m.descAr) this._itemAr[m.descEn.trim()] = m.descAr; });
+      this._arLower = null;
       this.itemMeta = {};
       itemMaster.forEach(m => { this.itemMeta[m.sku] = { itemNo: m.sku, itemDesc: m.descEn || m.sku, image: m.image || '', unitCost: m.unitCost || 0, rsp: m.rspXVAT || 0, division: m.category, category: m.subCategory, brand: m.brand || 'Unknown' }; });
       itemsRaw.forEach(it => this.itemMeta[it.itemNo] = it);
@@ -3639,7 +4011,14 @@ class Component extends DCLogic {
     const isAuthed = !!st.auth;
     const hideMarkup = isAuthed && st.auth.region !== 'All';
     const mkp = v => hideMarkup ? '—' : v;
+    const _isAr = st.lang === 'ar';
     const loginVals = {
+      langEnBg: _isAr ? 'transparent' : 'var(--color-surface)',
+      langEnColor: _isAr ? 'var(--color-neutral-500)' : 'var(--color-text)',
+      langArBg: _isAr ? 'var(--color-surface)' : 'transparent',
+      langArColor: _isAr ? 'var(--color-text)' : 'var(--color-neutral-500)',
+      setLangEn: () => this.setLang('en'),
+      setLangAr: () => this.setLang('ar'),
       isAuthed, showLogin: !isAuthed, managerName: st.auth ? st.auth.name : '', lockRegion: isAuthed && st.auth.region !== 'All',
       loginId: st.loginId, loginPin: st.loginPin, loginError: st.loginError,
       setLoginId: e => this.setState({ loginId: e.target.value, loginError: '' }),
