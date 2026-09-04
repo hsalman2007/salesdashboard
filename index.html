@@ -2790,6 +2790,12 @@ class Component extends DCLogic {
       this.itemMeta = {};
       itemMaster.forEach(m => { this.itemMeta[m.sku] = { itemNo: m.sku, itemDesc: m.descEn || m.sku, image: m.image || '', unitCost: m.unitCost || 0, rsp: m.rspXVAT || 0, division: m.category, category: m.subCategory, brand: m.brand || 'Unknown' }; });
       itemsRaw.forEach(it => this.itemMeta[it.itemNo] = it);
+      // store master is the source of truth for name/region/city — repairs rows imported before a store was added
+      buckets = buckets.map(b => {
+        const sm = this.storeIndex[b.store];
+        if (!sm) return b;
+        return { ...b, storeName: sm.shortName || sm.nameEn || b.store, region: sm.region || b.region, city: sm.city || b.city };
+      });
       const leakedWholesaleBuckets = buckets.filter(b => b.store === 'RYVS03');
       buckets = buckets.filter(b => b.store !== 'RYVS03');
       leakedWholesaleBuckets.forEach(b => {
