@@ -1331,12 +1331,12 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <th rowspan="2" style="text-align:left">Image</th><th rowspan="2" style="text-align:left">SKU</th><th rowspan="2" style="text-align:left">Item</th>
 </sc-if>
 <sc-if value="{{yoyIsNotItems}}" hint-placeholder-val="{{true}}"><th rowspan="2" style="text-align:left">{{yoyDimHeader}}</th></sc-if>
-<th colspan="3">Sales</th><th colspan="2">Sold</th>
+<th colspan="3">Sales</th><th colspan="3">Sold</th>
 <sc-if value="{{yoyShowRcpt}}" hint-placeholder-val="{{true}}"><th colspan="3">Receipts</th></sc-if>
 <sc-if value="{{yoyShowMarkup}}" hint-placeholder-val="{{true}}"><th colspan="2">Markup %</th></sc-if>
 </tr>
 <tr>
-<th>CY</th><th>LY</th><th>Δ%</th><th>CY</th><th>LY</th>
+<th>CY</th><th>LY</th><th>Δ%</th><th>CY</th><th>LY</th><th>Δ%</th>
 <sc-if value="{{yoyShowRcpt}}" hint-placeholder-val="{{true}}"><th>CY</th><th>LY</th><th>Δ%</th></sc-if>
 <sc-if value="{{yoyShowMarkup}}" hint-placeholder-val="{{true}}"><th>CY</th><th>LY</th></sc-if>
 </tr>
@@ -1363,6 +1363,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <td style="white-space:nowrap;font-weight:700;color:{{r.deltaColor}}">{{r.delta}}</td>
 <td style="white-space:nowrap">{{r.cySold}}</td>
 <td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.lySold}}</td>
+<td style="white-space:nowrap;font-weight:700;color:{{r.soldDeltaColor}}">{{r.soldDelta}}</td>
 <sc-if value="{{yoyShowRcpt}}" hint-placeholder-val="{{true}}">
 <td style="white-space:nowrap">{{r.cyRcpt}}</td>
 <td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.lyRcpt}}</td>
@@ -1384,6 +1385,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <td style="font-weight:700;white-space:nowrap;color:{{yoyFooter.deltaColor}}">{{yoyFooter.delta}}</td>
 <td style="font-weight:700;white-space:nowrap">{{yoyFooter.cySold}}</td>
 <td style="font-weight:700;white-space:nowrap">{{yoyFooter.lySold}}</td>
+<td style="font-weight:700;white-space:nowrap;color:{{yoyFooter.soldDeltaColor}}">{{yoyFooter.soldDelta}}</td>
 <sc-if value="{{yoyShowRcpt}}" hint-placeholder-val="{{true}}">
 <td style="font-weight:700;white-space:nowrap">{{yoyFooter.cyRcpt}}</td>
 <td style="font-weight:700;white-space:nowrap">{{yoyFooter.lyRcpt}}</td>
@@ -1428,7 +1430,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <div>
 <div style="color:var(--color-neutral-500)">Sold</div>
 <div style="font-weight:700;font-size:13px">{{r.cySold}}</div>
-<div style="color:var(--color-neutral-500)">{{r.lySold}}</div>
+<div style="color:var(--color-neutral-500)">{{r.lySold}} · <span style="font-weight:700;color:{{r.soldDeltaColor}}">{{r.soldDelta}}</span></div>
 </div>
 <sc-if value="{{yoyShowRcpt}}" hint-placeholder-val="{{true}}">
 <div>
@@ -1490,12 +1492,12 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <th rowspan="2" style="text-align:left">Image</th><th rowspan="2" style="text-align:left">SKU</th><th rowspan="2" style="text-align:left">Item</th>
 </sc-if>
 <sc-if value="{{yoyDimStoresMode}}" hint-placeholder-val="{{true}}"><th rowspan="2" style="text-align:left">{{yoyDimDrillHeader}}</th></sc-if>
-<th colspan="3">Sales</th><th colspan="2">Sold</th>
+<th colspan="3">Sales</th><th colspan="3">Sold</th>
 <sc-if value="{{yoyDimShowRcpt}}" hint-placeholder-val="{{false}}"><th colspan="3">Receipts</th></sc-if>
 <sc-if value="{{yoyShowMarkup}}" hint-placeholder-val="{{true}}"><th colspan="2">Markup %</th></sc-if>
 </tr>
 <tr>
-<th>CY</th><th>LY</th><th>Δ%</th><th>CY</th><th>LY</th>
+<th>CY</th><th>LY</th><th>Δ%</th><th>CY</th><th>LY</th><th>Δ%</th>
 <sc-if value="{{yoyDimShowRcpt}}" hint-placeholder-val="{{false}}"><th>CY</th><th>LY</th><th>Δ%</th></sc-if>
 <sc-if value="{{yoyShowMarkup}}" hint-placeholder-val="{{true}}"><th>CY</th><th>LY</th></sc-if>
 </tr>
@@ -1518,6 +1520,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <td style="white-space:nowrap;font-weight:700;color:{{r.deltaColor}}">{{r.delta}}</td>
 <td style="white-space:nowrap">{{r.cySold}}</td>
 <td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.lySold}}</td>
+<td style="white-space:nowrap;font-weight:700;color:{{r.soldDeltaColor}}">{{r.soldDelta}}</td>
 <sc-if value="{{yoyDimShowRcpt}}" hint-placeholder-val="{{false}}">
 <td style="white-space:nowrap">{{r.cyRcpt}}</td>
 <td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.lyRcpt}}</td>
@@ -1539,6 +1542,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <td style="font-weight:700;white-space:nowrap;color:{{yoyDimDrillFooter.deltaColor}}">{{yoyDimDrillFooter.delta}}</td>
 <td style="font-weight:700;white-space:nowrap">{{yoyDimDrillFooter.cySold}}</td>
 <td style="font-weight:700;white-space:nowrap">{{yoyDimDrillFooter.lySold}}</td>
+<td style="font-weight:700;white-space:nowrap;color:{{yoyDimDrillFooter.soldDeltaColor}}">{{yoyDimDrillFooter.soldDelta}}</td>
 <sc-if value="{{yoyDimShowRcpt}}" hint-placeholder-val="{{false}}">
 <td style="font-weight:700;white-space:nowrap">{{yoyDimDrillFooter.cyRcpt}}</td>
 <td style="font-weight:700;white-space:nowrap">{{yoyDimDrillFooter.lyRcpt}}</td>
@@ -1586,11 +1590,11 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <th rowspan="2" style="text-align:left">Image</th><th rowspan="2" style="text-align:left">SKU</th><th rowspan="2" style="text-align:left">Item</th>
 </sc-if>
 <sc-if value="{{yoyDrillNotItemsMode}}" hint-placeholder-val="{{true}}"><th rowspan="2" style="text-align:left">{{yoyDrillHeader}}</th></sc-if>
-<th colspan="3">Sales</th><th colspan="2">Sold</th>
+<th colspan="3">Sales</th><th colspan="3">Sold</th>
 <sc-if value="{{yoyShowMarkup}}" hint-placeholder-val="{{true}}"><th colspan="2">Markup %</th></sc-if>
 </tr>
 <tr>
-<th>CY</th><th>LY</th><th>Δ%</th><th>CY</th><th>LY</th>
+<th>CY</th><th>LY</th><th>Δ%</th><th>CY</th><th>LY</th><th>Δ%</th>
 <sc-if value="{{yoyShowMarkup}}" hint-placeholder-val="{{true}}"><th>CY</th><th>LY</th></sc-if>
 </tr>
 </thead>
@@ -1612,6 +1616,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <td style="white-space:nowrap;font-weight:700;color:{{r.deltaColor}}">{{r.delta}}</td>
 <td style="white-space:nowrap">{{r.cySold}}</td>
 <td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.lySold}}</td>
+<td style="white-space:nowrap;font-weight:700;color:{{r.soldDeltaColor}}">{{r.soldDelta}}</td>
 <sc-if value="{{yoyShowMarkup}}" hint-placeholder-val="{{true}}">
 <td style="white-space:nowrap">{{r.cyMarkup}}</td>
 <td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.lyMarkup}}</td>
@@ -1628,6 +1633,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <td style="font-weight:700;white-space:nowrap;color:{{yoyDrillFooter.deltaColor}}">{{yoyDrillFooter.delta}}</td>
 <td style="font-weight:700;white-space:nowrap">{{yoyDrillFooter.cySold}}</td>
 <td style="font-weight:700;white-space:nowrap">{{yoyDrillFooter.lySold}}</td>
+<td style="font-weight:700;white-space:nowrap;color:{{yoyDrillFooter.soldDeltaColor}}">{{yoyDrillFooter.soldDelta}}</td>
 <sc-if value="{{yoyShowMarkup}}" hint-placeholder-val="{{true}}">
 <td style="font-weight:700;white-space:nowrap">{{yoyDrillFooter.cyMarkup}}</td>
 <td style="font-weight:700;white-space:nowrap">{{yoyDrillFooter.lyMarkup}}</td>
@@ -2922,12 +2928,12 @@ class Component extends DCLogic {
     doc.setTextColor(0);
     const head = [];
     if (d.itemsMode) { head.push('Image', 'SKU', 'Item', 'CY Sold', 'LY Sold', 'Diff', '\u0394%'); }
-    else { head.push(d.header, 'CY Sales', 'LY Sales', '\u0394%', 'CY Sold', 'LY Sold'); if (d.showRcpt) head.push('CY Rcpt', 'LY Rcpt', 'Rcpt \u0394%'); if (d.showMarkup) head.push('CY Mkp%', 'LY Mkp%'); }
+    else { head.push(d.header, 'CY Sales', 'LY Sales', '\u0394%', 'CY Sold', 'LY Sold', 'Sold \u0394%'); if (d.showRcpt) head.push('CY Rcpt', 'LY Rcpt', 'Rcpt \u0394%'); if (d.showMarkup) head.push('CY Mkp%', 'LY Mkp%'); }
     const imgDataUrls = d.itemsMode ? await Promise.all(d.rows.map(r => this.loadImageDataUrl(r.imageSrc))) : [];
     const body = d.rows.map(r => d.itemsMode
       ? ['', r.sku, isArabic(r.desc) ? '' : (pdfSafe(r.desc) || r.sku), r.cySold, r.lySold, this.fmtNum(r.cySoldNum - r.lySoldNum), r.soldDelta]
-      : [r.name, r.cySales, r.lySales, r.delta, r.cySold, r.lySold, ...(d.showRcpt ? [r.cyRcpt, r.lyRcpt, r.rcptDelta] : []), ...(d.showMarkup ? [r.cyMarkup, r.lyMarkup] : [])]);
-    const diffCol = d.itemsMode ? 5 : -1, deltaCol = d.itemsMode ? 6 : 3;
+      : [r.name, r.cySales, r.lySales, r.delta, r.cySold, r.lySold, r.soldDelta || '\u2014', ...(d.showRcpt ? [r.cyRcpt, r.lyRcpt, r.rcptDelta] : []), ...(d.showMarkup ? [r.cyMarkup, r.lyMarkup] : [])]);
+    const diffCol = d.itemsMode ? 5 : 6, deltaCol = d.itemsMode ? 6 : 3;
     const ft = d.footer || {};
     let foot;
     if (d.itemsMode) {
@@ -2936,7 +2942,7 @@ class Component extends DCLogic {
       const pct = lyT ? ((cyT - lyT) / lyT) * 100 : 0;
       foot = ['', '', 'Total', this.fmtNum(cyT), this.fmtNum(lyT), this.fmtNum(cyT - lyT), (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%'];
     } else {
-      foot = ['Total', ft.cySales, ft.lySales, ft.delta, ft.cySold, ft.lySold,
+      foot = ['Total', ft.cySales, ft.lySales, ft.delta, ft.cySold, ft.lySold, ft.soldDelta || '\u2014',
         ...(d.showRcpt ? [ft.cyRcpt, ft.lyRcpt, ft.rcptDelta] : []),
         ...(d.showMarkup ? [ft.cyMarkup, ft.lyMarkup] : [])];
     }
@@ -3000,12 +3006,12 @@ class Component extends DCLogic {
     doc.setTextColor(0);
     const head = [];
     if (d.itemsMode) { head.push('Image', 'SKU', 'Item', 'CY Sold', 'LY Sold', 'Diff', '\u0394%'); }
-    else { head.push(d.header, 'CY Sales', 'LY Sales', '\u0394%', 'CY Sold', 'LY Sold'); if (d.showRcpt) head.push('CY Rcpt', 'LY Rcpt', 'Rcpt \u0394%'); if (d.showMarkup) head.push('CY Mkp%', 'LY Mkp%'); }
+    else { head.push(d.header, 'CY Sales', 'LY Sales', '\u0394%', 'CY Sold', 'LY Sold', 'Sold \u0394%'); if (d.showRcpt) head.push('CY Rcpt', 'LY Rcpt', 'Rcpt \u0394%'); if (d.showMarkup) head.push('CY Mkp%', 'LY Mkp%'); }
     const imgDataUrls = d.itemsMode ? await Promise.all(d.rows.map(r => this.loadImageDataUrl(r.imageSrc))) : [];
     const body = d.rows.map(r => d.itemsMode
       ? ['', r.sku, isArabic(r.desc) ? '' : (pdfSafe(r.desc) || r.sku), r.cySold, r.lySold, this.fmtNum(r.cySoldNum - r.lySoldNum), r.soldDelta]
-      : [r.name, r.cySales, r.lySales, r.delta, r.cySold, r.lySold, ...(d.showRcpt ? [r.cyRcpt, r.lyRcpt, r.rcptDelta] : []), ...(d.showMarkup ? [r.cyMarkup, r.lyMarkup] : [])]);
-    const diffCol = d.itemsMode ? 5 : -1, deltaCol = d.itemsMode ? 6 : 3;
+      : [r.name, r.cySales, r.lySales, r.delta, r.cySold, r.lySold, r.soldDelta || '\u2014', ...(d.showRcpt ? [r.cyRcpt, r.lyRcpt, r.rcptDelta] : []), ...(d.showMarkup ? [r.cyMarkup, r.lyMarkup] : [])]);
+    const diffCol = d.itemsMode ? 5 : 6, deltaCol = d.itemsMode ? 6 : 3;
     const ft = d.footer || {};
     let foot;
     if (d.itemsMode) {
@@ -3014,7 +3020,7 @@ class Component extends DCLogic {
       const pct = lyT ? ((cyT - lyT) / lyT) * 100 : 0;
       foot = ['', '', 'Total', this.fmtNum(cyT), this.fmtNum(lyT), this.fmtNum(cyT - lyT), (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%'];
     } else {
-      foot = ['Total', ft.cySales, ft.lySales, ft.delta, ft.cySold, ft.lySold,
+      foot = ['Total', ft.cySales, ft.lySales, ft.delta, ft.cySold, ft.lySold, ft.soldDelta || '\u2014',
         ...(d.showRcpt ? [ft.cyRcpt, ft.lyRcpt, ft.rcptDelta] : []),
         ...(d.showMarkup ? [ft.cyMarkup, ft.lyMarkup] : [])];
     }
@@ -5485,7 +5491,8 @@ class Component extends DCLogic {
           imageSrc: byItem ? ((this.itemMeta[key] || {}).image || blankImg) : blankImg,
           cySales: this.fmtMoney(a[0]), lySales: this.fmtMoney(a[4]),
           delta: deltaLabel(a[0], a[4]), deltaColor: deltaColor(delta(a[0], a[4])),
-          cySold: this.fmtNum(a[1]), lySold: this.fmtNum(a[5]),
+          cySold: this.fmtNum(a[1]), lySold: this.fmtNum(a[5]), cySoldNum: a[1], lySoldNum: a[5],
+          soldDelta: deltaLabel(a[1], a[5]), soldDeltaColor: deltaColor(delta(a[1], a[5])),
           cyRcpt: this.fmtNum(a[3]), lyRcpt: this.fmtNum(a[7]), rcptDelta: deltaLabel(a[3], a[7]), rcptDeltaColor: deltaColor(delta(a[3], a[7])),
           cyMarkup: mkp(a[0], a[2]), lyMarkup: mkp(a[4], a[6]),
           onClick: byStore
@@ -5496,7 +5503,8 @@ class Component extends DCLogic {
       yoyFooter = {
         cySales: this.fmtMoney(tot[0]), lySales: this.fmtMoney(tot[4]),
         delta: deltaLabel(tot[0], tot[4]), deltaColor: deltaColor(delta(tot[0], tot[4])),
-        cySold: this.fmtNum(tot[1]), lySold: this.fmtNum(tot[5]),
+        cySold: this.fmtNum(tot[1]), lySold: this.fmtNum(tot[5]), cySoldNum: tot[1], lySoldNum: tot[5],
+        soldDelta: deltaLabel(tot[1], tot[5]), soldDeltaColor: deltaColor(delta(tot[1], tot[5])),
         cyRcpt: this.fmtNum(tot[3]), lyRcpt: this.fmtNum(tot[7]), rcptDelta: deltaLabel(tot[3], tot[7]), rcptDeltaColor: deltaColor(delta(tot[3], tot[7])),
         cyMarkup: mkp(tot[0], tot[2]), lyMarkup: mkp(tot[4], tot[6])
       };
@@ -5685,7 +5693,8 @@ class Component extends DCLogic {
           name,
           cySales: this.fmtMoney(a[0]), lySales: this.fmtMoney(a[4]),
           delta: deltaLabel(a[0], a[4]), deltaColor: deltaColor(delta(a[0], a[4])),
-          cySold: this.fmtNum(a[1]), lySold: this.fmtNum(a[5]),
+          cySold: this.fmtNum(a[1]), lySold: this.fmtNum(a[5]), cySoldNum: a[1], lySoldNum: a[5],
+          soldDelta: deltaLabel(a[1], a[5]), soldDeltaColor: deltaColor(delta(a[1], a[5])),
           cyRcpt: this.fmtNum(a[3]), lyRcpt: this.fmtNum(a[7]), rcptDelta: deltaLabel(a[3], a[7]), rcptDeltaColor: deltaColor(delta(a[3], a[7])),
           cyMarkup: mkp(a[0], a[2]), lyMarkup: mkp(a[4], a[6])
         }));
@@ -5693,7 +5702,8 @@ class Component extends DCLogic {
         yoyDrillFooter = {
           cySales: this.fmtMoney(dTot[0]), lySales: this.fmtMoney(dTot[4]),
           delta: deltaLabel(dTot[0], dTot[4]), deltaColor: deltaColor(delta(dTot[0], dTot[4])),
-          cySold: this.fmtNum(dTot[1]), lySold: this.fmtNum(dTot[5]),
+          cySold: this.fmtNum(dTot[1]), lySold: this.fmtNum(dTot[5]), cySoldNum: dTot[1], lySoldNum: dTot[5],
+          soldDelta: deltaLabel(dTot[1], dTot[5]), soldDeltaColor: deltaColor(delta(dTot[1], dTot[5])),
           cyRcpt: this.fmtNum(dTot[3]), lyRcpt: this.fmtNum(dTot[7]), rcptDelta: deltaLabel(dTot[3], dTot[7]), rcptDeltaColor: deltaColor(delta(dTot[3], dTot[7])),
           cyMarkup: mkp(dTot[0], dTot[2]), lyMarkup: mkp(dTot[4], dTot[6])
         };
