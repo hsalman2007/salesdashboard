@@ -271,7 +271,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <thead><tr><th style="text-align:left">Store</th><th>Net sales</th><th>Sold qty</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Promo%</th><th>Invoices</th><th>Single Inv%</th><th>Return Qty</th><th>Return%</th><th>Markup%</th></tr></thead>
 <tbody>
 <sc-for list="{{r.stores}}" as="s" hint-placeholder-count="3">
-<tr><td style="font-weight:600;white-space:nowrap;padding-left:28px;padding-right:32px;text-align:left">{{s.name}}</td><td style="font-weight:600;white-space:nowrap">{{s.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.promoLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.singleItemPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.returnQtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.returnPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.markupLabel}}</td></tr>
+<tr onClick="{{s.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;padding-left:28px;padding-right:32px;text-align:left">{{s.name}}</td><td style="font-weight:600;white-space:nowrap">{{s.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.promoLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.singleItemPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.returnQtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.returnPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.markupLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -306,7 +306,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <sc-if value="{{r.expanded}}" hint-placeholder-val="{{false}}">
 <div style="display:flex;flex-direction:column;gap:8px;padding-top:6px;border-top:1px solid var(--color-divider)">
 <sc-for list="{{r.stores}}" as="s" hint-placeholder-count="3">
-<div style="display:flex;flex-direction:column;gap:6px;padding:8px;border-radius:var(--radius-sm);background:var(--color-bg)">
+<div onClick="{{s.onClick}}" style="display:flex;flex-direction:column;gap:6px;padding:8px;border-radius:var(--radius-sm);background:var(--color-bg);cursor:pointer">
 <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
 <div style="font-weight:600;font-size:13px">{{s.name}}</div>
 <div style="font-weight:700;font-size:13px;color:var(--color-accent)">{{s.netSalesLabel}}</div>
@@ -729,6 +729,80 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <tr><td style="text-align:left;color:var(--color-neutral-500)">{{r.rank}}</td><sc-if value="{{retDrillHasImages}}" hint-placeholder-val="{{false}}"><td><div style="width:40px;height:40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{r.image}}" hint-placeholder-val="{{false}}"><img src="{{r.image}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></sc-if></div></td></sc-if><td style="text-align:left;font-weight:600;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{r.name}}">{{r.name}}</td><td style="font-weight:600;white-space:nowrap">{{r.qtyLabel}}</td><td style="font-weight:700;white-space:nowrap">{{r.retLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.rateLabel}}</td></tr>
 </sc-for>
 </tbody>
+</table>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{regionStoreOpen}}" hint-placeholder-val="{{false}}">
+<div onClick="{{closeRegionStore}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:var(--space-4);z-index:52">
+<div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:1100px;max-height:82vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5);touch-action:pinch-zoom">
+<div style="display:flex;gap:12px;align-items:center">
+<button onClick="{{closeRegionStore}}" style="border:none;background:none;cursor:pointer;font-size:18px;line-height:1;color:var(--color-neutral-500);padding:4px">←</button>
+<div style="flex:1;min-width:0">
+<div style="font-weight:700;font-size:15px">Day-wise sales — {{regionStoreLabel}}</div>
+<div style="font-size:11px;color:var(--color-neutral-500)">{{regionStorePeriodLabel}}</div>
+</div>
+<button class="btn btn-ghost" onClick="{{openRegionStoreItems}}" style="font-size:12px;padding:6px 10px;white-space:nowrap">Item-wise</button>
+<button onClick="{{closeRegionStore}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px 20px;padding:10px 12px;border-radius:var(--radius-sm);background:var(--color-neutral-100)">
+<div><div class="card-meta">Net sales</div><div style="font-weight:700">{{regionStoreTotals.netSalesLabel}}</div></div>
+<div><div class="card-meta">Sold qty</div><div style="font-weight:700">{{regionStoreTotals.qtyLabel}}</div></div>
+<div><div class="card-meta">ATV</div><div style="font-weight:700">{{regionStoreTotals.atvLabel}}</div></div>
+<div><div class="card-meta">UPT</div><div style="font-weight:700">{{regionStoreTotals.uptLabel}}</div></div>
+<div><div class="card-meta">ASP</div><div style="font-weight:700">{{regionStoreTotals.aspLabel}}</div></div>
+<div><div class="card-meta">Promo%</div><div style="font-weight:700">{{regionStoreTotals.promoLabel}}</div></div>
+<div><div class="card-meta">Invoices</div><div style="font-weight:700">{{regionStoreTotals.invoicesLabel}}</div></div>
+<div><div class="card-meta">Single Inv%</div><div style="font-weight:700">{{regionStoreTotals.singleItemPctLabel}}</div></div>
+<div><div class="card-meta">Return Qty</div><div style="font-weight:700">{{regionStoreTotals.returnQtyLabel}}</div></div>
+<div><div class="card-meta">Return%</div><div style="font-weight:700">{{regionStoreTotals.returnPctLabel}}</div></div>
+<div><div class="card-meta">Markup%</div><div style="font-weight:700">{{regionStoreTotals.markupLabel}}</div></div>
+</div>
+<div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow:auto;flex:1;touch-action:pan-y">
+<table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
+<thead><tr><th style="text-align:left">Date</th><th>Net sales</th><th>Sold qty</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Promo%</th><th>Invoices</th><th>Single Inv%</th><th>Return Qty</th><th>Return%</th><th>Markup%</th></tr></thead>
+<tbody>
+<sc-for list="{{regionStoreRows}}" as="d" hint-placeholder-count="10">
+<tr onClick="{{d.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;text-align:left">{{d.date}}</td><td style="font-weight:600;white-space:nowrap">{{d.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.promoLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.singleItemPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.returnQtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.returnPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{d.markupLabel}}</td></tr>
+</sc-for>
+</tbody>
+<tfoot><tr style="border-top:2px solid var(--color-divider)"><td style="font-weight:700;white-space:nowrap;text-align:left">Total</td><td style="font-weight:700;white-space:nowrap">{{regionStoreTotals.netSalesLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionStoreTotals.qtyLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionStoreTotals.atvLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionStoreTotals.uptLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionStoreTotals.aspLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionStoreTotals.promoLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionStoreTotals.invoicesLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionStoreTotals.singleItemPctLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionStoreTotals.returnQtyLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionStoreTotals.returnPctLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionStoreTotals.markupLabel}}</td></tr></tfoot>
+</table>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{regionStoreItemsOpen}}" hint-placeholder-val="{{false}}">
+<div onClick="{{closeRegionStoreItems}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:var(--space-4);z-index:56">
+<div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:820px;max-height:82vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5);touch-action:pinch-zoom">
+<div style="display:flex;gap:12px;align-items:center">
+<button onClick="{{closeRegionStoreItems}}" style="border:none;background:none;cursor:pointer;font-size:18px;line-height:1;color:var(--color-neutral-500);padding:4px">←</button>
+<div style="flex:1;min-width:0">
+<div style="font-weight:700;font-size:15px">Item-wise sales — {{regionStoreLabel}}</div>
+<div style="font-size:11px;color:var(--color-neutral-500)">{{regionStoreItemsScopeLabel}} · {{regionStoreItemsCountLabel}}</div>
+</div>
+<button onClick="{{closeRegionStoreItems}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px 20px;padding:10px 12px;border-radius:var(--radius-sm);background:var(--color-neutral-100)">
+<div><div class="card-meta">Sold qty</div><div style="font-weight:700">{{regionStoreItemsTotals.qtyLabel}}</div></div>
+<div><div class="card-meta">Net sales</div><div style="font-weight:700">{{regionStoreItemsTotals.netSalesLabel}}</div></div>
+<div><div class="card-meta">ASP</div><div style="font-weight:700">{{regionStoreItemsTotals.aspLabel}}</div></div>
+</div>
+<div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow:auto;flex:1;touch-action:pan-y">
+<table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
+<thead><tr><th>#</th><th></th><th style="text-align:left">Item</th><th>Sold qty</th><th>Net sales</th><th>ASP</th></tr></thead>
+<tbody>
+<sc-for list="{{regionStoreItemRows}}" as="it" hint-placeholder-count="10">
+<tr><td style="color:var(--color-neutral-500)">{{it.rank}}</td>
+<td><img src="{{it.imageSrc}}" alt="" loading="lazy" style="width:40px;height:40px;object-fit:contain;background:var(--color-neutral-100);border-radius:var(--radius-sm);display:block"></td>
+<td style="text-align:left"><div style="font-weight:600">{{it.itemDesc}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{it.itemNo}}</div></td>
+<td style="font-weight:600;white-space:nowrap">{{it.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.aspLabel}}</td></tr>
+</sc-for>
+</tbody>
+<tfoot><tr style="border-top:2px solid var(--color-divider)"><td colspan="3" style="font-weight:700;text-align:left">Total</td><td style="font-weight:700;white-space:nowrap">{{regionStoreItemsTotals.qtyLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionStoreItemsTotals.netSalesLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionStoreItemsTotals.aspLabel}}</td></tr></tfoot>
 </table>
 </div>
 </div>
@@ -5290,7 +5364,8 @@ class Component extends DCLogic {
           returnQtyLabel: this.fmtNum(rawStore.returnQty),
           returnPctLabel: ((rawStore.qty + rawStore.returnQty) ? Math.abs(100 * rawStore.returnQty / (rawStore.qty + rawStore.returnQty)) : 0).toFixed(1) + '%',
           markupLabel: mkp((cost ? 100 * (s.netSales - cost) / cost : 0).toFixed(1) + '%'),
-          singleItemPctLabel: (singleItemByStore.hasOwnProperty(s.code) && s.invoices) ? Math.abs(100 * singleItemByStore[s.code] / s.invoices).toFixed(1) + '%' : '—'
+          singleItemPctLabel: (singleItemByStore.hasOwnProperty(s.code) && s.invoices) ? Math.abs(100 * singleItemByStore[s.code] / s.invoices).toFixed(1) + '%' : '—',
+          onClick: e => { if (e && e.stopPropagation) e.stopPropagation(); this.setState({ selectedRegionStore: s.code, selectedRegionStoreLabel: s.name, tableZoom: 1 }); }
         };
       })
     }));
@@ -5307,6 +5382,81 @@ class Component extends DCLogic {
         markupLabel: mkp((totalCost ? 100 * (t.netSales - totalCost) / totalCost : 0).toFixed(1) + '%')
       };
     })();
+    // region-detail store drill: day-wise, all region-table measures, respects filters
+    let regionStoreRows = [], regionStorePeriodLabel = '';
+    let regionStoreItemRows = [], regionStoreItemsCountLabel = '', regionStoreItemsScopeLabel = '';
+    let regionStoreItemsTotals = { qtyLabel: '—', netSalesLabel: '—', aspLabel: '—' };
+    let regionStoreTotals = { netSalesLabel: '—', qtyLabel: '—', atvLabel: '—', uptLabel: '—', aspLabel: '—', promoLabel: '—', invoicesLabel: '—', singleItemPctLabel: '—', returnQtyLabel: '—', returnPctLabel: '—', markupLabel: '—' };
+    if (st.selectedRegionStore) {
+      const code = st.selectedRegionStore;
+      const singleByDate = {};
+      (st.receiptDay || []).forEach(r => {
+        if (r.store !== code || !inDateRange(r.date)) return;
+        singleByDate[r.date] = (singleByDate[r.date] || 0) + r.singleItemInvoices;
+      });
+      const costByDate = {};
+      st.itemsByStoreDate.forEach(row => {
+        const [store, date, itemNo, , q] = row;
+        if (store !== code || !inDateRange(date)) return;
+        const meta = this.itemMeta[itemNo] || {};
+        costByDate[date] = (costByDate[date] || 0) + (meta.unitCost || 0) * q;
+      });
+      const byDate = {};
+      filteredBuckets.forEach(b => {
+        if (b.store !== code) return;
+        const a = byDate[b.date] || (byDate[b.date] = { date: b.date, netSales: 0, qty: 0, invoices: 0, discountedQty: 0, returnQty: 0 });
+        a.netSales += b.netSales; a.qty += b.qty; a.invoices += b.invoices;
+        a.discountedQty += (b.discountedQty || 0); a.returnQty += (b.returnQty || 0);
+      });
+      const days = Object.values(byDate).sort((a, b) => a.date < b.date ? -1 : 1);
+      const fmtRowRS = (r, cost, single) => ({
+        netSalesLabel: this.fmtMoney(r.netSales), qtyLabel: this.fmtNum(r.qty), invoicesLabel: this.fmtNum(r.invoices),
+        atvLabel: this.fmtMoney(r.invoices ? r.netSales / r.invoices : 0),
+        uptLabel: Math.abs(r.invoices ? r.qty / r.invoices : 0).toFixed(2),
+        aspLabel: this.fmtMoney(r.qty ? r.netSales / r.qty : 0),
+        promoLabel: Math.abs(r.qty ? 100 * r.discountedQty / r.qty : 0).toFixed(1) + '%',
+        singleItemPctLabel: (single !== null && r.invoices) ? Math.abs(100 * single / r.invoices).toFixed(1) + '%' : '—',
+        returnQtyLabel: this.fmtNum(r.returnQty),
+        returnPctLabel: Math.abs((r.qty + r.returnQty) ? 100 * r.returnQty / (r.qty + r.returnQty) : 0).toFixed(1) + '%',
+        markupLabel: mkp((cost ? 100 * (r.netSales - cost) / cost : 0).toFixed(1) + '%')
+      });
+      regionStoreRows = days.map(r => ({
+        date: r.date,
+        ...fmtRowRS(r, costByDate[r.date] || 0, singleByDate.hasOwnProperty(r.date) ? singleByDate[r.date] : null),
+        onClick: () => this.setState({ selectedRegionStoreDate: r.date, tableZoom: 1 })
+      }));
+      const t = days.reduce((a, r) => ({ netSales: a.netSales + r.netSales, qty: a.qty + r.qty, invoices: a.invoices + r.invoices, discountedQty: a.discountedQty + r.discountedQty, returnQty: a.returnQty + r.returnQty }), { netSales: 0, qty: 0, invoices: 0, discountedQty: 0, returnQty: 0 });
+      const totalCost = Object.values(costByDate).reduce((a, c) => a + c, 0);
+      const singleVals = Object.keys(singleByDate);
+      const totalSingle = singleVals.length ? singleVals.reduce((a, k) => a + singleByDate[k], 0) : null;
+      regionStoreTotals = fmtRowRS(t, totalCost, totalSingle);
+      regionStorePeriodLabel = days.length + (days.length === 1 ? ' trading day' : ' trading days');
+      if (st.selectedRegionStoreDate || st.regionStoreItemsAll) {
+        const oneDate = st.selectedRegionStoreDate || null;
+        const blankImgRS = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect width="40" height="40" fill="%23252b3a"/%3E%3C/svg%3E';
+        const exclRS = new Set(['99-939', '99-940', '99-941', 'SRV-004', 'SRV-003']);
+        const aggRS = {};
+        (st.itemsByStoreDate || []).forEach(([store, date, itemNo, netSales, q]) => {
+          if (store !== code) return;
+          if (oneDate ? date !== oneDate : !inDateRange(date)) return;
+          if (exclRS.has(itemNo) || String(itemNo).startsWith('SRV-')) return;
+          const meta = this.itemMeta[itemNo] || {};
+          const a = aggRS[itemNo] || (aggRS[itemNo] = { itemNo, itemDesc: meta.itemDesc || itemNo, image: meta.image || '', qty: 0, netSales: 0 });
+          a.qty += q; a.netSales += netSales;
+        });
+        const allRS = Object.values(aggRS).sort((a, b) => b.netSales - a.netSales);
+        regionStoreItemRows = allRS.map((it, i) => ({
+          ...it, rank: i + 1, imageSrc: it.image || blankImgRS,
+          qtyLabel: this.fmtNum(it.qty), netSalesLabel: this.fmtMoney(it.netSales),
+          aspLabel: this.fmtMoney(it.qty ? it.netSales / it.qty : 0)
+        }));
+        const tiRS = allRS.reduce((a, it) => ({ qty: a.qty + it.qty, netSales: a.netSales + it.netSales }), { qty: 0, netSales: 0 });
+        regionStoreItemsTotals = { qtyLabel: this.fmtNum(tiRS.qty), netSalesLabel: this.fmtMoney(tiRS.netSales), aspLabel: this.fmtMoney(tiRS.qty ? tiRS.netSales / tiRS.qty : 0) };
+        regionStoreItemsCountLabel = allRS.length + (allRS.length === 1 ? ' SKU sold' : ' SKUs sold');
+        regionStoreItemsScopeLabel = oneDate || regionStorePeriodLabel;
+      }
+    }
+
     // ===== YOY comparison page =====
     const yf = st.yoyFilters;
     const Y = st.yoy;
@@ -6061,6 +6211,13 @@ class Component extends DCLogic {
       wholesaleDailyRows,
       wholesaleUndatedLabel: wholesaleUndated ? this.fmtMoney(wholesaleUndated) : '',
       regionSorted: regionRows, regionTotals,
+      regionStoreOpen: !!st.selectedRegionStore,
+      regionStoreLabel: st.selectedRegionStoreLabel, regionStoreRows, regionStoreTotals, regionStorePeriodLabel,
+      closeRegionStore: () => this.setState({ selectedRegionStore: null, selectedRegionStoreDate: null, regionStoreItemsAll: false, tableZoom: 1 }),
+      regionStoreItemsOpen: !!(st.selectedRegionStore && (st.selectedRegionStoreDate || st.regionStoreItemsAll)),
+      regionStoreItemRows, regionStoreItemsTotals, regionStoreItemsCountLabel, regionStoreItemsScopeLabel,
+      openRegionStoreItems: () => this.setState({ regionStoreItemsAll: true, selectedRegionStoreDate: null, tableZoom: 1 }),
+      closeRegionStoreItems: () => this.setState({ selectedRegionStoreDate: null, regionStoreItemsAll: false, tableZoom: 1 }),
       dailySorted: dailyRows, dailyKpiCards,
       kpiCards, dailyBars, dailyTrend, regionBars, topStores, topCategories, topStoresKpi,
       chartRangeLabel: f.dateRange ? (f.dateRange.start + ' \u2013 ' + f.dateRange.end) : (chartMonth ? new Date(chartMonth + '-02').toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'current month'),
