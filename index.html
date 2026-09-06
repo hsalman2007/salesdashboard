@@ -21,6 +21,13 @@ a:hover{color:var(--color-accent-300)}
 body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[data-lang="ar"] h3, body[data-lang="ar"] .btn, body[data-lang="ar"] .input, body[data-lang="ar"] label, body[data-lang="ar"] th, body[data-lang="ar"] td{font-family:'IBM Plex Sans Arabic',var(--font-body)}
 /* Light re-theme — same blurple accent family as Nocturne, flipped to a light ground */
 :root{
+  /* Nocturne defines --space-1..4, 6, 8 only; these fill the gaps the layout uses */
+  --space-5:14px;
+  --radius-pill:999px;
+  --color-neutral-0:#ffffff;
+  --space-7:19.6px;
+  --space-9:25.2px;
+  --space-10:28px;
   --color-bg:#f3f7f6;
   --color-surface:#ffffff;
   --color-text:#182220;
@@ -1042,6 +1049,237 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </div>
 </sc-if>
 </section>
+</sc-if>
+
+<sc-if value="{{isConsumables}}" hint-placeholder-val="{{false}}">
+<section>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:var(--space-4)">
+<sc-for list="{{consTabs}}" as="t" hint-placeholder-count="3">
+<button onClick="{{t.onClick}}" style="cursor:pointer;white-space:nowrap;padding:8px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;background:{{t.bg}};color:{{t.color}};border:{{t.border}}">{{t.label}}</button>
+</sc-for>
+</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:var(--space-4)">
+<div style="font-size:12px;color:var(--color-neutral-500)">Items</div>
+<sc-for list="{{consSkuChips}}" as="c" hint-placeholder-count="3">
+<button onClick="{{c.onClick}}" style="cursor:pointer;white-space:nowrap;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:600;background:{{c.bg}};color:{{c.color}};border:{{c.border}}">{{c.label}}</button>
+</sc-for>
+</div>
+
+<sc-if value="{{consIsDaily}}" hint-placeholder-val="{{true}}">
+<div style="display:flex;gap:var(--space-4);flex-wrap:wrap;margin-bottom:var(--space-5)">
+<div class="card elev-sm" style="flex:1 1 150px;min-width:0"><div class="card-kicker">Total billed</div><div style="font-size:20px;font-weight:700;margin-top:4px">{{consDailyTotal}}</div><div style="font-size:11px;color:var(--color-neutral-500);margin-top:2px">bags, net of returns</div></div>
+<div class="card elev-sm" style="flex:1 1 150px;min-width:0"><div class="card-kicker">Invoices</div><div style="font-size:20px;font-weight:700;margin-top:4px">{{consDailyInvoices}}</div><div style="font-size:11px;color:var(--color-neutral-500);margin-top:2px">all invoices in filter</div></div>
+<div class="card elev-sm" style="flex:1 1 150px;min-width:0"><div class="card-kicker">Bags / invoice</div><div style="font-size:20px;font-weight:700;margin-top:4px">{{consDailyPerInv}}</div><div style="font-size:11px;color:var(--color-neutral-500);margin-top:2px">per bag-carrying invoice</div></div>
+<div class="card elev-sm" style="flex:1 1 150px;min-width:0"><div class="card-kicker">Attach rate</div><div style="font-size:20px;font-weight:700;margin-top:4px">{{consDailyAttach}}</div><div style="font-size:11px;color:var(--color-neutral-500);margin-top:2px">invoices with a bag</div></div>
+</div>
+<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:var(--space-3)">
+<button class="btn btn-secondary" onClick="{{toggleConsBulk}}" style="white-space:nowrap">{{consExclBulkLabel}}</button>
+<div style="font-size:12px;color:var(--color-neutral-500)">{{consBulkNote}}</div>
+</div>
+<div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4)">Small 35×25 · Medium 45×35 · Big 55×45 — click a store for its day-wise bag count. Attach rate counts invoices carrying at least one bag size.</div>
+<sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
+<div style="overflow-x:auto">
+<table class="table">
+<thead><tr><th style="text-align:left">Store</th><th style="white-space:nowrap">Small</th><th style="white-space:nowrap">Medium</th><th style="white-space:nowrap">Big</th><th style="white-space:nowrap">Total</th><th style="white-space:nowrap">Invoices</th><th style="white-space:nowrap">Bags/Inv</th><th style="white-space:nowrap">Attach%</th></tr></thead>
+<tbody>
+<sc-for list="{{consDailyRows}}" as="r" hint-placeholder-count="10">
+<tr onClick="{{r.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;text-align:left">{{r.storeName}}</td><td style="font-weight:600">{{r.smallLabel}}</td><td style="font-weight:600">{{r.mediumLabel}}</td><td style="font-weight:600">{{r.largeLabel}}</td><td style="font-weight:700;color:var(--color-accent-300)">{{r.totalLabel}}</td><td style="font-weight:600">{{r.invoicesLabel}}</td><td style="font-weight:600">{{r.perInvLabel}}</td><td style="font-weight:600">{{r.attachLabel}}</td></tr>
+</sc-for>
+<tr style="border-top:2px solid var(--color-neutral-700)"><td style="font-weight:700;text-align:left">Total</td><td style="font-weight:700">{{consDailySmall}}</td><td style="font-weight:700">{{consDailyMedium}}</td><td style="font-weight:700">{{consDailyLarge}}</td><td style="font-weight:700;color:var(--color-accent-300)">{{consDailyTotal}}</td><td style="font-weight:700">{{consDailyInvoices}}</td><td style="font-weight:700">{{consDailyPerInv}}</td><td style="font-weight:700">{{consDailyAttach}}</td></tr>
+</tbody>
+</table>
+</div>
+</sc-if>
+<sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{consDailyRows}}" as="r" hint-placeholder-count="8">
+<div onClick="{{r.onClick}}" class="card elev-sm" style="display:flex;flex-direction:column;gap:10px;cursor:pointer">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+<div style="font-weight:700;font-size:15px">{{r.storeName}}</div>
+<div style="font-weight:700;font-size:17px;color:var(--color-accent);white-space:nowrap">{{r.totalLabel}}</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px 16px;font-size:13px">
+<div><div class="card-meta">Small</div><div style="font-weight:600">{{r.smallLabel}}</div></div>
+<div><div class="card-meta">Medium</div><div style="font-weight:600">{{r.mediumLabel}}</div></div>
+<div><div class="card-meta">Big</div><div style="font-weight:600">{{r.largeLabel}}</div></div>
+<div><div class="card-meta">Bags/Inv</div><div style="font-weight:600">{{r.perInvLabel}}</div></div>
+<div><div class="card-meta">Attach%</div><div style="font-weight:600">{{r.attachLabel}}</div></div>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{consDailyEmpty}}" hint-placeholder-val="{{false}}">
+<div class="card elev-sm" style="text-align:center;color:var(--color-neutral-500);font-size:13px">No bag quantities in the current filter.</div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{consIsByInvoice}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;gap:var(--space-4);flex-wrap:wrap;margin-bottom:var(--space-5)">
+<div class="card elev-sm" style="flex:1 1 150px;min-width:0"><div class="card-kicker">Bags billed</div><div style="font-size:20px;font-weight:700;margin-top:4px">{{consInvTotalBags}}</div></div>
+<div class="card elev-sm" style="flex:1 1 150px;min-width:0"><div class="card-kicker">Invoices with bags</div><div style="font-size:20px;font-weight:700;margin-top:4px">{{consInvTotalInvoices}}</div></div>
+<div class="card elev-sm" style="flex:1 1 150px;min-width:0"><div class="card-kicker">All invoices</div><div style="font-size:20px;font-weight:700;margin-top:4px">{{consInvAllInvoices}}</div></div>
+<div class="card elev-sm" style="flex:1 1 150px;min-width:0"><div class="card-kicker">Bags / invoice</div><div style="font-size:20px;font-weight:700;margin-top:4px">{{consInvPerInv}}</div></div>
+</div>
+<div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4)">{{consCovNote}} · click a card for its invoices, then an invoice for its items.</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:var(--space-4)">
+<sc-for list="{{consStoreCards}}" as="s" hint-placeholder-count="8">
+<div onClick="{{s.onClick}}" class="card elev-sm" style="cursor:pointer;display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+<div style="font-weight:700;font-size:15px">{{s.storeName}}</div>
+<div style="font-weight:700;font-size:18px;color:var(--color-accent);white-space:nowrap">{{s.bagQtyLabel}}</div>
+</div>
+<div style="font-size:12px;color:var(--color-neutral-500)">{{s.mixLabel}}</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px 16px;font-size:13px">
+<div><div class="card-meta">Bag invoices</div><div style="font-weight:600">{{s.bagInvoicesLabel}}</div></div>
+<div><div class="card-meta">All invoices</div><div style="font-weight:600">{{s.invoicesLabel}}</div></div>
+<div><div class="card-meta">Bags/Inv</div><div style="font-weight:600">{{s.perInvLabel}}</div></div>
+<div><div class="card-meta">Attach%</div><div style="font-weight:600">{{s.attachLabel}}</div></div>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{consIsStoreInv}}" hint-placeholder-val="{{false}}">
+<div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4)">{{consCovNote}} · click a store to see every invoice with all its items and pictures.</div>
+<sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
+<div style="overflow-x:auto">
+<table class="table">
+<thead><tr><th style="text-align:left">Store</th><th>Bags billed</th><th>Bag invoices</th><th>All invoices</th><th>Bags/Inv</th><th>Attach%</th></tr></thead>
+<tbody>
+<sc-for list="{{consStoreCards}}" as="s" hint-placeholder-count="10">
+<tr onClick="{{s.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;text-align:left">{{s.storeName}}</td><td style="font-weight:700;color:var(--color-accent-300)">{{s.bagQtyLabel}}</td><td style="font-weight:600">{{s.bagInvoicesLabel}}</td><td style="font-weight:600">{{s.invoicesLabel}}</td><td style="font-weight:600">{{s.perInvLabel}}</td><td style="font-weight:600">{{s.attachLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</sc-if>
+<sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{consStoreCards}}" as="s" hint-placeholder-count="8">
+<div onClick="{{s.onClick}}" class="card elev-sm" style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;cursor:pointer">
+<div><div style="font-weight:700;font-size:15px">{{s.storeName}}</div><div style="font-size:12px;color:var(--color-neutral-500)">{{s.mixLabel}}</div></div>
+<div style="font-weight:700;font-size:17px;color:var(--color-accent);white-space:nowrap">{{s.bagQtyLabel}}</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{consLoading}}" hint-placeholder-val="{{false}}">
+<div class="card elev-sm" style="text-align:center;color:var(--color-neutral-500);font-size:13px;margin-top:var(--space-4)">Loading invoice-level data…</div>
+</sc-if>
+<sc-if value="{{consMissing}}" hint-placeholder-val="{{false}}">
+<div class="card elev-sm" style="text-align:center;color:var(--color-neutral-500);font-size:13px;margin-top:var(--space-4)">Invoice-level bag data is not available. Re-import the raw transaction files to build it.</div>
+</sc-if>
+</section>
+</sc-if>
+
+<sc-if value="{{consDayOpen}}" hint-placeholder-val="{{false}}">
+<div onClick="{{closeConsDay}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:var(--space-4);z-index:50">
+<div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:680px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5);touch-action:pinch-zoom">
+<div style="display:flex;gap:12px;align-items:center">
+<button onClick="{{closeConsDay}}" style="border:none;background:none;cursor:pointer;font-size:18px;line-height:1;color:var(--color-neutral-500);padding:4px">←</button>
+<div style="flex:1;min-width:0;font-weight:700;font-size:15px">Bags punched day-wise — {{consDayLabel}}</div>
+<button onClick="{{closeConsDay}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
+</div>
+<div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow-y:auto;overflow-x:hidden;flex:1;touch-action:pan-y">
+<table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
+<thead><tr><th style="text-align:left">Date</th><th>Small</th><th>Medium</th><th>Big</th><th>Total</th></tr></thead>
+<tbody>
+<sc-for list="{{consDayRows}}" as="d" hint-placeholder-count="10">
+<tr><td style="font-weight:600;white-space:nowrap;text-align:left">{{d.date}}</td><td style="font-weight:600">{{d.smallLabel}}</td><td style="font-weight:600">{{d.mediumLabel}}</td><td style="font-weight:600">{{d.largeLabel}}</td><td style="font-weight:700;color:var(--color-accent-300)">{{d.totalLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{consInvOpen}}" hint-placeholder-val="{{false}}">
+<div onClick="{{closeConsInv}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:var(--space-4);z-index:52">
+<div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:820px;max-height:82vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5)">
+<div style="display:flex;gap:12px;align-items:center">
+<button onClick="{{closeConsInv}}" style="border:none;background:none;cursor:pointer;font-size:18px;line-height:1;color:var(--color-neutral-500);padding:4px">←</button>
+<div style="flex:1;min-width:0;font-weight:700;font-size:15px">Invoices — {{consInvLabel}}</div>
+<button onClick="{{closeConsInv}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
+</div>
+<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+<div style="flex:1;min-width:0;font-size:12px;color:var(--color-neutral-500)">{{consInvCountLabel}}</div>
+<sc-if value="{{consInvHasPages}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;align-items:center;gap:8px">
+<button class="btn btn-secondary" onClick="{{consInvPrev}}" disabled="{{consInvPrevDisabled}}" style="white-space:nowrap">← Prev</button>
+<div style="font-size:12px;color:var(--color-neutral-500);white-space:nowrap">{{consInvPageLabel}}</div>
+<button class="btn btn-secondary" onClick="{{consInvNext}}" disabled="{{consInvNextDisabled}}" style="white-space:nowrap">Next →</button>
+</div>
+</sc-if>
+</div>
+<sc-if value="{{consIsByInvoice}}" hint-placeholder-val="{{true}}">
+<div style="overflow:auto;flex:1">
+<table class="table">
+<thead><tr><th style="text-align:left">Invoice</th><th style="text-align:left">Date</th><th>Bags</th><th>By size</th><th>Lines</th><th>Units</th></tr></thead>
+<tbody>
+<sc-for list="{{consInvoiceRows}}" as="iv" hint-placeholder-count="12">
+<tr onClick="{{iv.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;text-align:left">{{iv.receipt}}</td><td style="white-space:nowrap;text-align:left">{{iv.date}}</td><td style="font-weight:700;color:{{iv.bagColor}}">{{iv.bagQtyLabel}}</td><td style="font-size:12px;white-space:nowrap">{{iv.sizeLabel}}</td><td style="font-weight:600">{{iv.linesLabel}}</td><td style="font-weight:600">{{iv.unitsLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</sc-if>
+<sc-if value="{{consIsStoreInv}}" hint-placeholder-val="{{false}}">
+<div style="overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:12px">
+<sc-for list="{{consInvoiceRows}}" as="iv" hint-placeholder-count="6">
+<div class="card elev-sm" style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap">
+<div style="font-weight:700;font-size:14px">Invoice {{iv.receipt}} · {{iv.date}}</div>
+<div style="font-size:12px;color:var(--color-neutral-500)">{{iv.linesLabel}} lines · {{iv.unitsLabel}} units · bags {{iv.bagQtyLabel}} ({{iv.sizeLabel}})</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{iv.items}}" as="it" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:10px">
+<img src="{{it.imageSrc}}" loading="lazy" decoding="async" style="width:40px;height:40px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block;flex:0 0 auto">
+<div style="flex:1;min-width:0">
+<div style="font-size:13px;font-weight:600;text-wrap:pretty">{{it.itemDesc}}</div>
+<div style="font-size:11px;color:var(--color-neutral-500)">{{it.sku}}</div>
+</div>
+<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;padding:2px 6px;border-radius:4px;background:{{it.tagBg}};color:{{it.tagColor}}">{{it.tagLabel}}</div>
+<div style="font-weight:700;font-size:14px;white-space:nowrap">×{{it.qtyLabel}}</div>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{consItemOpen}}" hint-placeholder-val="{{false}}">
+<div onClick="{{closeConsItem}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:var(--space-4);z-index:55">
+<div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:600px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5)">
+<div style="display:flex;gap:12px;align-items:center">
+<button onClick="{{closeConsItem}}" style="border:none;background:none;cursor:pointer;font-size:18px;line-height:1;color:var(--color-neutral-500);padding:4px">←</button>
+<div style="flex:1;min-width:0;font-weight:700;font-size:15px">Invoice {{consItemLabel}} — items</div>
+<button onClick="{{closeConsItem}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
+</div>
+<div style="overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{consInvoiceItems}}" as="it" hint-placeholder-count="4">
+<div style="display:flex;align-items:center;gap:12px">
+<img src="{{it.imageSrc}}" loading="lazy" decoding="async" style="width:52px;height:52px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block;flex:0 0 auto">
+<div style="flex:1;min-width:0">
+<div style="font-size:14px;font-weight:600;text-wrap:pretty">{{it.itemDesc}}</div>
+<div style="font-size:11px;color:var(--color-neutral-500)">{{it.sku}}</div>
+</div>
+<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;padding:2px 6px;border-radius:4px;background:{{it.tagBg}};color:{{it.tagColor}}">{{it.tagLabel}}</div>
+<div style="font-weight:700;font-size:15px;white-space:nowrap">×{{it.qtyLabel}}</div>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
 </sc-if>
 
 <sc-if value="{{dailyDetailOpen}}" hint-placeholder-val="{{false}}">
@@ -2800,7 +3038,10 @@ class Component extends DCLogic {
     this.setState({ lang });
   };
 
-  componentDidUpdate() { this._scheduleLang(); }
+  componentDidUpdate() {
+    this._scheduleLang();
+    if (this.state.page === 'consumables' && !this.state.bagInvoices && !this.state.bagLoading && (this._bagTries || 0) < 4) this._ensureBagInvoices();
+  }
 
   componentDidMount() {
     try {
@@ -3288,7 +3529,7 @@ class Component extends DCLogic {
     return name;
   }
 
-  goTo(page) { return () => { if (page === 'linkSales' && !this.state.auth) return; if (page === 'yoy') this._ensureYoy(); if (page === 'linkSales') this._ensureLinkPairs(); this.setState({ page }); }; }
+  goTo(page) { return () => { if (page === 'linkSales' && !this.state.auth) return; if (page === 'yoy') this._ensureYoy(); if (page === 'linkSales') this._ensureLinkPairs(); if (page === 'consumables') this._ensureBagInvoices(); this.setState({ page }); }; }
 
   // ===== Daily snapshot (admin / mathew only) =====
   snapshotData(date) {
@@ -4040,6 +4281,174 @@ class Component extends DCLogic {
   doLogout() {
     localStorage.removeItem('stcRegionAuth');
     this.setState({ auth: null, page: 'overview', filters: { ...this.state.filters, region: 'All', city: 'All', store: 'All' } });
+  }
+
+  async _ensureBagInvoices() {
+    if (this.state.bagInvoices || this.state.bagLoading) return;
+    this._bagTries = (this._bagTries || 0) + 1;
+    this.setState({ bagLoading: true });
+    try {
+      const r = await fetch('data/bag-invoices.json');
+      const d = r.ok ? await r.json() : null;
+      if (Array.isArray(d)) this.setState({ bagInvoices: d, bagFailed: false, bagLoading: false });
+      else this.setState({ bagFailed: this._bagTries >= 4, bagLoading: false });
+    } catch (e) {
+      this.setState({ bagFailed: this._bagTries >= 4, bagLoading: false });
+    }
+  }
+
+  // ===== Consumables (shopping bags 99-939 / 99-940 / 99-941) =====
+  consumablesData() {
+    const st = this.state, f = st.filters || {};
+    const SIZE = { '99-939': 'small', '99-940': 'medium', '99-941': 'large' };
+    const sel = st.consSkus && st.consSkus.length ? st.consSkus : ['99-939', '99-940', '99-941'];
+    const selSet = new Set(sel);
+    const blank = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect width="40" height="40" fill="%23252b3a"/%3E%3C/svg%3E';
+    const inDateRange = d => (f.month === 'All' || !f.month || d.slice(0, 7) === f.month) && (!f.dateRange || (d >= f.dateRange.start && d <= f.dateRange.end));
+    const storeOk = code => {
+      const sm = this.storeIndex[code] || {};
+      if ((sm.type || 'Store') !== 'Store') return false;
+      if (f.region !== 'All' && sm.region !== f.region) return false;
+      if (f.city !== 'All' && sm.city !== f.city) return false;
+      if (f.store !== 'All' && code !== f.store) return false;
+      return true;
+    };
+    // a single line punching hundreds of bags is a stock transfer / bulk issue, not retail bagging
+    const BULK = 200;
+    const exclBulk = st.consExclBulk !== false;
+    const nameOf = c => { const sm = this.storeIndex[c] || {}; return sm.shortName || sm.nameEn || c; };
+    const imgOf = sku => { const im = (this.itemMeta[sku] || {}).image; return (im && im !== '0') ? im : blank; };
+    const descOf = sku => (this.itemMeta[sku] || {}).itemDesc || sku;
+
+    // --- view 1: Daily Punched — storewise qty billed by size, from the daily item aggregate
+    const agg = {};
+    (st.itemsByStoreDate || []).forEach(([store, date, itemNo, , qty, invoices, returnQty]) => {
+      if (!SIZE[itemNo] || !selSet.has(itemNo)) return;
+      if (!storeOk(store) || !inDateRange(date)) return;
+      const a = agg[store] || (agg[store] = { code: store, storeName: nameOf(store), small: 0, medium: 0, large: 0, bagInv: 0, bulk: 0 });
+      const net = (qty || 0) - (returnQty || 0);
+      if (exclBulk && net > BULK) { a.bulk += net; return; }
+      a[SIZE[itemNo]] += net;
+      a.bagInv += (invoices || 0);
+    });
+    const invByStore = {};
+    (st.buckets || []).forEach(b => {
+      if (!storeOk(b.store) || !inDateRange(b.date)) return;
+      invByStore[b.store] = (invByStore[b.store] || 0) + (b.invoices || 0);
+    });
+    let dailyRows = Object.values(agg).map(a => {
+      const total = a.small + a.medium + a.large;
+      const storeInv = invByStore[a.code] || 0;
+      const bagInv = Math.min(a.bagInv, storeInv || a.bagInv);
+      return {
+        ...a, total, storeInv, bagInv,
+        smallLabel: this.fmtNum(a.small), mediumLabel: this.fmtNum(a.medium), largeLabel: this.fmtNum(a.large),
+        totalLabel: this.fmtNum(total),
+        invoicesLabel: this.fmtNum(storeInv),
+        perInvLabel: bagInv ? (total / bagInv).toFixed(2) : '—',
+        attachLabel: storeInv ? (100 * bagInv / storeInv).toFixed(1) + '%' : '—',
+        onClick: () => this.setState({ consDayStore: a.code, consDayStoreLabel: a.storeName })
+      };
+    }).sort((x, y) => y.total - x.total);
+    dailyRows = dailyRows.filter(r => r.total > 0 || r.bulk > 0);
+    const consTotals = dailyRows.reduce((t, r) => {
+      t.small += r.small; t.medium += r.medium; t.large += r.large; t.total += r.total; t.storeInv += r.storeInv; t.bagInv += r.bagInv; t.bulk += (r.bulk || 0); return t;
+    }, { small: 0, medium: 0, large: 0, total: 0, storeInv: 0, bagInv: 0, bulk: 0 });
+
+    // day-wise drill for one store
+    let consDayRows = [];
+    if (st.consDayStore) {
+      const byDate = {};
+      (st.itemsByStoreDate || []).forEach(([store, date, itemNo, , qty, , returnQty]) => {
+        if (store !== st.consDayStore || !SIZE[itemNo] || !selSet.has(itemNo) || !inDateRange(date)) return;
+        const d = byDate[date] || (byDate[date] = { date, small: 0, medium: 0, large: 0 });
+        const net = (qty || 0) - (returnQty || 0);
+        if (exclBulk && net > BULK) return;
+        d[SIZE[itemNo]] += net;
+      });
+      consDayRows = Object.values(byDate).sort((a, b) => a.date < b.date ? 1 : -1).map(d => ({
+        ...d, total: d.small + d.medium + d.large,
+        smallLabel: this.fmtNum(d.small), mediumLabel: this.fmtNum(d.medium), largeLabel: this.fmtNum(d.large),
+        totalLabel: this.fmtNum(d.small + d.medium + d.large)
+      }));
+    }
+
+    // --- views 2 & 3: invoice-level
+    const BI = st.bagInvoices;
+    let storeCards = [], invoiceRows = [], invoiceItems = [], covNote = '', invTotals = null;
+    let invPage = 0, invPageCount = 1, invPageLabel = '', invTotalRows = 0;
+    if (BI) {
+      const dates = [];
+      const byStore = {};
+      BI.forEach(([store, date, receipt, items]) => {
+        if (!storeOk(store) || !inDateRange(date)) return;
+        dates.push(date);
+        let bagQty = 0, sizes = { small: 0, medium: 0, large: 0 }, units = 0;
+        items.forEach(([sku, q]) => {
+          units += q;
+          if (SIZE[sku] && selSet.has(sku) && !(exclBulk && q > BULK)) { bagQty += q; sizes[SIZE[sku]] += q; }
+        });
+        const s = byStore[store] || (byStore[store] = { code: store, storeName: nameOf(store), invoices: 0, bagInvoices: 0, bagQty: 0, small: 0, medium: 0, large: 0, list: [] });
+        s.invoices++; s.bagQty += bagQty; s.small += sizes.small; s.medium += sizes.medium; s.large += sizes.large;
+        if (bagQty > 0) s.bagInvoices++;
+        s.list.push({ receipt, date, bagQty, sizes, units, items });
+      });
+      const ds = [...new Set(dates)].sort();
+      covNote = ds.length ? 'Invoice-level data covers ' + ds[0] + ' → ' + ds[ds.length - 1] + ' · ' + this.fmtNum(BI.length) + ' invoices on file' : 'No invoices in the current filter range';
+      storeCards = Object.values(byStore).sort((a, b) => b.bagQty - a.bagQty).map(s => ({
+        code: s.code, storeName: s.storeName,
+        bagQtyLabel: this.fmtNum(s.bagQty),
+        bagInvoicesLabel: this.fmtNum(s.bagInvoices),
+        invoicesLabel: this.fmtNum(s.invoices),
+        perInvLabel: s.bagInvoices ? (s.bagQty / s.bagInvoices).toFixed(2) : '—',
+        attachLabel: s.invoices ? (100 * s.bagInvoices / s.invoices).toFixed(1) + '%' : '—',
+        mixLabel: 'S ' + this.fmtNum(s.small) + ' · M ' + this.fmtNum(s.medium) + ' · L ' + this.fmtNum(s.large),
+        onClick: () => this.setState({ consInvStore: s.code, consInvStoreLabel: s.storeName, consInvoice: null, consInvPage: 0 })
+      }));
+      invTotals = Object.values(byStore).reduce((t, s) => {
+        t.bagQty += s.bagQty; t.bagInvoices += s.bagInvoices; t.invoices += s.invoices; return t;
+      }, { bagQty: 0, bagInvoices: 0, invoices: 0 });
+
+      if (st.consInvStore && byStore[st.consInvStore]) {
+        const all = byStore[st.consInvStore].list
+          .sort((a, b) => (b.bagQty - a.bagQty) || (a.date < b.date ? 1 : -1));
+        const per = 25;
+        invPageCount = Math.max(1, Math.ceil(all.length / per));
+        invPage = Math.min(st.consInvPage || 0, invPageCount - 1);
+        invTotalRows = all.length;
+        const list = all.slice(invPage * per, invPage * per + per);
+        invPageLabel = all.length
+          ? (invPage * per + 1) + '–' + Math.min(all.length, invPage * per + per) + ' of ' + this.fmtNum(all.length)
+          : 'No invoices';
+        invoiceRows = list.map(iv => ({
+          receipt: iv.receipt, date: iv.date,
+          bagQtyLabel: this.fmtNum(iv.bagQty),
+          sizeLabel: 'S ' + iv.sizes.small + ' / M ' + iv.sizes.medium + ' / L ' + iv.sizes.large,
+          linesLabel: this.fmtNum(iv.items.length),
+          unitsLabel: this.fmtNum(iv.units),
+          bagColor: iv.bagQty > 0 ? 'var(--color-accent-300)' : 'var(--color-neutral-500)',
+          items: iv.items.map(([sku, q]) => ({
+            sku, itemDesc: descOf(sku), qtyLabel: this.fmtNum(q),
+            imageSrc: imgOf(sku),
+            isBag: !!SIZE[sku],
+            tagBg: SIZE[sku] ? 'var(--color-accent-800)' : 'transparent',
+            tagColor: SIZE[sku] ? 'var(--color-accent-300)' : 'var(--color-neutral-500)',
+            tagLabel: SIZE[sku] ? 'BAG' : ''
+          })),
+          onClick: () => this.setState({ consInvoice: iv.receipt + '|' + iv.date })
+        }));
+        if (st.consInvoice) {
+          const hit = invoiceRows.find(r => r.receipt + '|' + r.date === st.consInvoice);
+          invoiceItems = hit ? hit.items : [];
+        }
+      }
+    }
+
+    return {
+      dailyRows, consTotals, consDayRows, storeCards, invoiceRows, invoiceItems, covNote, invTotals,
+      invPage, invPageCount, invPageLabel, invTotalRows,
+      selSet: sel
+    };
   }
 
   matchesFilters(b) {
@@ -5881,9 +6290,9 @@ class Component extends DCLogic {
       if (L.drill) this._lastLinkDrill = L.drill;
       if (L.suggested) this._lastLinkSuggested = { rows: L.suggested.rows, subtitle: (st.linkMonth === 'All' ? 'All months' : st.linkMonth) + ' · ' + this.fmtNum(L.baskets) + ' multi-item invoices · min ' + st.linkMinCount + ' baskets · ranked by revenue headroom · basket counts are upper bounds (pairwise minimum)' };
     }
-    const titles = { snapshot: 'Daily Snapshot', overview: 'Executive Overview', stores: 'Branch Comparison', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', hourlySales: 'Hourly Sales', wholesale: 'Wholesale', daily: 'Daily Sales', regionDetail: 'Region Detail', stcQitaf: 'STC Qitaf', yoy: 'YOY Comparison', linkSales: 'Link Sales' };
-    const shortTitles = { snapshot: 'Snapshot', overview: 'Overview', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily', regionDetail: 'Region', hourlySales: 'Hourly', wholesale: 'Wholesale', stcQitaf: 'Qitaf', yoy: 'YOY', linkSales: 'Link' };
-    const navIcons = { snapshot: '☷', overview: '▣', categories: '▤', items: '◫', discounts: '%', invoices: '⌂', daily: '◷', regionDetail: '◈', hourlySales: '◔', wholesale: '◊', stcQitaf: '⊙', yoy: '⇄', linkSales: '⧉' };
+    const titles = { snapshot: 'Daily Snapshot', overview: 'Executive Overview', stores: 'Branch Comparison', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', hourlySales: 'Hourly Sales', wholesale: 'Wholesale', daily: 'Daily Sales', regionDetail: 'Region Detail', stcQitaf: 'STC Qitaf', yoy: 'YOY Comparison', linkSales: 'Link Sales', consumables: 'Consumables' };
+    const shortTitles = { snapshot: 'Snapshot', overview: 'Overview', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily', regionDetail: 'Region', hourlySales: 'Hourly', wholesale: 'Wholesale', stcQitaf: 'Qitaf', yoy: 'YOY', linkSales: 'Link', consumables: 'Bags' };
+    const navIcons = { snapshot: '☷', overview: '▣', categories: '▤', items: '◫', discounts: '%', invoices: '⌂', daily: '◷', regionDetail: '◈', hourlySales: '◔', wholesale: '◊', stcQitaf: '⊙', yoy: '⇄', linkSales: '⧉', consumables: '▧' };
     const isSnapshotUser = !!(st.auth && (st.auth.id === 'admin' || st.auth.id === 'mathew'));
     const isAdminUser = !!(st.auth && st.auth.id === 'admin');
     const snapDates = [...new Set((st.buckets || []).map(r => r.date))].sort().reverse();
@@ -5920,8 +6329,31 @@ class Component extends DCLogic {
         });
       }
     }
-    const pageOrder = [...(isSnapshotUser ? ['snapshot'] : []), 'overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'hourlySales', 'yoy', 'linkSales', 'wholesale', 'stcQitaf'].filter(p => !(st.auth && st.auth.region !== 'All' && p === 'wholesale'));
+    const pageOrder = [...(isSnapshotUser ? ['snapshot'] : []), 'overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'hourlySales', 'yoy', 'linkSales', 'consumables', 'wholesale', 'stcQitaf'].filter(p => !(st.auth && st.auth.region !== 'All' && p === 'wholesale'));
     const isMobile = st.isMobile;
+    const consView = st.consView || 'daily';
+    const C = st.page === 'consumables' ? this.consumablesData() : { dailyRows: [], consTotals: {}, consDayRows: [], storeCards: [], invoiceRows: [], invoiceItems: [], covNote: '', invTotals: null, selSet: [] };
+    const consSkuChips = [['99-939', 'Small 35×25'], ['99-940', 'Medium 45×35'], ['99-941', 'Big 55×45']].map(([sku, label]) => {
+      const on = C.selSet.indexOf(sku) >= 0;
+      return {
+        sku, label: sku + ' · ' + label,
+        bg: on ? 'var(--color-accent-800)' : 'transparent',
+        color: on ? 'var(--color-accent-300)' : 'var(--color-neutral-500)',
+        border: on ? '1px solid var(--color-accent)' : '1px solid var(--color-neutral-700)',
+        onClick: () => {
+          const cur = st.consSkus && st.consSkus.length ? [...st.consSkus] : ['99-939', '99-940', '99-941'];
+          const i = cur.indexOf(sku);
+          if (i >= 0) { if (cur.length > 1) cur.splice(i, 1); } else cur.push(sku);
+          this.setState({ consSkus: cur });
+        }
+      };
+    });
+    const consTabs = [['daily', 'Daily Punched'], ['byInvoice', 'Billed by Invoices'], ['storeInv', 'Storewise Invoices']].map(([k, label]) => ({
+      label, onClick: () => this.setState({ consView: k, consInvStore: null, consInvoice: null, consDayStore: null }),
+      bg: consView === k ? 'var(--color-accent)' : 'transparent',
+      color: consView === k ? '#fff' : 'var(--color-text)',
+      border: consView === k ? '1px solid var(--color-accent)' : '1px solid var(--color-neutral-700)'
+    }));
 
     return {
       ...loginVals,
@@ -6143,6 +6575,43 @@ class Component extends DCLogic {
       wholesaleKpiCards,
       wholesaleTypeCards,
       wholesaleTotalLabel: this.fmtMoney(wholesaleTotal),
+      isConsumables: st.page === 'consumables',
+      consTabs, consSkuChips,
+      consIsDaily: consView === 'daily', consIsByInvoice: consView === 'byInvoice', consIsStoreInv: consView === 'storeInv',
+      consDailyRows: C.dailyRows,
+      consDailySmall: this.fmtNum(C.consTotals.small || 0),
+      consDailyMedium: this.fmtNum(C.consTotals.medium || 0),
+      consDailyLarge: this.fmtNum(C.consTotals.large || 0),
+      consDailyTotal: this.fmtNum(C.consTotals.total || 0),
+      consDailyInvoices: this.fmtNum(C.consTotals.storeInv || 0),
+      consDailyPerInv: C.consTotals.bagInv ? (C.consTotals.total / C.consTotals.bagInv).toFixed(2) : '—',
+      consDailyAttach: C.consTotals.storeInv ? (100 * C.consTotals.bagInv / C.consTotals.storeInv).toFixed(1) + '%' : '—',
+      consDailyEmpty: consView === 'daily' && !C.dailyRows.length,
+      consBulkNote: (C.consTotals.bulk || 0) > 0 ? this.fmtNum(C.consTotals.bulk) + ' bags excluded as bulk punches (single line over 200 units)' : 'No bulk punches in this range',
+      consExclBulkLabel: st.consExclBulk === false ? 'Include bulk punches' : 'Exclude bulk punches',
+      toggleConsBulk: () => this.setState({ consExclBulk: st.consExclBulk === false }),
+      consStoreCards: C.storeCards,
+      consCovNote: C.covNote,
+      consLoading: st.page === 'consumables' && !st.bagInvoices && !st.bagFailed,
+      consMissing: st.page === 'consumables' && !st.bagInvoices && !!st.bagFailed,
+      consInvTotalBags: C.invTotals ? this.fmtNum(C.invTotals.bagQty) : '—',
+      consInvTotalInvoices: C.invTotals ? this.fmtNum(C.invTotals.bagInvoices) : '—',
+      consInvAllInvoices: C.invTotals ? this.fmtNum(C.invTotals.invoices) : '—',
+      consInvPerInv: C.invTotals && C.invTotals.bagInvoices ? (C.invTotals.bagQty / C.invTotals.bagInvoices).toFixed(2) : '—',
+      consDayOpen: !!st.consDayStore, consDayLabel: st.consDayStoreLabel || '', consDayRows: C.consDayRows,
+      closeConsDay: () => this.setState({ consDayStore: null, tableZoom: 1 }),
+      consInvOpen: !!st.consInvStore, consInvLabel: st.consInvStoreLabel || '', consInvoiceRows: C.invoiceRows,
+      consInvCountLabel: C.invPageLabel ? C.invPageLabel + ' · bag-carrying first' : 'No invoices',
+      consInvPageLabel: 'Page ' + ((C.invPage || 0) + 1) + ' / ' + (C.invPageCount || 1),
+      consInvHasPages: (C.invPageCount || 1) > 1,
+      consInvPrevDisabled: (C.invPage || 0) <= 0,
+      consInvNextDisabled: (C.invPage || 0) >= (C.invPageCount || 1) - 1,
+      consInvPrev: () => this.setState({ consInvPage: Math.max(0, (st.consInvPage || 0) - 1) }),
+      consInvNext: () => this.setState({ consInvPage: Math.min((C.invPageCount || 1) - 1, (st.consInvPage || 0) + 1) }),
+      closeConsInv: () => this.setState({ consInvStore: null, consInvoice: null, consInvPage: 0, tableZoom: 1 }),
+      consItemOpen: !!(st.consInvStore && st.consInvoice), consItemLabel: (st.consInvoice || '').split('|')[0],
+      consInvoiceItems: C.invoiceItems,
+      closeConsItem: () => this.setState({ consInvoice: null }),
       isLink: st.page === 'linkSales',
       linkLoading: st.linkLoading,
       linkMissing: st.page === 'linkSales' && !st.linkLoading && !st.linkPairs,
