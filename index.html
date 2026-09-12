@@ -1051,6 +1051,31 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </section>
 </sc-if>
 
+<sc-if value="{{isShrinkage}}" hint-placeholder-val="{{false}}">
+<section>
+<div style="display:flex;gap:var(--space-4);flex-wrap:wrap;margin-bottom:var(--space-5)">
+<sc-for list="{{shrinkKpis}}" as="k" hint-placeholder-count="3">
+<div class="card elev-sm" style="flex:1 1 180px;min-width:0"><div class="card-kicker">{{k.label}}</div><div style="font-size:20px;font-weight:700;margin-top:4px">{{k.value}}</div><div style="font-size:11px;color:var(--color-neutral-500);margin-top:2px">{{k.sub}}</div></div>
+</sc-for>
+</div>
+<div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4);max-width:820px;text-wrap:pretty">Accrual is 20% of net sales for every store in the current filter. Admin only.</div>
+<sc-if value="{{shrinkEmpty}}" hint-placeholder-val="{{false}}">
+<div class="card elev-sm" style="color:var(--color-neutral-500);font-size:13px">No stores match the current filters.</div>
+</sc-if>
+<div style="overflow-x:auto">
+<table class="table">
+<thead><tr><th style="text-align:left">#</th><th style="text-align:left">Store Name</th><th>Net Sales</th><th>Acc. Shrinkage Fund</th></tr></thead>
+<tbody>
+<sc-for list="{{shrinkRows}}" as="r" hint-placeholder-count="12">
+<tr><td style="font-weight:600;text-align:left">{{r.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{r.storeName}}</td><td style="font-weight:700;white-space:nowrap">{{r.netSalesLabel}}</td><td style="font-weight:700;white-space:nowrap;color:var(--color-accent-300)">{{r.fundLabel}}</td></tr>
+</sc-for>
+</tbody>
+<tfoot><tr style="border-top:2px solid var(--color-text)"><td style="text-align:left"></td><td style="font-weight:700;text-align:left">Total</td><td style="font-weight:700;white-space:nowrap">{{shrinkTotals.netSalesLabel}}</td><td style="font-weight:700;white-space:nowrap">{{shrinkTotals.fundLabel}}</td></tr></tfoot>
+</table>
+</div>
+</section>
+</sc-if>
+
 <sc-if value="{{isStaffRank}}" hint-placeholder-val="{{false}}">
 <section>
 <sc-if value="{{staffLoading}}" hint-placeholder-val="{{true}}">
@@ -2879,6 +2904,9 @@ class Component extends DCLogic {
     'Daily Punched': 'المسجل يوميًا', 'Billed by Invoices': 'حسب الفواتير', 'Storewise Invoices': 'فواتير الفروع',
     'Small 35×25': 'صغير ٣٥×٢٥', 'Medium 45×35': 'متوسط ٤٥×٣٥', 'Big 55×45': 'كبير ٥٥×٤٥',
     'Bags punched day-wise': 'الأكياس المسجلة يوميًا',
+    'Shrinkage Fund': 'صندوق العجز', 'Shrinkage': 'العجز', 'Store Name': 'اسم الفرع',
+    'Net Sales': 'صافي المبيعات', 'Acc. Shrinkage Fund': 'صندوق العجز المتراكم', 'Accrued fund': 'الصندوق المتراكم',
+    'Avg per store': 'المتوسط لكل فرع',
     'Consumables': 'المستهلكات', 'Staff Ranking': 'ترتيب الموظفين', 'Staff': 'الموظف', 'Staff ID': 'رقم الموظف',
     'Hourly Sales': 'المبيعات بالساعة', 'Hourly': 'بالساعة', 'Units': 'القطع', 'Store share': 'حصة الفرع',
     'In master': 'مسجل في القائمة', 'Sub-category': 'الفئة الفرعية', 'Brand': 'العلامة التجارية',
@@ -6945,9 +6973,9 @@ class Component extends DCLogic {
       if (L.drill) this._lastLinkDrill = L.drill;
       if (L.suggested) this._lastLinkSuggested = { rows: L.suggested.rows, subtitle: (st.linkMonth === 'All' ? 'All months' : st.linkMonth) + ' · ' + this.fmtNum(L.baskets) + ' multi-item invoices · min ' + st.linkMinCount + ' baskets · ranked by revenue headroom · basket counts are upper bounds (pairwise minimum)' };
     }
-    const titles = { snapshot: 'Daily Snapshot', overview: 'Executive Overview', stores: 'Branch Comparison', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', hourlySales: 'Hourly Sales', wholesale: 'Wholesale', daily: 'Daily Sales', regionDetail: 'Region Detail', stcQitaf: 'STC Qitaf', yoy: 'YOY Comparison', staffRank: 'Staff Ranking', linkSales: 'Link Sales', consumables: 'Consumables' };
-    const shortTitles = { snapshot: 'Snapshot', overview: 'Overview', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily', regionDetail: 'Region', hourlySales: 'Hourly', wholesale: 'Wholesale', stcQitaf: 'Qitaf', yoy: 'YOY', linkSales: 'Link', consumables: 'Bags', staffRank: 'Staff' };
-    const navIcons = { snapshot: '☷', overview: '▣', categories: '▤', items: '◫', discounts: '%', invoices: '⌂', daily: '◷', regionDetail: '◈', hourlySales: '◔', wholesale: '◊', stcQitaf: '⊙', yoy: '⇄', linkSales: '⧉', consumables: '▧', staffRank: '★' };
+    const titles = { snapshot: 'Daily Snapshot', overview: 'Executive Overview', stores: 'Branch Comparison', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', hourlySales: 'Hourly Sales', wholesale: 'Wholesale', daily: 'Daily Sales', regionDetail: 'Region Detail', stcQitaf: 'STC Qitaf', yoy: 'YOY Comparison', staffRank: 'Staff Ranking', linkSales: 'Link Sales', consumables: 'Consumables', shrinkage: 'Shrinkage Fund' };
+    const shortTitles = { snapshot: 'Snapshot', overview: 'Overview', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily', regionDetail: 'Region', hourlySales: 'Hourly', wholesale: 'Wholesale', stcQitaf: 'Qitaf', yoy: 'YOY', linkSales: 'Link', consumables: 'Bags', staffRank: 'Staff', shrinkage: 'Shrinkage' };
+    const navIcons = { snapshot: '☷', overview: '▣', categories: '▤', items: '◫', discounts: '%', invoices: '⌂', daily: '◷', regionDetail: '◈', hourlySales: '◔', wholesale: '◊', stcQitaf: '⊙', yoy: '⇄', linkSales: '⧉', consumables: '▧', staffRank: '★', shrinkage: '⛨' };
     const isSnapshotUser = !!(st.auth && (st.auth.id === 'admin' || st.auth.id === 'mathew'));
     const isAdminUser = !!(st.auth && st.auth.id === 'admin');
     const snapDates = [...new Set((st.buckets || []).map(r => r.date))].sort().reverse();
@@ -6984,7 +7012,7 @@ class Component extends DCLogic {
         });
       }
     }
-    const pageOrder = [...(isSnapshotUser ? ['snapshot'] : []), 'overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'hourlySales', 'yoy', 'linkSales', 'consumables', 'staffRank', 'wholesale', 'stcQitaf'].filter(p => !(st.auth && st.auth.region !== 'All' && p === 'wholesale'));
+    const pageOrder = [...(isSnapshotUser ? ['snapshot'] : []), 'overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'hourlySales', 'yoy', 'linkSales', 'consumables', 'staffRank', ...(isAdminUser ? ['shrinkage'] : []), 'wholesale', 'stcQitaf'].filter(p => !(st.auth && st.auth.region !== 'All' && p === 'wholesale'));
     const isMobile = st.isMobile;
     const consView = st.consView || 'daily';
     const SR = st.page === 'staffRank' ? this.staffData() : { rows: [], totals: null, catOptions: ['All'], subOptions: ['All'], brandOptions: ['All'], sliceMode: false, drill: null, note: '', countLabel: '', kpis: [] };
@@ -7375,6 +7403,28 @@ class Component extends DCLogic {
       dailySorted: dailyRows, dailyKpiCards,
       kpiCards, dailyBars, dailyTrend, regionBars, topStores, topCategories, topStoresKpi,
       chartRangeLabel: f.dateRange ? (f.dateRange.start + ' \u2013 ' + f.dateRange.end) : (chartMonth ? new Date(chartMonth + '-02').toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'current month'),
+      isShrinkage: st.page === 'shrinkage' && isAdminUser,
+      ...(() => {
+        // Shrinkage Fund — 20% accrual on net sales, same filtered store set as Branch Comparison
+        const RATE = 0.2;
+        const rows = storeRows.map((s, i) => ({
+          rank: i + 1,
+          storeName: s.name || (this.storeIndex[s.code] || {}).shortName || s.code,
+          netSalesLabel: this.fmtMoney(s.netSales),
+          fundLabel: this.fmtMoney(s.netSales * RATE)
+        }));
+        const net = storeRows.reduce((a, s) => a + s.netSales, 0);
+        return {
+          shrinkRows: rows,
+          shrinkTotals: { netSalesLabel: this.fmtMoney(net), fundLabel: this.fmtMoney(net * RATE) },
+          shrinkKpis: [
+            { label: 'Net sales', value: this.fmtMoney(net), sub: rows.length + (rows.length === 1 ? ' store' : ' stores') },
+            { label: 'Accrued fund', value: this.fmtMoney(net * RATE), sub: '20% of net sales' },
+            { label: 'Avg per store', value: this.fmtMoney(rows.length ? net * RATE / rows.length : 0), sub: 'accrual / store' }
+          ],
+          shrinkEmpty: rows.length === 0
+        };
+      })(),
       storesSorted: storeRows, categoriesSorted: catRows, topCategoriesSorted: topCatRows, brandsSorted: brandRows, categorySearch: st.categorySearch || '', setCategorySearch: e => this.setState({ categorySearch: e.target.value }),
       categoryView: st.categoryView || 'sub', isCategorySub: (st.categoryView || 'sub') !== 'top' && (st.categoryView || 'sub') !== 'brand', isCategoryTop: st.categoryView === 'top', isCategoryBrand: st.categoryView === 'brand',
       categorySubBtnClass: (st.categoryView || 'sub') !== 'top' && (st.categoryView || 'sub') !== 'brand' ? 'btn-primary' : 'btn-secondary', categoryTopBtnClass: st.categoryView === 'top' ? 'btn-primary' : 'btn-secondary', categoryBrandBtnClass: st.categoryView === 'brand' ? 'btn-primary' : 'btn-secondary',
