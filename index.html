@@ -1093,6 +1093,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <sc-if value="{{staffSliceMode}}" hint-placeholder-val="{{false}}">
 <button class="btn btn-secondary" onClick="{{clearStaffSlice}}" style="white-space:nowrap">Clear slice</button>
 </sc-if>
+<button class="btn btn-primary" onClick="{{exportStaffExcel}}" style="white-space:nowrap">Export Excel</button>
 </div>
 
 <div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4);max-width:820px;text-wrap:pretty">{{staffNote}}</div>
@@ -3868,6 +3869,78 @@ class Component extends DCLogic {
     setTimeout(() => URL.revokeObjectURL(url), 60000);
   }
 
+  // ===== Staff ranking → Excel (SpreadsheetML, numbers stay numeric) =====
+  exportStaffExcel() {
+    const E = this._lastStaffExport;
+    if (!E || !E.rows.length) return;
+    const st = this.state, f = st.filters || {};
+    const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const num = (v, dec) => { const n = Number(v); return isFinite(n) ? (dec != null ? Number(Math.abs(n).toFixed(dec)) : n) : 0; };
+    const cellT = (v, style) => '<Cell' + (style ? ' ss:StyleID="' + style + '"' : '') + '><Data ss:Type="String">' + esc(v) + '</Data></Cell>';
+    const cellN = (v, style) => '<Cell' + (style ? ' ss:StyleID="' + style + '"' : '') + '><Data ss:Type="Number">' + v + '</Data></Cell>';
+
+    const slice = false;
+    const headers = slice
+      ? ['Rank', 'Staff ID', 'Staff name', 'In master', 'Store', 'Net sales', 'Units', 'Store share %']
+      : ['Rank', 'Staff ID', 'Staff name', 'In master', 'Store', 'Net sales', 'Units', 'Invoices', 'ATV', 'UPT', 'Discount %', 'Return %', 'Store share %'];
+
+    const body = E.rows.map(r => {
+      const c = [cellN(r.rank), cellT(r.id), cellT(r.name), cellT(r.known ? 'Yes' : 'No'), cellT(r.storeName),
+        cellN(num(r.netSales, 2), 'money'), cellN(num(r.qty))];
+      if (!slice) {
+        c.push(r.invoices ? cellN(num(r.invoices)) : cellT('—'));
+        c.push(r.invoices ? cellN(num(r.atv, 2), 'money') : cellT('—'));
+        c.push(r.invoices ? cellN(num(r.upt, 2)) : cellT('—'));
+        c.push(r.invoices ? cellN(num(r.discPct, 1)) : cellT('—'));
+        c.push(r.invoices ? cellN(num(r.returnPct, 1)) : cellT('—'));
+      }
+      c.push(r.sharePct ? cellN(num(r.sharePct, 1)) : cellT('—'));
+      return '<Row>' + c.join('') + '</Row>';
+    }).join('');
+
+    const t = E.tot;
+    const totCells = [cellT('', 'tot'), cellT('', 'tot'), cellT('Total', 'tot'), cellT('', 'tot'), cellT(this.fmtNum(E.rows.length) + ' staff', 'tot'),
+      cellN(num(t.netSales, 2), 'totMoney'), cellN(num(t.qty), 'tot')];
+    if (!slice) {
+      totCells.push(t.invoices ? cellN(num(t.invoices), 'tot') : cellT('—', 'tot'));
+      totCells.push(t.invoices ? cellN(num((E.sliceMode ? t.baseNet : t.netSales) / t.invoices, 2), 'totMoney') : cellT('—', 'tot'));
+      totCells.push(t.invoices ? cellN(num((E.sliceMode ? t.baseQty : t.qty) / t.invoices, 2), 'tot') : cellT('—', 'tot'));
+      totCells.push(cellT('', 'tot')); totCells.push(cellT('', 'tot'));
+    }
+    totCells.push(cellT('', 'tot'));
+
+    const range = f.dateRange ? (f.dateRange.start + ' – ' + f.dateRange.end) : (f.month && f.month !== 'All' ? f.month : 'All dates');
+    const scope = ['Category: ' + (E.filters.cat || 'All'), 'Sub-category: ' + (E.filters.sub || 'All'), 'Brand: ' + (E.filters.brand || 'All')].join('   ·   ');
+
+    const xml = '<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?>' +
+      '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">' +
+      '<Styles>' +
+      '<Style ss:ID="ttl"><Font ss:Bold="1" ss:Size="14"/></Style>' +
+      '<Style ss:ID="meta"><Font ss:Color="#6B7674" ss:Size="10"/></Style>' +
+      '<Style ss:ID="hdr"><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#14201C" ss:Pattern="Solid"/></Style>' +
+      '<Style ss:ID="money"><NumberFormat ss:Format="#,##0"/></Style>' +
+      '<Style ss:ID="tot"><Font ss:Bold="1"/><Interior ss:Color="#EEF1F0" ss:Pattern="Solid"/></Style>' +
+      '<Style ss:ID="totMoney"><Font ss:Bold="1"/><Interior ss:Color="#EEF1F0" ss:Pattern="Solid"/><NumberFormat ss:Format="#,##0"/></Style>' +
+      '</Styles>' +
+      '<Worksheet ss:Name="Staff Ranking"><Table>' +
+      '<Row>' + cellT('Staff Ranking', 'ttl') + '</Row>' +
+      '<Row>' + cellT(range + '   ·   ' + scope, 'meta') + '</Row>' +
+      '<Row>' + cellT('Exported ' + new Date().toLocaleString('en-GB'), 'meta') + '</Row>' +
+      '<Row></Row>' +
+      '<Row>' + headers.map(h => cellT(h, 'hdr')).join('') + '</Row>' +
+      body +
+      '<Row>' + totCells.join('') + '</Row>' +
+      '</Table></Worksheet></Workbook>';
+
+    const blob = new Blob(['\ufeff' + xml], { type: 'application/vnd.ms-excel' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'staff-ranking-' + (f.dateRange ? f.dateRange.start + '_' + f.dateRange.end : (f.month && f.month !== 'All' ? f.month : 'all')) + '.xls';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  }
+
   // ===== Item detail card → PNG (same structure) + share =====
   _loadImg(src, anon) {
     return new Promise(res => {
@@ -3906,9 +3979,9 @@ class Component extends DCLogic {
     const st = this.state;
     const V = this._lastItemDetail || {};
     const rows = V.rows || [];
-    const W = 1080, PAD = 40, HEAD = 150, ROW = 54, TH = 52, FOOT = 56;
+    const W = 2120, PAD = 72, HEAD = 270, ROW = 106, TH = 98, FOOT = 100;
     const H = HEAD + TH + (rows.length + (V.totals ? 1 : 0)) * ROW + FOOT;
-    const dpr = 2;
+    const dpr = 1.5;
     const c = document.createElement('canvas');
     c.width = W * dpr; c.height = H * dpr;
     const x = c.getContext('2d');
@@ -3917,48 +3990,48 @@ class Component extends DCLogic {
 
     const img = this._skipExportImg ? null : await this._loadExportImg(V.image);
     x.save();
-    x.beginPath(); x.roundRect(PAD, 34, 82, 82, 8); x.clip();
-    x.fillStyle = '#f2f4f3'; x.fillRect(PAD, 34, 82, 82);
+    x.beginPath(); x.roundRect(PAD, 62, 170, 170, 14); x.clip();
+    x.fillStyle = '#f2f4f3'; x.fillRect(PAD, 62, 170, 170);
     if (img && img.naturalWidth) {
-      const s = Math.min(82 / img.naturalWidth, 82 / img.naturalHeight);
+      const s = Math.min(170 / img.naturalWidth, 170 / img.naturalHeight);
       const w = img.naturalWidth * s, h = img.naturalHeight * s;
-      x.drawImage(img, PAD + (82 - w) / 2, 34 + (82 - h) / 2, w, h);
+      x.drawImage(img, PAD + (170 - w) / 2, 62 + (170 - h) / 2, w, h);
     }
     x.restore();
 
-    const tx = PAD + 82 + 20;
+    const tx = PAD + 170 + 36;
     x.fillStyle = '#14201c';
-    x.font = '700 27px system-ui, -apple-system, Segoe UI, sans-serif';
+    x.font = '800 60px system-ui, -apple-system, Segoe UI, sans-serif';
     const title = String(V.label || '');
     const maxW = W - tx - PAD;
     let t = title;
     while (x.measureText(t).width > maxW && t.length > 4) t = t.slice(0, -2);
-    x.fillText(t + (t === title ? '' : '…'), tx, 70);
+    x.fillText(t + (t === title ? '' : '…'), tx, 138);
     x.fillStyle = '#6b7674';
-    x.font = '500 17px system-ui, -apple-system, Segoe UI, sans-serif';
-    x.fillText(String(V.itemNo || ''), tx, 100);
+    x.font = '700 39px system-ui, -apple-system, Segoe UI, sans-serif';
+    x.fillText(String(V.itemNo || ''), tx, 196);
 
     const cols = [
       { k: 'storeName', label: 'STORE', x: PAD, align: 'left' },
-      { k: 'netSalesLabel', label: 'NET SALES', x: PAD + 500, align: 'right' },
-      { k: 'qtyLabel', label: 'QTY', x: PAD + 640, align: 'right' },
-      { k: 'returnQtyLabel', label: 'RETURN QTY', x: PAD + 840, align: 'right' },
+      { k: 'netSalesLabel', label: 'NET SALES', x: PAD + 1000, align: 'right' },
+      { k: 'qtyLabel', label: 'QTY', x: PAD + 1270, align: 'right' },
+      { k: 'returnQtyLabel', label: 'RETURN QTY', x: PAD + 1660, align: 'right' },
       { k: 'avgPerDayLabel', label: 'AVG/DAY', x: W - PAD, align: 'right' }
     ];
     let y = HEAD;
     x.fillStyle = '#6b7674';
-    x.font = '600 14px system-ui, -apple-system, Segoe UI, sans-serif';
-    cols.forEach(col => { x.textAlign = col.align; x.fillText(col.label, col.x, y + 20); });
+    x.font = '700 31px system-ui, -apple-system, Segoe UI, sans-serif';
+    cols.forEach(col => { x.textAlign = col.align; x.fillText(col.label, col.x, y + 40); });
     x.textAlign = 'left';
     x.strokeStyle = '#dfe3e2'; x.lineWidth = 1;
     x.beginPath(); x.moveTo(PAD, y + TH - 10); x.lineTo(W - PAD, y + TH - 10); x.stroke();
     y += TH;
 
     rows.forEach((r, i) => {
-      if (i % 2 === 1) { x.fillStyle = '#fafbfb'; x.fillRect(PAD - 10, y - 4, W - 2 * PAD + 20, ROW); }
+      if (i % 2 === 1) { x.fillStyle = '#fafbfb'; x.fillRect(PAD - 20, y - 8, W - 2 * PAD + 40, ROW); }
       x.fillStyle = '#14201c';
-      x.font = '600 19px system-ui, -apple-system, Segoe UI, sans-serif';
-      cols.forEach(col => { x.textAlign = col.align; x.fillText(String(r[col.k] ?? ''), col.x, y + 30); });
+      x.font = '700 44px system-ui, -apple-system, Segoe UI, sans-serif';
+      cols.forEach(col => { x.textAlign = col.align; x.fillText(String(r[col.k] ?? ''), col.x, y + 64); });
       x.textAlign = 'left';
       x.strokeStyle = '#eef1f0';
       x.beginPath(); x.moveTo(PAD, y + ROW - 4); x.lineTo(W - PAD, y + ROW - 4); x.stroke();
@@ -3969,17 +4042,17 @@ class Component extends DCLogic {
       x.strokeStyle = '#14201c'; x.lineWidth = 1.5;
       x.beginPath(); x.moveTo(PAD, y - 4); x.lineTo(W - PAD, y - 4); x.stroke();
       x.fillStyle = '#14201c';
-      x.font = '700 20px system-ui, -apple-system, Segoe UI, sans-serif';
-      cols.forEach(col => { x.textAlign = col.align; x.fillText(String(V.totals[col.k] ?? ''), col.x, y + 32); });
+      x.font = '800 45px system-ui, -apple-system, Segoe UI, sans-serif';
+      cols.forEach(col => { x.textAlign = col.align; x.fillText(String(V.totals[col.k] ?? ''), col.x, y + 66); });
       x.textAlign = 'left';
       y += ROW;
     }
 
     x.fillStyle = '#8b9491';
-    x.font = '500 14px system-ui, -apple-system, Segoe UI, sans-serif';
-    x.fillText('Retail Sales Dashboard · ' + (V.range || ''), PAD, H - 22);
+    x.font = '600 31px system-ui, -apple-system, Segoe UI, sans-serif';
+    x.fillText('Retail Sales Dashboard · ' + (V.range || ''), PAD, H - 36);
     x.textAlign = 'right';
-    x.fillText(new Date().toLocaleDateString('en-GB'), W - PAD, H - 22);
+    x.fillText(new Date().toLocaleDateString('en-GB'), W - PAD, H - 36);
     x.textAlign = 'left';
     return c;
   }
@@ -4692,6 +4765,22 @@ class Component extends DCLogic {
       a.stores[store] = (a.stores[store] || 0) + 1;
       return a;
     };
+    // Invoice-based measures (Invoices, ATV, UPT, Disc%, Ret%) and Store share only exist on the
+    // day grain, so they are always computed there and never change when a cat/sub/brand slice is
+    // applied — the slice only re-scopes Net sales and Units.
+    const base = {}, baseStoreNet = {}, baseHomeNet = {};
+    S.d.forEach(r => {
+      const store = S.stores[r[1]];
+      if (!storeOk(store) || !dayOk(S.days[r[2]])) return;
+      const id = S.staff[r[0]];
+      const b = base[id] || (base[id] = { netSales: 0, qty: 0, disc: 0, cost: 0, retQty: 0, retVal: 0, invoices: 0, stores: {} });
+      b.stores[store] = (b.stores[store] || 0) + 1;
+      b.netSales += r[3]; b.qty += r[4]; b.disc += r[5]; b.cost += r[6];
+      b.retQty += r[7]; b.retVal += r[8]; b.invoices += r[9];
+      baseStoreNet[store] = (baseStoreNet[store] || 0) + r[3];
+      baseHomeNet[id + '|' + store] = (baseHomeNet[id + '|' + store] || 0) + r[3];
+    });
+
     if (sliceMode) {
       S.m.forEach(r => {
         const store = S.stores[r[2]];
@@ -4727,9 +4816,20 @@ class Component extends DCLogic {
         const v = homeNet[a.staff + '|' + code] || 0;
         if (v > best) { best = v; home = code; }
       });
+      const b = base[a.staff] || null;
+      if (sliceMode && b) { // home store from the unsliced grain so it matches the main ranking
+        let bh = null, bb = -Infinity;
+        Object.keys(b.stores).forEach(code => {
+          const v = baseHomeNet[a.staff + '|' + code] || 0;
+          if (v > bb) { bb = v; bh = code; }
+        });
+        if (bh) home = bh;
+      }
       const sm = this.storeIndex[home] || {};
       const known = !!nameById[a.staff];
-      const denom = storeNet[home] || 0;
+      const m = sliceMode ? (b || { netSales: 0, qty: 0, disc: 0, retQty: 0, invoices: 0 }) : a;
+      const denom = (sliceMode ? baseStoreNet[home] : storeNet[home]) || 0;
+      const shareNum = sliceMode ? m.netSales : a.netSales;
       return {
         id: a.staff,
         name: known ? nameById[a.staff] : a.staff + ' (Unknown)',
@@ -4738,12 +4838,12 @@ class Component extends DCLogic {
         region: sm.region || '—',
         netSales: a.netSales,
         qty: a.qty,
-        invoices: a.invoices,
-        atv: a.invoices ? a.netSales / a.invoices : 0,
-        upt: a.invoices ? a.qty / a.invoices : 0,
-        discPct: (a.netSales + a.disc) ? 100 * a.disc / (a.netSales + a.disc) : 0,
-        returnPct: (a.qty + a.retQty) ? 100 * a.retQty / (a.qty + a.retQty) : 0,
-        sharePct: denom ? 100 * a.netSales / denom : 0
+        invoices: m.invoices,
+        atv: m.invoices ? m.netSales / m.invoices : 0,
+        upt: m.invoices ? m.qty / m.invoices : 0,
+        discPct: (m.netSales + m.disc) ? 100 * m.disc / (m.netSales + m.disc) : 0,
+        returnPct: (m.qty + m.retQty) ? 100 * m.retQty / (m.qty + m.retQty) : 0,
+        sharePct: denom ? 100 * shareNum / denom : 0
       };
     }).filter(r => r.netSales !== 0 || r.qty !== 0);
     if (search) rows = rows.filter(r => r.name.toLowerCase().includes(search) || r.id.toLowerCase().includes(search) || r.storeName.toLowerCase().includes(search));
@@ -4751,8 +4851,11 @@ class Component extends DCLogic {
     const so = st.sort.staff;
     rows = this.sortRows(rows, so.col, so.dir);
     const tot = rows.reduce((t, r) => {
-      t.netSales += r.netSales; t.qty += r.qty; t.invoices += r.invoices; return t;
-    }, { netSales: 0, qty: 0, invoices: 0 });
+      t.netSales += r.netSales; t.qty += r.qty; t.invoices += r.invoices;
+      const b = base[r.id];
+      t.baseNet += b ? b.netSales : 0; t.baseQty += b ? b.qty : 0;
+      return t;
+    }, { netSales: 0, qty: 0, invoices: 0, baseNet: 0, baseQty: 0 });
     const PER = 50;
     const pages = Math.max(1, Math.ceil(rows.length / PER));
     const page = Math.min(st.staffPage || 0, pages - 1);
@@ -4800,15 +4903,16 @@ class Component extends DCLogic {
 
     const covNote = S.days.length ? S.days[0] + ' → ' + S.days[S.days.length - 1] + ' · ' + S.days.length + ' days' : 'no days';
     const note = sliceMode
-      ? 'Category slice is month-grain, so the Date filter is ignored here and invoice-based columns (Invoices, ATV, UPT, Disc%, Ret%) are not available per category. Coverage ' + covNote + '.'
+      ? 'Category slice is month-grain, so the Date filter is ignored for Net sales and Units. Invoices, ATV, UPT, Disc%, Ret% and Store share stay on the full day-grain figures — they do not change with the slice. Coverage ' + covNote + '.'
       : 'Seller is the "Sales Staff" on each line, falling back to "Staff ID" when blank. Warehouses excluded. Coverage ' + covNote + '. Click a row for that person\'s category, sub-category and brand split.';
+    this._lastStaffExport = { rows: ranked, sliceMode, tot, filters: sf };
     return {
       rows: pageRows, sliceMode, catOptions, subOptions, brandOptions, drill, note,
       totals: {
         netSalesLabel: this.fmtMoney(tot.netSales), qtyLabel: this.fmtNum(tot.qty),
         invoicesLabel: tot.invoices ? this.fmtNum(tot.invoices) : '—',
-        atvLabel: tot.invoices ? this.fmtMoney(tot.netSales / tot.invoices) : '—',
-        uptLabel: tot.invoices ? Math.abs(tot.qty / tot.invoices).toFixed(2) : '—'
+        atvLabel: tot.invoices ? this.fmtMoney((sliceMode ? tot.baseNet : tot.netSales) / tot.invoices) : '—',
+        uptLabel: tot.invoices ? Math.abs((sliceMode ? tot.baseQty : tot.qty) / tot.invoices).toFixed(2) : '—'
       },
       kpis: [
         { label: 'Staff selling', value: this.fmtNum(rows.length), sub: (rows.filter(r => !r.known).length || 0) + ' not in master' },
@@ -7122,8 +7226,9 @@ class Component extends DCLogic {
       staffLoading: st.page === 'staffRank' && st.staffLoading && !st.staffSales,
       staffFailed: st.page === 'staffRank' && !!st.staffFailed && !st.staffSales,
       staffReady: st.page === 'staffRank' && !!st.staffSales,
+      exportStaffExcel: () => this.exportStaffExcel(),
       staffRows: SR.rows, staffTotals: SR.totals, staffKpis: SR.kpis, staffNote: SR.note, staffCountLabel: SR.countLabel,
-      staffSliceMode: SR.sliceMode, staffFullMode: !SR.sliceMode,
+      staffSliceMode: SR.sliceMode, staffFullMode: true,
       staffEmpty: SR.rows.length === 0,
       staffCatOptions: SR.catOptions, staffSubOptions: SR.subOptions, staffBrandOptions: SR.brandOptions,
       staffFilters: st.staffFilters,
