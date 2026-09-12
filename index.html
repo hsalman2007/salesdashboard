@@ -2761,6 +2761,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <tr><td style="font-weight:600;white-space:nowrap;text-align:left">{{r.storeName}}</td><td style="font-weight:600;white-space:nowrap">{{r.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.returnQtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.avgPerDayLabel}}</td></tr>
 </sc-for>
 </tbody>
+<tfoot><tr style="border-top:2px solid var(--color-text)"><td style="font-weight:700;white-space:nowrap;text-align:left">{{itemDetailTotals.storeName}}</td><td style="font-weight:700;white-space:nowrap">{{itemDetailTotals.netSalesLabel}}</td><td style="font-weight:700;white-space:nowrap">{{itemDetailTotals.qtyLabel}}</td><td style="font-weight:700;white-space:nowrap">{{itemDetailTotals.returnQtyLabel}}</td><td style="font-weight:700;white-space:nowrap">{{itemDetailTotals.avgPerDayLabel}}</td></tr></tfoot>
 </table>
 </div>
 </div>
@@ -3906,7 +3907,7 @@ class Component extends DCLogic {
     const V = this._lastItemDetail || {};
     const rows = V.rows || [];
     const W = 1080, PAD = 40, HEAD = 150, ROW = 54, TH = 52, FOOT = 56;
-    const H = HEAD + TH + rows.length * ROW + FOOT;
+    const H = HEAD + TH + (rows.length + (V.totals ? 1 : 0)) * ROW + FOOT;
     const dpr = 2;
     const c = document.createElement('canvas');
     c.width = W * dpr; c.height = H * dpr;
@@ -3963,6 +3964,16 @@ class Component extends DCLogic {
       x.beginPath(); x.moveTo(PAD, y + ROW - 4); x.lineTo(W - PAD, y + ROW - 4); x.stroke();
       y += ROW;
     });
+
+    if (V.totals) {
+      x.strokeStyle = '#14201c'; x.lineWidth = 1.5;
+      x.beginPath(); x.moveTo(PAD, y - 4); x.lineTo(W - PAD, y - 4); x.stroke();
+      x.fillStyle = '#14201c';
+      x.font = '700 20px system-ui, -apple-system, Segoe UI, sans-serif';
+      cols.forEach(col => { x.textAlign = col.align; x.fillText(String(V.totals[col.k] ?? ''), col.x, y + 32); });
+      x.textAlign = 'left';
+      y += ROW;
+    }
 
     x.fillStyle = '#8b9491';
     x.font = '500 14px system-ui, -apple-system, Segoe UI, sans-serif';
@@ -6081,8 +6092,14 @@ class Component extends DCLogic {
         storeAggForItem[store].netSales += netSales; storeAggForItem[store].qty += qty; storeAggForItem[store].invoices += invoices; storeAggForItem[store].returnQty += (returnQty || 0);
       });
       itemDetailRows = Object.values(storeAggForItem).sort((a, b) => b.netSales - a.netSales).map(r => ({ ...r, netSalesLabel: this.fmtMoney(r.netSales), qtyLabel: this.fmtNum(r.qty), invoicesLabel: this.fmtNum(r.invoices), returnQtyLabel: this.fmtNum(r.returnQty), avgPerDayLabel: this.fmtNum(Math.round(filteredDaysCount ? r.qty / filteredDaysCount : 0)) }));
+      const idT = itemDetailRows.reduce((a, r) => ({ netSales: a.netSales + r.netSales, qty: a.qty + r.qty, returnQty: a.returnQty + r.returnQty }), { netSales: 0, qty: 0, returnQty: 0 });
+      var itemDetailTotals = {
+        storeName: 'Total', netSalesLabel: this.fmtMoney(idT.netSales), qtyLabel: this.fmtNum(idT.qty),
+        returnQtyLabel: this.fmtNum(idT.returnQty),
+        avgPerDayLabel: this.fmtNum(Math.round(filteredDaysCount ? idT.qty / filteredDaysCount : 0))
+      };
       this._lastItemDetail = {
-        label: st.selectedItemLabel, itemNo: st.selectedItemNoLabel, sku: st.selectedItemNo, image: st.selectedItemImage, rows: itemDetailRows,
+        label: st.selectedItemLabel, itemNo: st.selectedItemNoLabel, sku: st.selectedItemNo, image: st.selectedItemImage, rows: itemDetailRows, totals: itemDetailTotals,
         range: f.dateRange ? (f.dateRange.start + ' \u2013 ' + f.dateRange.end) : (f.month && f.month !== 'All' ? f.month : 'All dates')
       };
     }
@@ -7294,7 +7311,7 @@ class Component extends DCLogic {
       exportBandsPdf: this.exportBandsPdf,
       shareItemDetailImage: () => this.shareItemDetailImage(),
       itemShareLabel: st.itemShareBusy ? '…' : '⤓ Image',
-      itemDetailOpen: !!st.selectedItemNo, itemDetailLabel: st.selectedItemLabel, itemDetailItemNo: st.selectedItemNoLabel, itemDetailImage: st.selectedItemImage, itemDetailRows, closeItemDetail: () => this.setState({ selectedItemNo: null, tableZoom: 1 }), stopPropagation: e => e.stopPropagation(),
+      itemDetailOpen: !!st.selectedItemNo, itemDetailLabel: st.selectedItemLabel, itemDetailItemNo: st.selectedItemNoLabel, itemDetailImage: st.selectedItemImage, itemDetailRows, itemDetailTotals: typeof itemDetailTotals !== 'undefined' ? itemDetailTotals : {}, closeItemDetail: () => this.setState({ selectedItemNo: null, tableZoom: 1 }), stopPropagation: e => e.stopPropagation(),
       categoryDetailOpen: !!st.selectedCategoryKey, categoryDetailLabel: st.selectedCategoryLabel, categoryDetailRows, categoryDetailTotals: typeof categoryDetailTotals !== 'undefined' ? categoryDetailTotals : { netSalesLabel: '', qtyLabel: '', pctLabel: '' }, closeCategoryDetail: () => this.setState({ selectedCategoryKey: null, tableZoom: 1 }),
       dailyDetailOpen: !!st.selectedDailyDate, dailyDetailLabel: st.selectedDailyDate, dailyDetailRows,
       dailyRankingOpen: !!(st.selectedDailyDate && st.dailyRankingOpen), exportDailyRankingPdf: this.exportDailyRankingPdf, dailyRankingRows,
