@@ -3285,6 +3285,7 @@ class Component extends DCLogic {
       '39595': { pin: '3847', region: 'North', name: 'North Region Manager' },
       '31504': { pin: '2938', region: 'South', name: 'South Region Manager' },
       admin: { pin: '30558', region: 'All', name: 'Admin' },
+      '31610': { pin: '0193', region: 'All', name: 'Admin', admin: true },
       mathew: { pin: '123', region: 'All', name: 'Mathew' }
     };
     try {
@@ -6976,8 +6977,8 @@ class Component extends DCLogic {
     const titles = { snapshot: 'Daily Snapshot', overview: 'Executive Overview', stores: 'Branch Comparison', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', hourlySales: 'Hourly Sales', wholesale: 'Wholesale', daily: 'Daily Sales', regionDetail: 'Region Detail', stcQitaf: 'STC Qitaf', yoy: 'YOY Comparison', staffRank: 'Staff Ranking', linkSales: 'Link Sales', consumables: 'Consumables', shrinkage: 'Shrinkage Fund' };
     const shortTitles = { snapshot: 'Snapshot', overview: 'Overview', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily', regionDetail: 'Region', hourlySales: 'Hourly', wholesale: 'Wholesale', stcQitaf: 'Qitaf', yoy: 'YOY', linkSales: 'Link', consumables: 'Bags', staffRank: 'Staff', shrinkage: 'Shrinkage' };
     const navIcons = { snapshot: '☷', overview: '▣', categories: '▤', items: '◫', discounts: '%', invoices: '⌂', daily: '◷', regionDetail: '◈', hourlySales: '◔', wholesale: '◊', stcQitaf: '⊙', yoy: '⇄', linkSales: '⧉', consumables: '▧', staffRank: '★', shrinkage: '⛨' };
-    const isSnapshotUser = !!(st.auth && (st.auth.id === 'admin' || st.auth.id === 'mathew'));
-    const isAdminUser = !!(st.auth && st.auth.id === 'admin');
+    const isSnapshotUser = !!(st.auth && (st.auth.id === 'admin' || st.auth.id === '31610' || st.auth.id === 'mathew'));
+    const isAdminUser = !!(st.auth && (st.auth.id === 'admin' || st.auth.id === '31610'));
     const snapDates = [...new Set((st.buckets || []).map(r => r.date))].sort().reverse();
     const snapDate = st.snapDate && snapDates.includes(st.snapDate) ? st.snapDate : (snapDates[0] || null);
     const snapVals = (st.page === 'snapshot' && snapDate) ? this.snapshotData(snapDate) : {};
