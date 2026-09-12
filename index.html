@@ -499,6 +499,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <div style="display:flex;gap:12px;align-items:center">
 <button onClick="{{closeCategoryDetail}}" style="border:none;background:none;cursor:pointer;font-size:18px;line-height:1;color:var(--color-neutral-500);padding:4px">←</button>
 <div style="flex:1;min-width:0;font-weight:700;font-size:15px">{{categoryDetailLabel}}</div>
+<button onClick="{{shareCategoryDetailImage}}" title="Share as image" style="border:1px solid var(--color-neutral-300);background:var(--color-surface);cursor:pointer;font-size:12px;font-weight:600;line-height:1;color:var(--color-text);padding:8px 10px;border-radius:var(--radius-sm);flex:none;white-space:nowrap">{{catShareLabel}}</button>
 <div onClick="{{closeCategoryDetail}}" style="cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500);padding:4px">×</div>
 </div>
 <div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow-y:auto;overflow-x:hidden;flex:1;touch-action:pan-y">
@@ -4095,6 +4096,146 @@ class Component extends DCLogic {
     return c;
   }
 
+  // Category detail modal → PNG, same structure (thumbnail column included)
+  async buildCategoryDetailCanvas() {
+    const V = this._lastCategoryDetail || {};
+    const rows = V.rows || [];
+    const W = 2120, PAD = 72, HEAD = 190, ROW = 106, TH = 98, FOOT = 100;
+    const H = HEAD + TH + (rows.length + (V.totals ? 1 : 0)) * ROW + FOOT;
+    const dpr = 1.5;
+    const c = document.createElement('canvas');
+    c.width = W * dpr; c.height = H * dpr;
+    const x = c.getContext('2d');
+    x.scale(dpr, dpr);
+    x.fillStyle = '#ffffff'; x.fillRect(0, 0, W, H);
+
+    x.fillStyle = '#14201c';
+    x.font = '800 60px system-ui, -apple-system, Segoe UI, sans-serif';
+    x.fillText(String(V.label || ''), PAD, 110);
+    x.fillStyle = '#6b7674';
+    x.font = '700 31px system-ui, -apple-system, Segoe UI, sans-serif';
+    x.fillText(rows.length + (rows.length === 1 ? ' item' : ' items') + '   ·   ' + (V.range || ''), PAD, 158);
+
+    const IMG = 78;
+    const GAP = 48;
+    // column widths measured from the real values so nothing overruns its neighbour
+    x.font = '700 44px system-ui, -apple-system, Segoe UI, sans-serif';
+    const wOf = (k, min) => Math.max(min, ...rows.map(r => x.measureText(String(r[k] ?? '')).width),
+      V.totals ? x.measureText(String(V.totals[k] ?? '')).width : 0);
+    const skuW = Math.min(420, wOf('itemNo', 120));
+    const qtyW = wOf('qtyLabel', 120);
+    const pctW = Math.max(wOf('pctLabel', 120), 210);
+    const netW = wOf('netSalesLabel', 160);
+    const qtyX = W - PAD;
+    const pctX = qtyX - qtyW - GAP;
+    const netX = pctX - pctW - GAP;
+    const skuX = PAD + IMG + 36;
+    const itemX = skuX + skuW + GAP;
+    const cols = [
+      { k: 'itemNo', label: 'SKU', x: skuX, align: 'left', max: skuW },
+      { k: 'itemDesc', label: 'ITEM', x: itemX, align: 'left', max: netX - netW - GAP - itemX },
+      { k: 'netSalesLabel', label: 'NET SALES', x: netX, align: 'right' },
+      { k: 'pctLabel', label: '% OF SALES', x: pctX, align: 'right' },
+      { k: 'qtyLabel', label: 'QTY', x: qtyX, align: 'right' }
+    ];
+    let y = HEAD;
+    x.fillStyle = '#6b7674';
+    x.font = '700 31px system-ui, -apple-system, Segoe UI, sans-serif';
+    x.fillText('IMAGE', PAD, y + 40);
+    cols.forEach(col => { x.textAlign = col.align; x.fillText(col.label, col.x, y + 40); });
+    x.textAlign = 'left';
+    x.strokeStyle = '#dfe3e2'; x.lineWidth = 1;
+    x.beginPath(); x.moveTo(PAD, y + TH - 14); x.lineTo(W - PAD, y + TH - 14); x.stroke();
+    y += TH;
+
+    const imgs = this._skipExportImg ? rows.map(() => null)
+      : await Promise.all(rows.map(r => this._loadExportImg(r.image || r.imageSrc)));
+    const fit = (v, max) => {
+      if (!max || x.measureText(v).width <= max) return v;
+      let t = v;
+      while (t.length > 1 && x.measureText(t + '…').width > max) t = t.slice(0, -1);
+      return t + '…';
+    };
+
+    rows.forEach((r, i) => {
+      if (i % 2 === 1) { x.fillStyle = '#fafbfb'; x.fillRect(PAD - 20, y - 8, W - 2 * PAD + 40, ROW); }
+      const im = imgs[i];
+      x.save();
+      x.beginPath(); x.roundRect(PAD, y + 8, IMG, IMG, 10); x.clip();
+      x.fillStyle = '#f2f4f3'; x.fillRect(PAD, y + 8, IMG, IMG);
+      if (im && im.naturalWidth) {
+        const s = Math.min(IMG / im.naturalWidth, IMG / im.naturalHeight);
+        const w = im.naturalWidth * s, h = im.naturalHeight * s;
+        x.drawImage(im, PAD + (IMG - w) / 2, y + 8 + (IMG - h) / 2, w, h);
+      }
+      x.restore();
+      x.fillStyle = '#14201c';
+      x.font = '700 44px system-ui, -apple-system, Segoe UI, sans-serif';
+      cols.forEach(col => {
+        x.textAlign = col.align;
+        x.fillText(fit(String(r[col.k] ?? ''), col.max), col.x, y + 64);
+      });
+      x.textAlign = 'left';
+      x.strokeStyle = '#eef1f0';
+      x.beginPath(); x.moveTo(PAD, y + ROW - 6); x.lineTo(W - PAD, y + ROW - 6); x.stroke();
+      y += ROW;
+    });
+
+    if (V.totals) {
+      x.strokeStyle = '#14201c'; x.lineWidth = 1.5;
+      x.beginPath(); x.moveTo(PAD, y - 6); x.lineTo(W - PAD, y - 6); x.stroke();
+      x.fillStyle = '#14201c';
+      x.font = '800 45px system-ui, -apple-system, Segoe UI, sans-serif';
+      x.fillText('Total', cols[1].x, y + 66);
+      [2, 3, 4].forEach(ci => { const col = cols[ci]; x.textAlign = col.align; x.fillText(String(V.totals[col.k] ?? ''), col.x, y + 66); });
+      x.textAlign = 'left';
+      y += ROW;
+    }
+
+    x.fillStyle = '#8b9491';
+    x.font = '600 31px system-ui, -apple-system, Segoe UI, sans-serif';
+    x.fillText('Retail Sales Dashboard · ' + (V.range || ''), PAD, H - 36);
+    x.textAlign = 'right';
+    x.fillText(new Date().toLocaleDateString('en-GB'), W - PAD, H - 36);
+    x.textAlign = 'left';
+    return c;
+  }
+
+  async _shareCanvas(build, name, title) {
+    try {
+      const canvas = await build();
+      let blob = null;
+      try { blob = await new Promise(res => canvas.toBlob(res, 'image/png')); } catch (e) { blob = null; }
+      if (!blob) {
+        this._skipExportImg = true;
+        const c2 = await build();
+        this._skipExportImg = false;
+        blob = await new Promise(res => c2.toBlob(res, 'image/png'));
+      }
+      if (!blob) throw new Error('no blob');
+      const file = new File([blob], name, { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = name; a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+      }
+    } catch (e) {
+      if (!/AbortError/.test(String(e))) console.warn('share failed', e);
+    }
+  }
+
+  async shareCategoryDetailImage() {
+    if (this.state.catShareBusy) return;
+    this.setState({ catShareBusy: true });
+    const V = this._lastCategoryDetail || {};
+    const name = String(V.label || 'category').trim().replace(/[^\w.-]+/g, '-') + '.png';
+    await this._shareCanvas(() => this.buildCategoryDetailCanvas(), name, V.label || 'Category detail');
+    this.setState({ catShareBusy: false });
+  }
+
   async shareItemDetailImage() {
     if (this.state.itemShareBusy) return;
     this.setState({ itemShareBusy: true });
@@ -5605,6 +5746,10 @@ class Component extends DCLogic {
       const blankCatImg = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect width="40" height="40" fill="%23252b3a"/%3E%3C/svg%3E';
       categoryDetailRows = catItemsAll.slice(0, 50).map(it => ({ ...it, imageSrc: it.image || blankCatImg, netSalesLabel: this.fmtMoney(it.netSales), qtyLabel: this.fmtNum(it.qty), pctLabel: (catItemsTotal ? 100 * it.netSales / catItemsTotal : 0).toFixed(1) + '%', onClick: () => this.setState({ selectedItemNo: it.itemNo, selectedItemLabel: it.itemDesc, selectedItemNoLabel: it.itemNo, selectedItemImage: it.image || blankCatImg }) }));
       var categoryDetailTotals = { netSalesLabel: this.fmtMoney(catItemsTotal), qtyLabel: this.fmtNum(catItemsAll.reduce((s, it) => s + it.qty, 0)), pctLabel: '100.0%' };
+      this._lastCategoryDetail = {
+        label: st.selectedCategoryLabel, rows: categoryDetailRows, totals: categoryDetailTotals,
+        range: f.dateRange ? (f.dateRange.start + ' \u2013 ' + f.dateRange.end) : (f.month && f.month !== 'All' ? f.month : 'All dates')
+      };
     }
     const trendCatAgg = {};
     st.categoriesByStoreDate.forEach(row => {
@@ -7485,6 +7630,8 @@ class Component extends DCLogic {
       shareItemDetailImage: () => this.shareItemDetailImage(),
       itemShareLabel: st.itemShareBusy ? '…' : '⤓ Image',
       itemDetailOpen: !!st.selectedItemNo, itemDetailLabel: st.selectedItemLabel, itemDetailItemNo: st.selectedItemNoLabel, itemDetailImage: st.selectedItemImage, itemDetailRows, itemDetailTotals: typeof itemDetailTotals !== 'undefined' ? itemDetailTotals : {}, closeItemDetail: () => this.setState({ selectedItemNo: null, tableZoom: 1 }), stopPropagation: e => e.stopPropagation(),
+      shareCategoryDetailImage: () => this.shareCategoryDetailImage(),
+      catShareLabel: st.catShareBusy ? '…' : '⤓ Image',
       categoryDetailOpen: !!st.selectedCategoryKey, categoryDetailLabel: st.selectedCategoryLabel, categoryDetailRows, categoryDetailTotals: typeof categoryDetailTotals !== 'undefined' ? categoryDetailTotals : { netSalesLabel: '', qtyLabel: '', pctLabel: '' }, closeCategoryDetail: () => this.setState({ selectedCategoryKey: null, tableZoom: 1 }),
       dailyDetailOpen: !!st.selectedDailyDate, dailyDetailLabel: st.selectedDailyDate, dailyDetailRows,
       dailyRankingOpen: !!(st.selectedDailyDate && st.dailyRankingOpen), exportDailyRankingPdf: this.exportDailyRankingPdf, dailyRankingRows,
