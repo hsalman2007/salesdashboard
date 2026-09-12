@@ -1051,6 +1051,190 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </section>
 </sc-if>
 
+<sc-if value="{{isStaffRank}}" hint-placeholder-val="{{false}}">
+<section>
+<sc-if value="{{staffLoading}}" hint-placeholder-val="{{true}}">
+<div class="card elev-sm" style="text-align:center;color:var(--color-neutral-500);font-size:13px">Loading staff sales…</div>
+</sc-if>
+<sc-if value="{{staffFailed}}" hint-placeholder-val="{{false}}">
+<div class="card elev-sm" style="color:var(--color-neutral-500);font-size:13px">Staff sales data is not published yet. Run your raw transaction files through the Data Importer and place <code>staff-sales.json</code> in the <code>data/</code> folder.</div>
+</sc-if>
+
+<sc-if value="{{staffReady}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;gap:var(--space-4);flex-wrap:wrap;margin-bottom:var(--space-5)">
+<sc-for list="{{staffKpis}}" as="k" hint-placeholder-count="4">
+<div class="card elev-sm" style="flex:1 1 150px;min-width:0"><div class="card-kicker">{{k.label}}</div><div style="font-size:20px;font-weight:700;margin-top:4px">{{k.value}}</div><div style="font-size:11px;color:var(--color-neutral-500);margin-top:2px">{{k.sub}}</div></div>
+</sc-for>
+</div>
+
+<div style="display:flex;gap:var(--space-4);align-items:flex-end;flex-wrap:wrap;margin-bottom:var(--space-4)">
+<div class="field" style="min-width:170px">
+<label>Category</label>
+<select class="input" value="{{staffFilters.cat}}" onChange="{{setStaffCat}}">
+<sc-for list="{{staffCatOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
+</select>
+</div>
+<div class="field" style="min-width:170px">
+<label>Sub-category</label>
+<select class="input" value="{{staffFilters.sub}}" onChange="{{setStaffSub}}">
+<sc-for list="{{staffSubOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
+</select>
+</div>
+<div class="field" style="min-width:170px">
+<label>Brand</label>
+<select class="input" value="{{staffFilters.brand}}" onChange="{{setStaffBrand}}">
+<sc-for list="{{staffBrandOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
+</select>
+</div>
+<div class="field" style="min-width:180px;flex:1 1 180px">
+<label>Search</label>
+<input class="input" value="{{staffSearch}}" onChange="{{setStaffSearch}}" placeholder="Name, ID or store" />
+</div>
+<sc-if value="{{staffSliceMode}}" hint-placeholder-val="{{false}}">
+<button class="btn btn-secondary" onClick="{{clearStaffSlice}}" style="white-space:nowrap">Clear slice</button>
+</sc-if>
+</div>
+
+<div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4);max-width:820px;text-wrap:pretty">{{staffNote}}</div>
+
+<sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
+<div style="overflow-x:auto">
+<table class="table">
+<thead><tr>
+<th style="text-align:left">#</th>
+<th class="rl-th" onClick="{{sortHandlers.staffName}}" style="text-align:left">Staff {{sortArrow.staffName}}</th>
+<th class="rl-th" onClick="{{sortHandlers.staffStore}}" style="text-align:left">Store {{sortArrow.staffStore}}</th>
+<th class="rl-th" onClick="{{sortHandlers.staffNet}}">Net sales {{sortArrow.staffNet}}</th>
+<th class="rl-th" onClick="{{sortHandlers.staffQty}}">Units {{sortArrow.staffQty}}</th>
+<sc-if value="{{staffFullMode}}" hint-placeholder-val="{{true}}">
+<th class="rl-th" onClick="{{sortHandlers.staffInv}}">Invoices {{sortArrow.staffInv}}</th>
+<th class="rl-th" onClick="{{sortHandlers.staffAtv}}">ATV {{sortArrow.staffAtv}}</th>
+<th class="rl-th" onClick="{{sortHandlers.staffUpt}}">UPT {{sortArrow.staffUpt}}</th>
+<th class="rl-th" onClick="{{sortHandlers.staffDisc}}">Disc% {{sortArrow.staffDisc}}</th>
+<th class="rl-th" onClick="{{sortHandlers.staffRet}}">Ret% {{sortArrow.staffRet}}</th>
+</sc-if>
+<th class="rl-th" onClick="{{sortHandlers.staffShare}}">Store share {{sortArrow.staffShare}}</th>
+</tr></thead>
+<tbody>
+<sc-for list="{{staffRows}}" as="r" hint-placeholder-count="15">
+<tr onClick="{{r.onClick}}" style="cursor:pointer">
+<td style="font-weight:600;text-align:left">{{r.rank}}</td>
+<td style="text-align:left;min-width:200px"><div style="font-weight:600;color:{{r.nameColor}}">{{r.name}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{r.id}}</div></td>
+<td style="font-weight:600;white-space:nowrap;text-align:left">{{r.storeName}}</td>
+<td style="font-weight:700;color:var(--color-accent-300);white-space:nowrap">{{r.netSalesLabel}}</td>
+<td style="font-weight:600">{{r.qtyLabel}}</td>
+<sc-if value="{{staffFullMode}}" hint-placeholder-val="{{true}}">
+<td style="font-weight:600">{{r.invoicesLabel}}</td>
+<td style="font-weight:600;white-space:nowrap">{{r.atvLabel}}</td>
+<td style="font-weight:600">{{r.uptLabel}}</td>
+<td style="font-weight:600">{{r.discPctLabel}}</td>
+<td style="font-weight:600">{{r.returnPctLabel}}</td>
+</sc-if>
+<td style="font-weight:600">{{r.sharePctLabel}}</td>
+</tr>
+</sc-for>
+</tbody>
+<tfoot><tr style="border-top:2px solid var(--color-divider)">
+<td style="text-align:left"></td>
+<td style="font-weight:700;text-align:left">Total</td>
+<td></td>
+<td style="font-weight:700;white-space:nowrap">{{staffTotals.netSalesLabel}}</td>
+<td style="font-weight:700">{{staffTotals.qtyLabel}}</td>
+<sc-if value="{{staffFullMode}}" hint-placeholder-val="{{true}}">
+<td style="font-weight:700">{{staffTotals.invoicesLabel}}</td>
+<td style="font-weight:700;white-space:nowrap">{{staffTotals.atvLabel}}</td>
+<td style="font-weight:700">{{staffTotals.uptLabel}}</td>
+<td></td>
+<td></td>
+</sc-if>
+<td></td>
+</tr></tfoot>
+</table>
+</div>
+</sc-if>
+
+<sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{staffRows}}" as="r" hint-placeholder-count="10">
+<div onClick="{{r.onClick}}" class="card elev-sm" style="display:flex;flex-direction:column;gap:10px;cursor:pointer">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+<div style="min-width:0"><div style="font-weight:700;font-size:15px;color:{{r.nameColor}}">{{r.rank}}. {{r.name}}</div><div style="font-size:12px;color:var(--color-neutral-500)">{{r.storeName}} · {{r.id}}</div></div>
+<div style="font-weight:700;font-size:16px;color:var(--color-accent);white-space:nowrap">{{r.netSalesLabel}}</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px 16px;font-size:13px">
+<div><div class="card-meta">Units</div><div style="font-weight:600">{{r.qtyLabel}}</div></div>
+<div><div class="card-meta">Invoices</div><div style="font-weight:600">{{r.invoicesLabel}}</div></div>
+<div><div class="card-meta">ATV</div><div style="font-weight:600">{{r.atvLabel}}</div></div>
+<div><div class="card-meta">UPT</div><div style="font-weight:600">{{r.uptLabel}}</div></div>
+<div><div class="card-meta">Store share</div><div style="font-weight:600">{{r.sharePctLabel}}</div></div>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{staffEmpty}}" hint-placeholder-val="{{false}}">
+<div class="card elev-sm" style="text-align:center;color:var(--color-neutral-500);font-size:13px">No staff sales in the current filter.</div>
+</sc-if>
+
+<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:var(--space-4)">
+<button class="btn btn-secondary" onClick="{{staffPagePrev}}" disabled="{{staffPagePrevOff}}">‹ Prev</button>
+<div style="font-size:12px;color:var(--color-neutral-500)">{{staffCountLabel}}</div>
+<button class="btn btn-secondary" onClick="{{staffPageNext}}" disabled="{{staffPageNextOff}}">Next ›</button>
+</div>
+</sc-if>
+
+<sc-if value="{{staffDrillOpen}}" hint-placeholder-val="{{false}}">
+<div onClick="{{closeStaffDrill}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:var(--space-4);z-index:52">
+<div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:880px;max-height:84vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5)">
+<div style="display:flex;gap:12px;align-items:center">
+<div style="flex:1;min-width:0"><div style="font-weight:700;font-size:16px">{{staffDrill.name}}</div><div style="font-size:12px;color:var(--color-neutral-500)">{{staffDrill.kicker}}</div></div>
+<button onClick="{{closeStaffDrill}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
+</div>
+<sc-if value="{{staffDrill.empty}}" hint-placeholder-val="{{false}}">
+<div style="color:var(--color-neutral-500);font-size:13px">No category detail for this person in the current filter.</div>
+</sc-if>
+<div style="overflow-y:auto;flex:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:var(--space-4)">
+<div>
+<div class="card-kicker" style="margin-bottom:var(--space-2)">Category</div>
+<table class="table">
+<thead><tr><th style="text-align:left">Category</th><th>Net</th><th>%</th></tr></thead>
+<tbody>
+<sc-for list="{{staffDrill.cats}}" as="c" hint-placeholder-count="6">
+<tr><td style="text-align:left;font-weight:600">{{c.label}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600">{{c.sharePctLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<div>
+<div class="card-kicker" style="margin-bottom:var(--space-2)">Sub-category</div>
+<table class="table">
+<thead><tr><th style="text-align:left">Sub-category</th><th>Net</th><th>%</th></tr></thead>
+<tbody>
+<sc-for list="{{staffDrill.subs}}" as="c" hint-placeholder-count="6">
+<tr><td style="text-align:left;font-weight:600">{{c.label}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600">{{c.sharePctLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<div>
+<div class="card-kicker" style="margin-bottom:var(--space-2)">Brand</div>
+<table class="table">
+<thead><tr><th style="text-align:left">Brand</th><th>Net</th><th>%</th></tr></thead>
+<tbody>
+<sc-for list="{{staffDrill.brands}}" as="c" hint-placeholder-count="6">
+<tr><td style="text-align:left;font-weight:600">{{c.label}}</td><td style="font-weight:600;white-space:nowrap">{{c.netSalesLabel}}</td><td style="font-weight:600">{{c.sharePctLabel}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</sc-if>
+</section>
+</sc-if>
+
 <sc-if value="{{isConsumables}}" hint-placeholder-val="{{false}}">
 <section>
 <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:var(--space-4)">
@@ -2642,8 +2826,12 @@ class Component extends DCLogic {
       brands: { col: 'netSales', dir: 'desc' },
       invoices: { col: 'netSales', dir: 'desc' },
       items: { col: 'netSales', dir: 'desc' },
-      discounts: { col: 'ratio', dir: 'desc' }
+      discounts: { col: 'ratio', dir: 'desc' },
+      staff: { col: 'netSales', dir: 'desc' }
     },
+    staffSales: null, staffMaster: null, staffLoading: false, staffFailed: false,
+    staffFilters: { cat: 'All', sub: 'All', brand: 'All' },
+    staffSearch: '', staffPage: 0, staffDrill: null,
     search: '',
     expandedRegions: {},
     stcQitaf: [],
@@ -3041,6 +3229,7 @@ class Component extends DCLogic {
   componentDidUpdate() {
     this._scheduleLang();
     if (this.state.page === 'consumables' && !this.state.bagInvoices && !this.state.bagLoading && (this._bagTries || 0) < 4) this._ensureBagInvoices();
+    if (this.state.page === 'staffRank' && !this.state.staffSales && !this.state.staffLoading && (this._staffTries || 0) < 4) this._ensureStaffSales();
   }
 
   componentDidMount() {
@@ -3529,7 +3718,7 @@ class Component extends DCLogic {
     return name;
   }
 
-  goTo(page) { return () => { if (page === 'linkSales' && !this.state.auth) return; if (page === 'yoy') this._ensureYoy(); if (page === 'linkSales') this._ensureLinkPairs(); if (page === 'consumables') this._ensureBagInvoices(); this.setState({ page }); }; }
+  goTo(page) { return () => { if (page === 'linkSales' && !this.state.auth) return; if (page === 'yoy') this._ensureYoy(); if (page === 'linkSales') this._ensureLinkPairs(); if (page === 'staffRank') this._ensureStaffSales(); if (page === 'consumables') this._ensureBagInvoices(); this.setState({ page }); }; }
 
   // ===== Daily snapshot (admin / mathew only) =====
   snapshotData(date) {
@@ -4295,6 +4484,192 @@ class Component extends DCLogic {
     } catch (e) {
       this.setState({ bagFailed: this._bagTries >= 4, bagLoading: false });
     }
+  }
+
+  async _ensureStaffSales() {
+    if (this.state.staffSales || this.state.staffLoading) return;
+    this._staffTries = (this._staffTries || 0) + 1;
+    this.setState({ staffLoading: true });
+    try {
+      const [a, b] = await Promise.all([fetch('data/staff-sales.json'), fetch('data/staff-master.json')]);
+      const d = a.ok ? await a.json() : null;
+      const m = b.ok ? await b.json() : [];
+      if (d && Array.isArray(d.d)) this.setState({ staffSales: d, staffMaster: Array.isArray(m) ? m : [], staffFailed: false, staffLoading: false });
+      else this.setState({ staffFailed: this._staffTries >= 4, staffLoading: false });
+    } catch (e) {
+      this.setState({ staffFailed: this._staffTries >= 4, staffLoading: false });
+    }
+  }
+
+  // ===== Staff Ranking =====
+  // Two grains in staff-sales.json: d (staff x store x day, all measures) powers the default
+  // ranking; m (staff x month x store x cat x sub x brand, net+qty only) powers the
+  // category/sub-category/brand slice and the per-staff mix drill.
+  staffData() {
+    const st = this.state, f = st.filters || {};
+    const S = st.staffSales;
+    const sf = st.staffFilters || { cat: 'All', sub: 'All', brand: 'All' };
+    const blankT = { rows: [], totals: null, catOptions: ['All'], subOptions: ['All'], brandOptions: ['All'], sliceMode: false, drill: null, note: '', countLabel: '', page: 0, pages: 1, kpis: [] };
+    if (!S) return blankT;
+    const nameById = {}; (st.staffMaster || []).forEach(s => nameById[String(s.id).trim()] = s.name);
+    const storeOk = code => {
+      const sm = this.storeIndex[code] || {};
+      if ((sm.type || 'Store') !== 'Store') return false;
+      if (f.region !== 'All' && sm.region !== f.region) return false;
+      if (f.city !== 'All' && sm.city !== f.city) return false;
+      if (f.store !== 'All' && code !== f.store) return false;
+      return true;
+    };
+    const dayOk = d => (f.month === 'All' || !f.month || d.slice(0, 7) === f.month) && (!f.dateRange || (d >= f.dateRange.start && d <= f.dateRange.end));
+    const monthOk = m => (f.month === 'All' || !f.month || m === f.month);
+
+    // cascading cat / sub / brand option lists, scoped to what the mix table actually holds
+    const catSet = new Set(), subSet = new Set(), brandSet = new Set();
+    S.m.forEach(r => {
+      const cat = S.cats[r[3]], sub = S.subs[r[4]], brand = S.brands[r[5]];
+      catSet.add(cat);
+      if (sf.cat === 'All' || sf.cat === cat) subSet.add(sub);
+      if ((sf.cat === 'All' || sf.cat === cat) && (sf.sub === 'All' || sf.sub === sub)) brandSet.add(brand);
+    });
+    const sortOpts = s => ['All', ...[...s].filter(Boolean).sort()];
+    const catOptions = sortOpts(catSet), subOptions = sortOpts(subSet), brandOptions = sortOpts(brandSet);
+    const sliceMode = sf.cat !== 'All' || sf.sub !== 'All' || sf.brand !== 'All';
+
+    // storeNet = denominator for Share of store sales, on the same grain as the rows
+    const agg = {}, storeNet = {}, homeNet = {};
+    const touch = (staff, store) => {
+      if (!agg[staff]) agg[staff] = { staff, netSales: 0, qty: 0, disc: 0, cost: 0, retQty: 0, retVal: 0, invoices: 0, stores: {} };
+      const a = agg[staff];
+      a.stores[store] = (a.stores[store] || 0) + 1;
+      return a;
+    };
+    if (sliceMode) {
+      S.m.forEach(r => {
+        const store = S.stores[r[2]];
+        if (!storeOk(store) || !monthOk(S.months[r[1]])) return;
+        const net = r[6], qty = r[7];
+        storeNet[store] = (storeNet[store] || 0) + net;
+        if (sf.cat !== 'All' && S.cats[r[3]] !== sf.cat) return;
+        if (sf.sub !== 'All' && S.subs[r[4]] !== sf.sub) return;
+        if (sf.brand !== 'All' && S.brands[r[5]] !== sf.brand) return;
+        const a = touch(S.staff[r[0]], store);
+        a.netSales += net; a.qty += qty;
+        const k = S.staff[r[0]] + '|' + store;
+        homeNet[k] = (homeNet[k] || 0) + net;
+      });
+    } else {
+      S.d.forEach(r => {
+        const store = S.stores[r[1]];
+        if (!storeOk(store) || !dayOk(S.days[r[2]])) return;
+        const a = touch(S.staff[r[0]], store);
+        a.netSales += r[3]; a.qty += r[4]; a.disc += r[5]; a.cost += r[6];
+        a.retQty += r[7]; a.retVal += r[8]; a.invoices += r[9];
+        storeNet[store] = (storeNet[store] || 0) + r[3];
+        const k = S.staff[r[0]] + '|' + store;
+        homeNet[k] = (homeNet[k] || 0) + r[3];
+      });
+    }
+
+    const search = (st.staffSearch || '').trim().toLowerCase();
+    let rows = Object.values(agg).map(a => {
+      // home store = where this staff booked the most net sales inside the current filter
+      let home = null, best = -Infinity;
+      Object.keys(a.stores).forEach(code => {
+        const v = homeNet[a.staff + '|' + code] || 0;
+        if (v > best) { best = v; home = code; }
+      });
+      const sm = this.storeIndex[home] || {};
+      const known = !!nameById[a.staff];
+      const denom = storeNet[home] || 0;
+      return {
+        id: a.staff,
+        name: known ? nameById[a.staff] : a.staff + ' (Unknown)',
+        known,
+        storeName: sm.shortName || sm.name || home || '—',
+        region: sm.region || '—',
+        netSales: a.netSales,
+        qty: a.qty,
+        invoices: a.invoices,
+        atv: a.invoices ? a.netSales / a.invoices : 0,
+        upt: a.invoices ? a.qty / a.invoices : 0,
+        discPct: (a.netSales + a.disc) ? 100 * a.disc / (a.netSales + a.disc) : 0,
+        returnPct: (a.qty + a.retQty) ? 100 * a.retQty / (a.qty + a.retQty) : 0,
+        sharePct: denom ? 100 * a.netSales / denom : 0
+      };
+    }).filter(r => r.netSales !== 0 || r.qty !== 0);
+    if (search) rows = rows.filter(r => r.name.toLowerCase().includes(search) || r.id.toLowerCase().includes(search) || r.storeName.toLowerCase().includes(search));
+
+    const so = st.sort.staff;
+    rows = this.sortRows(rows, so.col, so.dir);
+    const tot = rows.reduce((t, r) => {
+      t.netSales += r.netSales; t.qty += r.qty; t.invoices += r.invoices; return t;
+    }, { netSales: 0, qty: 0, invoices: 0 });
+    const PER = 50;
+    const pages = Math.max(1, Math.ceil(rows.length / PER));
+    const page = Math.min(st.staffPage || 0, pages - 1);
+    const ranked = rows.map((r, i) => ({ ...r, rank: i + 1 }));
+    const pageRows = ranked.slice(page * PER, page * PER + PER).map(r => ({
+      ...r,
+      netSalesLabel: this.fmtMoney(r.netSales),
+      qtyLabel: this.fmtNum(r.qty),
+      invoicesLabel: r.invoices ? this.fmtNum(r.invoices) : '—',
+      atvLabel: r.invoices ? this.fmtMoney(r.atv) : '—',
+      uptLabel: r.invoices ? Math.abs(r.upt).toFixed(2) : '—',
+      discPctLabel: r.invoices ? Math.abs(r.discPct).toFixed(1) + '%' : '—',
+      returnPctLabel: r.invoices ? Math.abs(r.returnPct).toFixed(1) + '%' : '—',
+      sharePctLabel: r.sharePct ? Math.abs(r.sharePct).toFixed(1) + '%' : '—',
+      nameColor: r.known ? 'var(--color-text)' : 'var(--color-neutral-500)',
+      onClick: () => this.setState({ staffDrill: r.id })
+    }));
+
+    // drill — one staff's category / sub-category / brand split, month grain
+    let drill = null;
+    if (st.staffDrill) {
+      const id = st.staffDrill;
+      const byCat = {}, bySub = {}, byBrand = {};
+      let dNet = 0, dQty = 0;
+      S.m.forEach(r => {
+        if (S.staff[r[0]] !== id) return;
+        if (!storeOk(S.stores[r[2]]) || !monthOk(S.months[r[1]])) return;
+        const net = r[6], qty = r[7];
+        dNet += net; dQty += qty;
+        const add = (o, k) => { if (!o[k]) o[k] = { label: k, netSales: 0, qty: 0 }; o[k].netSales += net; o[k].qty += qty; };
+        add(byCat, S.cats[r[3]]); add(bySub, S.subs[r[4]]); add(byBrand, S.brands[r[5]]);
+      });
+      const fmtList = o => Object.values(o).sort((a, b) => b.netSales - a.netSales).map(x => ({
+        label: x.label, netSalesLabel: this.fmtMoney(x.netSales), qtyLabel: this.fmtNum(x.qty),
+        sharePctLabel: dNet ? Math.abs(100 * x.netSales / dNet).toFixed(1) + '%' : '—'
+      }));
+      const row = ranked.find(r => r.id === id);
+      drill = {
+        id, name: row ? row.name : (nameById[id] || id + ' (Unknown)'),
+        kicker: (row ? row.storeName + ' · ' : '') + (f.month === 'All' || !f.month ? 'all months' : f.month) + ' · ' + this.fmtMoney(dNet) + ' · ' + this.fmtNum(dQty) + ' units',
+        cats: fmtList(byCat), subs: fmtList(bySub), brands: fmtList(byBrand),
+        empty: !dNet && !dQty
+      };
+    }
+
+    const covNote = S.days.length ? S.days[0] + ' → ' + S.days[S.days.length - 1] + ' · ' + S.days.length + ' days' : 'no days';
+    const note = sliceMode
+      ? 'Category slice is month-grain, so the Date filter is ignored here and invoice-based columns (Invoices, ATV, UPT, Disc%, Ret%) are not available per category. Coverage ' + covNote + '.'
+      : 'Seller is the "Sales Staff" on each line, falling back to "Staff ID" when blank. Warehouses excluded. Coverage ' + covNote + '. Click a row for that person\'s category, sub-category and brand split.';
+    return {
+      rows: pageRows, sliceMode, catOptions, subOptions, brandOptions, drill, note,
+      totals: {
+        netSalesLabel: this.fmtMoney(tot.netSales), qtyLabel: this.fmtNum(tot.qty),
+        invoicesLabel: tot.invoices ? this.fmtNum(tot.invoices) : '—',
+        atvLabel: tot.invoices ? this.fmtMoney(tot.netSales / tot.invoices) : '—',
+        uptLabel: tot.invoices ? Math.abs(tot.qty / tot.invoices).toFixed(2) : '—'
+      },
+      kpis: [
+        { label: 'Staff selling', value: this.fmtNum(rows.length), sub: (rows.filter(r => !r.known).length || 0) + ' not in master' },
+        { label: 'Net sales', value: this.fmtMoney(tot.netSales), sub: sliceMode ? 'in this category slice' : 'all filtered days' },
+        { label: 'Avg per head', value: this.fmtMoney(rows.length ? tot.netSales / rows.length : 0), sub: 'net sales / staff' },
+        { label: 'Top share', value: rows.length ? Math.abs(tot.netSales ? 100 * rows.slice(0, 10).reduce((a, r) => a + r.netSales, 0) / tot.netSales : 0).toFixed(1) + '%' : '—', sub: 'top 10 staff of total' }
+      ],
+      countLabel: this.fmtNum(rows.length) + ' staff · page ' + (page + 1) + ' of ' + pages,
+      page, pages, pagePrevOff: page <= 0, pageNextOff: page >= pages - 1
+    };
   }
 
   // ===== Consumables (shopping bags 99-939 / 99-940 / 99-941) =====
@@ -6290,9 +6665,9 @@ class Component extends DCLogic {
       if (L.drill) this._lastLinkDrill = L.drill;
       if (L.suggested) this._lastLinkSuggested = { rows: L.suggested.rows, subtitle: (st.linkMonth === 'All' ? 'All months' : st.linkMonth) + ' · ' + this.fmtNum(L.baskets) + ' multi-item invoices · min ' + st.linkMinCount + ' baskets · ranked by revenue headroom · basket counts are upper bounds (pairwise minimum)' };
     }
-    const titles = { snapshot: 'Daily Snapshot', overview: 'Executive Overview', stores: 'Branch Comparison', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', hourlySales: 'Hourly Sales', wholesale: 'Wholesale', daily: 'Daily Sales', regionDetail: 'Region Detail', stcQitaf: 'STC Qitaf', yoy: 'YOY Comparison', linkSales: 'Link Sales', consumables: 'Consumables' };
-    const shortTitles = { snapshot: 'Snapshot', overview: 'Overview', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily', regionDetail: 'Region', hourlySales: 'Hourly', wholesale: 'Wholesale', stcQitaf: 'Qitaf', yoy: 'YOY', linkSales: 'Link', consumables: 'Bags' };
-    const navIcons = { snapshot: '☷', overview: '▣', categories: '▤', items: '◫', discounts: '%', invoices: '⌂', daily: '◷', regionDetail: '◈', hourlySales: '◔', wholesale: '◊', stcQitaf: '⊙', yoy: '⇄', linkSales: '⧉', consumables: '▧' };
+    const titles = { snapshot: 'Daily Snapshot', overview: 'Executive Overview', stores: 'Branch Comparison', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', hourlySales: 'Hourly Sales', wholesale: 'Wholesale', daily: 'Daily Sales', regionDetail: 'Region Detail', stcQitaf: 'STC Qitaf', yoy: 'YOY Comparison', staffRank: 'Staff Ranking', linkSales: 'Link Sales', consumables: 'Consumables' };
+    const shortTitles = { snapshot: 'Snapshot', overview: 'Overview', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily', regionDetail: 'Region', hourlySales: 'Hourly', wholesale: 'Wholesale', stcQitaf: 'Qitaf', yoy: 'YOY', linkSales: 'Link', consumables: 'Bags', staffRank: 'Staff' };
+    const navIcons = { snapshot: '☷', overview: '▣', categories: '▤', items: '◫', discounts: '%', invoices: '⌂', daily: '◷', regionDetail: '◈', hourlySales: '◔', wholesale: '◊', stcQitaf: '⊙', yoy: '⇄', linkSales: '⧉', consumables: '▧', staffRank: '★' };
     const isSnapshotUser = !!(st.auth && (st.auth.id === 'admin' || st.auth.id === 'mathew'));
     const isAdminUser = !!(st.auth && st.auth.id === 'admin');
     const snapDates = [...new Set((st.buckets || []).map(r => r.date))].sort().reverse();
@@ -6329,9 +6704,10 @@ class Component extends DCLogic {
         });
       }
     }
-    const pageOrder = [...(isSnapshotUser ? ['snapshot'] : []), 'overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'hourlySales', 'yoy', 'linkSales', 'consumables', 'wholesale', 'stcQitaf'].filter(p => !(st.auth && st.auth.region !== 'All' && p === 'wholesale'));
+    const pageOrder = [...(isSnapshotUser ? ['snapshot'] : []), 'overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'hourlySales', 'yoy', 'linkSales', 'consumables', 'staffRank', 'wholesale', 'stcQitaf'].filter(p => !(st.auth && st.auth.region !== 'All' && p === 'wholesale'));
     const isMobile = st.isMobile;
     const consView = st.consView || 'daily';
+    const SR = st.page === 'staffRank' ? this.staffData() : { rows: [], totals: null, catOptions: ['All'], subOptions: ['All'], brandOptions: ['All'], sliceMode: false, drill: null, note: '', countLabel: '', kpis: [] };
     const C = st.page === 'consumables' ? this.consumablesData() : { dailyRows: [], consTotals: {}, consDayRows: [], storeCards: [], invoiceRows: [], invoiceItems: [], covNote: '', invTotals: null, selSet: [] };
     const consSkuChips = [['99-939', 'Small 35×25'], ['99-940', 'Medium 45×35'], ['99-941', 'Big 55×45']].map(([sku, label]) => {
       const on = C.selSet.indexOf(sku) >= 0;
@@ -6429,6 +6805,10 @@ class Component extends DCLogic {
         topCatCategory: this.makeSortHandler('topCategories', 'category'), topCatNetSales: this.makeSortHandler('topCategories', 'netSales'), topCatPct: this.makeSortHandler('topCategories', 'pct'), topCatQty: this.makeSortHandler('topCategories', 'qty'), topCatInvoices: this.makeSortHandler('topCategories', 'invoices'), topCatAtv: this.makeSortHandler('topCategories', 'atv'), topCatUpt: this.makeSortHandler('topCategories', 'upt'), catPct: this.makeSortHandler('categories', 'pct'),
         invStoreName: this.makeSortHandler('invoices', 'storeName'), invRegion: this.makeSortHandler('invoices', 'region'), invNetSales: this.makeSortHandler('invoices', 'netSales'), invQty: this.makeSortHandler('invoices', 'qty'), invDiscount: this.makeSortHandler('invoices', 'discount'), invInvoices: this.makeSortHandler('invoices', 'invoices'), invAtv: this.makeSortHandler('invoices', 'atv'), invUpt: this.makeSortHandler('invoices', 'upt'), invAsp: this.makeSortHandler('invoices', 'asp'),
         discStoreName: this.makeSortHandler('discounts', 'storeName'), discNetSales: this.makeSortHandler('discounts', 'netSales'), discDiscount: this.makeSortHandler('discounts', 'discount'), discQty: this.makeSortHandler('discounts', 'qty'), discRatio: this.makeSortHandler('discounts', 'ratio'),
+        staffName: this.makeSortHandler('staff', 'name'), staffStore: this.makeSortHandler('staff', 'storeName'), staffNet: this.makeSortHandler('staff', 'netSales'),
+        staffQty: this.makeSortHandler('staff', 'qty'), staffInv: this.makeSortHandler('staff', 'invoices'), staffAtv: this.makeSortHandler('staff', 'atv'),
+        staffUpt: this.makeSortHandler('staff', 'upt'), staffDisc: this.makeSortHandler('staff', 'discPct'), staffRet: this.makeSortHandler('staff', 'returnPct'),
+        staffShare: this.makeSortHandler('staff', 'sharePct'),
         itemNo: this.makeSortHandler('items', 'itemNo'), itemDesc: this.makeSortHandler('items', 'itemDesc'), itemDivision: this.makeSortHandler('items', 'division'), itemCategory: this.makeSortHandler('items', 'category'), itemNetSales: this.makeSortHandler('items', 'netSales'), itemQty: this.makeSortHandler('items', 'qty'), itemInvoices: this.makeSortHandler('items', 'invoices'), itemUpt: this.makeSortHandler('items', 'upt'), itemReturnQty: this.makeSortHandler('items', 'returnQty'), itemReturnPct: this.makeSortHandler('items', 'returnPct')
       },
       sortArrow: {
@@ -6441,6 +6821,10 @@ class Component extends DCLogic {
         topCatCategory: this.arrow('topCategories', 'category'), topCatNetSales: this.arrow('topCategories', 'netSales'), topCatPct: this.arrow('topCategories', 'pct'), topCatQty: this.arrow('topCategories', 'qty'), topCatInvoices: this.arrow('topCategories', 'invoices'), topCatAtv: this.arrow('topCategories', 'atv'), topCatUpt: this.arrow('topCategories', 'upt'),
         invStoreName: this.arrow('invoices', 'storeName'), invRegion: this.arrow('invoices', 'region'), invNetSales: this.arrow('invoices', 'netSales'), invQty: this.arrow('invoices', 'qty'), invDiscount: this.arrow('invoices', 'discount'), invInvoices: this.arrow('invoices', 'invoices'), invAtv: this.arrow('invoices', 'atv'), invUpt: this.arrow('invoices', 'upt'), invAsp: this.arrow('invoices', 'asp'),
         discStoreName: this.arrow('discounts', 'storeName'), discNetSales: this.arrow('discounts', 'netSales'), discDiscount: this.arrow('discounts', 'discount'), discQty: this.arrow('discounts', 'qty'), discRatio: this.arrow('discounts', 'ratio'),
+        staffName: this.arrow('staff', 'name'), staffStore: this.arrow('staff', 'storeName'), staffNet: this.arrow('staff', 'netSales'),
+        staffQty: this.arrow('staff', 'qty'), staffInv: this.arrow('staff', 'invoices'), staffAtv: this.arrow('staff', 'atv'),
+        staffUpt: this.arrow('staff', 'upt'), staffDisc: this.arrow('staff', 'discPct'), staffRet: this.arrow('staff', 'returnPct'),
+        staffShare: this.arrow('staff', 'sharePct'),
         itemNo: this.arrow('items', 'itemNo'), itemDesc: this.arrow('items', 'itemDesc'), itemDivision: this.arrow('items', 'division'), itemCategory: this.arrow('items', 'category'), itemNetSales: this.arrow('items', 'netSales'), itemQty: this.arrow('items', 'qty'), itemInvoices: this.arrow('items', 'invoices'), itemUpt: this.arrow('items', 'upt'), itemReturnQty: this.arrow('items', 'returnQty'), itemReturnPct: this.arrow('items', 'returnPct')
       },
       isHourlySales: st.page === 'hourlySales',
@@ -6575,6 +6959,26 @@ class Component extends DCLogic {
       wholesaleKpiCards,
       wholesaleTypeCards,
       wholesaleTotalLabel: this.fmtMoney(wholesaleTotal),
+      isStaffRank: st.page === 'staffRank',
+      staffLoading: st.page === 'staffRank' && st.staffLoading && !st.staffSales,
+      staffFailed: st.page === 'staffRank' && !!st.staffFailed && !st.staffSales,
+      staffReady: st.page === 'staffRank' && !!st.staffSales,
+      staffRows: SR.rows, staffTotals: SR.totals, staffKpis: SR.kpis, staffNote: SR.note, staffCountLabel: SR.countLabel,
+      staffSliceMode: SR.sliceMode, staffFullMode: !SR.sliceMode,
+      staffEmpty: SR.rows.length === 0,
+      staffCatOptions: SR.catOptions, staffSubOptions: SR.subOptions, staffBrandOptions: SR.brandOptions,
+      staffFilters: st.staffFilters,
+      setStaffCat: e => this.setState({ staffFilters: { cat: e.target.value, sub: 'All', brand: 'All' }, staffPage: 0 }),
+      setStaffSub: e => this.setState({ staffFilters: { ...st.staffFilters, sub: e.target.value, brand: 'All' }, staffPage: 0 }),
+      setStaffBrand: e => this.setState({ staffFilters: { ...st.staffFilters, brand: e.target.value }, staffPage: 0 }),
+      staffSearch: st.staffSearch,
+      setStaffSearch: e => this.setState({ staffSearch: e.target.value, staffPage: 0 }),
+      clearStaffSlice: () => this.setState({ staffFilters: { cat: 'All', sub: 'All', brand: 'All' }, staffPage: 0 }),
+      staffPagePrev: () => this.setState({ staffPage: Math.max(0, (st.staffPage || 0) - 1) }),
+      staffPageNext: () => this.setState({ staffPage: (st.staffPage || 0) + 1 }),
+      staffPagePrevOff: SR.pagePrevOff, staffPageNextOff: SR.pageNextOff,
+      staffDrillOpen: !!SR.drill, staffDrill: SR.drill || { name: '', kicker: '', cats: [], subs: [], brands: [], empty: true },
+      closeStaffDrill: () => this.setState({ staffDrill: null }),
       isConsumables: st.page === 'consumables',
       consTabs, consSkuChips,
       consIsDaily: consView === 'daily', consIsByInvoice: consView === 'byInvoice', consIsStoreInv: consView === 'storeInv',
