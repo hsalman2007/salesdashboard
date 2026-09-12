@@ -1120,7 +1120,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <sc-for list="{{staffRows}}" as="r" hint-placeholder-count="15">
 <tr onClick="{{r.onClick}}" style="cursor:pointer">
 <td style="font-weight:600;text-align:left">{{r.rank}}</td>
-<td style="text-align:left;min-width:200px"><div style="font-weight:600;color:{{r.nameColor}}">{{r.name}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{r.id}}</div></td>
+<td style="text-align:left;min-width:200px"><div data-no-translate="1" style="font-weight:{{r.nameWeight}};color:{{r.nameColor}}">{{r.name}}{{r.crown}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{r.id}}</div></td>
 <td style="font-weight:600;white-space:nowrap;text-align:left">{{r.storeName}}</td>
 <td style="font-weight:700;color:var(--color-accent-300);white-space:nowrap">{{r.netSalesLabel}}</td>
 <td style="font-weight:600">{{r.qtyLabel}}</td>
@@ -1159,7 +1159,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <sc-for list="{{staffRows}}" as="r" hint-placeholder-count="10">
 <div onClick="{{r.onClick}}" class="card elev-sm" style="display:flex;flex-direction:column;gap:10px;cursor:pointer">
 <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
-<div style="min-width:0"><div style="font-weight:700;font-size:15px;color:{{r.nameColor}}">{{r.rank}}. {{r.name}}</div><div style="font-size:12px;color:var(--color-neutral-500)">{{r.storeName}} · {{r.id}}</div></div>
+<div style="min-width:0"><div data-no-translate="1" style="font-weight:{{r.nameWeight}};font-size:15px;color:{{r.nameColor}}">{{r.rank}}. {{r.name}}{{r.crown}}</div><div style="font-size:12px;color:var(--color-neutral-500)">{{r.storeName}} · {{r.id}}</div></div>
 <div style="font-weight:700;font-size:16px;color:var(--color-accent);white-space:nowrap">{{r.netSalesLabel}}</div>
 </div>
 <div style="display:flex;flex-wrap:wrap;gap:10px 16px;font-size:13px">
@@ -1189,7 +1189,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <div onClick="{{closeStaffDrill}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:var(--space-4);z-index:52">
 <div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:880px;max-height:84vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5)">
 <div style="display:flex;gap:12px;align-items:center">
-<div style="flex:1;min-width:0"><div style="font-weight:700;font-size:16px">{{staffDrill.name}}</div><div style="font-size:12px;color:var(--color-neutral-500)">{{staffDrill.kicker}}</div></div>
+<div style="flex:1;min-width:0"><div data-no-translate="1" style="font-weight:700;font-size:16px">{{staffDrill.name}}</div><div style="font-size:12px;color:var(--color-neutral-500)">{{staffDrill.kicker}}</div></div>
 <button onClick="{{closeStaffDrill}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
 </div>
 <sc-if value="{{staffDrill.empty}}" hint-placeholder-val="{{false}}">
@@ -2876,6 +2876,13 @@ class Component extends DCLogic {
     'Retail Sales': 'مبيعات التجزئة', 'Sales Dashboard': 'لوحة المبيعات', 'Loading…': 'جارٍ التحميل…',
     'Overview': 'نظرة عامة', 'Stores': 'الفروع', 'Store': 'الفرع', 'Items': 'الأصناف', 'Item': 'الصنف',
     'Categories': 'الفئات', 'Category': 'الفئة', 'Wholesale': 'الجملة', 'Daily': 'اليومي', 'Discounts': 'الخصومات',
+    'Daily Punched': 'المسجل يوميًا', 'Billed by Invoices': 'حسب الفواتير', 'Storewise Invoices': 'فواتير الفروع',
+    'Small 35×25': 'صغير ٣٥×٢٥', 'Medium 45×35': 'متوسط ٤٥×٣٥', 'Big 55×45': 'كبير ٥٥×٤٥',
+    'Bags punched day-wise': 'الأكياس المسجلة يوميًا',
+    'Consumables': 'المستهلكات', 'Staff Ranking': 'ترتيب الموظفين', 'Staff': 'الموظف', 'Staff ID': 'رقم الموظف',
+    'Hourly Sales': 'المبيعات بالساعة', 'Hourly': 'بالساعة', 'Units': 'القطع', 'Store share': 'حصة الفرع',
+    'In master': 'مسجل في القائمة', 'Sub-category': 'الفئة الفرعية', 'Brand': 'العلامة التجارية',
+    'Clear slice': 'إلغاء التصفية', 'Export Excel': 'تصدير إكسل', 'Net sales': 'صافي المبيعات',
     'Link Sales': 'المبيعات المرتبطة', 'STC Qitaf': 'قطاف STC', 'YoY': 'مقارنة سنوية', 'Snapshot': 'الملخص اليومي',
     'Daily Snapshot': 'الملخص اليومي', 'Executive Overview': 'النظرة التنفيذية', 'Region Detail': 'تفاصيل المنطقة',
     'Category Performance': 'أداء الفئات', 'Item Detail': 'تفاصيل الصنف', 'Discount Detail': 'تفاصيل الخصومات',
@@ -3198,6 +3205,8 @@ class Component extends DCLogic {
       acceptNode: n => {
         const p = n.parentNode;
         if (!p || p.nodeName === 'SCRIPT' || p.nodeName === 'STYLE' || p.nodeName === 'TEMPLATE' || p.nodeName === 'NOSCRIPT') return NodeFilter.FILTER_REJECT;
+        // proper names (staff) must stay verbatim in Arabic
+        if (p.closest && p.closest('[data-no-translate]')) return NodeFilter.FILTER_REJECT;
         if (!n.nodeValue || !n.nodeValue.trim() || n.nodeValue.length > 400) return NodeFilter.FILTER_REJECT;
         return NodeFilter.FILTER_ACCEPT;
       }
@@ -4827,13 +4836,19 @@ class Component extends DCLogic {
       }
       const sm = this.storeIndex[home] || {};
       const known = !!nameById[a.staff];
+      // an alphanumeric "staff id" that is really a store-master code = a till login where the
+      // cashier never picked their own staff code
+      const till = !known ? (this.storeIndex[a.staff] || this.storeIndex[String(a.staff).trim().toUpperCase()] || null) : null;
       const m = sliceMode ? (b || { netSales: 0, qty: 0, disc: 0, retQty: 0, invoices: 0 }) : a;
       const denom = (sliceMode ? baseStoreNet[home] : storeNet[home]) || 0;
       const shareNum = sliceMode ? m.netSales : a.netSales;
       return {
         id: a.staff,
-        name: known ? nameById[a.staff] : a.staff + ' (Unknown)',
+        name: known ? nameById[a.staff]
+          : till ? (till.shortName || till.nameEn || till.name || a.staff) + ' (Staff Selection not Made)'
+            : a.staff + ' (Unknown)',
         known,
+        tillLogin: !!till,
         storeName: sm.shortName || sm.name || home || '—',
         region: sm.region || '—',
         netSales: a.netSales,
@@ -4870,7 +4885,9 @@ class Component extends DCLogic {
       discPctLabel: r.invoices ? Math.abs(r.discPct).toFixed(1) + '%' : '—',
       returnPctLabel: r.invoices ? Math.abs(r.returnPct).toFixed(1) + '%' : '—',
       sharePctLabel: r.sharePct ? Math.abs(r.sharePct).toFixed(1) + '%' : '—',
-      nameColor: r.known ? 'var(--color-text)' : 'var(--color-neutral-500)',
+      crown: (r.rank <= 5 && r.known) ? ' 🏆' : '',
+      nameColor: r.known ? 'var(--color-text)' : r.tillLogin ? '#c0392b' : 'var(--color-neutral-500)',
+      nameWeight: r.tillLogin ? 800 : 600,
       onClick: () => this.setState({ staffDrill: r.id })
     }));
 
@@ -6292,7 +6309,7 @@ class Component extends DCLogic {
         const singlePct = (singleInv !== null && r.invoices) ? 100 * singleInv / r.invoices : null;
         const asp = r.qty ? r.netSales / r.qty : 0;
         return {
-          rank: i + 1, store: r.store, storeName: r.storeName, netSalesLabel: this.fmtMoney(r.netSales), qtyLabel: this.fmtNum(r.qty), invoicesLabel: this.fmtNum(r.invoices),
+          rank: i + 1, store: r.store, storeName: r.storeName + (i < 3 ? ' 🏆' : ''), netSalesLabel: this.fmtMoney(r.netSales), qtyLabel: this.fmtNum(r.qty), invoicesLabel: this.fmtNum(r.invoices),
           atvLabel: this.fmtMoney(atv), uptLabel: Math.abs(upt).toFixed(2), aspLabel: this.fmtMoney(asp),
           rowBg: i < ddGreenCut ? '#e3f5e6' : i < ddYellowCut ? '#f6f0e0' : '#fbe7e7',
           singleItemInvoicesLabel: singleInv === null ? '—' : this.fmtNum(singleInv),
