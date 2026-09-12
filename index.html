@@ -3868,15 +3868,37 @@ class Component extends DCLogic {
   }
 
   // ===== Item detail card → PNG (same structure) + share =====
-  _loadImg(src) {
+  _loadImg(src, anon) {
     return new Promise(res => {
       if (!src) return res(null);
       const im = new Image();
-      im.crossOrigin = 'anonymous';
+      if (anon) im.crossOrigin = 'anonymous';
       im.onload = () => res(im);
       im.onerror = () => res(null);
       im.src = src;
     });
+  }
+
+  // Remote product images must be CORS-clean or the canvas taints and export fails.
+  // A plain <img> already cached the file WITHOUT cors headers, so retry with a cache-buster,
+  // then fall back to fetch → data URL.
+  async _loadExportImg(src) {
+    if (!src || src === '0') return null;
+    if (/^data:/.test(src)) return this._loadImg(src, false);
+    let im = await this._loadImg(src + (src.includes('?') ? '&' : '?') + 'cors=1', true);
+    if (im) return im;
+    im = await this._loadImg(src, true);
+    if (im) return im;
+    // product host sends no CORS headers — read it through a CORS-safe image proxy
+    im = await this._loadImg('https://images.weserv.nl/?url=' + encodeURIComponent(src.replace(/^https?:\/\//, '')) + '&w=320', true);
+    if (im) return im;
+    try {
+      const r = await fetch(src, { mode: 'cors', cache: 'reload' });
+      if (!r.ok) return null;
+      const b = await r.blob();
+      const dataUrl = await new Promise(res2 => { const fr = new FileReader(); fr.onload = () => res2(fr.result); fr.onerror = () => res2(null); fr.readAsDataURL(b); });
+      return dataUrl ? this._loadImg(dataUrl, false) : null;
+    } catch (e) { return null; }
   }
 
   async buildItemDetailCanvas() {
@@ -3892,9 +3914,16 @@ class Component extends DCLogic {
     x.scale(dpr, dpr);
     x.fillStyle = '#ffffff'; x.fillRect(0, 0, W, H);
 
-    const img = await this._loadImg(V.image);
-    if (img) { x.save(); x.beginPath(); x.roundRect(PAD, 34, 82, 82, 8); x.clip(); x.drawImage(img, PAD, 34, 82, 82); x.restore(); }
-    else { x.fillStyle = '#eceeed'; x.beginPath(); x.roundRect(PAD, 34, 82, 82, 8); x.fill(); }
+    const img = this._skipExportImg ? null : await this._loadExportImg(V.image);
+    x.save();
+    x.beginPath(); x.roundRect(PAD, 34, 82, 82, 8); x.clip();
+    x.fillStyle = '#f2f4f3'; x.fillRect(PAD, 34, 82, 82);
+    if (img && img.naturalWidth) {
+      const s = Math.min(82 / img.naturalWidth, 82 / img.naturalHeight);
+      const w = img.naturalWidth * s, h = img.naturalHeight * s;
+      x.drawImage(img, PAD + (82 - w) / 2, 34 + (82 - h) / 2, w, h);
+    }
+    x.restore();
 
     const tx = PAD + 82 + 20;
     x.fillStyle = '#14201c';
@@ -3951,7 +3980,14 @@ class Component extends DCLogic {
       const canvas = await this.buildItemDetailCanvas();
       const D = this._lastItemDetail || {};
       const name = String(D.sku || D.itemNo || 'item').trim().replace(/[^\w.-]+/g, '-') + '.png';
-      const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+      let blob = null;
+      try { blob = await new Promise(res => canvas.toBlob(res, 'image/png')); } catch (e) { blob = null; }
+      if (!blob) { // tainted canvas — redo without the product thumbnail
+        this._skipExportImg = true;
+        const c2 = await this.buildItemDetailCanvas();
+        this._skipExportImg = false;
+        blob = await new Promise(res => c2.toBlob(res, 'image/png'));
+      }
       if (!blob) throw new Error('no blob');
       const file = new File([blob], name, { type: 'image/png' });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
