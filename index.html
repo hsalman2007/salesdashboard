@@ -5055,7 +5055,7 @@ class Component extends DCLogic {
       discPctLabel: r.invoices ? Math.abs(r.discPct).toFixed(1) + '%' : '—',
       returnPctLabel: r.invoices ? Math.abs(r.returnPct).toFixed(1) + '%' : '—',
       sharePctLabel: r.sharePct ? Math.abs(r.sharePct).toFixed(1) + '%' : '—',
-      crown: (r.rank <= 5 && r.known) ? ' 🏆' : '',
+      crown: (r.rank <= (f.store !== 'All' ? 3 : 5) && r.known) ? ' 🏆' : '',
       nameColor: r.known ? 'var(--color-text)' : r.tillLogin ? '#c0392b' : 'var(--color-neutral-500)',
       nameWeight: r.tillLogin ? 800 : 600,
       onClick: () => this.setState({ staffDrill: r.id })
