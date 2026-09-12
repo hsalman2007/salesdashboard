@@ -2750,6 +2750,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <div style="font-weight:700;font-size:15px">{{itemDetailLabel}}</div>
 <div class="card-meta">{{itemDetailItemNo}}</div>
 </div>
+<button onClick="{{shareItemDetailImage}}" title="Share as image" style="border:1px solid var(--color-neutral-300);background:var(--color-surface);cursor:pointer;font-size:12px;font-weight:600;line-height:1;color:var(--color-text);padding:8px 10px;border-radius:var(--radius-sm);flex:none;white-space:nowrap">{{itemShareLabel}}</button>
 <div onClick="{{closeItemDetail}}" style="cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500);padding:4px">×</div>
 </div>
 <div onTouchStart="{{pinchStart}}" onTouchMove="{{pinchMove}}" onTouchEnd="{{pinchEnd}}" style="overflow-y:auto;overflow-x:hidden;flex:1;touch-action:pan-y">
@@ -3864,6 +3865,107 @@ class Component extends DCLogic {
       document.body.appendChild(a); a.click(); a.remove();
     }
     setTimeout(() => URL.revokeObjectURL(url), 60000);
+  }
+
+  // ===== Item detail card → PNG (same structure) + share =====
+  _loadImg(src) {
+    return new Promise(res => {
+      if (!src) return res(null);
+      const im = new Image();
+      im.crossOrigin = 'anonymous';
+      im.onload = () => res(im);
+      im.onerror = () => res(null);
+      im.src = src;
+    });
+  }
+
+  async buildItemDetailCanvas() {
+    const st = this.state;
+    const V = this._lastItemDetail || {};
+    const rows = V.rows || [];
+    const W = 1080, PAD = 40, HEAD = 150, ROW = 54, TH = 52, FOOT = 56;
+    const H = HEAD + TH + rows.length * ROW + FOOT;
+    const dpr = 2;
+    const c = document.createElement('canvas');
+    c.width = W * dpr; c.height = H * dpr;
+    const x = c.getContext('2d');
+    x.scale(dpr, dpr);
+    x.fillStyle = '#ffffff'; x.fillRect(0, 0, W, H);
+
+    const img = await this._loadImg(V.image);
+    if (img) { x.save(); x.beginPath(); x.roundRect(PAD, 34, 82, 82, 8); x.clip(); x.drawImage(img, PAD, 34, 82, 82); x.restore(); }
+    else { x.fillStyle = '#eceeed'; x.beginPath(); x.roundRect(PAD, 34, 82, 82, 8); x.fill(); }
+
+    const tx = PAD + 82 + 20;
+    x.fillStyle = '#14201c';
+    x.font = '700 27px system-ui, -apple-system, Segoe UI, sans-serif';
+    const title = String(V.label || '');
+    const maxW = W - tx - PAD;
+    let t = title;
+    while (x.measureText(t).width > maxW && t.length > 4) t = t.slice(0, -2);
+    x.fillText(t + (t === title ? '' : '…'), tx, 70);
+    x.fillStyle = '#6b7674';
+    x.font = '500 17px system-ui, -apple-system, Segoe UI, sans-serif';
+    x.fillText(String(V.itemNo || ''), tx, 100);
+
+    const cols = [
+      { k: 'storeName', label: 'STORE', x: PAD, align: 'left' },
+      { k: 'netSalesLabel', label: 'NET SALES', x: PAD + 500, align: 'right' },
+      { k: 'qtyLabel', label: 'QTY', x: PAD + 640, align: 'right' },
+      { k: 'returnQtyLabel', label: 'RETURN QTY', x: PAD + 840, align: 'right' },
+      { k: 'avgPerDayLabel', label: 'AVG/DAY', x: W - PAD, align: 'right' }
+    ];
+    let y = HEAD;
+    x.fillStyle = '#6b7674';
+    x.font = '600 14px system-ui, -apple-system, Segoe UI, sans-serif';
+    cols.forEach(col => { x.textAlign = col.align; x.fillText(col.label, col.x, y + 20); });
+    x.textAlign = 'left';
+    x.strokeStyle = '#dfe3e2'; x.lineWidth = 1;
+    x.beginPath(); x.moveTo(PAD, y + TH - 10); x.lineTo(W - PAD, y + TH - 10); x.stroke();
+    y += TH;
+
+    rows.forEach((r, i) => {
+      if (i % 2 === 1) { x.fillStyle = '#fafbfb'; x.fillRect(PAD - 10, y - 4, W - 2 * PAD + 20, ROW); }
+      x.fillStyle = '#14201c';
+      x.font = '600 19px system-ui, -apple-system, Segoe UI, sans-serif';
+      cols.forEach(col => { x.textAlign = col.align; x.fillText(String(r[col.k] ?? ''), col.x, y + 30); });
+      x.textAlign = 'left';
+      x.strokeStyle = '#eef1f0';
+      x.beginPath(); x.moveTo(PAD, y + ROW - 4); x.lineTo(W - PAD, y + ROW - 4); x.stroke();
+      y += ROW;
+    });
+
+    x.fillStyle = '#8b9491';
+    x.font = '500 14px system-ui, -apple-system, Segoe UI, sans-serif';
+    x.fillText('Retail Sales Dashboard · ' + (V.range || ''), PAD, H - 22);
+    x.textAlign = 'right';
+    x.fillText(new Date().toLocaleDateString('en-GB'), W - PAD, H - 22);
+    x.textAlign = 'left';
+    return c;
+  }
+
+  async shareItemDetailImage() {
+    if (this.state.itemShareBusy) return;
+    this.setState({ itemShareBusy: true });
+    try {
+      const canvas = await this.buildItemDetailCanvas();
+      const D = this._lastItemDetail || {};
+      const name = String(D.sku || D.itemNo || 'item').trim().replace(/[^\w.-]+/g, '-') + '.png';
+      const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+      if (!blob) throw new Error('no blob');
+      const file = new File([blob], name, { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: (this._lastItemDetail || {}).label || 'Item detail' });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = name; a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+      }
+    } catch (e) {
+      if (!/AbortError/.test(String(e))) console.warn('share failed', e);
+    }
+    this.setState({ itemShareBusy: false });
   }
 
   exportSnapshotPdf() {
@@ -5943,6 +6045,10 @@ class Component extends DCLogic {
         storeAggForItem[store].netSales += netSales; storeAggForItem[store].qty += qty; storeAggForItem[store].invoices += invoices; storeAggForItem[store].returnQty += (returnQty || 0);
       });
       itemDetailRows = Object.values(storeAggForItem).sort((a, b) => b.netSales - a.netSales).map(r => ({ ...r, netSalesLabel: this.fmtMoney(r.netSales), qtyLabel: this.fmtNum(r.qty), invoicesLabel: this.fmtNum(r.invoices), returnQtyLabel: this.fmtNum(r.returnQty), avgPerDayLabel: this.fmtNum(Math.round(filteredDaysCount ? r.qty / filteredDaysCount : 0)) }));
+      this._lastItemDetail = {
+        label: st.selectedItemLabel, itemNo: st.selectedItemNoLabel, sku: st.selectedItemNo, image: st.selectedItemImage, rows: itemDetailRows,
+        range: f.dateRange ? (f.dateRange.start + ' \u2013 ' + f.dateRange.end) : (f.month && f.month !== 'All' ? f.month : 'All dates')
+      };
     }
 
     // daily sales table — respects all filters, aggregated across stores per date
@@ -7150,6 +7256,8 @@ class Component extends DCLogic {
       closeBandDrill: () => this.setState({ bandDrill: null }),
       showCostCols: !hideCostCols,
       exportBandsPdf: this.exportBandsPdf,
+      shareItemDetailImage: () => this.shareItemDetailImage(),
+      itemShareLabel: st.itemShareBusy ? '…' : '⤓ Image',
       itemDetailOpen: !!st.selectedItemNo, itemDetailLabel: st.selectedItemLabel, itemDetailItemNo: st.selectedItemNoLabel, itemDetailImage: st.selectedItemImage, itemDetailRows, closeItemDetail: () => this.setState({ selectedItemNo: null, tableZoom: 1 }), stopPropagation: e => e.stopPropagation(),
       categoryDetailOpen: !!st.selectedCategoryKey, categoryDetailLabel: st.selectedCategoryLabel, categoryDetailRows, categoryDetailTotals: typeof categoryDetailTotals !== 'undefined' ? categoryDetailTotals : { netSalesLabel: '', qtyLabel: '', pctLabel: '' }, closeCategoryDetail: () => this.setState({ selectedCategoryKey: null, tableZoom: 1 }),
       dailyDetailOpen: !!st.selectedDailyDate, dailyDetailLabel: st.selectedDailyDate, dailyDetailRows,
