@@ -638,6 +638,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <div style="display:flex;gap:8px;flex-wrap:wrap">
 <button class="btn btn-secondary" onClick="{{exportStoreDetailFull}}" style="font-size:12px;padding:8px 12px;white-space:nowrap">PDF — all columns</button>
 <button class="btn btn-secondary" onClick="{{exportStoreDetailLean}}" style="font-size:12px;padding:8px 12px;white-space:nowrap">PDF — no net sales / qty</button>
+<button class="btn btn-secondary" onClick="{{exportStoreDetailAvgPd}}" style="font-size:12px;padding:8px 12px;white-space:nowrap">PDF — Avg. PD only</button>
 </div>
 </div>
 <sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
@@ -3690,6 +3691,25 @@ class Component extends DCLogic {
       columnStyles: { 1: { halign: 'left' } }
     });
     doc.save('store-detail' + (withSales ? '' : '-performance') + '.pdf');
+  };
+
+  exportStoreDetailAvgPd = () => {
+    const rows = this._lastInvoicesSorted || [];
+    if (!rows.length || !window.jspdf) return;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(13);
+    doc.text('Store Detail \u2014 Avg. Per Day', 14, 15);
+    const ranked = rows.slice().sort((a, b) => (b.avgPd || 0) - (a.avgPd || 0));
+    doc.autoTable({
+      startY: 22,
+      head: [['Rank', 'Store', 'Region', 'Avg. PD']],
+      body: ranked.map((r, i) => [i + 1, r.storeName, r.region, r.avgPdLabel]),
+      styles: { fontSize: 9, valign: 'middle', fontStyle: 'bold' },
+      headStyles: { fillColor: [45, 143, 129], fontStyle: 'bold' },
+      columnStyles: { 1: { halign: 'left' }, 2: { halign: 'left' } }
+    });
+    this._savePdf ? this._savePdf(doc, 'store-avg-per-day.pdf') : doc.save('store-avg-per-day.pdf');
   };
 
   exportStoreDetailFull = () => this.exportStoreDetailPdf(true);
@@ -7654,7 +7674,7 @@ class Component extends DCLogic {
       returnSkuNextDisabled: returnSkuPage >= returnSkuPages - 1,
       returnSkuPrev: () => this.setState({ returnSkuPage: Math.max(0, (st.returnSkuPage || 0) - 1) }),
       returnSkuNext: () => this.setState({ returnSkuPage: (st.returnSkuPage || 0) + 1 }),
-      exportStoreDetailFull: this.exportStoreDetailFull, exportStoreDetailLean: this.exportStoreDetailLean,
+      exportStoreDetailFull: this.exportStoreDetailFull, exportStoreDetailLean: this.exportStoreDetailLean, exportStoreDetailAvgPd: this.exportStoreDetailAvgPd,
       itemsSorted: itemsRows, itemsTotalCount: itemsFiltered.length, itemSearch: st.itemSearch,
       itemViewIsTop: (st.itemView || 'top') === 'top',
       itemViewIsBands: st.itemView === 'bands',
