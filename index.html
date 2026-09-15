@@ -648,6 +648,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <th class="rl-th" style="text-align:left" onClick="{{sortHandlers.invStoreName}}">Store {{sortArrow.invStoreName}}</th>
 <th class="rl-th" style="text-align:left" onClick="{{sortHandlers.invRegion}}">Region {{sortArrow.invRegion}}</th>
 <th class="rl-th" onClick="{{sortHandlers.invNetSales}}">Net sales {{sortArrow.invNetSales}}</th>
+<th class="rl-th" onClick="{{sortHandlers.invAvgPd}}">Avg. PD {{sortArrow.invAvgPd}}</th>
 <th class="rl-th" onClick="{{sortHandlers.invQty}}">Qty {{sortArrow.invQty}}</th>
 <th class="rl-th" onClick="{{sortHandlers.invInvoices}}">Invoices {{sortArrow.invInvoices}}</th>
 <th class="rl-th" onClick="{{sortHandlers.invAtv}}">ATV {{sortArrow.invAtv}}</th>
@@ -658,7 +659,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </tr></thead>
 <tbody>
 <sc-for list="{{invoicesSorted}}" as="iv" hint-placeholder-count="12">
-<tr onClick="{{iv.onClick}}" style="cursor:pointer;background:{{iv.rowBg}}"><td style="font-weight:600;white-space:nowrap">{{iv.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{iv.storeName}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{iv.region}}</td><td style="font-weight:600;white-space:nowrap">{{iv.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.singleItemInvoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.singleItemPctLabel}}</td></tr>
+<tr onClick="{{iv.onClick}}" style="cursor:pointer;background:{{iv.rowBg}}"><td style="font-weight:600;white-space:nowrap">{{iv.rank}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{iv.storeName}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{iv.region}}</td><td style="font-weight:600;white-space:nowrap">{{iv.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.avgPdLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.singleItemInvoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{iv.singleItemPctLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -674,6 +675,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </div>
 <div class="card-meta" style="margin-top:-6px">{{iv.region}}</div>
 <div style="display:flex;flex-wrap:wrap;gap:10px 16px;font-size:13px">
+<div><div class="card-meta">Avg. PD</div><div style="font-weight:600">{{iv.avgPdLabel}}</div></div>
 <div><div class="card-meta">Qty</div><div style="font-weight:600">{{iv.qtyLabel}}</div></div>
 <div><div class="card-meta">Invoices</div><div style="font-weight:600">{{iv.invoicesLabel}}</div></div>
 <div><div class="card-meta">ATV</div><div style="font-weight:600">{{iv.atvLabel}}</div></div>
@@ -3674,10 +3676,10 @@ class Component extends DCLogic {
     doc.setFontSize(13);
     doc.text(withSales ? 'Store Detail' : 'Store Ranking', 14, 15);
     const head = withSales
-      ? ['Rank', 'Store', 'Net Sales', 'Qty', 'Invoices', 'ATV', 'UPT', 'ASP', 'Single Inv', 'Single Inv%']
+      ? ['Rank', 'Store', 'Net Sales', 'Avg. PD', 'Qty', 'Invoices', 'ATV', 'UPT', 'ASP', 'Single Inv', 'Single Inv%']
       : ['Rank', 'Store', 'Invoices', 'ATV', 'UPT', 'ASP', 'Single Inv', 'Single Inv%'];
     const body = rows.map(r => withSales
-      ? [r.rank, r.storeName, r.netSalesLabel, r.qtyLabel, r.invoicesLabel, r.atvLabel, r.uptLabel, r.aspLabel, r.singleItemInvoicesLabel, r.singleItemPctLabel]
+      ? [r.rank, r.storeName, r.netSalesLabel, r.avgPdLabel, r.qtyLabel, r.invoicesLabel, r.atvLabel, r.uptLabel, r.aspLabel, r.singleItemInvoicesLabel, r.singleItemPctLabel]
       : [r.rank, r.storeName, r.invoicesLabel, r.atvLabel, r.uptLabel, r.aspLabel, r.singleItemInvoicesLabel, r.singleItemPctLabel]);
     doc.autoTable({
       startY: 22, head: [head], body,
@@ -5793,14 +5795,17 @@ class Component extends DCLogic {
     const searchedBuckets = filteredBuckets.filter(b => !search || b.storeName.toLowerCase().includes(search));
     const byStore = {};
     searchedBuckets.forEach(b => {
-      if (!byStore[b.store]) byStore[b.store] = { code: b.store, storeName: b.storeName, region: b.region, netSales: 0, qty: 0, discount: 0, invoices: 0, lines: 0, minDate: b.date, maxDate: b.date };
+      if (!byStore[b.store]) byStore[b.store] = { code: b.store, storeName: b.storeName, region: b.region, netSales: 0, qty: 0, discount: 0, invoices: 0, lines: 0, days: new Set(), minDate: b.date, maxDate: b.date };
       const d = byStore[b.store];
+      d.days.add(b.date);
       d.netSales += b.netSales; d.qty += b.qty; d.discount += b.discount; d.invoices += b.invoices; d.lines += b.lines;
       if (b.date < d.minDate) d.minDate = b.date;
       if (b.date > d.maxDate) d.maxDate = b.date;
     });
     let invRows = Object.values(byStore).map(d => ({
       ...d,
+      dayCount: d.days.size,
+      avgPd: d.days.size ? d.netSales / d.days.size : 0,
       atv: d.invoices ? d.netSales / d.invoices : 0,
       upt: d.invoices ? d.qty / d.invoices : 0,
       asp: d.qty ? d.netSales / d.qty : 0
@@ -5932,7 +5937,7 @@ class Component extends DCLogic {
       })).sort((a, b) => b.score - a.score);
       topStoresKpi = scored.slice(0, 3).map((c, i) => ({ rank: i + 1, name: c.name, netSalesLabel: this.fmtMoney(c.netSales), onClick: () => this.setState({ page: 'invoices', filters: { ...st.filters, store: c.code } }) }));
     }
-    invRows = invRows.map(d => ({ ...d, markupLabel: markupLabelFor(d.code, d.netSales), singleItemInvoicesLabel: singleItemByStoreEarly.hasOwnProperty(d.code) ? this.fmtNum(singleItemByStoreEarly[d.code]) : '—', singleItemPctLabel: (singleItemByStoreEarly.hasOwnProperty(d.code) && d.invoices) ? Math.abs(100 * singleItemByStoreEarly[d.code] / d.invoices).toFixed(1) + '%' : '—' }));
+    invRows = invRows.map(d => ({ ...d, avgPdLabel: this.fmtMoney(d.avgPd), markupLabel: markupLabelFor(d.code, d.netSales), singleItemInvoicesLabel: singleItemByStoreEarly.hasOwnProperty(d.code) ? this.fmtNum(singleItemByStoreEarly[d.code]) : '—', singleItemPctLabel: (singleItemByStoreEarly.hasOwnProperty(d.code) && d.invoices) ? Math.abs(100 * singleItemByStoreEarly[d.code] / d.invoices).toFixed(1) + '%' : '—' }));
     const discMarkupLabelFor = (code, discountedValue, discountedQty, totalQty) => {
       const cost = storeCost[code] ? storeCost[code].cost : 0;
       const costPortion = totalQty ? cost * (discountedQty / totalQty) : 0;
@@ -7283,7 +7288,7 @@ class Component extends DCLogic {
         catInvoices: this.makeSortHandler('categories', 'invoices'), catAtv: this.makeSortHandler('categories', 'atv'), catUpt: this.makeSortHandler('categories', 'upt'), catAsp: this.makeSortHandler('categories', 'asp'),
         brandBrand: this.makeSortHandler('brands', 'brand'), brandNetSales: this.makeSortHandler('brands', 'netSales'), brandPct: this.makeSortHandler('brands', 'pct'), brandQty: this.makeSortHandler('brands', 'qty'), brandInvoices: this.makeSortHandler('brands', 'invoices'), brandAtv: this.makeSortHandler('brands', 'atv'), brandUpt: this.makeSortHandler('brands', 'upt'),
         topCatCategory: this.makeSortHandler('topCategories', 'category'), topCatNetSales: this.makeSortHandler('topCategories', 'netSales'), topCatPct: this.makeSortHandler('topCategories', 'pct'), topCatQty: this.makeSortHandler('topCategories', 'qty'), topCatInvoices: this.makeSortHandler('topCategories', 'invoices'), topCatAtv: this.makeSortHandler('topCategories', 'atv'), topCatUpt: this.makeSortHandler('topCategories', 'upt'), catPct: this.makeSortHandler('categories', 'pct'),
-        invStoreName: this.makeSortHandler('invoices', 'storeName'), invRegion: this.makeSortHandler('invoices', 'region'), invNetSales: this.makeSortHandler('invoices', 'netSales'), invQty: this.makeSortHandler('invoices', 'qty'), invDiscount: this.makeSortHandler('invoices', 'discount'), invInvoices: this.makeSortHandler('invoices', 'invoices'), invAtv: this.makeSortHandler('invoices', 'atv'), invUpt: this.makeSortHandler('invoices', 'upt'), invAsp: this.makeSortHandler('invoices', 'asp'),
+        invAvgPd: this.makeSortHandler('invoices', 'avgPd'), invStoreName: this.makeSortHandler('invoices', 'storeName'), invRegion: this.makeSortHandler('invoices', 'region'), invNetSales: this.makeSortHandler('invoices', 'netSales'), invQty: this.makeSortHandler('invoices', 'qty'), invDiscount: this.makeSortHandler('invoices', 'discount'), invInvoices: this.makeSortHandler('invoices', 'invoices'), invAtv: this.makeSortHandler('invoices', 'atv'), invUpt: this.makeSortHandler('invoices', 'upt'), invAsp: this.makeSortHandler('invoices', 'asp'),
         discStoreName: this.makeSortHandler('discounts', 'storeName'), discNetSales: this.makeSortHandler('discounts', 'netSales'), discDiscount: this.makeSortHandler('discounts', 'discount'), discQty: this.makeSortHandler('discounts', 'qty'), discRatio: this.makeSortHandler('discounts', 'ratio'),
         staffName: this.makeSortHandler('staff', 'name'), staffStore: this.makeSortHandler('staff', 'storeName'), staffNet: this.makeSortHandler('staff', 'netSales'),
         staffQty: this.makeSortHandler('staff', 'qty'), staffInv: this.makeSortHandler('staff', 'invoices'), staffAtv: this.makeSortHandler('staff', 'atv'),
@@ -7299,7 +7304,7 @@ class Component extends DCLogic {
         catInvoices: this.arrow('categories', 'invoices'), catAtv: this.arrow('categories', 'atv'), catUpt: this.arrow('categories', 'upt'), catAsp: this.arrow('categories', 'asp'),
         brandBrand: this.arrow('brands', 'brand'), brandNetSales: this.arrow('brands', 'netSales'), brandPct: this.arrow('brands', 'pct'), brandQty: this.arrow('brands', 'qty'), brandInvoices: this.arrow('brands', 'invoices'), brandAtv: this.arrow('brands', 'atv'), brandUpt: this.arrow('brands', 'upt'),
         topCatCategory: this.arrow('topCategories', 'category'), topCatNetSales: this.arrow('topCategories', 'netSales'), topCatPct: this.arrow('topCategories', 'pct'), topCatQty: this.arrow('topCategories', 'qty'), topCatInvoices: this.arrow('topCategories', 'invoices'), topCatAtv: this.arrow('topCategories', 'atv'), topCatUpt: this.arrow('topCategories', 'upt'),
-        invStoreName: this.arrow('invoices', 'storeName'), invRegion: this.arrow('invoices', 'region'), invNetSales: this.arrow('invoices', 'netSales'), invQty: this.arrow('invoices', 'qty'), invDiscount: this.arrow('invoices', 'discount'), invInvoices: this.arrow('invoices', 'invoices'), invAtv: this.arrow('invoices', 'atv'), invUpt: this.arrow('invoices', 'upt'), invAsp: this.arrow('invoices', 'asp'),
+        invAvgPd: this.arrow('invoices', 'avgPd'), invStoreName: this.arrow('invoices', 'storeName'), invRegion: this.arrow('invoices', 'region'), invNetSales: this.arrow('invoices', 'netSales'), invQty: this.arrow('invoices', 'qty'), invDiscount: this.arrow('invoices', 'discount'), invInvoices: this.arrow('invoices', 'invoices'), invAtv: this.arrow('invoices', 'atv'), invUpt: this.arrow('invoices', 'upt'), invAsp: this.arrow('invoices', 'asp'),
         discStoreName: this.arrow('discounts', 'storeName'), discNetSales: this.arrow('discounts', 'netSales'), discDiscount: this.arrow('discounts', 'discount'), discQty: this.arrow('discounts', 'qty'), discRatio: this.arrow('discounts', 'ratio'),
         staffName: this.arrow('staff', 'name'), staffStore: this.arrow('staff', 'storeName'), staffNet: this.arrow('staff', 'netSales'),
         staffQty: this.arrow('staff', 'qty'), staffInv: this.arrow('staff', 'invoices'), staffAtv: this.arrow('staff', 'atv'),
