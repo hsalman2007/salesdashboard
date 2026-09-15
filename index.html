@@ -112,13 +112,13 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </div>
 <div class="field" style="min-width:150px;width:{{filtersItemWidth}}">
 <label>City</label>
-<select class="input" value="{{filters.city}}" onChange="{{setCity}}">
+<select class="input" value="{{filters.city}}" onChange="{{setCity}}" disabled="{{lockStore}}">
 <sc-for list="{{cityOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
 </select>
 </div>
 <div class="field" style="min-width:180px;width:{{filtersItemWidth}}">
 <label>Store</label>
-<select class="input" value="{{filters.store}}" onChange="{{setStore}}">
+<select class="input" value="{{filters.store}}" onChange="{{setStore}}" disabled="{{lockStore}}">
 <sc-for list="{{storeOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt.code}}">{{opt.label}}</option></sc-for>
 </select>
 </div>
@@ -1742,13 +1742,13 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </div>
 <div class="field" style="min-width:150px;width:{{filtersItemWidth}}">
 <label>City</label>
-<select class="input" value="{{yoyFilters.city}}" onChange="{{setYoyCity}}">
+<select class="input" value="{{yoyFilters.city}}" onChange="{{setYoyCity}}" disabled="{{lockStore}}">
 <sc-for list="{{yoyCityOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
 </select>
 </div>
 <div class="field" style="min-width:180px;width:{{filtersItemWidth}}">
 <label>Store</label>
-<select class="input" value="{{yoyFilters.store}}" onChange="{{setYoyStore}}">
+<select class="input" value="{{yoyFilters.store}}" onChange="{{setYoyStore}}" disabled="{{lockStore}}">
 <sc-for list="{{yoyStoreOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt.code}}">{{opt.label}}</option></sc-for>
 </select>
 </div>
@@ -3280,12 +3280,14 @@ class Component extends DCLogic {
       '31504': { pin: '2938', region: 'South', name: 'South Region Manager' },
       admin: { pin: '30558', region: 'All', name: 'Admin' },
       '31610': { pin: '0193', region: 'All', name: 'Admin', admin: true },
-      mathew: { pin: '123', region: 'All', name: 'Mathew' }
+      mathew: { pin: '123', region: 'All', name: 'Mathew' },
+      kjst02: { pin: 'KJST02KJST02', region: 'Central', city: 'Kharj', store: 'KJST02', name: 'Kharj 2' }
     };
     try {
       const saved = JSON.parse(localStorage.getItem('stcRegionAuth') || 'null');
       if (saved && this.MANAGERS[saved.id] && this.MANAGERS[saved.id].region === saved.region) {
-        this.setState({ auth: saved, filters: { ...this.state.filters, region: saved.region, city: 'All', store: 'All' } });
+        const mm = this.MANAGERS[saved.id];
+        this.setState({ auth: { ...saved, store: mm.store || null }, filters: { ...this.state.filters, region: mm.region, city: mm.city || 'All', store: mm.store || 'All' } });
       }
     } catch (e) {}
     this.wholesaleSalesmanCodes = new Set(['HQST01', 'RYVS01', 'RYVS02', 'RYVS03', 'RYVS04', 'RYVS05', 'RYVS06', 'RYVS07', 'RYVS08', 'RYVS09', 'RYVS10', 'RYVS11', 'RYVS12', 'RYVS13']);
@@ -4856,14 +4858,15 @@ class Component extends DCLogic {
       this.setState({ loginError: 'Invalid manager ID or PIN' });
       return;
     }
-    const auth = { id, region: m.region, name: m.name };
+    const auth = { id, region: m.region, name: m.name, store: m.store || null };
     localStorage.setItem('stcRegionAuth', JSON.stringify(auth));
-    this.setState({ auth, loginError: '', loginPin: '', filters: { ...this.state.filters, region: m.region, city: 'All', store: 'All' } });
+    this.setState({ auth, loginError: '', loginPin: '', filters: { ...this.state.filters, region: m.region, city: m.city || 'All', store: m.store || 'All' } });
   }
 
   doLogout() {
     localStorage.removeItem('stcRegionAuth');
     this.setState({ auth: null, page: 'overview', filters: { ...this.state.filters, region: 'All', city: 'All', store: 'All' } });
+    this.setState({ yoyFilters: { ...this.state.yoyFilters, region: 'All', city: 'All', store: 'All' } });
   }
 
   async _ensureBagInvoices() {
@@ -5294,8 +5297,12 @@ class Component extends DCLogic {
     };
   }
 
+  storeLock() { return (this.state.auth && this.state.auth.store) || null; }
+
   matchesFilters(b) {
     const f = this.state.filters;
+    const lock = this.storeLock();
+    if (lock && b.store !== lock) return false;
     if (f.region !== 'All' && b.region !== f.region) return false;
     if (f.city !== 'All' && b.city !== f.city) return false;
     if (f.store !== 'All' && b.store !== f.store) return false;
@@ -5359,7 +5366,7 @@ class Component extends DCLogic {
       langArColor: _isAr ? 'var(--color-text)' : 'var(--color-neutral-500)',
       setLangEn: () => this.setLang('en'),
       setLangAr: () => this.setLang('ar'),
-      isAuthed, showLogin: !isAuthed, managerName: st.auth ? st.auth.name : '', lockRegion: isAuthed && st.auth.region !== 'All',
+      isAuthed, showLogin: !isAuthed, managerName: st.auth ? st.auth.name : '', lockRegion: isAuthed && st.auth.region !== 'All', lockStore: !!(isAuthed && st.auth.store),
       loginId: st.loginId, loginPin: st.loginPin, loginError: st.loginError,
       setLoginId: e => this.setState({ loginId: e.target.value, loginError: '' }),
       setLoginPin: e => this.setState({ loginPin: e.target.value, loginError: '' }),
@@ -5370,6 +5377,13 @@ class Component extends DCLogic {
       return { ...loginVals, pageTitle: 'Loading…', isMobile: st.isMobile, isDesktop: !st.isMobile, navDisplay: st.isMobile ? 'none' : 'flex', bottomNavDisplay: st.isMobile ? 'flex' : 'none', mainMaxWidth: st.isMobile ? 'none' : '1180px', mainPadding: st.isMobile ? '16px 16px 88px 16px' : 'var(--space-6) var(--space-8) var(--space-8) var(--space-6)', filtersDirection: st.isMobile ? 'column' : 'row', filtersAlign: st.isMobile ? 'stretch' : 'flex-end', filtersItemWidth: st.isMobile ? '100%' : 'auto', kpiBasis: st.isMobile ? 'calc(50% - 8px)' : '148px', kpiFlex: st.isMobile ? '0 1 calc(50% - 5px)' : '1 1 148px', kpiValueSize: st.isMobile ? '20px' : '26px', kpiGap: st.isMobile ? '10px' : 'var(--space-4)', bottomNavItems: [], mobileNavOpen: false, toggleMobileNav: () => {}, navItems: [], meta: {}, filters: { ...st.filters, isDirty: false }, regionOptions: ['All'], cityOptions: ['All'], storeOptions: [{ code: 'All', label: 'All' }], monthOptions: [{ value: 'All', label: 'All' }], setMonth: () => {}, showCurrentMonthOnly: () => {}, dateMenuOpen: false, dateButtonLabel: 'All dates', calendarCells: [], toggleDateMenu: () => {}, clearDate: () => {}, isOverview: false, isStores: false, isRegionDetail: false, isCategories: false, isInvoices: false, isItems: false, isDiscounts: false, isWholesale: false, kpiCards: [], dailyBars: [], regionBars: [], topStores: [], topCategories: [], storesSorted: [], categoriesSorted: [], invoicesSorted: [], regionSorted: [], discountsSorted: [], itemsSorted: [], itemsTotalCount: 0, itemSearch: '', setItemSearch: () => {}, sortArrow: {}, sortHandlers: {}, search: '', globalFiltersDisplay: 'flex', showFilterToggle: false, toggleFilters: () => {}, filtersToggleArrow: '\u25be', filtersActiveCount: 0, wholesaleFilters: { month: 'All', type: 'All', store: 'All' }, wholesaleMonthOptions: ['All'], wholesaleTypeOptions: ['All'], wholesaleStoreOptions: ['All'], setWholesaleStore: () => {}, wholesaleSorted: [], wholesaleKpiCards: [], wholesaleTypeCards: [], wholesaleTotalLabel: '0', isWholesaleStores: true, isWholesaleDaily: false, wholesaleStoresBtnClass: 'btn-primary', wholesaleDailyBtnClass: 'btn-secondary', setWholesaleViewStores: () => {}, setWholesaleViewDaily: () => {}, wholesaleStoreCols: [], wholesaleDailyRows: [], wholesaleUndatedLabel: '', setWholesaleMonth: () => {}, setWholesaleType: () => {} };
     }
 
+    const _sLock = this.storeLock();
+    if (_sLock && st.filters.store !== _sLock) {
+      Promise.resolve().then(() => this.setState(s => ({ filters: { ...s.filters, region: s.auth.region, city: s.auth.city || 'All', store: _sLock } })));
+    }
+    if (_sLock && st.yoyFilters.store !== _sLock) {
+      Promise.resolve().then(() => this.setState(s => ({ yoyFilters: { ...s.yoyFilters, region: s.auth.region, city: s.auth.city || 'All', store: _sLock } })));
+    }
     const filteredBuckets = st.buckets.filter(b => this.matchesFilters(b));
     const f = st.filters;
     const isDirty = f.region !== 'All' || f.city !== 'All' || f.store !== 'All' || f.month !== 'All' || !!f.dateRange;
@@ -5379,7 +5393,9 @@ class Component extends DCLogic {
     const activeStoreMaster = st.storeMaster.filter(s => storesWithSales.has(s.code));
     const regions = [...new Set(activeStoreMaster.map(s => s.region))].sort();
     const citiesInRegion = [...new Set(activeStoreMaster.filter(s => f.region === 'All' || s.region === f.region).map(s => s.city))].sort();
-    const storesInScope = activeStoreMaster.filter(s => (f.region === 'All' || s.region === f.region) && (f.city === 'All' || s.city === f.city));
+    let storesInScope = activeStoreMaster.filter(s => (f.region === 'All' || s.region === f.region) && (f.city === 'All' || s.city === f.city));
+    const _lockCode = this.storeLock();
+    if (_lockCode) storesInScope = activeStoreMaster.filter(s => s.code === _lockCode);
     const dates = [...new Set(st.buckets.map(b => b.date))].sort();
     const dateSet = new Set(dates);
     const calendarCells = [];
@@ -6743,14 +6759,16 @@ class Component extends DCLogic {
     let yoyCalCells = [], yoyCalLabel = '', yoyCalPrevOff = true, yoyCalNextOff = true, yoyCalMonths = [], yoyCalMonthCur = null;
     if (Y && st.page === 'yoy') {
       const lockedRegion = st.auth && st.auth.region !== 'All' ? st.auth.region : null;
+      const lockedStore = this.storeLock();
       const codes = Object.keys(Y.rows);
       const known = codes.map(c => ({ code: c, sm: this.storeIndex[c] || {} }))
-        .filter(x => !lockedRegion || x.sm.region === lockedRegion);
+        .filter(x => !lockedRegion || x.sm.region === lockedRegion)
+        .filter(x => !lockedStore || x.code === lockedStore);
       yoyRegionOptions = ['All', ...[...new Set(known.map(x => x.sm.region).filter(Boolean))].sort()];
       const inRegion = known.filter(x => yf.region === 'All' || x.sm.region === yf.region);
       yoyCityOptions = ['All', ...[...new Set(inRegion.map(x => x.sm.city).filter(Boolean))].sort()];
       const inCity = inRegion.filter(x => yf.city === 'All' || x.sm.city === yf.city);
-      yoyStoreOptions = [{ code: 'All', label: 'All' }, ...inCity
+      yoyStoreOptions = [...(lockedStore ? [] : [{ code: 'All', label: 'All' }]), ...inCity
         .map(x => ({ code: x.code, label: x.sm.shortName || x.sm.nameEn || x.code }))
         .sort((a, b) => a.label.localeCompare(b.label))];
       const months = [...new Set(Y.days.map(d => d.slice(0, 2)))].sort();
@@ -6795,7 +6813,7 @@ class Component extends DCLogic {
       }
 
       const storeOk = {};
-      inCity.forEach(x => { if (yf.store === 'All' || yf.store === x.code) storeOk[x.code] = x.sm; });
+      inCity.forEach(x => { if (lockedStore ? x.code === lockedStore : (yf.store === 'All' || yf.store === x.code)) storeOk[x.code] = x.sm; });
       const dayMask = Y.days.map(d => dayOk(d));
       const view = st.yoyView;
       const byStore = view === 'stores';
@@ -7263,9 +7281,9 @@ class Component extends DCLogic {
       isHourlyByStore: st.hourlyView === 'byStore', hourlyChartBtnClass: st.hourlyView !== 'byStore' ? 'btn-primary' : 'btn-secondary', hourlyStoreBtnClass: st.hourlyView === 'byStore' ? 'btn-primary' : 'btn-secondary',
       setHourlyViewChart: () => this.setState({ hourlyView: 'chart' }), setHourlyViewByStore: () => this.setState({ hourlyView: 'byStore' }),
       storeDayPartRows, storeDayPartFooter, daySliceLabel0: daySliceDefs[0].label, daySliceLabel1: daySliceDefs[1].label, daySliceLabel2: daySliceDefs[2].label, daySliceLabel3: daySliceDefs[3].label,
-      regionOptions: ['All', ...regions],
-      cityOptions: ['All', ...citiesInRegion],
-      storeOptions: [{ code: 'All', label: 'All' }, ...storesInScope.map(s => ({ code: s.code, label: s.shortName }))],
+      regionOptions: _lockCode ? [st.auth.region] : ['All', ...regions],
+      cityOptions: _lockCode ? [st.auth.city || 'All'] : ['All', ...citiesInRegion],
+      storeOptions: _lockCode ? storesInScope.map(s => ({ code: s.code, label: s.shortName })) : [{ code: 'All', label: 'All' }, ...storesInScope.map(s => ({ code: s.code, label: s.shortName }))],
       setRegion: e => this.setState({ filters: { ...f, region: e.target.value, city: 'All', store: 'All' } }),
       setCity: e => this.setState({ filters: { ...f, city: e.target.value, store: 'All' } }),
       setStore: e => this.setState({ filters: { ...f, store: e.target.value } }),
@@ -7274,7 +7292,7 @@ class Component extends DCLogic {
       monthOptions: [{ value: 'All', label: 'All' }, ...[...new Set(dates.map(d => d.slice(0, 7)))].sort().map(m => ({ value: m, label: new Date(m + '-02').toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) }))],
       toggleDateMenu: () => this.setState({ dateMenuOpen: !st.dateMenuOpen }),
       clearDate: () => this.setState({ filters: { ...f, dateRange: null }, rangeAnchor: null }),
-      clearFilters: () => this.setState({ filters: { region: (st.auth && st.auth.region !== 'All') ? st.auth.region : 'All', city: 'All', store: 'All', month: 'All', dateRange: null }, rangeAnchor: null }),
+      clearFilters: () => this.setState({ filters: { region: (st.auth && st.auth.region !== 'All') ? st.auth.region : 'All', city: (st.auth && st.auth.store) ? (st.auth.city || 'All') : 'All', store: (st.auth && st.auth.store) || 'All', month: 'All', dateRange: null }, rangeAnchor: null }),
       dateMenuOpen: st.dateMenuOpen,
       dateButtonLabel: !f.dateRange ? 'All dates' : f.dateRange.start === f.dateRange.end ? f.dateRange.start : f.dateRange.start + ' → ' + f.dateRange.end,
       calendarCells, calendarMonthLabel, calendarAtStart, calendarAtEnd, calendarPrevMonth, calendarNextMonth,
@@ -7318,7 +7336,7 @@ class Component extends DCLogic {
       yoyReady: st.page === 'yoy' && !!st.yoy,
       yoyFilters: yf,
       yoyFiltersDirty: yf.region !== 'All' || yf.city !== 'All' || yf.store !== 'All' || yf.month !== 'All' || yf.date !== 'All',
-      clearYoyFilters: () => this.setState({ yoyFilters: { region: 'All', city: 'All', store: 'All', month: 'All', date: 'All', dateTo: null } }),
+      clearYoyFilters: () => this.setState({ yoyFilters: { region: (st.auth && st.auth.store) ? st.auth.region : 'All', city: (st.auth && st.auth.store) ? (st.auth.city || 'All') : 'All', store: (st.auth && st.auth.store) || 'All', month: 'All', date: 'All', dateTo: null } }),
       setYoyRegion: e => this.setState({ yoyFilters: { ...yf, region: e.target.value, city: 'All', store: 'All' } }),
       setYoyCity: e => this.setState({ yoyFilters: { ...yf, city: e.target.value, store: 'All' } }),
       setYoyStore: e => this.setState({ yoyFilters: { ...yf, store: e.target.value } }),
