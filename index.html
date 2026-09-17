@@ -5341,6 +5341,26 @@ class Component extends DCLogic {
   storeLock() { return (this.state.auth && this.state.auth.store) || null; }
 
   // day-grain single-invoice counts cannot be split by item, so they drop out under an item scope
+  // day-grain category rows, rebuilt from scoped item rows when an item filter is on
+  // (brand has no day-grain equivalent, so the rebuild is the only correct source)
+  sCategoryRows() {
+    const raw = this.state.categoriesByStoreDate || [];
+    if (!this.itemScopeActive()) return raw;
+    const sig = this._scopeSig() + '|cats';
+    if (this._scSig === sig) return this._scCache;
+    const agg = {};
+    this.sItems().forEach(r => {
+      const m = this.itemMeta[r[2]] || {};
+      const k = r[0] + '|' + r[1] + '|' + (m.division || '\u2014') + '|' + (m.category || '\u2014');
+      let o = agg[k];
+      if (!o) o = agg[k] = [r[0], r[1], m.division || '\u2014', m.category || '\u2014', 0, 0, 0];
+      o[4] += r[3] || 0; o[5] += r[4] || 0; o[6] += r[5] || 0;
+    });
+    this._scSig = sig;
+    this._scCache = Object.values(agg);
+    return this._scCache;
+  }
+
   sReceiptDay() { return this.itemScopeActive() ? [] : (this.state.receiptDay || []); }
 
   itemScopeActive() {
@@ -5795,7 +5815,7 @@ class Component extends DCLogic {
     let categoriesForPeriod;
     if (isDirty) {
       const agg = {};
-      st.categoriesByStoreDate.forEach(row => {
+      this.sCategoryRows().forEach(row => {
         const [store, date, division, category, netSales, qty, invoices] = row;
         if (!inDateRange(date)) return;
         if (!bucketMatches(store)) return;
@@ -5912,7 +5932,7 @@ class Component extends DCLogic {
       };
     }
     const trendCatAgg = {};
-    st.categoriesByStoreDate.forEach(row => {
+    this.sCategoryRows().forEach(row => {
       const [store, date, division, category, netSales, qty, invoices] = row;
       if (!inChartRange(date)) return;
       if (!this.matchesFilters({ store, date, region: (this.storeIndex[store] || {}).region, city: (this.storeIndex[store] || {}).city })) return;
@@ -6778,7 +6798,7 @@ class Component extends DCLogic {
         netSalesLabel: this.fmtMoney(t.netSales), qtyLabel: this.fmtNum(t.qty), invoicesLabel: this.fmtNum(t.invoices),
         atvLabel: this.fmtMoney(t.invoices ? t.netSales / t.invoices : 0), uptLabel: Math.abs(t.invoices ? t.qty / t.invoices : 0).toFixed(2),
         promoLabel: Math.abs(t.qty ? 100 * t.discountedQty / t.qty : 0).toFixed(1) + '%',
-        singleItemPctLabel: t.invoices ? Math.abs(100 * singleItemTotal / t.invoices).toFixed(1) + '%' : '—',
+        singleItemPctLabel: (t.invoices && !this.itemScopeActive()) ? Math.abs(100 * singleItemTotal / t.invoices).toFixed(1) + '%' : '—',
         returnQtyLabel: this.fmtNum(t.returnQty), returnPctLabel: Math.abs((t.qty + t.returnQty) ? 100 * t.returnQty / (t.qty + t.returnQty) : 0).toFixed(1) + '%',
         markupLabel: mkp((totalCost ? 100 * (t.netSales - totalCost) / totalCost : 0).toFixed(1) + '%')
       };
