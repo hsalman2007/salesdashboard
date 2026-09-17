@@ -289,17 +289,17 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x:auto">
 <table class="table">
-<thead><tr><th style="text-align:left">Region</th><th>Net sales</th><th>Sold qty</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Promo%</th><th>Invoices</th><th>Single Inv%</th><th>Return Qty</th><th>Return%</th><th>Markup%</th></tr></thead>
+<thead><tr><th style="text-align:left">Region</th><th>Net sales</th><th>Contribution</th><th>Sold qty</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Promo%</th><th>Invoices</th><th>Single Inv%</th><th>Return Qty</th><th>Return%</th><th>Markup%</th></tr></thead>
 <tbody>
 <sc-for list="{{regionSorted}}" as="r" hint-placeholder-count="5">
-<tr onClick="{{r.onToggle}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;padding-right:32px;text-align:left">{{r.regionLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.promoLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.singleItemPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.returnQtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.returnPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.markupLabel}}</td></tr>
+<tr onClick="{{r.onToggle}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;padding-right:32px;text-align:left">{{r.regionLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.contribLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.promoLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.singleItemPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.returnQtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.returnPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.markupLabel}}</td></tr>
 <sc-if value="{{r.expanded}}" hint-placeholder-val="{{false}}">
-<tr><td colspan="12" style="padding:0 0 var(--space-4) 0">
+<tr><td colspan="13" style="padding:0 0 var(--space-4) 0">
 <table class="table">
-<thead><tr><th style="text-align:left">Store</th><th>Net sales</th><th>Sold qty</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Promo%</th><th>Invoices</th><th>Single Inv%</th><th>Return Qty</th><th>Return%</th><th>Markup%</th></tr></thead>
+<thead><tr><th style="text-align:left">Store</th><th>Net sales</th><th>Contribution</th><th>Sold qty</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Promo%</th><th>Invoices</th><th>Single Inv%</th><th>Return Qty</th><th>Return%</th><th>Markup%</th></tr></thead>
 <tbody>
 <sc-for list="{{r.stores}}" as="s" hint-placeholder-count="3">
-<tr onClick="{{s.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;padding-left:28px;padding-right:32px;text-align:left">{{s.name}}</td><td style="font-weight:600;white-space:nowrap">{{s.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.promoLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.singleItemPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.returnQtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.returnPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.markupLabel}}</td></tr>
+<tr onClick="{{s.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;padding-left:28px;padding-right:32px;text-align:left">{{s.name}}</td><td style="font-weight:600;white-space:nowrap">{{s.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.contribLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.promoLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.singleItemPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.returnQtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.returnPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{s.markupLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -307,7 +307,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </sc-if>
 </sc-for>
 </tbody>
-<tfoot><tr style="border-top:2px solid var(--color-divider)"><td style="font-weight:700;white-space:nowrap;padding-right:32px;text-align:left">Grand Total</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.netSalesLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.qtyLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.atvLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.uptLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.aspLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.promoLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.invoicesLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.singleItemPctLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.returnQtyLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.returnPctLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.markupLabel}}</td></tr></tfoot>
+<tfoot><tr style="border-top:2px solid var(--color-divider)"><td style="font-weight:700;white-space:nowrap;padding-right:32px;text-align:left">Grand Total</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.netSalesLabel}}</td><td style="font-weight:700;white-space:nowrap">100.0%</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.qtyLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.atvLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.uptLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.aspLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.promoLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.invoicesLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.singleItemPctLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.returnQtyLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.returnPctLabel}}</td><td style="font-weight:700;white-space:nowrap">{{regionTotals.markupLabel}}</td></tr></tfoot>
 </table>
 </div>
 </sc-if>
@@ -6768,8 +6768,10 @@ class Component extends DCLogic {
       singleItemPct: (singleItemByRegion.hasOwnProperty(r.region) && r.invoices) ? 100 * singleItemByRegion[r.region] / r.invoices : null,
       markupPct: regionCost[r.region] ? 100 * (r.netSales - regionCost[r.region]) / regionCost[r.region] : 0
     })).sort((a, b) => b.netSales - a.netSales);
+    const regionGrandNet = regionRows.reduce((a, r) => a + r.netSales, 0);
+    const contribOf = v => (regionGrandNet ? Math.abs(100 * v / regionGrandNet) : 0).toFixed(1) + '%';
     regionRows = regionRows.map(r => ({
-      ...r, netSalesLabel: this.fmtMoney(r.netSales), qtyLabel: this.fmtNum(r.qty), invoicesLabel: this.fmtNum(r.invoices),
+      ...r, contribLabel: contribOf(r.netSales), netSalesLabel: this.fmtMoney(r.netSales), qtyLabel: this.fmtNum(r.qty), invoicesLabel: this.fmtNum(r.invoices),
       atvLabel: this.fmtMoney(r.atv), uptLabel: Math.abs(r.upt).toFixed(2), aspLabel: this.fmtMoney(r.asp),
       promoLabel: Math.abs(r.promoPct).toFixed(1) + '%', returnQtyLabel: this.fmtNum(r.returnQty), returnPctLabel: Math.abs(r.returnPct).toFixed(1) + '%', markupLabel: mkp(r.markupPct.toFixed(1) + '%'),
       singleItemPctLabel: r.singleItemPct === null ? '—' : Math.abs(r.singleItemPct).toFixed(1) + '%',
@@ -6781,6 +6783,7 @@ class Component extends DCLogic {
         const rawStore = storeAggMap[s.code] || { qty: 0, discountedQty: 0, returnQty: 0 };
         return {
           ...s,
+          contribLabel: contribOf(s.netSales),
           promoLabel: (rawStore.qty ? Math.abs(100 * rawStore.discountedQty / rawStore.qty) : 0).toFixed(1) + '%',
           returnQtyLabel: this.fmtNum(rawStore.returnQty),
           returnPctLabel: ((rawStore.qty + rawStore.returnQty) ? Math.abs(100 * rawStore.returnQty / (rawStore.qty + rawStore.returnQty)) : 0).toFixed(1) + '%',
