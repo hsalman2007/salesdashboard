@@ -956,6 +956,12 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </sc-if>
 <sc-if value="{{itemViewIsTop}}" hint-placeholder-val="{{true}}">
 <div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4)">Top 100 items by net sales — respects region, city, store and date filters</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:var(--space-4)">
+<button class="btn btn-secondary" onClick="{{shareItemsRankingPdf}}" style="font-size:12px;padding:8px 12px;white-space:nowrap">{{itemsRankShareLabel}}</button>
+<sc-if value="{{itemsRankShareError}}" hint-placeholder-val="{{false}}">
+<div style="font-size:12px;color:var(--color-danger, #b3261e);align-self:center">{{itemsRankShareError}}</div>
+</sc-if>
+</div>
 <div class="field" style="max-width:280px;margin-bottom:var(--space-4)">
 <label>Search item</label>
 <input class="input" type="text" placeholder="e.g. chair or SKU" value="{{itemSearch}}" onChange="{{setItemSearch}}">
@@ -4237,6 +4243,56 @@ class Component extends DCLogic {
     return c;
   }
 
+  // Item ranking table -> PDF. Markup%, UPT and Return% are deliberately left out.
+  async shareItemsRankingPdf() {
+    if (this.state.itemsRankShareBusy) return;
+    this.setState({ itemsRankShareBusy: true, itemsRankShareError: '' });
+    try {
+      const V = this._lastItemsRanking || {};
+      const rows = V.rows || [];
+      if (!rows.length || !window.jspdf) throw new Error('no rows');
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(13);
+      doc.text('Top items by net sales', 14, 15);
+      doc.setFontSize(9);
+      doc.setTextColor(110);
+      doc.text([rows.length + ' of ' + this.fmtNum(V.totalCount || rows.length) + ' items', V.scope || '', V.range || ''].filter(Boolean).join('   \u00b7   '), 14, 21);
+      doc.setTextColor(0);
+      const imgDataUrls = await Promise.all(rows.map(r => this.loadImageDataUrl(r.image || r.imageSrc)));
+      doc.autoTable({
+        startY: 27,
+        head: [['#', 'Image', 'SKU', 'Item', 'Net Sales', 'Qty', 'Invoices', 'Return Qty']],
+        body: rows.map(r => [r.rank, '', r.itemNo, r.itemDesc || r.itemNo, r.netSalesLabel, r.qtyLabel, r.invoicesLabel, r.returnQtyLabel]),
+        styles: { fontSize: 8, valign: 'middle', fontStyle: 'bold', cellPadding: 1.9 },
+        headStyles: { fillColor: [45, 143, 129], fontStyle: 'bold' },
+        columnStyles: { 0: { cellWidth: 9 }, 1: { cellWidth: 14 }, 2: { cellWidth: 24, halign: 'left' }, 3: { halign: 'left' } },
+        didDrawCell: data => {
+          if (data.column.index === 1 && data.cell.section === 'body') {
+            const url = imgDataUrls[data.row.index];
+            if (url) {
+              const dim = Math.min(data.cell.height - 2, 11);
+              try { doc.addImage(url, 'JPEG', data.cell.x + (data.cell.width - dim) / 2, data.cell.y + (data.cell.height - dim) / 2, dim, dim); } catch (e) {}
+            }
+          }
+        }
+      });
+      const name = 'top-items-page-' + (V.page || 1) + '.pdf';
+      const blob = doc.output('blob');
+      const file = new File([blob], name, { type: 'application/pdf' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: 'Top items by net sales' });
+      } else {
+        this._savePdf(doc, name);
+      }
+      this.setState({ itemsRankShareBusy: false, itemsRankShareError: '' });
+    } catch (e) {
+      if (/AbortError/.test(String(e))) { this.setState({ itemsRankShareBusy: false, itemsRankShareError: '' }); return; }
+      console.warn('share failed', e);
+      this.setState({ itemsRankShareBusy: false, itemsRankShareError: 'PDF export failed on this device' });
+    }
+  }
+
   async _shareCanvas(build, name, title) {
     try {
       const canvas = await build();
@@ -4258,8 +4314,11 @@ class Component extends DCLogic {
         a.href = url; a.download = name; a.click();
         setTimeout(() => URL.revokeObjectURL(url), 4000);
       }
+      return true;
     } catch (e) {
-      if (!/AbortError/.test(String(e))) console.warn('share failed', e);
+      if (/AbortError/.test(String(e))) return true;
+      console.warn('share failed', e);
+      return false;
     }
   }
 
@@ -5499,7 +5558,7 @@ class Component extends DCLogic {
     };
     if (!isAuthed) return loginVals;
     if (st.loading) {
-      return { ...loginVals, gCatOptions: ['All'], gSubOptions: ['All'], gBrandOptions: ['All'], itemScopeOn: false, pageTitle: 'Loading…', isMobile: st.isMobile, isDesktop: !st.isMobile, navDisplay: st.isMobile ? 'none' : 'flex', bottomNavDisplay: st.isMobile ? 'flex' : 'none', mainMaxWidth: st.isMobile ? 'none' : '1180px', mainPadding: st.isMobile ? '16px 16px 88px 16px' : 'var(--space-6) var(--space-8) var(--space-8) var(--space-6)', filtersDirection: st.isMobile ? 'column' : 'row', filtersAlign: st.isMobile ? 'stretch' : 'flex-end', filtersItemWidth: st.isMobile ? '100%' : 'auto', kpiBasis: st.isMobile ? 'calc(50% - 8px)' : '148px', kpiFlex: st.isMobile ? '0 1 calc(50% - 5px)' : '1 1 148px', kpiValueSize: st.isMobile ? '20px' : '26px', kpiGap: st.isMobile ? '10px' : 'var(--space-4)', bottomNavItems: [], mobileNavOpen: false, toggleMobileNav: () => {}, navItems: [], meta: {}, filters: { ...st.filters, isDirty: false }, regionOptions: ['All'], cityOptions: ['All'], storeOptions: [{ code: 'All', label: 'All' }], monthOptions: [{ value: 'All', label: 'All' }], setMonth: () => {}, showCurrentMonthOnly: () => {}, dateMenuOpen: false, dateButtonLabel: 'All dates', calendarCells: [], toggleDateMenu: () => {}, clearDate: () => {}, isOverview: false, isStores: false, isRegionDetail: false, isCategories: false, isInvoices: false, isItems: false, isDiscounts: false, isWholesale: false, kpiCards: [], dailyBars: [], regionBars: [], topStores: [], topCategories: [], storesSorted: [], categoriesSorted: [], invoicesSorted: [], regionSorted: [], discountsSorted: [], itemsSorted: [], itemsTotalCount: 0, itemSearch: '', setItemSearch: () => {}, sortArrow: {}, sortHandlers: {}, search: '', globalFiltersDisplay: 'flex', showFilterToggle: false, toggleFilters: () => {}, filtersToggleArrow: '\u25be', filtersActiveCount: 0, wholesaleFilters: { month: 'All', type: 'All', store: 'All' }, wholesaleMonthOptions: ['All'], wholesaleTypeOptions: ['All'], wholesaleStoreOptions: ['All'], setWholesaleStore: () => {}, wholesaleSorted: [], wholesaleKpiCards: [], wholesaleTypeCards: [], wholesaleTotalLabel: '0', isWholesaleStores: true, isWholesaleDaily: false, wholesaleStoresBtnClass: 'btn-primary', wholesaleDailyBtnClass: 'btn-secondary', setWholesaleViewStores: () => {}, setWholesaleViewDaily: () => {}, wholesaleStoreCols: [], wholesaleDailyRows: [], wholesaleUndatedLabel: '', setWholesaleMonth: () => {}, setWholesaleType: () => {} };
+      return { ...loginVals, gCatOptions: ['All'], gSubOptions: ['All'], gBrandOptions: ['All'], itemScopeOn: false, itemsRankShareLabel: '⤓ Share as PDF', itemsRankShareError: '', pageTitle: 'Loading…', isMobile: st.isMobile, isDesktop: !st.isMobile, navDisplay: st.isMobile ? 'none' : 'flex', bottomNavDisplay: st.isMobile ? 'flex' : 'none', mainMaxWidth: st.isMobile ? 'none' : '1180px', mainPadding: st.isMobile ? '16px 16px 88px 16px' : 'var(--space-6) var(--space-8) var(--space-8) var(--space-6)', filtersDirection: st.isMobile ? 'column' : 'row', filtersAlign: st.isMobile ? 'stretch' : 'flex-end', filtersItemWidth: st.isMobile ? '100%' : 'auto', kpiBasis: st.isMobile ? 'calc(50% - 8px)' : '148px', kpiFlex: st.isMobile ? '0 1 calc(50% - 5px)' : '1 1 148px', kpiValueSize: st.isMobile ? '20px' : '26px', kpiGap: st.isMobile ? '10px' : 'var(--space-4)', bottomNavItems: [], mobileNavOpen: false, toggleMobileNav: () => {}, navItems: [], meta: {}, filters: { ...st.filters, isDirty: false }, regionOptions: ['All'], cityOptions: ['All'], storeOptions: [{ code: 'All', label: 'All' }], monthOptions: [{ value: 'All', label: 'All' }], setMonth: () => {}, showCurrentMonthOnly: () => {}, dateMenuOpen: false, dateButtonLabel: 'All dates', calendarCells: [], toggleDateMenu: () => {}, clearDate: () => {}, isOverview: false, isStores: false, isRegionDetail: false, isCategories: false, isInvoices: false, isItems: false, isDiscounts: false, isWholesale: false, kpiCards: [], dailyBars: [], regionBars: [], topStores: [], topCategories: [], storesSorted: [], categoriesSorted: [], invoicesSorted: [], regionSorted: [], discountsSorted: [], itemsSorted: [], itemsTotalCount: 0, itemSearch: '', setItemSearch: () => {}, sortArrow: {}, sortHandlers: {}, search: '', globalFiltersDisplay: 'flex', showFilterToggle: false, toggleFilters: () => {}, filtersToggleArrow: '\u25be', filtersActiveCount: 0, wholesaleFilters: { month: 'All', type: 'All', store: 'All' }, wholesaleMonthOptions: ['All'], wholesaleTypeOptions: ['All'], wholesaleStoreOptions: ['All'], setWholesaleStore: () => {}, wholesaleSorted: [], wholesaleKpiCards: [], wholesaleTypeCards: [], wholesaleTotalLabel: '0', isWholesaleStores: true, isWholesaleDaily: false, wholesaleStoresBtnClass: 'btn-primary', wholesaleDailyBtnClass: 'btn-secondary', setWholesaleViewStores: () => {}, setWholesaleViewDaily: () => {}, wholesaleStoreCols: [], wholesaleDailyRows: [], wholesaleUndatedLabel: '', setWholesaleMonth: () => {}, setWholesaleType: () => {} };
     }
 
     const _sLock = this.storeLock();
@@ -6377,6 +6436,15 @@ class Component extends DCLogic {
       const avgPerDayLabel = this.fmtNum(Math.round(filteredDaysCount ? it.qty / filteredDaysCount : 0));
       return { ...it, rank: itemsPage * 100 + i + 1, imageSrc: it.image || blankImg, netSalesLabel: this.fmtMoney(it.netSales), markupLabel, returnQtyLabel, returnPctLabel, qtyLabel: this.fmtNum(it.qty), invoicesLabel: this.fmtNum(it.invoices), uptLabel: Math.abs(it.upt).toFixed(2), regionQtyList, avgPerDayLabel, onClick: () => this.setState({ selectedItemNo: it.itemNo, selectedItemLabel: it.itemDesc, selectedItemNoLabel: it.itemNo, selectedItemImage: it.image || blankImg }) };
     });
+
+    this._lastItemsRanking = {
+      rows: itemsRows,
+      page: itemsPage + 1,
+      totalCount: itemsFiltered.length,
+      range: f.dateRange ? (f.dateRange.start + ' \u2013 ' + f.dateRange.end) : (f.month && f.month !== 'All' ? f.month : 'All dates'),
+      scope: [f.store !== 'All' ? (this.storeIndex[f.store] || {}).shortName || f.store : (f.city !== 'All' ? f.city : (f.region !== 'All' ? f.region : 'All stores')),
+        f.cat && f.cat !== 'All' ? f.cat : null, f.sub && f.sub !== 'All' ? f.sub : null, f.brand && f.brand !== 'All' ? f.brand : null].filter(Boolean).join('   \u00b7   ')
+    };
 
     // Item Detail alternate view: price-band performance
     const hideCostCols = !!(st.auth && st.auth.region !== 'All');
@@ -7823,6 +7891,9 @@ class Component extends DCLogic {
       shareItemDetailImage: () => this.shareItemDetailImage(),
       itemShareLabel: st.itemShareBusy ? '…' : '⤓ Image',
       itemDetailOpen: !!st.selectedItemNo, itemDetailLabel: st.selectedItemLabel, itemDetailItemNo: st.selectedItemNoLabel, itemDetailImage: st.selectedItemImage, itemDetailRows, itemDetailTotals: typeof itemDetailTotals !== 'undefined' ? itemDetailTotals : {}, closeItemDetail: () => this.setState({ selectedItemNo: null, tableZoom: 1 }), stopPropagation: e => e.stopPropagation(),
+      shareItemsRankingPdf: () => this.shareItemsRankingPdf(),
+      itemsRankShareLabel: st.itemsRankShareBusy ? 'Preparing PDF…' : '⤓ Share as PDF',
+      itemsRankShareError: st.itemsRankShareError || '',
       shareCategoryDetailImage: () => this.shareCategoryDetailImage(),
       catShareLabel: st.catShareBusy ? '…' : '⤓ Image',
       categoryDetailOpen: !!st.selectedCategoryKey, categoryDetailLabel: st.selectedCategoryLabel, categoryDetailRows, categoryDetailTotals: typeof categoryDetailTotals !== 'undefined' ? categoryDetailTotals : { netSalesLabel: '', qtyLabel: '', pctLabel: '' }, closeCategoryDetail: () => this.setState({ selectedCategoryKey: null, tableZoom: 1 }),
