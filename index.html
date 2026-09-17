@@ -158,10 +158,31 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </div>
 </sc-if>
 </div>
+<div class="field" style="min-width:160px;width:{{filtersItemWidth}}">
+<label>Category</label>
+<select class="input" value="{{filters.cat}}" onChange="{{setCat}}">
+<sc-for list="{{gCatOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
+</select>
+</div>
+<div class="field" style="min-width:170px;width:{{filtersItemWidth}}">
+<label>Sub-category</label>
+<select class="input" value="{{filters.sub}}" onChange="{{setSub}}">
+<sc-for list="{{gSubOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
+</select>
+</div>
+<div class="field" style="min-width:150px;width:{{filtersItemWidth}}">
+<label>Brand</label>
+<select class="input" value="{{filters.brand}}" onChange="{{setBrand}}">
+<sc-for list="{{gBrandOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
+</select>
+</div>
 <sc-if value="{{filters.isDirty}}" hint-placeholder-val="{{false}}">
 <button class="btn btn-ghost" onClick="{{clearFilters}}">Clear filters</button>
 </sc-if>
 </div>
+<sc-if value="{{itemScopeOn}}" hint-placeholder-val="{{false}}">
+<div style="font-size:12px;color:var(--color-neutral-500);margin:calc(-1 * var(--space-4)) 0 var(--space-6);line-height:1.5">Item-level filter active — net sales, qty and returns are recomputed from item detail. Invoice counts (and ATV, UPT, Discount%) are line-level approximations within the selection; Single Inv% and wholesale / BO &amp; 3P sales have no item grain and are excluded.</div>
+</sc-if>
 
 <sc-if value="{{isOverview}}" hint-placeholder-val="{{true}}">
 <section>
@@ -2836,7 +2857,7 @@ class Component extends DCLogic {
     categorySearch: '',
     itemsPage: 0,
     discItemPage: 0,
-    filters: { region: 'All', city: 'All', store: 'All', month: 'All', dateRange: null },
+    filters: { region: 'All', city: 'All', store: 'All', month: 'All', dateRange: null, cat: 'All', sub: 'All', brand: 'All' },
     wholesaleDateMenuOpen: false,
     wholesaleRangeAnchor: null,
     dateMenuOpen: false,
@@ -3784,16 +3805,16 @@ class Component extends DCLogic {
     const num = v => this.fmtNum(v);
     const pct = v => Math.abs(v).toFixed(1) + '%';
     const byStore = {};
-    (st.buckets || []).forEach(r => {
+    (this.sBuckets() || []).forEach(r => {
       if (r.date !== date) return;
       const a = byStore[r.store] || (byStore[r.store] = { code: r.store, netSales: 0, qty: 0, invoices: 0, discountedQty: 0, returnQty: 0, cost: 0, single: 0, discount: 0, returnValue: 0 });
       a.netSales += r.netSales; a.qty += r.qty; a.invoices += r.invoices;
       a.discount += r.discount || 0; a.returnValue += r.returnValue || 0;
       a.discountedQty += r.discountedQty || 0; a.returnQty += r.returnQty || 0;
     });
-    (st.receiptDay || []).forEach(r => { if (r.date === date && byStore[r.store]) byStore[r.store].single += r.singleItemInvoices || 0; });
+    (this.sReceiptDay()).forEach(r => { if (r.date === date && byStore[r.store]) byStore[r.store].single += r.singleItemInvoices || 0; });
     const skusSold = new Set();
-    (st.itemsByStoreDate || []).forEach(row => {
+    (this.sItems() || []).forEach(row => {
       if (row[1] !== date) return;
       const a = byStore[row[0]];
       if (!a) return;
@@ -5188,7 +5209,7 @@ class Component extends DCLogic {
 
     // --- view 1: Daily Punched — storewise qty billed by size, from the daily item aggregate
     const agg = {};
-    (st.itemsByStoreDate || []).forEach(([store, date, itemNo, , qty, invoices, returnQty]) => {
+    (this.sItems() || []).forEach(([store, date, itemNo, , qty, invoices, returnQty]) => {
       if (!SIZE[itemNo] || !selSet.has(itemNo)) return;
       if (!storeOk(store) || !inDateRange(date)) return;
       const a = agg[store] || (agg[store] = { code: store, storeName: nameOf(store), small: 0, medium: 0, large: 0, bagInv: 0, bulk: 0 });
@@ -5198,7 +5219,7 @@ class Component extends DCLogic {
       a.bagInv += (invoices || 0);
     });
     const invByStore = {};
-    (st.buckets || []).forEach(b => {
+    (this.sBuckets() || []).forEach(b => {
       if (!storeOk(b.store) || !inDateRange(b.date)) return;
       invByStore[b.store] = (invByStore[b.store] || 0) + (b.invoices || 0);
     });
@@ -5225,7 +5246,7 @@ class Component extends DCLogic {
     let consDayRows = [];
     if (st.consDayStore) {
       const byDate = {};
-      (st.itemsByStoreDate || []).forEach(([store, date, itemNo, , qty, , returnQty]) => {
+      (this.sItems() || []).forEach(([store, date, itemNo, , qty, , returnQty]) => {
         if (store !== st.consDayStore || !SIZE[itemNo] || !selSet.has(itemNo) || !inDateRange(date)) return;
         const d = byDate[date] || (byDate[date] = { date, small: 0, medium: 0, large: 0 });
         const net = (qty || 0) - (returnQty || 0);
@@ -5319,6 +5340,70 @@ class Component extends DCLogic {
 
   storeLock() { return (this.state.auth && this.state.auth.store) || null; }
 
+  // day-grain single-invoice counts cannot be split by item, so they drop out under an item scope
+  sReceiptDay() { return this.itemScopeActive() ? [] : (this.state.receiptDay || []); }
+
+  itemScopeActive() {
+    const f = this.state.filters || {};
+    return (f.cat && f.cat !== 'All') || (f.sub && f.sub !== 'All') || (f.brand && f.brand !== 'All');
+  }
+
+  skuInScope(sku) {
+    const f = this.state.filters || {}, m = (this.itemMeta && this.itemMeta[sku]) || {};
+    if (f.cat && f.cat !== 'All' && (m.division || '\u2014') !== f.cat) return false;
+    if (f.sub && f.sub !== 'All' && (m.category || '\u2014') !== f.sub) return false;
+    if (f.brand && f.brand !== 'All' && (m.brand || '\u2014') !== f.brand) return false;
+    return true;
+  }
+
+  _scopeSig() {
+    const f = this.state.filters || {};
+    return [f.cat || 'All', f.sub || 'All', f.brand || 'All', (this.state.itemsByStoreDate || []).length].join('|');
+  }
+
+  // item rows narrowed to the active category / sub-category / brand
+  sItems() {
+    const raw = this.state.itemsByStoreDate || [];
+    if (!this.itemScopeActive()) return raw;
+    const sig = this._scopeSig();
+    if (this._siSig === sig) return this._siCache;
+    this._siSig = sig;
+    this._siCache = raw.filter(r => this.skuInScope(r[2]));
+    return this._siCache;
+  }
+
+  // store-day buckets rebuilt from the scoped item rows, so every bucket-driven
+  // page (KPIs, regions, stores, daily, trends) honours the item-level filters
+  sBuckets() {
+    const raw = this.state.buckets || [];
+    if (!this.itemScopeActive()) return raw;
+    const sig = this._scopeSig() + '|' + raw.length;
+    if (this._sbSig === sig) return this._sbCache;
+    const base = {};
+    raw.forEach(b => { base[b.store + '|' + b.date] = b; });
+    const agg = {};
+    this.sItems().forEach(r => {
+      const k = r[0] + '|' + r[1], b = base[k];
+      if (!b) return;
+      let o = agg[k];
+      if (!o) o = agg[k] = { ...b, netSales: 0, qty: 0, invoices: 0, lines: 0, returnQty: 0, returnValue: 0, discount: 0, discountedQty: 0, regularQty: 0, discountedValue: 0, regularValue: 0 };
+      o.netSales += r[3] || 0;
+      o.qty += r[4] || 0;
+      o.invoices += r[5] || 0;
+      o.returnQty += r[6] || 0;
+      o.lines += 1;
+    });
+    // discount / return-value splits only exist at day grain — prorate by net-sales share
+    Object.keys(agg).forEach(k => {
+      const o = agg[k], b = base[k];
+      const share = b.netSales ? o.netSales / b.netSales : 0;
+      ['returnValue', 'discount', 'discountedQty', 'regularQty', 'discountedValue', 'regularValue'].forEach(fld => { o[fld] = (b[fld] || 0) * share; });
+    });
+    this._sbSig = sig;
+    this._sbCache = Object.values(agg);
+    return this._sbCache;
+  }
+
   matchesFilters(b) {
     const f = this.state.filters;
     const lock = this.storeLock();
@@ -5404,9 +5489,9 @@ class Component extends DCLogic {
     if (_sLock && st.yoyFilters.store !== _sLock) {
       Promise.resolve().then(() => this.setState(s => ({ yoyFilters: { ...s.yoyFilters, region: s.auth.region, city: s.auth.city || 'All', store: _sLock } })));
     }
-    const filteredBuckets = st.buckets.filter(b => this.matchesFilters(b));
+    const filteredBuckets = this.sBuckets().filter(b => this.matchesFilters(b));
     const f = st.filters;
-    const isDirty = f.region !== 'All' || f.city !== 'All' || f.store !== 'All' || f.month !== 'All' || !!f.dateRange;
+    const isDirty = f.region !== 'All' || f.city !== 'All' || f.store !== 'All' || f.month !== 'All' || !!f.dateRange || this.itemScopeActive();
 
     // filter option lists (dependent) — only entities with actual sales data
     const storesWithSales = new Set(st.buckets.map(b => b.store));
@@ -5418,6 +5503,17 @@ class Component extends DCLogic {
     if (_lockCode) storesInScope = activeStoreMaster.filter(s => s.code === _lockCode);
     const dates = [...new Set(st.buckets.map(b => b.date))].sort();
     const dateSet = new Set(dates);
+    // item-level filter options, dependent: category -> sub-category -> brand
+    const gCatSet = new Set(), gSubSet = new Set(), gBrandSet = new Set();
+    (st.itemsByStoreDate || []).forEach(r => {
+      const m = this.itemMeta[r[2]] || {};
+      const cat = m.division || '\u2014', sub = m.category || '\u2014', brand = m.brand || '\u2014';
+      gCatSet.add(cat);
+      if (f.cat === 'All' || !f.cat || f.cat === cat) gSubSet.add(sub);
+      if ((f.cat === 'All' || !f.cat || f.cat === cat) && (f.sub === 'All' || !f.sub || f.sub === sub)) gBrandSet.add(brand);
+    });
+    const gSortOpts = s => ['All', ...[...s].filter(Boolean).sort()];
+    const gCatOptions = gSortOpts(gCatSet), gSubOptions = gSortOpts(gSubSet), gBrandOptions = gSortOpts(gBrandSet);
     const calendarCells = [];
     const toISO = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     const monthKeys = [...new Set(dates.map(d => d.slice(0, 7)))].sort();
@@ -5483,7 +5579,7 @@ class Component extends DCLogic {
     const activeDayCount = [...new Set(filteredBuckets.map(b => b.date))].length || 1;
 
     const kpiCards = [
-      { label: 'Net Sales', value: this.fmtMoney(netSalesWithWholesale), sub: 'retail + wholesale, BO & 3P' },
+      { label: 'Net Sales', value: this.fmtMoney(this.itemScopeActive() ? netSales : netSalesWithWholesale), sub: this.itemScopeActive() ? 'retail only — item filter active' : 'retail + wholesale, BO & 3P' },
       { label: 'ATV', value: this.fmtMoney(atv), sub: 'avg. transaction value' },
       { label: 'UPT', value: Math.abs(upt).toFixed(2), sub: 'units per transaction' },
       { label: 'ASP', value: this.fmtMoney(asp), sub: 'avg. selling price' },
@@ -5595,7 +5691,7 @@ class Component extends DCLogic {
 
     // region bars (respect city/store/date filters, not region itself, so users can see comparison) — but a locked region-manager must never see other regions
     const regionLock = st.auth && st.auth.region !== 'All' ? st.auth.region : null;
-    const regionScopeBuckets = st.buckets.filter(b => {
+    const regionScopeBuckets = this.sBuckets().filter(b => {
       if (regionLock && b.region !== regionLock) return false;
       if (f.city !== 'All' && b.city !== f.city) return false;
       if (f.store !== 'All' && b.store !== f.store) return false;
@@ -5625,7 +5721,7 @@ class Component extends DCLogic {
     const ssort = st.sort.stores;
     storeRows = this.sortRows(storeRows, ssort.col, ssort.dir).map(s => ({ ...s, netSalesLabel: this.fmtMoney(s.netSales), atvLabel: this.fmtMoney(s.atv), uptLabel: Math.abs(s.upt).toFixed(2), aspLabel: this.fmtMoney(s.asp), qtyLabel: this.fmtNum(s.qty), invoicesLabel: this.fmtNum(s.invoices) }));
 
-    const trendBuckets = st.buckets.filter(b => this.matchesFilters(b) && inChartRange(b.date));
+    const trendBuckets = this.sBuckets().filter(b => this.matchesFilters(b) && inChartRange(b.date));
     const trendStoreMap = {};
     trendBuckets.forEach(b => { if (!trendStoreMap[b.store]) trendStoreMap[b.store] = { code: b.store, name: b.storeName, netSales: 0, invoices: 0 }; trendStoreMap[b.store].netSales += b.netSales; trendStoreMap[b.store].invoices += b.invoices; });
     const topStores = Object.values(trendStoreMap).sort((a, b) => b.netSales - a.netSales).slice(0, 5).map(s => ({ ...s, netSalesLabel: this.fmtMoney(s.netSales), invoicesLabel: this.fmtNum(s.invoices) }));
@@ -5714,7 +5810,7 @@ class Component extends DCLogic {
     const totalCatNetSales = categoriesForPeriod.reduce((s, c) => s + c.netSales, 0);
     const categoryCost = {};
     const overviewCost = { cost: 0, netSales: 0 };
-    st.itemsByStoreDate.forEach(row => {
+    this.sItems().forEach(row => {
       const [store, date, itemNo, netSales, qty] = row;
       if (!inDateRange(date)) return;
       if (!bucketMatches(store)) return;
@@ -5725,7 +5821,7 @@ class Component extends DCLogic {
     const grossMarkupPct = overviewCost.cost ? 100 * (overviewCost.netSales - overviewCost.cost) / overviewCost.cost : 0;
     if (!hideMarkup) kpiCards.push({ label: 'Gross Markup%', value: grossMarkupPct.toFixed(1) + '%', sub: this.fmtMoney(overviewCost.netSales - overviewCost.cost) + ' margin' });
     if (st.page === 'categories') {
-      st.itemsByStoreDate.forEach(row => {
+      this.sItems().forEach(row => {
         const [store, date, itemNo, netSales, qty] = row;
         if (!inDateRange(date)) return;
         if (!bucketMatches(store)) return;
@@ -5773,7 +5869,7 @@ class Component extends DCLogic {
     if (st.page === 'categories') {
       const brandAgg = {};
       const brandCost = {};
-      st.itemsByStoreDate.forEach(row => {
+      this.sItems().forEach(row => {
         const [store, date, itemNo, netSales, qty, invoices] = row;
         if (!inDateRange(date)) return;
         if (!bucketMatches(store)) return;
@@ -5795,7 +5891,7 @@ class Component extends DCLogic {
     let categoryDetailRows = [];
     if (st.selectedCategoryKey) {
       const itemAggForCategory = {};
-      st.itemsByStoreDate.forEach(row => {
+      this.sItems().forEach(row => {
         const [store, date, itemNo, netSales, qty] = row;
         if (!inDateRange(date)) return;
         if (!bucketMatches(store)) return;
@@ -5854,9 +5950,9 @@ class Component extends DCLogic {
       const f = st.filters || {};
       const inPeriod = d => (f.month === 'All' || !f.month || d.slice(0, 7) === f.month) && (!f.dateRange || (d >= f.dateRange.start && d <= f.dateRange.end));
       const allSingle = {};
-      (st.receiptDay || []).forEach(r => { if (inPeriod(r.date)) allSingle[r.store] = (allSingle[r.store] || 0) + r.singleItemInvoices; });
+      (this.sReceiptDay()).forEach(r => { if (inPeriod(r.date)) allSingle[r.store] = (allSingle[r.store] || 0) + r.singleItemInvoices; });
       const agg = {};
-      (st.buckets || []).forEach(b => {
+      (this.sBuckets() || []).forEach(b => {
         if (!inPeriod(b.date)) return;
         if (!agg[b.store]) agg[b.store] = { code: b.store, storeName: b.storeName, netSales: 0, qty: 0, invoices: 0 };
         const a = agg[b.store];
@@ -5877,7 +5973,7 @@ class Component extends DCLogic {
     let storeDailyRows = [];
     if (st.selectedStoreCode) {
       const singleItemByDateForStore = {};
-      (st.receiptDay || []).forEach(r => {
+      (this.sReceiptDay()).forEach(r => {
         if (r.store !== st.selectedStoreCode) return;
         if (!inDateRange(r.date)) return;
         singleItemByDateForStore[r.date] = (singleItemByDateForStore[r.date] || 0) + r.singleItemInvoices;
@@ -5913,7 +6009,7 @@ class Component extends DCLogic {
     let discRows = Object.values(byStoreDisc);
     const storeCost = {};
     if (st.page === 'discounts' || st.page === 'invoices' || st.page === 'regionDetail' || st.page === 'overview') {
-      st.itemsByStoreDate.forEach(row => {
+      this.sItems().forEach(row => {
         const [store, date, itemNo, netSales, qty] = row;
         if (!inDateRange(date)) return;
         if (!bucketMatches(store)) return;
@@ -5928,7 +6024,7 @@ class Component extends DCLogic {
       return mkp((cost ? 100 * (netSales - cost) / cost : 0).toFixed(1) + '%');
     };
     const singleItemByStoreEarly = {};
-    (st.receiptDay || []).forEach(r => {
+    (this.sReceiptDay()).forEach(r => {
       const sm = this.storeIndex[r.store] || {};
       if (f.region !== 'All' && sm.region !== f.region) return;
       if (f.city !== 'All' && sm.city !== f.city) return;
@@ -5996,7 +6092,7 @@ class Component extends DCLogic {
       const blankImg3 = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect width="40" height="40" fill="%23252b3a"/%3E%3C/svg%3E';
       const excludedSkusDisc = new Set(['99-939', '99-940', '99-941', 'SRV-004', 'SRV-003']);
       const itemAggForDiscStore = {};
-      st.itemsByStoreDate.forEach(row => {
+      this.sItems().forEach(row => {
         const [store, date, itemNo, netSales, qty] = row;
         if (store !== st.selectedDiscStore) return;
         if (!inDateRange(date)) return;
@@ -6028,7 +6124,7 @@ class Component extends DCLogic {
     let drillCategoryRows = [];
     if (st.selectedDrillStore) {
       const agg = {};
-      st.itemsByStoreDate.forEach(row => {
+      this.sItems().forEach(row => {
         const [store, date, itemNo, netSales, qty] = row;
         if (store !== st.selectedDrillStore) return;
         if (!inDateRange(date)) return;
@@ -6044,7 +6140,7 @@ class Component extends DCLogic {
     let drillBrandRows = [];
     if (st.selectedDrillStore && st.selectedDrillCategory) {
       const agg = {};
-      st.itemsByStoreDate.forEach(row => {
+      this.sItems().forEach(row => {
         const [store, date, itemNo, netSales, qty] = row;
         if (store !== st.selectedDrillStore) return;
         if (!inDateRange(date)) return;
@@ -6062,7 +6158,7 @@ class Component extends DCLogic {
     if (st.selectedDrillStore && st.selectedDrillCategory && st.selectedDrillBrand) {
       const blankDrillImg = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect width="40" height="40" fill="%23252b3a"/%3E%3C/svg%3E';
       const agg = {};
-      st.itemsByStoreDate.forEach(row => {
+      this.sItems().forEach(row => {
         const [store, date, itemNo, netSales, qty] = row;
         if (store !== st.selectedDrillStore) return;
         if (!inDateRange(date)) return;
@@ -6220,7 +6316,7 @@ class Component extends DCLogic {
     let itemsForPeriod;
     if (isDirty) {
       const agg = {};
-      st.itemsByStoreDate.forEach(row => {
+      this.sItems().forEach(row => {
         const [store, date, itemNo, netSales, qty, invoices, returnQty] = row;
         if (!inDateRange(date)) return;
         if (!bucketMatches(store)) return;
@@ -6243,7 +6339,7 @@ class Component extends DCLogic {
     const itemNoSet = new Set(itemsRows.map(it => it.itemNo));
     const filteredDaysCount = new Set(filteredBuckets.map(b => b.date)).size;
     const regionQtyByItem = {};
-    st.itemsByStoreDate.forEach(row => {
+    this.sItems().forEach(row => {
       const [store, date, itemNo, netSales, qty] = row;
       if (!itemNoSet.has(itemNo)) return;
       if (!inDateRange(date)) return;
@@ -6412,7 +6508,7 @@ class Component extends DCLogic {
       returnNote = 'Chain return rate for the selected filters is ' + chainRate.toFixed(2) + '% of units. “Outlier” flags a branch running more than 50% above that rate with at least 5 returned units. SKU list covers every item with at least one return, ranked by units returned. Click any row to see the other side of the split.';
       if (st.retDrillSku || st.retDrillStore) {
         const bySku = {}, byStore = {};
-        st.itemsByStoreDate.forEach(row => {
+        this.sItems().forEach(row => {
           const [store, date, itemNo, netSales, qty, invoices, retQty] = row;
           if (!inDateRange(date) || !bucketMatches(store)) return;
           if (st.retDrillSku && itemNo === st.retDrillSku) {
@@ -6444,7 +6540,7 @@ class Component extends DCLogic {
     let itemDetailRows = [];
     if (st.selectedItemNo) {
       const storeAggForItem = {};
-      st.itemsByStoreDate.forEach(row => {
+      this.sItems().forEach(row => {
         const [store, date, itemNo, netSales, qty, invoices, returnQty] = row;
         if (itemNo !== st.selectedItemNo) return;
         if (!inDateRange(date)) return;
@@ -6468,7 +6564,7 @@ class Component extends DCLogic {
 
     // daily sales table — respects all filters, aggregated across stores per date
     const singleItemByDate = {};
-    (st.receiptDay || []).forEach(r => {
+    (this.sReceiptDay()).forEach(r => {
       const sm = this.storeIndex[r.store] || {};
       if (f.region !== 'All' && sm.region !== f.region) return;
       if (f.city !== 'All' && sm.city !== f.city) return;
@@ -6518,7 +6614,7 @@ class Component extends DCLogic {
     const dailyRetailTotal = Object.values(dailyAgg).reduce((a, d) => a + d.netSales, 0);
     const dailyWholesaleTotal = Object.values(dailyWholesaleMap).reduce((a, b) => a + b, 0) + dailyWholesaleUndated;
     const dailyKpiCards = [
-      { label: 'Net Sales', value: this.fmtMoney(dailyRetailTotal + dailyWholesaleTotal), sub: 'retail + wholesale, BO & 3P' },
+      { label: 'Net Sales', value: this.fmtMoney(this.itemScopeActive() ? dailyRetailTotal : dailyRetailTotal + dailyWholesaleTotal), sub: this.itemScopeActive() ? 'retail only — item filter active' : 'retail + wholesale, BO & 3P' },
       { label: 'Retail Sales', value: this.fmtMoney(dailyRetailTotal), sub: '' },
       { label: 'Wholesale, BO & 3P', value: this.fmtMoney(dailyWholesaleTotal), sub: '' }
     ];
@@ -6527,7 +6623,7 @@ class Component extends DCLogic {
     let dailyDetailRows = [], dailyRankingRows = [];
     if (st.selectedDailyDate) {
       const singleItemByStoreForDate = {};
-      (st.receiptDay || []).forEach(r => {
+      (this.sReceiptDay()).forEach(r => {
         if (r.date !== st.selectedDailyDate) return;
         if (!bucketMatches(r.store)) return;
         singleItemByStoreForDate[r.store] = (singleItemByStoreForDate[r.store] || 0) + r.singleItemInvoices;
@@ -6562,12 +6658,12 @@ class Component extends DCLogic {
 
       // Ranking sub-modal: ALL stores, ignoring region/city/store filters
       const allSingleByStore = {};
-      (st.receiptDay || []).forEach(r => {
+      (this.sReceiptDay()).forEach(r => {
         if (r.date !== st.selectedDailyDate) return;
         allSingleByStore[r.store] = (allSingleByStore[r.store] || 0) + r.singleItemInvoices;
       });
       const allAgg = {};
-      (st.buckets || []).forEach(b => {
+      (this.sBuckets() || []).forEach(b => {
         if (b.date !== st.selectedDailyDate) return;
         if (!allAgg[b.store]) allAgg[b.store] = { store: b.store, storeName: b.storeName, netSales: 0, qty: 0, invoices: 0 };
         const a = allAgg[b.store];
@@ -6600,7 +6696,7 @@ class Component extends DCLogic {
       const blankImg2 = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect width="40" height="40" fill="%23252b3a"/%3E%3C/svg%3E';
       const itemAggForStoreDate = {};
       const excludedSkus = new Set(['99-939', '99-940', '99-941', 'SRV-004', 'SRV-003']);
-      (st.itemsByStoreDate || []).forEach(([store, date, itemNo, netSales, qty, invoices, returnQty]) => {
+      (this.sItems() || []).forEach(([store, date, itemNo, netSales, qty, invoices, returnQty]) => {
         if (store !== st.selectedDailyStore || date !== st.selectedDailyDate) return;
         if (excludedSkus.has(itemNo) || String(itemNo).startsWith('SRV-')) return;
         const meta = this.itemMeta[itemNo] || {};
@@ -6622,7 +6718,7 @@ class Component extends DCLogic {
     });
     const singleItemByRegion = {};
     const singleItemByStore = singleItemByStoreEarly;
-    (st.receiptDay || []).forEach(r => {
+    (this.sReceiptDay()).forEach(r => {
       const sm = this.storeIndex[r.store] || {};
       if (f.region !== 'All' && sm.region !== f.region) return;
       if (f.city !== 'All' && sm.city !== f.city) return;
@@ -6633,7 +6729,7 @@ class Component extends DCLogic {
     });
     const regionCost = {};
     if (st.page === 'regionDetail') {
-      st.itemsByStoreDate.forEach(row => {
+      this.sItems().forEach(row => {
         const [store, date, itemNo, netSales, qty] = row;
         if (!inDateRange(date)) return;
         if (!bucketMatches(store)) return;
@@ -6695,12 +6791,12 @@ class Component extends DCLogic {
     if (st.selectedRegionStore) {
       const code = st.selectedRegionStore;
       const singleByDate = {};
-      (st.receiptDay || []).forEach(r => {
+      (this.sReceiptDay()).forEach(r => {
         if (r.store !== code || !inDateRange(r.date)) return;
         singleByDate[r.date] = (singleByDate[r.date] || 0) + r.singleItemInvoices;
       });
       const costByDate = {};
-      st.itemsByStoreDate.forEach(row => {
+      this.sItems().forEach(row => {
         const [store, date, itemNo, , q] = row;
         if (store !== code || !inDateRange(date)) return;
         const meta = this.itemMeta[itemNo] || {};
@@ -6741,7 +6837,7 @@ class Component extends DCLogic {
         const blankImgRS = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect width="40" height="40" fill="%23252b3a"/%3E%3C/svg%3E';
         const exclRS = new Set(['99-939', '99-940', '99-941', 'SRV-004', 'SRV-003']);
         const aggRS = {};
-        (st.itemsByStoreDate || []).forEach(([store, date, itemNo, netSales, q]) => {
+        (this.sItems() || []).forEach(([store, date, itemNo, netSales, q]) => {
           if (store !== code) return;
           if (oneDate ? date !== oneDate : !inDateRange(date)) return;
           if (exclRS.has(itemNo) || String(itemNo).startsWith('SRV-')) return;
@@ -7304,6 +7400,11 @@ class Component extends DCLogic {
       regionOptions: _lockCode ? [st.auth.region] : ['All', ...regions],
       cityOptions: _lockCode ? [st.auth.city || 'All'] : ['All', ...citiesInRegion],
       storeOptions: _lockCode ? storesInScope.map(s => ({ code: s.code, label: s.shortName })) : [{ code: 'All', label: 'All' }, ...storesInScope.map(s => ({ code: s.code, label: s.shortName }))],
+      gCatOptions: gCatOptions, gSubOptions: gSubOptions, gBrandOptions: gBrandOptions,
+      itemScopeOn: this.itemScopeActive(),
+      setCat: e => this.setState({ filters: { ...f, cat: e.target.value, sub: 'All', brand: 'All' } }),
+      setSub: e => this.setState({ filters: { ...f, sub: e.target.value, brand: 'All' } }),
+      setBrand: e => this.setState({ filters: { ...f, brand: e.target.value } }),
       setRegion: e => this.setState({ filters: { ...f, region: e.target.value, city: 'All', store: 'All' } }),
       setCity: e => this.setState({ filters: { ...f, city: e.target.value, store: 'All' } }),
       setStore: e => this.setState({ filters: { ...f, store: e.target.value } }),
@@ -7312,7 +7413,7 @@ class Component extends DCLogic {
       monthOptions: [{ value: 'All', label: 'All' }, ...[...new Set(dates.map(d => d.slice(0, 7)))].sort().map(m => ({ value: m, label: new Date(m + '-02').toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) }))],
       toggleDateMenu: () => this.setState({ dateMenuOpen: !st.dateMenuOpen }),
       clearDate: () => this.setState({ filters: { ...f, dateRange: null }, rangeAnchor: null }),
-      clearFilters: () => this.setState({ filters: { region: (st.auth && st.auth.region !== 'All') ? st.auth.region : 'All', city: (st.auth && st.auth.store) ? (st.auth.city || 'All') : 'All', store: (st.auth && st.auth.store) || 'All', month: 'All', dateRange: null }, rangeAnchor: null }),
+      clearFilters: () => this.setState({ filters: { region: (st.auth && st.auth.region !== 'All') ? st.auth.region : 'All', city: (st.auth && st.auth.store) ? (st.auth.city || 'All') : 'All', store: (st.auth && st.auth.store) || 'All', month: 'All', dateRange: null, cat: 'All', sub: 'All', brand: 'All' }, rangeAnchor: null }),
       dateMenuOpen: st.dateMenuOpen,
       dateButtonLabel: !f.dateRange ? 'All dates' : f.dateRange.start === f.dateRange.end ? f.dateRange.start : f.dateRange.start + ' → ' + f.dateRange.end,
       calendarCells, calendarMonthLabel, calendarAtStart, calendarAtEnd, calendarPrevMonth, calendarNextMonth,
@@ -7464,7 +7565,7 @@ class Component extends DCLogic {
       setStcViewDay: () => this.setState({ stcView: 'day' }),
       toggleFilters: () => this.setState({ filtersOpen: !st.filtersOpen }),
       filtersToggleArrow: st.filtersOpen ? '▴' : '▾',
-      filtersActiveCount: (f.region !== 'All' ? 1 : 0) + (f.city !== 'All' ? 1 : 0) + (f.store !== 'All' ? 1 : 0) + (f.month !== 'All' ? 1 : 0) + (f.dateRange ? 1 : 0),
+      filtersActiveCount: (f.region !== 'All' ? 1 : 0) + (f.city !== 'All' ? 1 : 0) + (f.store !== 'All' ? 1 : 0) + (f.month !== 'All' ? 1 : 0) + (f.dateRange ? 1 : 0) + ((f.cat && f.cat !== 'All') ? 1 : 0) + ((f.sub && f.sub !== 'All') ? 1 : 0) + ((f.brand && f.brand !== 'All') ? 1 : 0),
       wholesaleFilters: st.wholesaleFilters,
       wholesaleDateMenuOpen: st.wholesaleDateMenuOpen, toggleWholesaleDateMenu: () => this.setState({ wholesaleDateMenuOpen: !st.wholesaleDateMenuOpen }),
       wholesaleDateButtonLabel: !wf.dateRange ? 'All dates' : wf.dateRange.start === wf.dateRange.end ? wf.dateRange.start : wf.dateRange.start + ' \u2192 ' + wf.dateRange.end,
