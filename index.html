@@ -5012,6 +5012,7 @@ class Component extends DCLogic {
     // Staff Ranking counts every location type (stores, workshops, warehouses) so salesmen
     // booked outside retail branches still appear.
     const storeOk = code => {
+      if (code === 'ECST01') return false;
       const sm = this.storeIndex[code] || {};
       if (f.region !== 'All' && sm.region !== f.region) return false;
       if (f.city !== 'All' && sm.city !== f.city) return false;
