@@ -1861,9 +1861,12 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <button class="btn {{yoyAllBtnClass}}" onClick="{{setYoyAll}}">All</button>
 <button class="btn {{yoyLosersBtnClass}}" onClick="{{setYoyLosers}}">Losers</button>
 </div>
-<div class="field" style="max-width:300px;margin-bottom:var(--space-4)">
+<div style="display:flex;gap:var(--space-4);align-items:flex-end;flex-wrap:wrap;margin-bottom:var(--space-4)">
+<div class="field" style="max-width:300px;flex:1 1 220px;margin:0">
 <label>Search {{yoyDimLabel}}</label>
 <input class="input" type="text" value="{{yoySearch}}" onChange="{{setYoySearch}}" placeholder="Type to filter…">
+</div>
+<button class="btn btn-secondary" onClick="{{exportYoyMainPdf}}" style="white-space:nowrap">Export PDF</button>
 </div>
 
 <sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
@@ -3549,6 +3552,83 @@ class Component extends DCLogic {
       }
     });
     this._savePdf(doc, 'yoy-' + (d.slug || 'drill') + '.pdf');
+  };
+
+  // Main YoY comparison table -> PDF (landscape; items view carries thumbnails)
+  exportYoyMainPdf = async () => {
+    const d = this._lastYoyMain;
+    if (!d || !d.rows.length || !window.jspdf) return;
+    const isArabic = t => /[\u0600-\u06FF]/.test(t || '');
+    const arabicToImg = t => {
+      const scale = 4, w = 260, h = 40;
+      const c = document.createElement('canvas'); c.width = w * scale; c.height = h * scale;
+      const ctx = c.getContext('2d'); ctx.scale(scale, scale);
+      ctx.font = '600 20px Arial, "Noto Sans Arabic", "Segoe UI", sans-serif';
+      ctx.direction = 'rtl'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#1a1a1a';
+      ctx.fillText(t, w - 4, h / 2, w - 8);
+      return c.toDataURL('image/png');
+    };
+    const pdfSafe = t => isArabic(t) ? '' : (t || '');
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'landscape' });
+    doc.setFontSize(13);
+    doc.text(d.title, 14, 14);
+    doc.setFontSize(9); doc.setTextColor(120);
+    doc.text(d.kicker, 14, 20);
+    doc.setTextColor(0);
+    const head = d.itemsMode ? ['Image', 'SKU', 'Item'] : [d.header];
+    head.push('CY Sales', 'LY Sales', '\u0394%', 'CY Sold', 'LY Sold', 'Sold \u0394%');
+    if (d.showRcpt) head.push('CY Rcpt', 'LY Rcpt', 'Rcpt \u0394%');
+    if (d.showMarkup) head.push('CY Mkp%', 'LY Mkp%');
+    const imgDataUrls = d.itemsMode ? await Promise.all(d.rows.map(r => this.loadImageDataUrl(r.imageSrc))) : [];
+    const body = d.rows.map(r => [
+      ...(d.itemsMode ? ['', r.sku, isArabic(r.desc) ? '' : (pdfSafe(r.desc) || r.sku)] : [pdfSafe(r.name) || r.name]),
+      r.cySales, r.lySales, r.delta, r.cySold, r.lySold, r.soldDelta || '\u2014',
+      ...(d.showRcpt ? [r.cyRcpt, r.lyRcpt, r.rcptDelta] : []),
+      ...(d.showMarkup ? [r.cyMarkup, r.lyMarkup] : [])
+    ]);
+    const ft = d.footer || {};
+    const foot = d.itemsMode ? null : ['Total', ft.cySales, ft.lySales, ft.delta, ft.cySold, ft.lySold, ft.soldDelta || '\u2014',
+      ...(d.showRcpt ? [ft.cyRcpt, ft.lyRcpt, ft.rcptDelta] : []),
+      ...(d.showMarkup ? [ft.cyMarkup, ft.lyMarkup] : [])];
+    const first = d.itemsMode ? 3 : 1;
+    const deltaCols = [first + 2, first + 5, ...(d.showRcpt ? [first + 8] : [])];
+    doc.autoTable({
+      startY: 25,
+      head: [head], body,
+      ...(foot ? { foot: [foot.map(v => v == null ? '' : String(v))], showFoot: 'lastPage' } : {}),
+      footStyles: { fillColor: [235, 240, 239], textColor: [26, 26, 26], fontStyle: 'bold', fontSize: 8, minCellHeight: 7 },
+      styles: { fontSize: 8, valign: 'middle', minCellHeight: d.itemsMode ? 12.1 : undefined },
+      headStyles: { fillColor: [45, 143, 129], fontStyle: 'bold' },
+      columnStyles: d.itemsMode ? { 0: { cellWidth: 14.3 }, 2: { cellWidth: 60 } } : { 0: { halign: 'left', cellWidth: 52 } },
+      didParseCell: data => {
+        if (data.cell.section === 'foot') { data.cell.styles.minCellHeight = 7; return; }
+        if (data.cell.section === 'body' && deltaCols.includes(data.column.index)) {
+          const neg = /-/.test(String(data.cell.raw || ''));
+          data.cell.styles.textColor = neg ? [178, 34, 52] : [27, 118, 86];
+          data.cell.styles.fontStyle = 'bold';
+        }
+      },
+      didDrawCell: data => {
+        if (!d.itemsMode || data.cell.section !== 'body') return;
+        if (data.column.index === 0) {
+          const url = imgDataUrls[data.row.index];
+          if (url) { const dim = Math.min(data.cell.height - 4, data.cell.width - 4, 12.1); try { doc.addImage(url, 'JPEG', data.cell.x + 2, data.cell.y + (data.cell.height - dim) / 2, dim, dim); } catch (e) {} }
+        }
+        if (data.column.index === 2) {
+          const desc = d.rows[data.row.index].desc;
+          if (isArabic(desc)) {
+            try {
+              const img = arabicToImg(desc);
+              const ih = Math.min(data.cell.height - 3, 7);
+              const iw = Math.min(data.cell.width - 3, ih * (260 / 40));
+              doc.addImage(img, 'PNG', data.cell.x + data.cell.width - iw - 1.5, data.cell.y + (data.cell.height - ih) / 2, iw, ih);
+            } catch (e) {}
+          }
+        }
+      }
+    });
+    this._savePdf(doc, 'yoy-' + (d.slug || 'comparison') + '.pdf');
   };
 
   exportYoyDrillPdf = async () => {
@@ -7371,6 +7451,18 @@ class Component extends DCLogic {
         + (absentRetail.length ? ' — no data for ' + absentRetail.slice(0, 6).join(', ') + (absentRetail.length > 6 ? ' +' + (absentRetail.length - 6) + ' more' : '') : '');
     }
     const yoyDimLabel = { sub: 'sub-category', brand: 'brand', stores: 'store', region: 'region', city: 'city', items: 'item' }[st.yoyView] || 'category';
+    if (st.page === 'yoy' && yoyRows.length) {
+      this._lastYoyMain = {
+        rows: yoyRows, footer: yoyFooter,
+        itemsMode: st.yoyView === 'items',
+        header: { sub: 'Sub-Category', brand: 'Brand', stores: 'Store', region: 'Region', city: 'City' }[st.yoyView] || 'Category',
+        showRcpt: ['stores', 'region', 'city'].includes(st.yoyView),
+        showMarkup: !hideMarkup,
+        title: 'YOY Comparison \u2014 by ' + yoyDimLabel,
+        kicker: [yoyPeriodLabel, yoyRowCountLabel].filter(Boolean).join('   \u00b7   '),
+        slug: st.yoyView || 'comparison'
+      };
+    }
     const L = st.page === 'linkSales' ? this.linkData() : { rows: [], kpis: [], months: [], strong: 0, drill: null };
     if (st.page === 'linkSales') {
       this._lastLink = { rows: L.rows, subtitle: (st.linkMonth === 'All' ? 'All months' : st.linkMonth) + ' · ' + this.fmtNum(L.baskets) + ' multi-item invoices · min ' + st.linkMinCount + ' baskets' };
@@ -7564,6 +7656,7 @@ class Component extends DCLogic {
       yoyCalPrev: () => { const i = yoyCalMonths.indexOf(yoyCalMonthCur); if (i > 0) this.setState({ yoyCalMonth: yoyCalMonths[i - 1] }); },
       yoyCalNext: () => { const i = yoyCalMonths.indexOf(yoyCalMonthCur); if (i >= 0 && i < yoyCalMonths.length - 1) this.setState({ yoyCalMonth: yoyCalMonths[i + 1] }); },
       yoyRows, yoyFooter, yoyKpiCards, yoyRowCountLabel, yoyPeriodLabel, yoyCoverageLabel, yoyDimLabel,
+      exportYoyMainPdf: this.exportYoyMainPdf,
       yoyShowMarkup: !hideMarkup,
       yoyShowRcpt: ['stores', 'region', 'city'].includes(st.yoyView),
       yoyDimShowRcpt: false,
