@@ -10,7 +10,7 @@
 <helmet>
 <link rel="stylesheet" href="nocturne/styles.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
@@ -59,8 +59,8 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </sc-for>
 </div>
 <div style="font-size:12px;color:var(--color-neutral-500);line-height:1.5;margin-top:auto">
-<em>{{meta.dateLabel}}</em><br>
-{{meta.storeCount}} branches tracked
+<em>{{metaDateLabel}}</em><br>
+{{metaStoreCountLabel}} branches tracked
 <sc-if value="{{meta.lastUpdatedLabel}}" hint-placeholder-val="{{false}}">
 <br><span style="font-size:11px">{{meta.lastUpdatedLabel}}</span>
 </sc-if>
@@ -527,8 +527,8 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
 <thead><tr><th>Image</th><th style="text-align:left">SKU</th><th style="text-align:left">Item</th><th>Net sales</th><th>% of sales</th><th>Qty</th></tr></thead>
 <tbody>
-<sc-for list="{{categoryDetailRows}}" as="it" hint-placeholder-count="10">
-<tr onClick="{{it.onClick}}" style="cursor:pointer"><td><img src="{{it.imageSrc}}" style="width:40px;height:40px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block"></td><td style="font-weight:600;white-space:nowrap;text-align:left">{{it.itemNo}}</td><td style="font-weight:600;text-align:left;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{it.itemDesc}}">{{it.itemDesc}}</td><td style="font-weight:600;white-space:nowrap">{{it.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.pctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.qtyLabel}}</td></tr>
+<sc-for list="{{categoryDetailRows}}" as="it" hint-placeholder-count="0">
+<tr onClick="{{it.onClick}}" style="cursor:pointer"><td><sc-if value="{{it.imageSrc}}" hint-placeholder-val="{{false}}"><img src="{{it.imageSrc}}" style="width:40px;height:40px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block"></sc-if></td><td style="font-weight:600;white-space:nowrap;text-align:left">{{it.itemNo}}</td><td style="font-weight:600;text-align:left;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{it.itemDesc}}">{{it.itemDesc}}</td><td style="font-weight:600;white-space:nowrap">{{it.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.pctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.qtyLabel}}</td></tr>
 </sc-for>
 </tbody>
 <tfoot><tr style="border-top:2px solid var(--color-divider)"><td></td><td style="text-align:left"></td><td style="font-weight:700;text-align:left">Total</td><td style="font-weight:700;white-space:nowrap">{{categoryDetailTotals.netSalesLabel}}</td><td style="font-weight:700;white-space:nowrap">{{categoryDetailTotals.pctLabel}}</td><td style="font-weight:700;white-space:nowrap">{{categoryDetailTotals.qtyLabel}}</td></tr></tfoot>
@@ -555,8 +555,8 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <table class="table">
 <thead><tr><th style="text-align:left;width:44px">#</th><th>Image</th><th style="text-align:left">SKU</th><th style="text-align:left">Item</th><th>Units</th><th>Net sales</th><th>RSP</th><th>Achieved</th><th>Depth</th><th>Given away</th><sc-if value="{{showCostCols}}" hint-placeholder-val="{{true}}"><th>Markup%</th><th style="text-align:left">Verdict</th></sc-if></tr></thead>
 <tbody>
-<sc-for list="{{discEffRows}}" as="r" hint-placeholder-count="12">
-<tr><td style="text-align:left;color:var(--color-neutral-500)">{{r.rank}}</td><td><img src="{{r.imageSrc}}" alt="" loading="lazy" style="width:40px;height:40px;object-fit:contain;background:var(--color-neutral-100);border-radius:var(--radius-sm);display:block"></td><td style="font-weight:600;white-space:nowrap;text-align:left">{{r.sku}}</td><td style="font-weight:600;text-align:left;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{r.desc}}">{{r.desc}}</td><td style="font-weight:600;white-space:nowrap">{{r.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.netSalesLabel}}</td><td style="white-space:nowrap">{{r.rspLabel}}</td><td style="white-space:nowrap">{{r.aspLabel}}</td><td style="font-weight:700;white-space:nowrap">{{r.depthLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.givenLabel}}</td><sc-if value="{{showCostCols}}" hint-placeholder-val="{{true}}"><td style="font-weight:600;white-space:nowrap">{{r.markupLabel}}</td><td style="text-align:left;font-weight:600;white-space:nowrap;color:{{r.verdictColor}}">{{r.verdict}}</td></sc-if></tr>
+<sc-for list="{{discEffRows}}" as="r" hint-placeholder-count="0">
+<tr><td style="text-align:left;color:var(--color-neutral-500)">{{r.rank}}</td><td><sc-if value="{{r.imageSrc}}" hint-placeholder-val="{{false}}"><img src="{{r.imageSrc}}" alt="" loading="lazy" style="width:40px;height:40px;object-fit:contain;background:var(--color-neutral-100);border-radius:var(--radius-sm);display:block"></sc-if></td><td style="font-weight:600;white-space:nowrap;text-align:left">{{r.sku}}</td><td style="font-weight:600;text-align:left;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{r.desc}}">{{r.desc}}</td><td style="font-weight:600;white-space:nowrap">{{r.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.netSalesLabel}}</td><td style="white-space:nowrap">{{r.rspLabel}}</td><td style="white-space:nowrap">{{r.aspLabel}}</td><td style="font-weight:700;white-space:nowrap">{{r.depthLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.givenLabel}}</td><sc-if value="{{showCostCols}}" hint-placeholder-val="{{true}}"><td style="font-weight:600;white-space:nowrap">{{r.markupLabel}}</td><td style="text-align:left;font-weight:600;white-space:nowrap;color:{{r.verdictColor}}">{{r.verdict}}</td></sc-if></tr>
 </sc-for>
 </tbody>
 </table>
@@ -636,8 +636,8 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <table class="table">
 <thead><tr><th style="text-align:left;width:44px">#</th><th>Image</th><th style="text-align:left">SKU</th><th style="text-align:left">Item</th><th>Units sold</th><th>Returned</th><th>Return%</th><th>vs chain</th></tr></thead>
 <tbody>
-<sc-for list="{{returnSkuRows}}" as="r" hint-placeholder-count="10">
-<tr onClick="{{r.onClick}}" style="cursor:pointer"><td style="text-align:left;color:var(--color-neutral-500)">{{r.rank}}</td><td><img src="{{r.imageSrc}}" alt="" loading="lazy" style="width:40px;height:40px;object-fit:contain;background:var(--color-neutral-100);border-radius:var(--radius-sm);display:block"></td><td style="font-weight:600;white-space:nowrap;text-align:left">{{r.sku}}</td><td style="font-weight:600;text-align:left;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{r.desc}}">{{r.desc}}</td><td style="font-weight:600;white-space:nowrap">{{r.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.returnQtyLabel}}</td><td style="font-weight:700;white-space:nowrap">{{r.rateLabel}}</td><td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.diffLabel}}</td></tr>
+<sc-for list="{{returnSkuRows}}" as="r" hint-placeholder-count="0">
+<tr onClick="{{r.onClick}}" style="cursor:pointer"><td style="text-align:left;color:var(--color-neutral-500)">{{r.rank}}</td><td><sc-if value="{{r.imageSrc}}" hint-placeholder-val="{{false}}"><img src="{{r.imageSrc}}" alt="" loading="lazy" style="width:40px;height:40px;object-fit:contain;background:var(--color-neutral-100);border-radius:var(--radius-sm);display:block"></sc-if></td><td style="font-weight:600;white-space:nowrap;text-align:left">{{r.sku}}</td><td style="font-weight:600;text-align:left;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{r.desc}}">{{r.desc}}</td><td style="font-weight:600;white-space:nowrap">{{r.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.returnQtyLabel}}</td><td style="font-weight:700;white-space:nowrap">{{r.rateLabel}}</td><td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.diffLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -727,8 +727,8 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <table class="table">
 <thead><tr><th style="text-align:left;width:44px">#</th><th>Image</th><th style="text-align:left">SKU</th><th style="text-align:left">Item</th><th>Units</th><th>Net sales</th><th>RSP</th><th>Achieved</th><sc-if value="{{showCostCols}}" hint-placeholder-val="{{true}}"><th>Markup%</th></sc-if></tr></thead>
 <tbody>
-<sc-for list="{{bandDrillRows}}" as="r" hint-placeholder-count="10">
-<tr><td style="text-align:left;color:var(--color-neutral-500)">{{r.rank}}</td><td><div style="width:40px;height:40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{r.image}}" hint-placeholder-val="{{false}}"><img src="{{r.image}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></sc-if></div></td><td style="font-weight:600;white-space:nowrap;text-align:left">{{r.sku}}</td><td style="font-weight:600;text-align:left;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{r.desc}}">{{r.desc}}</td><td style="font-weight:600;white-space:nowrap">{{r.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.netSalesLabel}}</td><td style="white-space:nowrap">{{r.rspLabel}}</td><td style="white-space:nowrap">{{r.aspLabel}}</td><sc-if value="{{showCostCols}}" hint-placeholder-val="{{true}}"><td style="font-weight:600;white-space:nowrap">{{r.markupLabel}}</td></sc-if></tr>
+<sc-for list="{{bandDrillRows}}" as="r" hint-placeholder-count="0">
+<tr><td style="text-align:left;color:var(--color-neutral-500)">{{r.rank}}</td><td><div style="width:40px;height:40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{r.image}}" hint-placeholder-val="{{false}}"><sc-if value="{{r.image}}" hint-placeholder-val="{{false}}"><img src="{{r.image}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></sc-if></sc-if></div></td><td style="font-weight:600;white-space:nowrap;text-align:left">{{r.sku}}</td><td style="font-weight:600;text-align:left;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{r.desc}}">{{r.desc}}</td><td style="font-weight:600;white-space:nowrap">{{r.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.netSalesLabel}}</td><td style="white-space:nowrap">{{r.rspLabel}}</td><td style="white-space:nowrap">{{r.aspLabel}}</td><sc-if value="{{showCostCols}}" hint-placeholder-val="{{true}}"><td style="font-weight:600;white-space:nowrap">{{r.markupLabel}}</td></sc-if></tr>
 </sc-for>
 </tbody>
 </table>
@@ -757,8 +757,8 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <table class="table">
 <thead><tr><th style="text-align:left;width:44px">#</th><sc-if value="{{retDrillHasImages}}" hint-placeholder-val="{{false}}"><th>Image</th></sc-if><th style="text-align:left">{{retDrillFirstCol}}</th><th>Units sold</th><th>Returned</th><th>Return%</th></tr></thead>
 <tbody>
-<sc-for list="{{retDrillRows}}" as="r" hint-placeholder-count="8">
-<tr><td style="text-align:left;color:var(--color-neutral-500)">{{r.rank}}</td><sc-if value="{{retDrillHasImages}}" hint-placeholder-val="{{false}}"><td><div style="width:40px;height:40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{r.image}}" hint-placeholder-val="{{false}}"><img src="{{r.image}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></sc-if></div></td></sc-if><td style="text-align:left;font-weight:600;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{r.name}}">{{r.name}}</td><td style="font-weight:600;white-space:nowrap">{{r.qtyLabel}}</td><td style="font-weight:700;white-space:nowrap">{{r.retLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.rateLabel}}</td></tr>
+<sc-for list="{{retDrillRows}}" as="r" hint-placeholder-count="0">
+<tr><td style="text-align:left;color:var(--color-neutral-500)">{{r.rank}}</td><sc-if value="{{retDrillHasImages}}" hint-placeholder-val="{{false}}"><td><div style="width:40px;height:40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{r.image}}" hint-placeholder-val="{{false}}"><sc-if value="{{r.image}}" hint-placeholder-val="{{false}}"><img src="{{r.image}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></sc-if></sc-if></div></td></sc-if><td style="text-align:left;font-weight:600;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{r.name}}">{{r.name}}</td><td style="font-weight:600;white-space:nowrap">{{r.qtyLabel}}</td><td style="font-weight:700;white-space:nowrap">{{r.retLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.rateLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -827,9 +827,9 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
 <thead><tr><th>#</th><th></th><th style="text-align:left">Item</th><th>Sold qty</th><th>Net sales</th><th>ASP</th></tr></thead>
 <tbody>
-<sc-for list="{{regionStoreItemRows}}" as="it" hint-placeholder-count="10">
+<sc-for list="{{regionStoreItemRows}}" as="it" hint-placeholder-count="0">
 <tr><td style="color:var(--color-neutral-500)">{{it.rank}}</td>
-<td><img src="{{it.imageSrc}}" alt="" loading="lazy" style="width:40px;height:40px;object-fit:contain;background:var(--color-neutral-100);border-radius:var(--radius-sm);display:block"></td>
+<td><sc-if value="{{it.imageSrc}}" hint-placeholder-val="{{false}}"><img src="{{it.imageSrc}}" alt="" loading="lazy" style="width:40px;height:40px;object-fit:contain;background:var(--color-neutral-100);border-radius:var(--radius-sm);display:block"></sc-if></td>
 <td style="text-align:left"><div style="font-weight:600">{{it.itemDesc}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{it.itemNo}}</div></td>
 <td style="font-weight:600;white-space:nowrap">{{it.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.aspLabel}}</td></tr>
 </sc-for>
@@ -921,8 +921,8 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
 <thead><tr><th>Image</th><th style="text-align:left">SKU</th><th style="text-align:left">Item</th><th>Net sales</th><th>Qty</th></tr></thead>
 <tbody>
-<sc-for list="{{drillItemRows}}" as="it" hint-placeholder-count="10">
-<tr><td><img src="{{it.imageSrc}}" style="width:40px;height:40px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block"></td><td style="font-weight:600;white-space:nowrap;text-align:left">{{it.itemNo}}</td><td style="font-weight:600;text-align:left;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{it.itemDesc}}">{{it.itemDesc}}</td><td style="font-weight:600;white-space:nowrap">{{it.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.qtyLabel}}</td></tr>
+<sc-for list="{{drillItemRows}}" as="it" hint-placeholder-count="0">
+<tr><td><sc-if value="{{it.imageSrc}}" hint-placeholder-val="{{false}}"><img src="{{it.imageSrc}}" style="width:40px;height:40px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block"></sc-if></td><td style="font-weight:600;white-space:nowrap;text-align:left">{{it.itemNo}}</td><td style="font-weight:600;text-align:left;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{it.itemDesc}}">{{it.itemDesc}}</td><td style="font-weight:600;white-space:nowrap">{{it.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.qtyLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -983,9 +983,9 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <th class="rl-th" onClick="{{sortHandlers.itemReturnPct}}">Return% {{sortArrow.itemReturnPct}}</th>
 </tr></thead>
 <tbody>
-<sc-for list="{{itemsSorted}}" as="it" hint-placeholder-count="15">
+<sc-for list="{{itemsSorted}}" as="it" hint-placeholder-count="0">
 <tr onClick="{{it.onClick}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap">{{it.rank}}</td>
-<td><img src="{{it.imageSrc}}" style="width:40px;height:40px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block"></td>
+<td><sc-if value="{{it.imageSrc}}" hint-placeholder-val="{{false}}"><img src="{{it.imageSrc}}" style="width:40px;height:40px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block"></sc-if></td>
 <td style="font-weight:600;white-space:nowrap;text-align:left">{{it.itemNo}}</td><td style="font-weight:600;white-space:nowrap;text-align:left">{{it.itemDesc}}</td><td style="font-weight:600;white-space:nowrap">{{it.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.markupLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.returnQtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.returnPctLabel}}</td></tr>
 </sc-for>
 </tbody>
@@ -994,9 +994,9 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </sc-if>
 <sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
 <div style="display:flex;flex-direction:column;gap:10px">
-<sc-for list="{{itemsSorted}}" as="it" hint-placeholder-count="15">
+<sc-for list="{{itemsSorted}}" as="it" hint-placeholder-count="0">
 <div class="card elev-sm" onClick="{{it.onClick}}" style="display:flex;gap:12px;position:relative;cursor:pointer">
-<img src="{{it.imageSrc}}" style="width:96px;height:96px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);flex:none">
+<sc-if value="{{it.imageSrc}}" hint-placeholder-val="{{false}}"><img src="{{it.imageSrc}}" style="width:96px;height:96px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);flex:none"></sc-if>
 <div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:0;padding-right:64px">
 <div style="font-weight:700;font-size:14px">{{it.itemDesc}}</div>
 <div class="card-meta" style="margin-top:-4px">#{{it.rank}} · {{it.itemNo}}</div>
@@ -1144,7 +1144,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </div>
 <div class="field" style="min-width:180px;flex:1 1 180px">
 <label>Search</label>
-<input class="input" value="{{staffSearch}}" onChange="{{setStaffSearch}}" placeholder="Name, ID or store" />
+<input class="input" value="{{staffSearch}}" onChange="{{setStaffSearch}}" placeholder="Name, ID or store">
 </div>
 <sc-if value="{{staffSliceMode}}" hint-placeholder-val="{{false}}">
 <button class="btn btn-secondary" onClick="{{clearStaffSlice}}" style="white-space:nowrap">Clear slice</button>
@@ -1261,10 +1261,10 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <div style="color:var(--color-neutral-500);font-size:13px">No items for this person in the current filter.</div>
 </sc-if>
 <div style="overflow-y:auto;flex:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:var(--space-3)">
-<sc-for list="{{staffDrill.items}}" as="it" hint-placeholder-count="8">
+<sc-for list="{{staffDrill.items}}" as="it" hint-placeholder-count="0">
 <div style="display:flex;gap:12px;align-items:center;padding:10px;border-radius:var(--radius-md);box-shadow:var(--shadow-sm)">
 <div style="width:56px;height:56px;flex:0 0 56px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center">
-<img src="{{it.image}}" alt="" style="width:100%;height:100%;object-fit:contain" />
+<sc-if value="{{it.image}}" hint-placeholder-val="{{false}}"><img src="{{it.image}}" alt="" style="width:100%;height:100%;object-fit:contain"></sc-if>
 </div>
 <div style="flex:1;min-width:0">
 <div data-no-translate="1" style="font-size:13px;font-weight:700;line-height:1.3;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">{{it.name}}</div>
@@ -1469,9 +1469,9 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <div style="font-size:12px;color:var(--color-neutral-500)">{{iv.linesLabel}} lines · {{iv.unitsLabel}} units · bags {{iv.bagQtyLabel}} ({{iv.sizeLabel}})</div>
 </div>
 <div style="display:flex;flex-direction:column;gap:8px">
-<sc-for list="{{iv.items}}" as="it" hint-placeholder-count="3">
+<sc-for list="{{iv.items}}" as="it" hint-placeholder-count="0">
 <div style="display:flex;align-items:center;gap:10px">
-<img src="{{it.imageSrc}}" loading="lazy" decoding="async" style="width:40px;height:40px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block;flex:0 0 auto">
+<sc-if value="{{it.imageSrc}}" hint-placeholder-val="{{false}}"><img src="{{it.imageSrc}}" loading="lazy" decoding="async" style="width:40px;height:40px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block;flex:0 0 auto"></sc-if>
 <div style="flex:1;min-width:0">
 <div style="font-size:13px;font-weight:600;text-wrap:pretty">{{it.itemDesc}}</div>
 <div style="font-size:11px;color:var(--color-neutral-500)">{{it.sku}}</div>
@@ -1498,9 +1498,9 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <button onClick="{{closeConsItem}}" style="border:none;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--color-neutral-500)">×</button>
 </div>
 <div style="overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:10px">
-<sc-for list="{{consInvoiceItems}}" as="it" hint-placeholder-count="4">
+<sc-for list="{{consInvoiceItems}}" as="it" hint-placeholder-count="0">
 <div style="display:flex;align-items:center;gap:12px">
-<img src="{{it.imageSrc}}" loading="lazy" decoding="async" style="width:52px;height:52px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block;flex:0 0 auto">
+<sc-if value="{{it.imageSrc}}" hint-placeholder-val="{{false}}"><img src="{{it.imageSrc}}" loading="lazy" decoding="async" style="width:52px;height:52px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block;flex:0 0 auto"></sc-if>
 <div style="flex:1;min-width:0">
 <div style="font-size:14px;font-weight:600;text-wrap:pretty">{{it.itemDesc}}</div>
 <div style="font-size:11px;color:var(--color-neutral-500)">{{it.sku}}</div>
@@ -1573,8 +1573,8 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
 <thead><tr><th>#</th><th>Image</th><th style="text-align:left">SKU</th><th style="text-align:left">Description</th><th>Net sales</th><th>Sold qty</th></tr></thead>
 <tbody>
-<sc-for list="{{dailyStoreItemRows}}" as="it" hint-placeholder-count="10">
-<tr><td style="font-weight:600">{{it.rank}}</td><td><img src="{{it.imageSrc}}" style="width:40px;height:40px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block"></td><td style="font-weight:600;white-space:nowrap;text-align:left">{{it.itemNo}}</td><td style="font-weight:600;text-align:left">{{it.itemDesc}}</td><td style="font-weight:600;white-space:nowrap">{{it.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.qtyLabel}}</td></tr>
+<sc-for list="{{dailyStoreItemRows}}" as="it" hint-placeholder-count="0">
+<tr><td style="font-weight:600">{{it.rank}}</td><td><sc-if value="{{it.imageSrc}}" hint-placeholder-val="{{false}}"><img src="{{it.imageSrc}}" style="width:40px;height:40px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block"></sc-if></td><td style="font-weight:600;white-space:nowrap;text-align:left">{{it.itemNo}}</td><td style="font-weight:600;text-align:left">{{it.itemDesc}}</td><td style="font-weight:600;white-space:nowrap">{{it.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.qtyLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -1595,8 +1595,8 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
 <thead><tr><th>#</th><th>Image</th><th style="text-align:left">SKU</th><th style="text-align:left">Description</th><th>Net sales</th><th>Sold qty</th><th>Discount%</th><th>Markup%</th></tr></thead>
 <tbody>
-<sc-for list="{{discStoreItemRows}}" as="it" hint-placeholder-count="10">
-<tr><td style="font-weight:600">{{it.rank}}</td><td><img src="{{it.imageSrc}}" style="width:40px;height:40px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block"></td><td style="font-weight:600;white-space:nowrap;text-align:left">{{it.itemNo}}</td><td style="font-weight:600;text-align:left">{{it.itemDesc}}</td><td style="font-weight:600;white-space:nowrap">{{it.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.discountPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.markupLabel}}</td></tr>
+<sc-for list="{{discStoreItemRows}}" as="it" hint-placeholder-count="0">
+<tr><td style="font-weight:600">{{it.rank}}</td><td><sc-if value="{{it.imageSrc}}" hint-placeholder-val="{{false}}"><img src="{{it.imageSrc}}" style="width:40px;height:40px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);display:block"></sc-if></td><td style="font-weight:600;white-space:nowrap;text-align:left">{{it.itemNo}}</td><td style="font-weight:600;text-align:left">{{it.itemDesc}}</td><td style="font-weight:600;white-space:nowrap">{{it.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.discountPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{it.markupLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -1889,11 +1889,11 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </tr>
 </thead>
 <tbody>
-<sc-for list="{{yoyRows}}" as="r" hint-placeholder-count="12">
+<sc-for list="{{yoyRows}}" as="r" hint-placeholder-count="0">
 <tr>
 <sc-if value="{{yoyIsItems}}" hint-placeholder-val="{{false}}">
 <td style="text-align:left;width:52px">
-<img src="{{r.imageSrc}}" alt="" style="width:44px;height:44px;object-fit:contain;background:#fff;border-radius:var(--radius-sm);display:block">
+<sc-if value="{{r.imageSrc}}" hint-placeholder-val="{{false}}"><img src="{{r.imageSrc}}" alt="" style="width:44px;height:44px;object-fit:contain;background:#fff;border-radius:var(--radius-sm);display:block"></sc-if>
 </td>
 <td style="text-align:left;font-weight:600;white-space:nowrap">
 <span onClick="{{r.onClick}}" style="cursor:pointer;color:var(--color-accent-300);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px">{{r.sku}}</span>
@@ -1951,13 +1951,13 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 
 <sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
 <div style="display:flex;flex-direction:column;gap:8px">
-<sc-for list="{{yoyRows}}" as="r" hint-placeholder-count="10">
+<sc-for list="{{yoyRows}}" as="r" hint-placeholder-count="0">
 <div class="card elev-sm">
 <div onClick="{{r.onClick}}" style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
 <div style="font-weight:700;font-size:14px;flex:1;min-width:0">
 <sc-if value="{{yoyIsItems}}" hint-placeholder-val="{{false}}">
 <div style="display:flex;gap:10px;align-items:flex-start">
-<img src="{{r.imageSrc}}" alt="" style="width:44px;height:44px;flex:0 0 44px;object-fit:contain;background:#fff;border-radius:var(--radius-sm)">
+<sc-if value="{{r.imageSrc}}" hint-placeholder-val="{{false}}"><img src="{{r.imageSrc}}" alt="" style="width:44px;height:44px;flex:0 0 44px;object-fit:contain;background:#fff;border-radius:var(--radius-sm)"></sc-if>
 <div style="min-width:0">
 <div style="color:var(--color-accent-300);font-size:13px">{{r.sku}}</div>
 <div style="font-size:13px;font-weight:600">{{r.desc}}</div>
@@ -2050,11 +2050,11 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </tr>
 </thead>
 <tbody>
-<sc-for list="{{yoyDimDrillRows}}" as="r" hint-placeholder-count="10">
+<sc-for list="{{yoyDimDrillRows}}" as="r" hint-placeholder-count="0">
 <tr>
 <sc-if value="{{yoyDimItemsMode}}" hint-placeholder-val="{{false}}">
 <td style="text-align:left;width:52px">
-<img src="{{r.imageSrc}}" alt="" style="width:44px;height:44px;object-fit:contain;background:#fff;border-radius:var(--radius-sm);display:block">
+<sc-if value="{{r.imageSrc}}" hint-placeholder-val="{{false}}"><img src="{{r.imageSrc}}" alt="" style="width:44px;height:44px;object-fit:contain;background:#fff;border-radius:var(--radius-sm);display:block"></sc-if>
 </td>
 <td style="text-align:left;font-weight:600;white-space:nowrap">{{r.sku}}</td>
 <td style="text-align:left;font-weight:600">{{r.desc}}</td>
@@ -2146,11 +2146,11 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </tr>
 </thead>
 <tbody>
-<sc-for list="{{yoyDrillRows}}" as="r" hint-placeholder-count="10">
+<sc-for list="{{yoyDrillRows}}" as="r" hint-placeholder-count="0">
 <tr>
 <sc-if value="{{yoyDrillItemsMode}}" hint-placeholder-val="{{false}}">
 <td style="text-align:left;width:52px">
-<img src="{{r.imageSrc}}" alt="" style="width:44px;height:44px;object-fit:contain;background:#fff;border-radius:var(--radius-sm);display:block">
+<sc-if value="{{r.imageSrc}}" hint-placeholder-val="{{false}}"><img src="{{r.imageSrc}}" alt="" style="width:44px;height:44px;object-fit:contain;background:#fff;border-radius:var(--radius-sm);display:block"></sc-if>
 </td>
 <td style="text-align:left;font-weight:600;white-space:nowrap">{{r.sku}}</td>
 <td style="text-align:left;font-weight:600">{{r.desc}}</td>
@@ -2288,10 +2288,11 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <button class="btn {{evtCatBtnClass}}" onClick="{{setEvtViewCat}}">Category</button>
 <button class="btn {{evtSubBtnClass}}" onClick="{{setEvtViewSub}}">Sub-Category</button>
 <button class="btn {{evtBrandBtnClass}}" onClick="{{setEvtViewBrand}}">Brand</button>
+<button class="btn {{evtItemsBtnClass}}" onClick="{{setEvtViewItems}}">Items</button>
 <button class="btn {{evtSameDaysBtnClass}}" onClick="{{toggleEvtSameDays}}" style="white-space:nowrap">DaytoDay</button>
 <button class="btn btn-secondary" onClick="{{exportEventPdf}}" style="white-space:nowrap;margin-left:auto">Export PDF</button>
 </div>
-<div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4);max-width:900px;text-wrap:pretty">{{evtNote}}</div>
+
 
 <sc-if value="{{evtIsDay}}" hint-placeholder-val="{{true}}">
 <div class="card elev-sm" style="margin-bottom:var(--space-5)">
@@ -2302,7 +2303,8 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </div>
 <div style="display:flex;align-items:flex-end;gap:10px;overflow-x:auto;padding-bottom:4px">
 <sc-for list="{{evtChart}}" as="c" hint-placeholder-count="16">
-<div title="{{c.tip}}" style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:26px">
+<div title="{{c.tip}}" style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:34px">
+<div style="font-size:10px;font-weight:700;line-height:1;white-space:nowrap;color:{{c.deltaColor}}">{{c.delta}}</div>
 <div style="display:flex;align-items:flex-end;gap:3px;height:120px">
 <div style="width:10px;height:{{c.lyH}};background:var(--color-neutral-300);border-radius:2px 2px 0 0"></div>
 <div style="width:10px;height:{{c.cyH}};background:var(--color-accent-500);border-radius:2px 2px 0 0"></div>
@@ -2391,17 +2393,27 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </sc-if>
 
 <sc-if value="{{evtIsBreak}}" hint-placeholder-val="{{false}}">
+<sc-if value="{{evtItemsLoading}}" hint-placeholder-val="{{false}}">
+<div class="card elev-sm" style="text-align:center;color:var(--color-neutral-500);font-size:14px;margin-bottom:var(--space-4)">Loading item-level data…</div>
+</sc-if>
+<sc-if value="{{evtBreakTableVisible}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x:auto">
 <table class="table">
 <thead>
 <tr>
+<sc-if value="{{evtIsItems}}" hint-placeholder-val="{{false}}"><th style="text-align:left;width:52px">Image</th></sc-if>
 <th style="text-align:left">{{evtBreakHeader}}</th>
 <th>CY sales</th><th>LY sales</th><th>Diff</th><th>Δ%</th><th>CY units</th><th>LY units</th><th>Share of CY</th>
 </tr>
 </thead>
 <tbody>
-<sc-for list="{{evtBreakRows}}" as="r" hint-placeholder-count="12">
+<sc-for list="{{evtBreakRows}}" as="r" hint-placeholder-count="0">
 <tr>
+<sc-if value="{{evtIsItems}}" hint-placeholder-val="{{false}}">
+<td style="text-align:left;width:52px">
+<sc-if value="{{r.imageSrc}}" hint-placeholder-val="{{false}}"><img src="{{r.imageSrc}}" alt="" loading="lazy" style="width:44px;height:44px;object-fit:contain;background:#fff;border-radius:var(--radius-sm);display:block"></sc-if>
+</td>
+</sc-if>
 <td style="text-align:left">{{r.name}}</td>
 <td style="font-weight:600">{{r.cySales}}</td>
 <td>{{r.lySales}}</td>
@@ -2413,6 +2425,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </tbody>
 <tfoot>
 <tr>
+<sc-if value="{{evtIsItems}}" hint-placeholder-val="{{false}}"><th></th></sc-if>
 <th style="text-align:left">Total</th>
 <th>{{evtFooter.cySales}}</th><th>{{evtFooter.lySales}}</th>
 <th style="color:{{evtFooter.deltaColor}}">{{evtFooter.diff}}</th>
@@ -2423,6 +2436,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </table>
 </div>
 <div style="font-size:12px;color:var(--color-neutral-500);margin-top:var(--space-3)">{{evtBreakCountLabel}}</div>
+</sc-if>
 </sc-if>
 </sc-if>
 </section>
@@ -2454,8 +2468,8 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <table class="data-table" style="width:100%">
 <thead><tr><th style="text-align:left;width:36px">#</th><th style="width:44px"></th><th style="text-align:left">Item A</th><th style="width:44px"></th><th style="text-align:left">Item B</th><th>Baskets</th></tr></thead>
 <tbody>
-<sc-for list="{{linkStrongTop}}" as="s" hint-placeholder-count="8">
-<tr onClick="{{s.onClick}}" style="cursor:pointer"><td style="text-align:left;color:var(--color-neutral-500)">{{s.rank}}</td><td><div style="width:36px;height:36px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden"><img src="{{s.aImage}}" loading="lazy" style="width:100%;height:100%;object-fit:cover"></div></td><td style="text-align:left">{{s.aDesc}}</td><td><div style="width:36px;height:36px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden"><img src="{{s.bImage}}" loading="lazy" style="width:100%;height:100%;object-fit:cover"></div></td><td style="text-align:left">{{s.bDesc}}</td><td style="text-align:right;font-variant-numeric:tabular-nums">{{s.together}}</td></tr>
+<sc-for list="{{linkStrongTop}}" as="s" hint-placeholder-count="0">
+<tr onClick="{{s.onClick}}" style="cursor:pointer"><td style="text-align:left;color:var(--color-neutral-500)">{{s.rank}}</td><td><div style="width:36px;height:36px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden"><sc-if value="{{s.aImage}}" hint-placeholder-val="{{false}}"><img src="{{s.aImage}}" loading="lazy" style="width:100%;height:100%;object-fit:cover"></sc-if></div></td><td style="text-align:left">{{s.aDesc}}</td><td><div style="width:36px;height:36px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden"><sc-if value="{{s.bImage}}" hint-placeholder-val="{{false}}"><img src="{{s.bImage}}" loading="lazy" style="width:100%;height:100%;object-fit:cover"></sc-if></div></td><td style="text-align:left">{{s.bDesc}}</td><td style="text-align:right;font-variant-numeric:tabular-nums">{{s.together}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -2480,8 +2494,8 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <table class="table">
 <thead><tr><th style="text-align:left;width:40px">#</th><th style="width:52px"></th><th style="text-align:left">Bought together with</th><th style="text-align:left">Sub-category</th><th>Baskets</th><th>Attach%</th><th>Lift</th></tr></thead>
 <tbody>
-<sc-for list="{{linkDrillRows}}" as="p" hint-placeholder-count="8">
-<tr><td style="text-align:left;color:var(--color-neutral-500)">{{p.rank}}</td><td><div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{p.image}}" hint-placeholder-val="{{false}}"><img src="{{p.image}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></sc-if></div></td><td style="text-align:left"><div style="font-weight:600">{{p.desc}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{p.sku}}</div></td><td style="text-align:left;font-size:12px;color:var(--color-neutral-500)">{{p.category}}</td><td style="font-weight:600">{{p.together}}</td><td style="font-weight:600">{{p.confLabel}}</td><td>{{p.liftLabel}}</td></tr>
+<sc-for list="{{linkDrillRows}}" as="p" hint-placeholder-count="0">
+<tr><td style="text-align:left;color:var(--color-neutral-500)">{{p.rank}}</td><td><div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{p.image}}" hint-placeholder-val="{{false}}"><sc-if value="{{p.image}}" hint-placeholder-val="{{false}}"><img src="{{p.image}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></sc-if></sc-if></div></td><td style="text-align:left"><div style="font-weight:600">{{p.desc}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{p.sku}}</div></td><td style="text-align:left;font-size:12px;color:var(--color-neutral-500)">{{p.category}}</td><td style="font-weight:600">{{p.together}}</td><td style="font-weight:600">{{p.confLabel}}</td><td>{{p.liftLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -2548,11 +2562,11 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <div style="display:flex;justify-content:space-between;gap:var(--space-4);align-items:flex-start;flex-wrap:wrap">
 <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;flex:1 1 420px;min-width:0">
 <div style="font-size:12px;font-weight:700;color:var(--color-neutral-500);width:26px;flex:0 0 26px">{{s.rank}}</div>
-<sc-for list="{{s.items}}" as="it" hint-placeholder-count="3">
+<sc-for list="{{s.items}}" as="it" hint-placeholder-count="0">
 <div style="display:flex;gap:6px;align-items:center">
 <div style="font-size:15px;font-weight:700;color:var(--color-neutral-500);padding:0 2px">{{it.plus}}</div>
 <div style="display:flex;gap:8px;align-items:center;max-width:230px">
-<div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden"><img src="{{it.image}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></div>
+<div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden"><sc-if value="{{it.image}}" hint-placeholder-val="{{false}}"><img src="{{it.image}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></sc-if></div>
 <div style="min-width:0">
 <div style="font-size:13px;font-weight:600;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{it.desc}}</div>
 <div style="font-size:11px;color:var(--color-neutral-500)">{{it.sku}} · {{it.roleLabel}}</div>
@@ -2609,8 +2623,8 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <table class="table">
 <thead><tr><th style="text-align:left;width:44px">#</th><th style="text-align:left">Item A</th><th style="text-align:left">Item B</th><th>Baskets</th><th>% of baskets</th><th>A → B</th><th>B → A</th><th>Lift</th></tr></thead>
 <tbody>
-<sc-for list="{{linkRows}}" as="p" hint-placeholder-count="12">
-<tr onClick="{{p.onClick}}" style="cursor:pointer"><td style="text-align:left;color:var(--color-neutral-500)">{{p.rank}}</td><td style="text-align:left"><div style="display:flex;gap:10px;align-items:center"><div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{p.aImage}}" hint-placeholder-val="{{false}}"><img src="{{p.aImage}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></sc-if></div><div style="min-width:0"><div style="font-weight:600;color:var(--color-accent-300)">{{p.aDesc}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{p.aSku}} · {{p.aCat}}</div></div></div></td><td style="text-align:left"><div style="display:flex;gap:10px;align-items:center"><div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{p.bImage}}" hint-placeholder-val="{{false}}"><img src="{{p.bImage}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></sc-if></div><div style="min-width:0"><div style="font-weight:600">{{p.bDesc}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{p.bSku}} · {{p.bCat}}</div></div></div></td><td style="font-weight:700;white-space:nowrap">{{p.together}}</td><td style="white-space:nowrap">{{p.supportLabel}}</td><td style="white-space:nowrap">{{p.confABLabel}}</td><td style="white-space:nowrap">{{p.confBALabel}}</td><td style="font-weight:600;white-space:nowrap;color:{{p.liftColor}}">{{p.liftLabel}}</td></tr>
+<sc-for list="{{linkRows}}" as="p" hint-placeholder-count="0">
+<tr onClick="{{p.onClick}}" style="cursor:pointer"><td style="text-align:left;color:var(--color-neutral-500)">{{p.rank}}</td><td style="text-align:left"><div style="display:flex;gap:10px;align-items:center"><div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{p.aImage}}" hint-placeholder-val="{{false}}"><sc-if value="{{p.aImage}}" hint-placeholder-val="{{false}}"><img src="{{p.aImage}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></sc-if></sc-if></div><div style="min-width:0"><div style="font-weight:600;color:var(--color-accent-300)">{{p.aDesc}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{p.aSku}} · {{p.aCat}}</div></div></div></td><td style="text-align:left"><div style="display:flex;gap:10px;align-items:center"><div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{p.bImage}}" hint-placeholder-val="{{false}}"><sc-if value="{{p.bImage}}" hint-placeholder-val="{{false}}"><img src="{{p.bImage}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></sc-if></sc-if></div><div style="min-width:0"><div style="font-weight:600">{{p.bDesc}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{p.bSku}} · {{p.bCat}}</div></div></div></td><td style="font-weight:700;white-space:nowrap">{{p.together}}</td><td style="white-space:nowrap">{{p.supportLabel}}</td><td style="white-space:nowrap">{{p.confABLabel}}</td><td style="white-space:nowrap">{{p.confBALabel}}</td><td style="font-weight:600;white-space:nowrap;color:{{p.liftColor}}">{{p.liftLabel}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -2618,13 +2632,13 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </sc-if>
 <sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
 <div style="display:flex;flex-direction:column;gap:var(--space-3)">
-<sc-for list="{{linkRows}}" as="p" hint-placeholder-count="8">
+<sc-for list="{{linkRows}}" as="p" hint-placeholder-count="0">
 <div onClick="{{p.onClick}}" class="card elev-sm" style="cursor:pointer">
 <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">
-<div style="display:flex;gap:8px;align-items:center;flex:1;min-width:0"><div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{p.aImage}}" hint-placeholder-val="{{false}}"><img src="{{p.aImage}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></sc-if></div><div style="font-weight:700;font-size:13px;color:var(--color-accent-300);min-width:0">{{p.aDesc}}</div></div>
+<div style="display:flex;gap:8px;align-items:center;flex:1;min-width:0"><div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{p.aImage}}" hint-placeholder-val="{{false}}"><sc-if value="{{p.aImage}}" hint-placeholder-val="{{false}}"><img src="{{p.aImage}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></sc-if></sc-if></div><div style="font-weight:700;font-size:13px;color:var(--color-accent-300);min-width:0">{{p.aDesc}}</div></div>
 <div style="font-family:var(--font-heading);font-size:18px;font-weight:600">{{p.together}}</div>
 </div>
-<div style="display:flex;gap:8px;align-items:center;margin-top:6px"><div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{p.bImage}}" hint-placeholder-val="{{false}}"><img src="{{p.bImage}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></sc-if></div><div style="font-size:13px;font-weight:600;min-width:0">{{p.bDesc}}</div></div>
+<div style="display:flex;gap:8px;align-items:center;margin-top:6px"><div style="width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-sm);background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{p.bImage}}" hint-placeholder-val="{{false}}"><sc-if value="{{p.bImage}}" hint-placeholder-val="{{false}}"><img src="{{p.bImage}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></sc-if></sc-if></div><div style="font-size:13px;font-weight:600;min-width:0">{{p.bDesc}}</div></div>
 <div style="display:flex;flex-wrap:wrap;gap:6px 12px;font-size:11px;color:var(--color-neutral-500);margin-top:6px">
 <span>{{p.supportLabel}} of baskets</span><span>A→B {{p.confABLabel}}</span><span>Lift {{p.liftLabel}}</span>
 </div>
@@ -3029,7 +3043,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <div onClick="{{stopPropagation}}" class="card elev-md" style="width:100%;max-width:560px;max-height:80vh;display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-5);touch-action:pinch-zoom">
 <div style="display:flex;gap:12px;align-items:center">
 <button onClick="{{closeItemDetail}}" style="border:none;background:none;cursor:pointer;font-size:18px;line-height:1;color:var(--color-neutral-500);padding:4px;flex:none">←</button>
-<img src="{{itemDetailImage}}" style="width:56px;height:56px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);flex:none">
+<sc-if value="{{itemDetailImage}}" hint-placeholder-val="{{false}}"><img src="{{itemDetailImage}}" style="width:56px;height:56px;object-fit:cover;border-radius:var(--radius-sm);background:var(--color-neutral-800);flex:none"></sc-if>
 <div style="flex:1;min-width:0">
 <div style="font-weight:700;font-size:15px">{{itemDetailLabel}}</div>
 <div class="card-meta">{{itemDetailItemNo}}</div>
@@ -5316,12 +5330,17 @@ class Component extends DCLogic {
       setEvtViewCat: () => this.setState({ evtView: 'category' }),
       setEvtViewSub: () => this.setState({ evtView: 'sub' }),
       setEvtViewBrand: () => this.setState({ evtView: 'brand' }),
+      evtItemsBtnClass: view === 'items' ? 'btn-primary' : 'btn-secondary',
+      setEvtViewItems: () => { this._ensureYoyItems(); this.setState({ evtView: 'items' }); },
+      evtIsItems: view === 'items',
+      evtItemsLoading: view === 'items' && st.yoyItemsLoading,
       evtSameDaysOn: !!st.evtSameDays,
       evtSameDaysBtnClass: st.evtSameDays ? 'btn-primary' : 'btn-secondary',
       toggleEvtSameDays: () => this.setState({ evtSameDays: !this.state.evtSameDays }),
       exportEventPdf: this.exportEventPdf,
       evtRows: [], evtBreakRows: [], evtChart: [], evtKpis: [], evtFooter: {},
       evtReady: false, evtEmpty: false, evtShowRcpt: false, evtNote: '', evtWarn: '',
+      evtItemsGap: false, evtBreakTableVisible: true,
       evtBreakHeader: 'Store', evtWindowLabel: ''
     };
     if (!Y) return base;
@@ -5410,7 +5429,49 @@ class Component extends DCLogic {
     const dimCol = view === 'sub' ? 2 : view === 'brand' ? 3 : 1;
     const needBreak = view !== 'day';
     const agg = {};
-    if (needBreak) {
+    const itemsMode = view === 'items';
+    let itemsGap = '';
+    if (itemsMode) {
+      const IT = st.yoyItems;
+      if (IT && IT.days && !IT.days.some(d => cyWin.some(w => w.md === d) || lyWin.some(w => w.md === d))) {
+        itemsGap = 'The item-level file currently covers ' + IT.days[0] + ' \u2013 ' + IT.days[IT.days.length - 1]
+          + ', so it has no data for this event window. Import the event-period item export through the Data Importer (it writes yoy-items.json alongside yoy.json), then reload. Every other view on this page already has the event data.';
+      }
+      if (IT && IT.rows) {
+        const ip = {};
+        IT.days.forEach((d, i) => { ip[d] = i; });
+        const keptSet2 = new Set(keep);
+        const icy = new Int16Array(IT.days.length).fill(-1), ily = new Int16Array(IT.days.length).fill(-1);
+        cyWin.forEach((w, n) => { const i = ip[w.md]; if (i != null && keptSet2.has(n)) icy[i] = n; });
+        lyWin.forEach((w, n) => { const i = ip[w.md]; if (i != null && keptSet2.has(n)) ily[i] = n; });
+        const skuOk = sku => {
+          if (!dimOn) return true;
+          const m = this.itemMeta[sku] || {};
+          if (catI >= 0 && (m.division || '\u2014') !== ef.cat) return false;
+          if (subI >= 0 && (m.category || '\u2014') !== ef.sub) return false;
+          if (brandI >= 0 && (m.brand || '\u2014') !== ef.brand) return false;
+          return true;
+        };
+        const okCache = {};
+        for (const code in storeOk) {
+          const arr = IT.rows[code];
+          if (!arr) continue;
+          for (let i = 0; i < arr.length; i++) {
+            const r = arr[i];
+            const ci = icy[r[0]], li = ily[r[0]];
+            if (ci < 0 && li < 0) continue;
+            const sku = IT.skus[r[1]];
+            let ok = okCache[r[1]];
+            if (ok === undefined) ok = okCache[r[1]] = skuOk(sku);
+            if (!ok) continue;
+            let a = agg[sku];
+            if (!a) a = agg[sku] = [0, 0, 0, 0, 0, 0, 0, 0];
+            if (ci >= 0) { a[0] += r[2]; a[1] += r[3]; a[2] += r[4]; a[3] += r[5]; }
+            if (li >= 0) { a[4] += r[6]; a[5] += r[7]; a[6] += r[8]; a[7] += r[9]; }
+          }
+        }
+      }
+    } else if (needBreak) {
       for (const code in storeOk) {
         const arr = Y.rows[code];
         if (!arr) continue;
@@ -5478,6 +5539,8 @@ class Component extends DCLogic {
         label: String(n + 1),
         cyH: Math.round((cs / maxSales) * 120) + 'px',
         lyH: Math.round((ls / maxSales) * 120) + 'px',
+        delta: (cs || ls) ? dLab(cs, ls) : '',
+        deltaColor: dClr(cs, ls),
         tip: 'Day ' + (n + 1) + (c ? ' \u00b7 CY ' + c.label + ' ' + fmtM(cs) : '') + (l ? ' \u00b7 LY ' + l.label + ' ' + fmtM(ls) : '')
       });
     }
@@ -5500,10 +5563,13 @@ class Component extends DCLogic {
       { label: 'Avg. per day', value: fmtM(cyHave ? tCy[0] / cyHave : 0), ly: fmtM(lyHave ? tLy[0] / lyHave : 0), delta: dLab(cyHave ? tCy[0] / cyHave : 0, lyHave ? tLy[0] / lyHave : 0), color: dClr(cyHave ? tCy[0] / cyHave : 0, lyHave ? tLy[0] / lyHave : 0) }
     ];
 
-    const breakRows = Object.entries(agg)
-      .sort((a, b) => b[1][0] - a[1][0])
+    const blankImg = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="44" height="44"%3E%3Crect width="44" height="44" fill="%23eceaf5"/%3E%3C/svg%3E';
+    const allBreak = Object.entries(agg).sort((a, b) => b[1][0] - a[1][0]);
+    const breakRows = (itemsMode ? allBreak.slice(0, 200) : allBreak)
       .map(([name, a]) => ({
-        name,
+        name: itemsMode ? (((this.itemMeta[name] || {}).itemDesc) ? name + ' \u00b7 ' + this.itemMeta[name].itemDesc : name) : name,
+        sku: itemsMode ? name : '',
+        imageSrc: itemsMode ? ((this.itemMeta[name] || {}).image || blankImg) : blankImg,
         cySales: fmtM(a[0]), lySales: fmtM(a[4]),
         diff: (a[0] - a[4] >= 0 ? '+' : '\u2212') + fmtM(Math.abs(a[0] - a[4])),
         delta: dLab(a[0], a[4]), deltaColor: dClr(a[0], a[4]),
@@ -5527,7 +5593,7 @@ class Component extends DCLogic {
     this._lastEvent = {
       rows, footer, breakRows, view, showRcpt,
       windowLabel: windowLabel + (sameDays ? '   \u00b7   Day to Day: ' + keep.length + ' matched day(s)' : ''),
-      header: { stores: 'Store', region: 'Region', city: 'City', sub: 'Sub-Category', brand: 'Brand' }[view] || 'Category',
+      header: { stores: 'Store', region: 'Region', city: 'City', sub: 'Sub-Category', brand: 'Brand', items: 'Item' }[view] || 'Category',
       scope: [ef.region !== 'All' ? ef.region : '', ef.city !== 'All' ? ef.city : '', ef.store !== 'All' ? ef.store : '', ef.cat !== 'All' ? ef.cat : '', ef.sub !== 'All' ? ef.sub : '', ef.brand !== 'All' ? ef.brand : ''].filter(Boolean).join(' \u00b7 ') || 'All stores \u00b7 all categories'
     };
 
@@ -5538,9 +5604,14 @@ class Component extends DCLogic {
       evtCatOptions: catOptions, evtSubOptions: subOptions, evtBrandOptions: brandOptions,
       evtRows: rows, evtFooter: footer, evtChart: chart, evtKpis: kpis,
       evtBreakRows: breakRows,
-      evtBreakHeader: { stores: 'Store', region: 'Region', city: 'City', sub: 'Sub-Category', brand: 'Brand' }[view] || 'Category',
-      evtBreakCountLabel: breakRows.length + ' row(s) \u00b7 whole event window',
-      evtShowRcpt: showRcpt, evtNote: note, evtWarn: warn, evtWindowLabel: windowLabel,
+      evtBreakHeader: { stores: 'Store', region: 'Region', city: 'City', sub: 'Sub-Category', brand: 'Brand', items: 'Item' }[view] || 'Category',
+      evtBreakCountLabel: (itemsMode && allBreak.length > breakRows.length
+        ? 'Top ' + breakRows.length + ' of ' + this.fmtNum(allBreak.length) + ' items by CY sales'
+        : breakRows.length + ' row(s)') + ' \u00b7 ' + (sameDays ? 'matched event days' : 'whole event window'),
+      evtShowRcpt: showRcpt, evtNote: note, evtWindowLabel: windowLabel,
+      evtWarn: itemsGap || warn,
+      evtItemsGap: !!itemsGap,
+      evtBreakTableVisible: !itemsGap,
       evtEmpty: !rows.length
     };
   }
@@ -6200,6 +6271,7 @@ class Component extends DCLogic {
     const mkp = v => hideMarkup ? '—' : v;
     const _isAr = st.lang === 'ar';
     const loginVals = {
+      metaDateLabel: '', metaStoreCountLabel: '',
       langEnBg: _isAr ? 'transparent' : 'var(--color-surface)',
       langEnColor: _isAr ? 'var(--color-neutral-500)' : 'var(--color-text)',
       langArBg: _isAr ? 'var(--color-surface)' : 'transparent',
@@ -6214,7 +6286,7 @@ class Component extends DCLogic {
     };
     if (!isAuthed) return loginVals;
     if (st.loading) {
-      return { ...loginVals, gCatOptions: ['All'], gSubOptions: ['All'], gBrandOptions: ['All'], itemScopeOn: false, itemsRankShareLabel: '⤓ Share as PDF', itemsRankShareError: '', pageTitle: 'Loading…', isMobile: st.isMobile, isDesktop: !st.isMobile, navDisplay: st.isMobile ? 'none' : 'flex', bottomNavDisplay: st.isMobile ? 'flex' : 'none', mainMaxWidth: st.isMobile ? 'none' : '1180px', mainPadding: st.isMobile ? '16px 16px 88px 16px' : 'var(--space-6) var(--space-8) var(--space-8) var(--space-6)', filtersDirection: st.isMobile ? 'column' : 'row', filtersAlign: st.isMobile ? 'stretch' : 'flex-end', filtersItemWidth: st.isMobile ? '100%' : 'auto', kpiBasis: st.isMobile ? 'calc(50% - 8px)' : '148px', kpiFlex: st.isMobile ? '0 1 calc(50% - 5px)' : '1 1 148px', kpiValueSize: st.isMobile ? '20px' : '26px', kpiGap: st.isMobile ? '10px' : 'var(--space-4)', bottomNavItems: [], mobileNavOpen: false, toggleMobileNav: () => {}, navItems: [], meta: {}, filters: { ...st.filters, isDirty: false }, regionOptions: ['All'], cityOptions: ['All'], storeOptions: [{ code: 'All', label: 'All' }], monthOptions: [{ value: 'All', label: 'All' }], setMonth: () => {}, showCurrentMonthOnly: () => {}, dateMenuOpen: false, dateButtonLabel: 'All dates', calendarCells: [], toggleDateMenu: () => {}, clearDate: () => {}, isOverview: false, isStores: false, isRegionDetail: false, isCategories: false, isInvoices: false, isItems: false, isDiscounts: false, isWholesale: false, kpiCards: [], dailyBars: [], regionBars: [], topStores: [], topCategories: [], storesSorted: [], categoriesSorted: [], invoicesSorted: [], regionSorted: [], discountsSorted: [], itemsSorted: [], itemsTotalCount: 0, itemSearch: '', setItemSearch: () => {}, sortArrow: {}, sortHandlers: {}, search: '', globalFiltersDisplay: 'flex', showFilterToggle: false, toggleFilters: () => {}, filtersToggleArrow: '\u25be', filtersActiveCount: 0, wholesaleFilters: { month: 'All', type: 'All', store: 'All' }, wholesaleMonthOptions: ['All'], wholesaleTypeOptions: ['All'], wholesaleStoreOptions: ['All'], setWholesaleStore: () => {}, wholesaleSorted: [], wholesaleKpiCards: [], wholesaleTypeCards: [], wholesaleTotalLabel: '0', isWholesaleStores: true, isWholesaleDaily: false, wholesaleStoresBtnClass: 'btn-primary', wholesaleDailyBtnClass: 'btn-secondary', setWholesaleViewStores: () => {}, setWholesaleViewDaily: () => {}, wholesaleStoreCols: [], wholesaleDailyRows: [], wholesaleUndatedLabel: '', setWholesaleMonth: () => {}, setWholesaleType: () => {} };
+      return { ...loginVals, meta: { dateLabel: '', storeCount: 0, lastUpdatedLabel: '', sampleNote: '' }, gCatOptions: ['All'], gSubOptions: ['All'], gBrandOptions: ['All'], itemScopeOn: false, itemsRankShareLabel: '⤓ Share as PDF', itemsRankShareError: '', pageTitle: 'Loading…', isMobile: st.isMobile, isDesktop: !st.isMobile, navDisplay: st.isMobile ? 'none' : 'flex', bottomNavDisplay: st.isMobile ? 'flex' : 'none', mainMaxWidth: st.isMobile ? 'none' : '1180px', mainPadding: st.isMobile ? '16px 16px 88px 16px' : 'var(--space-6) var(--space-8) var(--space-8) var(--space-6)', filtersDirection: st.isMobile ? 'column' : 'row', filtersAlign: st.isMobile ? 'stretch' : 'flex-end', filtersItemWidth: st.isMobile ? '100%' : 'auto', kpiBasis: st.isMobile ? 'calc(50% - 8px)' : '148px', kpiFlex: st.isMobile ? '0 1 calc(50% - 5px)' : '1 1 148px', kpiValueSize: st.isMobile ? '20px' : '26px', kpiGap: st.isMobile ? '10px' : 'var(--space-4)', bottomNavItems: [], mobileNavOpen: false, toggleMobileNav: () => {}, navItems: [], meta: {}, filters: { ...st.filters, isDirty: false }, regionOptions: ['All'], cityOptions: ['All'], storeOptions: [{ code: 'All', label: 'All' }], monthOptions: [{ value: 'All', label: 'All' }], setMonth: () => {}, showCurrentMonthOnly: () => {}, dateMenuOpen: false, dateButtonLabel: 'All dates', calendarCells: [], toggleDateMenu: () => {}, clearDate: () => {}, isOverview: false, isStores: false, isRegionDetail: false, isCategories: false, isInvoices: false, isItems: false, isDiscounts: false, isWholesale: false, kpiCards: [], dailyBars: [], regionBars: [], topStores: [], topCategories: [], storesSorted: [], categoriesSorted: [], invoicesSorted: [], regionSorted: [], discountsSorted: [], itemsSorted: [], itemsTotalCount: 0, itemSearch: '', setItemSearch: () => {}, sortArrow: {}, sortHandlers: {}, search: '', globalFiltersDisplay: 'flex', showFilterToggle: false, toggleFilters: () => {}, filtersToggleArrow: '\u25be', filtersActiveCount: 0, wholesaleFilters: { month: 'All', type: 'All', store: 'All' }, wholesaleMonthOptions: ['All'], wholesaleTypeOptions: ['All'], wholesaleStoreOptions: ['All'], setWholesaleStore: () => {}, wholesaleSorted: [], wholesaleKpiCards: [], wholesaleTypeCards: [], wholesaleTotalLabel: '0', isWholesaleStores: true, isWholesaleDaily: false, wholesaleStoresBtnClass: 'btn-primary', wholesaleDailyBtnClass: 'btn-secondary', setWholesaleViewStores: () => {}, setWholesaleViewDaily: () => {}, wholesaleStoreCols: [], wholesaleDailyRows: [], wholesaleUndatedLabel: '', setWholesaleMonth: () => {}, setWholesaleType: () => {} };
     }
 
     const _sLock = this.storeLock();
@@ -8145,6 +8217,8 @@ class Component extends DCLogic {
       })),
       mobileNavOpen: st.mobileNavOpen,
       toggleMobileNav: () => this.setState({ mobileNavOpen: !st.mobileNavOpen }),
+      metaDateLabel: st.overview ? st.overview.dateRange.start + ' – ' + st.overview.dateRange.end : '',
+      metaStoreCountLabel: String(storesWithSales.size),
       meta: {
         dateLabel: st.overview ? st.overview.dateRange.start + ' – ' + st.overview.dateRange.end : '',
         storeCount: storesWithSales.size,
@@ -8563,7 +8637,7 @@ class Component extends DCLogic {
       exportBandsPdf: this.exportBandsPdf,
       shareItemDetailImage: () => this.shareItemDetailImage(),
       itemShareLabel: st.itemShareBusy ? '…' : '⤓ Image',
-      itemDetailOpen: !!st.selectedItemNo, itemDetailLabel: st.selectedItemLabel, itemDetailItemNo: st.selectedItemNoLabel, itemDetailImage: st.selectedItemImage, itemDetailRows, itemDetailTotals: typeof itemDetailTotals !== 'undefined' ? itemDetailTotals : {}, closeItemDetail: () => this.setState({ selectedItemNo: null, tableZoom: 1 }), stopPropagation: e => e.stopPropagation(),
+      itemDetailOpen: !!st.selectedItemNo, itemDetailLabel: st.selectedItemLabel, itemDetailItemNo: st.selectedItemNoLabel, itemDetailImage: st.selectedItemImage || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2256%22 height=%2256%22%3E%3Crect width=%2256%22 height=%2256%22 fill=%22%23eceaf5%22/%3E%3C/svg%3E', itemDetailRows, itemDetailTotals: typeof itemDetailTotals !== 'undefined' ? itemDetailTotals : {}, closeItemDetail: () => this.setState({ selectedItemNo: null, tableZoom: 1 }), stopPropagation: e => e.stopPropagation(),
       shareItemsRankingPdf: () => this.shareItemsRankingPdf(),
       itemsRankShareLabel: st.itemsRankShareBusy ? 'Preparing PDF…' : '⤓ Share as PDF',
       itemsRankShareError: st.itemsRankShareError || '',
