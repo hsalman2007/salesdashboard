@@ -3523,7 +3523,7 @@ class Component extends DCLogic {
       head: [head], body, foot: [foot.map(v => v == null ? '' : String(v))],
       showFoot: 'lastPage',
       footStyles: { fillColor: [235, 240, 239], textColor: [26, 26, 26], fontStyle: 'bold', fontSize: d.itemsMode ? 9 : 8, minCellHeight: 7 },
-      styles: { fontSize: d.itemsMode ? 9 : 8, valign: 'middle', minCellHeight: d.itemsMode ? 12.1 : undefined },
+      styles: { fontSize: d.itemsMode ? 9 : 8, valign: 'middle', minCellHeight: d.itemsMode ? 12.1 : 7 },
       headStyles: { fillColor: [45, 143, 129], fontStyle: 'bold' },
       columnStyles: d.itemsMode ? { 0: { cellWidth: 14.3 } } : {},
       didParseCell: data => {
@@ -3598,7 +3598,7 @@ class Component extends DCLogic {
       head: [head], body,
       ...(foot ? { foot: [foot.map(v => v == null ? '' : String(v))], showFoot: 'lastPage' } : {}),
       footStyles: { fillColor: [235, 240, 239], textColor: [26, 26, 26], fontStyle: 'bold', fontSize: 8, minCellHeight: 7 },
-      styles: { fontSize: 8, valign: 'middle', minCellHeight: d.itemsMode ? 12.1 : undefined },
+      styles: { fontSize: 8, valign: 'middle', minCellHeight: d.itemsMode ? 12.1 : 7 },
       headStyles: { fillColor: [45, 143, 129], fontStyle: 'bold' },
       columnStyles: d.itemsMode ? { 0: { cellWidth: 14.3 }, 2: { cellWidth: 60 } } : { 0: { halign: 'left', cellWidth: 52 } },
       didParseCell: data => {
@@ -3678,7 +3678,7 @@ class Component extends DCLogic {
       head: [head], body, foot: [foot.map(v => v == null ? '' : String(v))],
       showFoot: 'lastPage',
       footStyles: { fillColor: [235, 240, 239], textColor: [26, 26, 26], fontStyle: 'bold', fontSize: d.itemsMode ? 9 : 8, minCellHeight: 7 },
-      styles: { fontSize: d.itemsMode ? 9 : 8, valign: 'middle', minCellHeight: d.itemsMode ? 12.1 : undefined },
+      styles: { fontSize: d.itemsMode ? 9 : 8, valign: 'middle', minCellHeight: d.itemsMode ? 12.1 : 7 },
       headStyles: { fillColor: [45, 143, 129], fontStyle: 'bold' },
       columnStyles: d.itemsMode ? { 0: { cellWidth: 14.3 } } : {},
       didParseCell: data => {
