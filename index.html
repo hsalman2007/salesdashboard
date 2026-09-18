@@ -5009,9 +5009,10 @@ class Component extends DCLogic {
     const blankT = { rows: [], totals: null, catOptions: ['All'], subOptions: ['All'], brandOptions: ['All'], sliceMode: false, drill: null, note: '', countLabel: '', page: 0, pages: 1, kpis: [] };
     if (!S) return blankT;
     const nameById = {}; (st.staffMaster || []).forEach(s => nameById[String(s.id).trim()] = s.name);
+    // Staff Ranking counts every location type (stores, workshops, warehouses) so salesmen
+    // booked outside retail branches still appear.
     const storeOk = code => {
       const sm = this.storeIndex[code] || {};
-      if ((sm.type || 'Store') !== 'Store') return false;
       if (f.region !== 'All' && sm.region !== f.region) return false;
       if (f.city !== 'All' && sm.city !== f.city) return false;
       if (f.store !== 'All' && code !== f.store) return false;
