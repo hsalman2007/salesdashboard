@@ -1251,6 +1251,9 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <sc-if value="{{staffDrill.itemsLine}}" hint-placeholder-val="{{false}}">
 <div style="font-size:12px;font-weight:600;color:var(--color-neutral-500)">{{staffDrill.itemsLine}}</div>
 </sc-if>
+<sc-if value="{{staffDrill.grainNote}}" hint-placeholder-val="{{false}}">
+<div style="font-size:12px;line-height:1.5;color:var(--color-neutral-500);text-wrap:pretty">{{staffDrill.grainNote}}</div>
+</sc-if>
 <sc-if value="{{staffDrill.gapNote}}" hint-placeholder-val="{{false}}">
 <div style="font-size:12px;line-height:1.5;color:#c0392b;text-wrap:pretty">{{staffDrill.gapNote}}</div>
 </sc-if>
@@ -5745,7 +5748,9 @@ class Component extends DCLogic {
       return true;
     };
     const dayOk = d => (f.month === 'All' || !f.month || d.slice(0, 7) === f.month) && (!f.dateRange || (d >= f.dateRange.start && d <= f.dateRange.end));
-    const monthOk = m => (f.month === 'All' || !f.month || m === f.month);
+    // the mix/item grain is monthly, so a day range narrows it to the months it touches
+    const monthOk = m => (f.month === 'All' || !f.month || m === f.month)
+      && (!f.dateRange || (m >= f.dateRange.start.slice(0, 7) && m <= f.dateRange.end.slice(0, 7)));
 
     // cascading cat / sub / brand option lists, scoped to what the mix table actually holds
     const catSet = new Set(), subSet = new Set(), brandSet = new Set();
@@ -5934,9 +5939,15 @@ class Component extends DCLogic {
       const covered = [...itemMonths].sort();
       drill = {
         id, name: row ? row.name : (nameById[id] || id + ' (Unknown)'),
-        kicker: (row ? row.storeName + ' · ' : '') + (f.month === 'All' || !f.month ? 'all months' : f.month) + ' · ' + this.fmtMoney(kNet) + ' · ' + this.fmtNum(kQty) + ' units',
+        kicker: (row ? row.storeName + ' · ' : '')
+          + (f.dateRange ? f.dateRange.start + ' → ' + f.dateRange.end
+            : (f.month === 'All' || !f.month ? 'all months' : f.month))
+          + ' · ' + this.fmtMoney(kNet) + ' · ' + this.fmtNum(kQty) + ' units',
         itemsLine: hasItems && items.length
           ? 'Items shown: ' + this.fmtMoney(iNet) + ' · ' + this.fmtNum(iQty) + ' units · ' + (items.length > CAP ? 'top ' + CAP + ' of ' + items.length + ' SKUs' : items.length + ' SKUs') + (covered.length ? ' · ' + covered.join(', ') : '')
+          : '',
+        grainNote: (f.dateRange && covered.length)
+          ? 'Item detail is month-grain: it covers the whole of ' + covered.join(', ') + ', not only ' + f.dateRange.start + ' → ' + f.dateRange.end + '. The headline figures above respect the exact date range.'
           : '',
         gapNote: (hasItems && missing.length)
           ? 'Item detail covers ' + (covered.join(', ') || 'no months') + ' only — ' + missing.join(', ') + ' not yet imported at item grain, so the % figures below are against the covered months, not the ' + this.fmtMoney(kNet) + ' total above.'
