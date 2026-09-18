@@ -2288,6 +2288,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <button class="btn {{evtCatBtnClass}}" onClick="{{setEvtViewCat}}">Category</button>
 <button class="btn {{evtSubBtnClass}}" onClick="{{setEvtViewSub}}">Sub-Category</button>
 <button class="btn {{evtBrandBtnClass}}" onClick="{{setEvtViewBrand}}">Brand</button>
+<button class="btn {{evtSameDaysBtnClass}}" onClick="{{toggleEvtSameDays}}" style="white-space:nowrap">DaytoDay</button>
 <button class="btn btn-secondary" onClick="{{exportEventPdf}}" style="white-space:nowrap;margin-left:auto">Export PDF</button>
 </div>
 <div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4);max-width:900px;text-wrap:pretty">{{evtNote}}</div>
@@ -5315,6 +5316,9 @@ class Component extends DCLogic {
       setEvtViewCat: () => this.setState({ evtView: 'category' }),
       setEvtViewSub: () => this.setState({ evtView: 'sub' }),
       setEvtViewBrand: () => this.setState({ evtView: 'brand' }),
+      evtSameDaysOn: !!st.evtSameDays,
+      evtSameDaysBtnClass: st.evtSameDays ? 'btn-primary' : 'btn-secondary',
+      toggleEvtSameDays: () => this.setState({ evtSameDays: !this.state.evtSameDays }),
       exportEventPdf: this.exportEventPdf,
       evtRows: [], evtBreakRows: [], evtChart: [], evtKpis: [], evtFooter: {},
       evtReady: false, evtEmpty: false, evtShowRcpt: false, evtNote: '', evtWarn: '',
@@ -5371,27 +5375,53 @@ class Component extends DCLogic {
 
     const cyD = [], lyD = [];
     for (let i = 0; i < nDays; i++) { cyD.push([0, 0, 0, 0]); lyD.push([0, 0, 0, 0]); }
+    const dimFilterOk = r => !(catI >= 0 && r[1] !== catI) && !(subI >= 0 && r[2] !== subI) && !(brandI >= 0 && r[3] !== brandI);
+    for (const code in storeOk) {
+      const arr = Y.rows[code];
+      if (!arr) continue;
+      for (let i = 0; i < arr.length; i++) {
+        const r = arr[i];
+        if (!dimFilterOk(r)) continue;
+        const ci = cyMask[r[0]], li = lyMask[r[0]];
+        if (ci < 0 && li < 0) continue;
+        if (ci >= 0) { const a = cyD[ci]; a[0] += r[4]; a[1] += r[5]; a[2] += r[6]; a[3] += r[7]; }
+        if (li >= 0) { const a = lyD[li]; a[0] += r[8]; a[1] += r[9]; a[2] += r[10]; a[3] += r[11]; }
+      }
+    }
+
+    // "Day to Day": keep only event days that carry values on BOTH sides
+    const sameDays = !!st.evtSameDays;
+    const keep = [];
+    for (let n = 0; n < nDays; n++) {
+      const ok = !sameDays || (cyWin[n] && lyWin[n] && cyD[n][0] !== 0 && lyD[n][0] !== 0);
+      if (ok) keep.push(n);
+    }
+    if (sameDays) {
+      const keptSet = new Set(keep);
+      for (let i = 0; i < cyMask.length; i++) {
+        if (cyMask[i] >= 0 && !keptSet.has(cyMask[i])) cyMask[i] = -1;
+        if (lyMask[i] >= 0 && !keptSet.has(lyMask[i])) lyMask[i] = -1;
+      }
+      cyHave = keep.length; lyHave = keep.length;
+    }
+
     const byStore = view === 'stores', byGeo = view === 'region' || view === 'city';
     const dimArr = view === 'sub' ? Y.subs : view === 'brand' ? Y.brands : Y.cats;
     const dimCol = view === 'sub' ? 2 : view === 'brand' ? 3 : 1;
     const needBreak = view !== 'day';
     const agg = {};
-    for (const code in storeOk) {
-      const arr = Y.rows[code];
-      if (!arr) continue;
-      const sm = storeOk[code];
-      const gk = byStore ? (sm.shortName || sm.nameEn || code)
-        : byGeo ? ((view === 'region' ? sm.region : sm.city) || 'Other') : null;
-      for (let i = 0; i < arr.length; i++) {
-        const r = arr[i];
-        if (catI >= 0 && r[1] !== catI) continue;
-        if (subI >= 0 && r[2] !== subI) continue;
-        if (brandI >= 0 && r[3] !== brandI) continue;
-        const ci = cyMask[r[0]], li = lyMask[r[0]];
-        if (ci < 0 && li < 0) continue;
-        if (ci >= 0) { const a = cyD[ci]; a[0] += r[4]; a[1] += r[5]; a[2] += r[6]; a[3] += r[7]; }
-        if (li >= 0) { const a = lyD[li]; a[0] += r[8]; a[1] += r[9]; a[2] += r[10]; a[3] += r[11]; }
-        if (needBreak) {
+    if (needBreak) {
+      for (const code in storeOk) {
+        const arr = Y.rows[code];
+        if (!arr) continue;
+        const sm = storeOk[code];
+        const gk = byStore ? (sm.shortName || sm.nameEn || code)
+          : byGeo ? ((view === 'region' ? sm.region : sm.city) || 'Other') : null;
+        for (let i = 0; i < arr.length; i++) {
+          const r = arr[i];
+          if (!dimFilterOk(r)) continue;
+          const ci = cyMask[r[0]], li = lyMask[r[0]];
+          if (ci < 0 && li < 0) continue;
           const key = gk != null ? gk : (dimArr[r[dimCol]] || 'Other');
           let a = agg[key];
           if (!a) a = agg[key] = [0, 0, 0, 0, 0, 0, 0, 0];
@@ -5421,10 +5451,10 @@ class Component extends DCLogic {
       }
     }
 
-    const maxSales = Math.max(1, ...cyD.map(a => a[0]), ...lyD.map(a => a[0]));
+    const maxSales = Math.max(1, ...keep.map(n => cyD[n][0]), ...keep.map(n => lyD[n][0]));
     const rows = [], chart = [];
     let ccy = 0, cly = 0, tCy = [0, 0, 0], tLy = [0, 0, 0];
-    for (let n = 0; n < nDays; n++) {
+    for (const n of keep) {
       const c = cyWin[n], l = lyWin[n];
       const cs = cyD[n][0], ls = lyD[n][0];
       ccy += cs; cly += ls;
@@ -5484,15 +5514,19 @@ class Component extends DCLogic {
     const label = (w, tag) => w.length ? (w[0].label + ' \u2013 ' + w[w.length - 1].label + ' ' + w[0].year + ' (' + w.length + 'd)') : tag + ' window not set';
     const windowLabel = 'CY ' + label(cyWin, 'CY') + '   \u00b7   LY ' + label(lyWin, 'LY');
     const note = 'Day 1 = first day of each event window; days are matched by event position, not by calendar date.'
+      + (sameDays ? ' Day to Day is on: only event days with values on both sides are counted \u2014 ' + keep.length + ' of ' + nDays + ' day(s), a like-for-like elapsed comparison.' : '')
       + (dimOn ? ' Receipt counts are hidden while a category, sub-category or brand filter is on \u2014 receipts cannot be split by item dimension.' : '');
     const warn = (!cyHave && !lyHave)
       ? 'None of these event days are in the comparison dataset yet (it currently covers ' + Y.days[0] + ' \u2013 ' + Y.days[Y.days.length - 1] + '). Import the CY and LY event-period transaction exports through the Data Importer \u2192 "Merge into yoy.json", then reload.'
-      : (cyHave < cyWin.length || lyHave < lyWin.length)
+      : sameDays
+        ? (keep.length ? '' : 'No event day has values on both sides yet \u2014 switch Day to Day off to see the full window.')
+        : (cyHave < cyWin.length || lyHave < lyWin.length)
         ? 'Partial coverage: ' + cyHave + ' of ' + cyWin.length + ' CY days and ' + lyHave + ' of ' + lyWin.length + ' LY days are in the dataset. Missing days read as zero.'
         : '';
 
     this._lastEvent = {
-      rows, footer, breakRows, view, showRcpt, windowLabel,
+      rows, footer, breakRows, view, showRcpt,
+      windowLabel: windowLabel + (sameDays ? '   \u00b7   Day to Day: ' + keep.length + ' matched day(s)' : ''),
       header: { stores: 'Store', region: 'Region', city: 'City', sub: 'Sub-Category', brand: 'Brand' }[view] || 'Category',
       scope: [ef.region !== 'All' ? ef.region : '', ef.city !== 'All' ? ef.city : '', ef.store !== 'All' ? ef.store : '', ef.cat !== 'All' ? ef.cat : '', ef.sub !== 'All' ? ef.sub : '', ef.brand !== 'All' ? ef.brand : ''].filter(Boolean).join(' \u00b7 ') || 'All stores \u00b7 all categories'
     };
