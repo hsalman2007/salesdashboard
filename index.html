@@ -2195,6 +2195,238 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </section>
 </sc-if>
 
+<sc-if value="{{isEvent}}" hint-placeholder-val="{{false}}">
+<section>
+<div style="display:flex;flex-wrap:wrap;gap:var(--space-4);align-items:flex-end;margin-bottom:var(--space-4)">
+<div class="field" style="min-width:150px">
+<label>CY event start</label>
+<input class="input" type="date" value="{{evtCyStart}}" onChange="{{setEvtCyStart}}">
+</div>
+<div class="field" style="min-width:150px">
+<label>CY event end</label>
+<input class="input" type="date" value="{{evtCyEnd}}" onChange="{{setEvtCyEnd}}">
+</div>
+<div class="field" style="min-width:150px">
+<label>LY event start</label>
+<input class="input" type="date" value="{{evtLyStart}}" onChange="{{setEvtLyStart}}">
+</div>
+<div class="field" style="min-width:150px">
+<label>LY event end</label>
+<input class="input" type="date" value="{{evtLyEnd}}" onChange="{{setEvtLyEnd}}">
+</div>
+<button class="btn btn-ghost" onClick="{{resetEvtDates}}" style="white-space:nowrap">Reset to 2026 event</button>
+</div>
+
+<div style="display:flex;gap:var(--space-4);align-items:flex-end;flex-wrap:wrap;margin-bottom:var(--space-5)">
+<div class="field" style="min-width:130px">
+<label>Region</label>
+<select class="input" value="{{evtFilters.region}}" onChange="{{setEvtRegion}}" disabled="{{lockRegion}}">
+<sc-for list="{{evtRegionOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
+</select>
+</div>
+<div class="field" style="min-width:150px">
+<label>City</label>
+<select class="input" value="{{evtFilters.city}}" onChange="{{setEvtCity}}" disabled="{{lockStore}}">
+<sc-for list="{{evtCityOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
+</select>
+</div>
+<div class="field" style="min-width:180px">
+<label>Store</label>
+<select class="input" value="{{evtFilters.store}}" onChange="{{setEvtStore}}" disabled="{{lockStore}}">
+<sc-for list="{{evtStoreOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt.code}}">{{opt.label}}</option></sc-for>
+</select>
+</div>
+<div class="field" style="min-width:170px">
+<label>Category</label>
+<select class="input" value="{{evtFilters.cat}}" onChange="{{setEvtCat}}">
+<sc-for list="{{evtCatOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
+</select>
+</div>
+<div class="field" style="min-width:170px">
+<label>Sub-category</label>
+<select class="input" value="{{evtFilters.sub}}" onChange="{{setEvtSub}}">
+<sc-for list="{{evtSubOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
+</select>
+</div>
+<div class="field" style="min-width:170px">
+<label>Brand</label>
+<select class="input" value="{{evtFilters.brand}}" onChange="{{setEvtBrand}}">
+<sc-for list="{{evtBrandOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
+</select>
+</div>
+<sc-if value="{{evtFiltersDirty}}" hint-placeholder-val="{{false}}">
+<button class="btn btn-ghost" onClick="{{clearEvtFilters}}">Clear filters</button>
+</sc-if>
+</div>
+
+<sc-if value="{{eventLoading}}" hint-placeholder-val="{{true}}">
+<div class="card elev-sm" style="text-align:center;color:var(--color-neutral-500);font-size:14px">Loading comparison data…</div>
+</sc-if>
+
+<sc-if value="{{evtReady}}" hint-placeholder-val="{{false}}">
+<div style="font-size:13px;font-weight:600;color:var(--color-neutral-700);margin-bottom:var(--space-2)">{{evtWindowLabel}}</div>
+<sc-if value="{{evtWarn}}" hint-placeholder-val="{{false}}">
+<div class="card elev-sm" style="border-left:none;background:var(--color-neutral-100);font-size:13px;line-height:1.6;margin-bottom:var(--space-4);text-wrap:pretty">{{evtWarn}}</div>
+</sc-if>
+
+<div style="display:flex;gap:var(--space-4);flex-wrap:wrap;margin-bottom:var(--space-5)">
+<sc-for list="{{evtKpis}}" as="k" hint-placeholder-count="4">
+<div class="card elev-sm" style="flex:1 1 170px;min-width:0">
+<div class="card-kicker">{{k.label}}</div>
+<div class="card-title" style="font-size:24px;margin-top:2px;white-space:nowrap">{{k.value}}</div>
+<div class="card-meta" style="margin-top:2px">LY {{k.ly}}</div>
+<div style="font-size:13px;font-weight:700;margin-top:2px;color:{{k.color}}">{{k.delta}}</div>
+</div>
+</sc-for>
+</div>
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:var(--space-4)">
+<button class="btn {{evtDayBtnClass}}" onClick="{{setEvtViewDay}}">Day-wise</button>
+<button class="btn {{evtStoresBtnClass}}" onClick="{{setEvtViewStores}}">By Store</button>
+<button class="btn {{evtRegionBtnClass}}" onClick="{{setEvtViewRegion}}">Region</button>
+<button class="btn {{evtCityBtnClass}}" onClick="{{setEvtViewCity}}">City</button>
+<button class="btn {{evtCatBtnClass}}" onClick="{{setEvtViewCat}}">Category</button>
+<button class="btn {{evtSubBtnClass}}" onClick="{{setEvtViewSub}}">Sub-Category</button>
+<button class="btn {{evtBrandBtnClass}}" onClick="{{setEvtViewBrand}}">Brand</button>
+<button class="btn btn-secondary" onClick="{{exportEventPdf}}" style="white-space:nowrap;margin-left:auto">Export PDF</button>
+</div>
+<div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-4);max-width:900px;text-wrap:pretty">{{evtNote}}</div>
+
+<sc-if value="{{evtIsDay}}" hint-placeholder-val="{{true}}">
+<div class="card elev-sm" style="margin-bottom:var(--space-5)">
+<div style="display:flex;align-items:center;gap:16px;margin-bottom:10px">
+<div class="card-kicker">Net sales by event day</div>
+<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--color-neutral-500)"><span style="width:10px;height:10px;border-radius:2px;background:var(--color-accent-500);display:inline-block"></span>CY</div>
+<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--color-neutral-500)"><span style="width:10px;height:10px;border-radius:2px;background:var(--color-neutral-300);display:inline-block"></span>LY</div>
+</div>
+<div style="display:flex;align-items:flex-end;gap:10px;overflow-x:auto;padding-bottom:4px">
+<sc-for list="{{evtChart}}" as="c" hint-placeholder-count="16">
+<div title="{{c.tip}}" style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:26px">
+<div style="display:flex;align-items:flex-end;gap:3px;height:120px">
+<div style="width:10px;height:{{c.lyH}};background:var(--color-neutral-300);border-radius:2px 2px 0 0"></div>
+<div style="width:10px;height:{{c.cyH}};background:var(--color-accent-500);border-radius:2px 2px 0 0"></div>
+</div>
+<div style="font-size:10px;color:var(--color-neutral-500)">{{c.label}}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<sc-if value="{{isDesktop}}" hint-placeholder-val="{{true}}">
+<div style="overflow-x:auto">
+<table class="table">
+<thead>
+<tr>
+<th style="text-align:left">Day</th><th style="text-align:left">CY date</th><th style="text-align:left">LY date</th>
+<th>CY sales</th><th>LY sales</th><th>Diff</th><th>Δ%</th>
+<th>CY units</th><th>LY units</th>
+<sc-if value="{{evtShowRcpt}}" hint-placeholder-val="{{true}}"><th>CY rcpt</th><th>LY rcpt</th><th>Rcpt Δ%</th></sc-if>
+<th>Cum. CY</th><th>Cum. LY</th><th>Cum. Δ%</th>
+</tr>
+</thead>
+<tbody>
+<sc-for list="{{evtRows}}" as="r" hint-placeholder-count="16">
+<tr style="background:{{r.rowBg}}">
+<td style="text-align:left;font-weight:600;white-space:nowrap">{{r.day}}</td>
+<td style="text-align:left;white-space:nowrap">{{r.cyDate}}</td>
+<td style="text-align:left;white-space:nowrap">{{r.lyDate}}</td>
+<td style="font-weight:600">{{r.cySales}}</td>
+<td>{{r.lySales}}</td>
+<td style="color:{{r.deltaColor}}">{{r.diff}}</td>
+<td style="font-weight:700;color:{{r.deltaColor}}">{{r.delta}}</td>
+<td>{{r.cyQty}}</td>
+<td>{{r.lyQty}}</td>
+<sc-if value="{{evtShowRcpt}}" hint-placeholder-val="{{true}}">
+<td>{{r.cyRcpt}}</td><td>{{r.lyRcpt}}</td><td style="color:{{r.rcptDeltaColor}}">{{r.rcptDelta}}</td>
+</sc-if>
+<td>{{r.cumCy}}</td><td>{{r.cumLy}}</td>
+<td style="font-weight:600;color:{{r.cumDeltaColor}}">{{r.cumDelta}}</td>
+</tr>
+</sc-for>
+</tbody>
+<tfoot>
+<tr>
+<th style="text-align:left" colspan="3">Total</th>
+<th>{{evtFooter.cySales}}</th><th>{{evtFooter.lySales}}</th>
+<th style="color:{{evtFooter.deltaColor}}">{{evtFooter.diff}}</th>
+<th style="color:{{evtFooter.deltaColor}}">{{evtFooter.delta}}</th>
+<th>{{evtFooter.cyQty}}</th><th>{{evtFooter.lyQty}}</th>
+<sc-if value="{{evtShowRcpt}}" hint-placeholder-val="{{true}}">
+<th>{{evtFooter.cyRcpt}}</th><th>{{evtFooter.lyRcpt}}</th><th style="color:{{evtFooter.rcptDeltaColor}}">{{evtFooter.rcptDelta}}</th>
+</sc-if>
+<th></th><th></th><th></th>
+</tr>
+</tfoot>
+</table>
+</div>
+</sc-if>
+
+<sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{evtRows}}" as="r" hint-placeholder-count="10">
+<div class="card elev-sm">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+<div style="font-weight:700;font-size:14px">{{r.day}}</div>
+<div style="font-size:13px;font-weight:700;color:{{r.deltaColor}}">{{r.delta}}</div>
+</div>
+<div style="font-size:11px;color:var(--color-neutral-500);margin-top:2px">CY {{r.cyDate}} · LY {{r.lyDate}}</div>
+<div style="display:flex;gap:16px;margin-top:8px">
+<div><div class="card-kicker">CY</div><div style="font-weight:600">{{r.cySales}}</div></div>
+<div><div class="card-kicker">LY</div><div>{{r.lySales}}</div></div>
+<div><div class="card-kicker">Units CY/LY</div><div>{{r.cyQty}} / {{r.lyQty}}</div></div>
+</div>
+<div style="font-size:11px;color:var(--color-neutral-500);margin-top:6px">Cumulative {{r.cumCy}} vs {{r.cumLy}} · {{r.cumDelta}}</div>
+</div>
+</sc-for>
+<div class="card elev-sm" style="background:var(--color-neutral-100)">
+<div style="display:flex;justify-content:space-between;align-items:baseline">
+<div style="font-weight:700">Total</div>
+<div style="font-weight:700;color:{{evtFooter.deltaColor}}">{{evtFooter.delta}}</div>
+</div>
+<div style="font-size:13px;margin-top:4px">CY {{evtFooter.cySales}} · LY {{evtFooter.lySales}}</div>
+</div>
+</div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{evtIsBreak}}" hint-placeholder-val="{{false}}">
+<div style="overflow-x:auto">
+<table class="table">
+<thead>
+<tr>
+<th style="text-align:left">{{evtBreakHeader}}</th>
+<th>CY sales</th><th>LY sales</th><th>Diff</th><th>Δ%</th><th>CY units</th><th>LY units</th><th>Share of CY</th>
+</tr>
+</thead>
+<tbody>
+<sc-for list="{{evtBreakRows}}" as="r" hint-placeholder-count="12">
+<tr>
+<td style="text-align:left">{{r.name}}</td>
+<td style="font-weight:600">{{r.cySales}}</td>
+<td>{{r.lySales}}</td>
+<td style="color:{{r.deltaColor}}">{{r.diff}}</td>
+<td style="font-weight:700;color:{{r.deltaColor}}">{{r.delta}}</td>
+<td>{{r.cyQty}}</td><td>{{r.lyQty}}</td><td>{{r.share}}</td>
+</tr>
+</sc-for>
+</tbody>
+<tfoot>
+<tr>
+<th style="text-align:left">Total</th>
+<th>{{evtFooter.cySales}}</th><th>{{evtFooter.lySales}}</th>
+<th style="color:{{evtFooter.deltaColor}}">{{evtFooter.diff}}</th>
+<th style="color:{{evtFooter.deltaColor}}">{{evtFooter.delta}}</th>
+<th>{{evtFooter.cyQty}}</th><th>{{evtFooter.lyQty}}</th><th>100.0%</th>
+</tr>
+</tfoot>
+</table>
+</div>
+<div style="font-size:12px;color:var(--color-neutral-500);margin-top:var(--space-3)">{{evtBreakCountLabel}}</div>
+</sc-if>
+</sc-if>
+</section>
+</sc-if>
+
 <sc-if value="{{isLink}}" hint-placeholder-val="{{false}}">
 <section>
 <sc-if value="{{linkStrongOpen}}" hint-placeholder-val="{{false}}">
@@ -2897,6 +3129,10 @@ class Component extends DCLogic {
     yoyFilters: { region: 'All', city: 'All', store: 'All', month: 'All', date: 'All', dateTo: null },
     yoyCalOpen: false,
     yoyCalMonth: null,
+    eventFilters: { region: 'All', city: 'All', store: 'All', cat: 'All', sub: 'All', brand: 'All' },
+    evtView: 'day',
+    evtCyStart: '2026-09-16', evtCyEnd: '2026-09-30',
+    evtLyStart: '2025-09-15', evtLyEnd: '2025-09-30',
     snapDate: null,
     snapDateMenuOpen: false,
     snapCalendarMonthIndex: null,
@@ -3882,7 +4118,7 @@ class Component extends DCLogic {
     return name;
   }
 
-  goTo(page) { return () => { if (page === 'linkSales' && !this.state.auth) return; if (page === 'yoy') this._ensureYoy(); if (page === 'linkSales') this._ensureLinkPairs(); if (page === 'staffRank') this._ensureStaffSales(); if (page === 'consumables') this._ensureBagInvoices(); this.setState({ page }); }; }
+  goTo(page) { return () => { if (page === 'linkSales' && !this.state.auth) return; if (page === 'yoy' || page === 'event') this._ensureYoy(); if (page === 'linkSales') this._ensureLinkPairs(); if (page === 'staffRank') this._ensureStaffSales(); if (page === 'consumables') this._ensureBagInvoices(); this.setState({ page }); }; }
 
   // ===== Daily snapshot (admin / mathew only) =====
   snapshotData(date) {
@@ -5015,6 +5251,310 @@ class Component extends DCLogic {
       columnStyles: { 0: { cellWidth: 10 }, 1: { cellWidth: 24 }, 2: { cellWidth: 82 } }
     });
     this._savePdf(doc, 'link-sales-' + d.sku + '.pdf');
+  };
+
+  _evtWin(startISO, endISO) {
+    const out = [];
+    const p2 = n => String(n).padStart(2, '0');
+    if (!startISO || !endISO) return out;
+    const s = new Date(startISO + 'T00:00:00'), e = new Date(endISO + 'T00:00:00');
+    if (isNaN(s.getTime()) || isNaN(e.getTime()) || e < s) return out;
+    const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    for (const d = new Date(s); d <= e && out.length < 120; d.setDate(d.getDate() + 1)) {
+      out.push({
+        iso: d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()),
+        md: p2(d.getMonth() + 1) + '-' + p2(d.getDate()),
+        label: DOW[d.getDay()] + ' ' + d.getDate() + ' ' + d.toLocaleDateString('en-US', { month: 'short' }),
+        year: d.getFullYear()
+      });
+    }
+    return out;
+  }
+
+  // ===== Event comparison — same event days, CY window vs LY window =====
+  eventData() {
+    const st = this.state, Y = st.yoy;
+    const ef = st.eventFilters;
+    const view = st.evtView || 'day';
+    const fmtM = v => this.fmtMoney(v), fmtN = v => this.fmtNum(v);
+    const dNum = (cy, ly) => ly ? ((cy - ly) / Math.abs(ly)) * 100 : (cy ? 100 : 0);
+    const dLab = (cy, ly) => (!ly && !cy) ? '\u2014' : (dNum(cy, ly) >= 0 ? '+' : '') + dNum(cy, ly).toFixed(1) + '%';
+    const dClr = (cy, ly) => (!ly && !cy) ? 'var(--color-neutral-500)'
+      : dNum(cy, ly) > 0 ? 'var(--color-positive, #4caf7d)' : dNum(cy, ly) < 0 ? 'var(--color-negative, #e2705f)' : 'var(--color-neutral-500)';
+    const setF = patch => this.setState({ eventFilters: { ...this.state.eventFilters, ...patch } });
+    const base = {
+      evtFilters: ef, evtView: view,
+      evtCyStart: st.evtCyStart, evtCyEnd: st.evtCyEnd, evtLyStart: st.evtLyStart, evtLyEnd: st.evtLyEnd,
+      setEvtCyStart: e => this.setState({ evtCyStart: e.target.value }),
+      setEvtCyEnd: e => this.setState({ evtCyEnd: e.target.value }),
+      setEvtLyStart: e => this.setState({ evtLyStart: e.target.value }),
+      setEvtLyEnd: e => this.setState({ evtLyEnd: e.target.value }),
+      resetEvtDates: () => this.setState({ evtCyStart: '2026-09-16', evtCyEnd: '2026-09-30', evtLyStart: '2025-09-15', evtLyEnd: '2025-09-30' }),
+      setEvtRegion: e => setF({ region: e.target.value, city: 'All', store: 'All' }),
+      setEvtCity: e => setF({ city: e.target.value, store: 'All' }),
+      setEvtStore: e => setF({ store: e.target.value }),
+      setEvtCat: e => setF({ cat: e.target.value, sub: 'All', brand: 'All' }),
+      setEvtSub: e => setF({ sub: e.target.value, brand: 'All' }),
+      setEvtBrand: e => setF({ brand: e.target.value }),
+      clearEvtFilters: () => this.setState({ eventFilters: { region: this.state.auth && this.state.auth.region !== 'All' ? this.state.auth.region : 'All', city: 'All', store: this.storeLock() || 'All', cat: 'All', sub: 'All', brand: 'All' } }),
+      evtFiltersDirty: ef.region !== 'All' || ef.city !== 'All' || ef.store !== 'All' || ef.cat !== 'All' || ef.sub !== 'All' || ef.brand !== 'All',
+      evtRegionOptions: ['All'], evtCityOptions: ['All'], evtStoreOptions: [{ code: 'All', label: 'All' }],
+      evtCatOptions: ['All'], evtSubOptions: ['All'], evtBrandOptions: ['All'],
+      evtIsDay: view === 'day', evtIsBreak: view !== 'day',
+      evtDayBtnClass: view === 'day' ? 'btn-primary' : 'btn-secondary',
+      evtStoresBtnClass: view === 'stores' ? 'btn-primary' : 'btn-secondary',
+      evtRegionBtnClass: view === 'region' ? 'btn-primary' : 'btn-secondary',
+      evtCityBtnClass: view === 'city' ? 'btn-primary' : 'btn-secondary',
+      evtCatBtnClass: view === 'category' ? 'btn-primary' : 'btn-secondary',
+      evtSubBtnClass: view === 'sub' ? 'btn-primary' : 'btn-secondary',
+      evtBrandBtnClass: view === 'brand' ? 'btn-primary' : 'btn-secondary',
+      setEvtViewDay: () => this.setState({ evtView: 'day' }),
+      setEvtViewStores: () => this.setState({ evtView: 'stores' }),
+      setEvtViewRegion: () => this.setState({ evtView: 'region' }),
+      setEvtViewCity: () => this.setState({ evtView: 'city' }),
+      setEvtViewCat: () => this.setState({ evtView: 'category' }),
+      setEvtViewSub: () => this.setState({ evtView: 'sub' }),
+      setEvtViewBrand: () => this.setState({ evtView: 'brand' }),
+      exportEventPdf: this.exportEventPdf,
+      evtRows: [], evtBreakRows: [], evtChart: [], evtKpis: [], evtFooter: {},
+      evtReady: false, evtEmpty: false, evtShowRcpt: false, evtNote: '', evtWarn: '',
+      evtBreakHeader: 'Store', evtWindowLabel: ''
+    };
+    if (!Y) return base;
+
+    const lockedRegion = st.auth && st.auth.region !== 'All' ? st.auth.region : null;
+    const lockedStore = this.storeLock();
+    const known = Object.keys(Y.rows).map(c => ({ code: c, sm: this.storeIndex[c] || {} }))
+      .filter(x => !lockedRegion || x.sm.region === lockedRegion)
+      .filter(x => !lockedStore || x.code === lockedStore);
+    const regionOptions = ['All', ...[...new Set(known.map(x => x.sm.region).filter(Boolean))].sort()];
+    const inRegion = known.filter(x => ef.region === 'All' || x.sm.region === ef.region);
+    const cityOptions = ['All', ...[...new Set(inRegion.map(x => x.sm.city).filter(Boolean))].sort()];
+    const inCity = inRegion.filter(x => ef.city === 'All' || x.sm.city === ef.city);
+    const storeOptions = [...(lockedStore ? [] : [{ code: 'All', label: 'All' }]), ...inCity
+      .map(x => ({ code: x.code, label: x.sm.shortName || x.sm.nameEn || x.code }))
+      .sort((a, b) => a.label.localeCompare(b.label))];
+    const storeOk = {};
+    inCity.forEach(x => { if (lockedStore ? x.code === lockedStore : (ef.store === 'All' || ef.store === x.code)) storeOk[x.code] = x.sm; });
+
+    if (!this._evtTriples) {
+      const seen = new Set(), t = [];
+      for (const c in Y.rows) {
+        const arr = Y.rows[c];
+        for (let i = 0; i < arr.length; i++) {
+          const r = arr[i], k = r[1] + '|' + r[2] + '|' + r[3];
+          if (!seen.has(k)) { seen.add(k); t.push([r[1], r[2], r[3]]); }
+        }
+      }
+      this._evtTriples = t;
+    }
+    const T = this._evtTriples;
+    const inCat = t => ef.cat === 'All' || Y.cats[t[0]] === ef.cat;
+    const inSub = t => ef.sub === 'All' || Y.subs[t[1]] === ef.sub;
+    const catOptions = ['All', ...[...new Set(T.map(t => Y.cats[t[0]]).filter(Boolean))].sort()];
+    const subOptions = ['All', ...[...new Set(T.filter(inCat).map(t => Y.subs[t[1]]).filter(Boolean))].sort()];
+    const brandOptions = ['All', ...[...new Set(T.filter(t => inCat(t) && inSub(t)).map(t => Y.brands[t[2]]).filter(Boolean))].sort()];
+    const catI = ef.cat === 'All' ? -1 : Y.cats.indexOf(ef.cat);
+    const subI = ef.sub === 'All' ? -1 : Y.subs.indexOf(ef.sub);
+    const brandI = ef.brand === 'All' ? -1 : Y.brands.indexOf(ef.brand);
+    const dimOn = catI >= 0 || subI >= 0 || brandI >= 0;
+
+    const cyWin = this._evtWin(st.evtCyStart, st.evtCyEnd);
+    const lyWin = this._evtWin(st.evtLyStart, st.evtLyEnd);
+    const nDays = Math.max(cyWin.length, lyWin.length);
+    const pos = {};
+    Y.days.forEach((d, i) => { pos[d] = i; });
+    const cyMask = new Int16Array(Y.days.length).fill(-1), lyMask = new Int16Array(Y.days.length).fill(-1);
+    let cyHave = 0, lyHave = 0;
+    cyWin.forEach((w, n) => { const i = pos[w.md]; if (i != null) { cyMask[i] = n; cyHave++; } });
+    lyWin.forEach((w, n) => { const i = pos[w.md]; if (i != null) { lyMask[i] = n; lyHave++; } });
+
+    const cyD = [], lyD = [];
+    for (let i = 0; i < nDays; i++) { cyD.push([0, 0, 0, 0]); lyD.push([0, 0, 0, 0]); }
+    const byStore = view === 'stores', byGeo = view === 'region' || view === 'city';
+    const dimArr = view === 'sub' ? Y.subs : view === 'brand' ? Y.brands : Y.cats;
+    const dimCol = view === 'sub' ? 2 : view === 'brand' ? 3 : 1;
+    const needBreak = view !== 'day';
+    const agg = {};
+    for (const code in storeOk) {
+      const arr = Y.rows[code];
+      if (!arr) continue;
+      const sm = storeOk[code];
+      const gk = byStore ? (sm.shortName || sm.nameEn || code)
+        : byGeo ? ((view === 'region' ? sm.region : sm.city) || 'Other') : null;
+      for (let i = 0; i < arr.length; i++) {
+        const r = arr[i];
+        if (catI >= 0 && r[1] !== catI) continue;
+        if (subI >= 0 && r[2] !== subI) continue;
+        if (brandI >= 0 && r[3] !== brandI) continue;
+        const ci = cyMask[r[0]], li = lyMask[r[0]];
+        if (ci < 0 && li < 0) continue;
+        if (ci >= 0) { const a = cyD[ci]; a[0] += r[4]; a[1] += r[5]; a[2] += r[6]; a[3] += r[7]; }
+        if (li >= 0) { const a = lyD[li]; a[0] += r[8]; a[1] += r[9]; a[2] += r[10]; a[3] += r[11]; }
+        if (needBreak) {
+          const key = gk != null ? gk : (dimArr[r[dimCol]] || 'Other');
+          let a = agg[key];
+          if (!a) a = agg[key] = [0, 0, 0, 0, 0, 0, 0, 0];
+          if (ci >= 0) { a[0] += r[4]; a[1] += r[5]; a[2] += r[6]; a[3] += r[7]; }
+          if (li >= 0) { a[4] += r[8]; a[5] += r[9]; a[6] += r[10]; a[7] += r[11]; }
+        }
+      }
+    }
+
+    const INV = st.yoyInvoices;
+    const cyRc = new Array(nDays).fill(0), lyRc = new Array(nDays).fill(0);
+    const showRcpt = !dimOn && !!(INV && INV.rows && INV.days);
+    if (showRcpt) {
+      const ip = {};
+      INV.days.forEach((d, i) => { ip[d] = i; });
+      const icy = new Int16Array(INV.days.length).fill(-1), ily = new Int16Array(INV.days.length).fill(-1);
+      cyWin.forEach((w, n) => { const i = ip[w.md]; if (i != null) icy[i] = n; });
+      lyWin.forEach((w, n) => { const i = ip[w.md]; if (i != null) ily[i] = n; });
+      for (const code in storeOk) {
+        const arr = INV.rows[code];
+        if (!arr) continue;
+        for (let i = 0; i < arr.length; i++) {
+          const r = arr[i], a = icy[r[0]], b = ily[r[0]];
+          if (a >= 0) cyRc[a] += r[1];
+          if (b >= 0) lyRc[b] += r[2];
+        }
+      }
+    }
+
+    const maxSales = Math.max(1, ...cyD.map(a => a[0]), ...lyD.map(a => a[0]));
+    const rows = [], chart = [];
+    let ccy = 0, cly = 0, tCy = [0, 0, 0], tLy = [0, 0, 0];
+    for (let n = 0; n < nDays; n++) {
+      const c = cyWin[n], l = lyWin[n];
+      const cs = cyD[n][0], ls = lyD[n][0];
+      ccy += cs; cly += ls;
+      tCy[0] += cs; tCy[1] += cyD[n][1]; tCy[2] += cyRc[n];
+      tLy[0] += ls; tLy[1] += lyD[n][1]; tLy[2] += lyRc[n];
+      rows.push({
+        day: 'Day ' + (n + 1),
+        cyDate: c ? c.label : '\u2014', lyDate: l ? l.label : '\u2014',
+        cySales: fmtM(cs), lySales: fmtM(ls),
+        diff: (cs - ls >= 0 ? '+' : '\u2212') + fmtM(Math.abs(cs - ls)),
+        delta: dLab(cs, ls), deltaColor: dClr(cs, ls),
+        cyQty: fmtN(cyD[n][1]), lyQty: fmtN(lyD[n][1]),
+        qtyDelta: dLab(cyD[n][1], lyD[n][1]), qtyDeltaColor: dClr(cyD[n][1], lyD[n][1]),
+        cyRcpt: fmtN(cyRc[n]), lyRcpt: fmtN(lyRc[n]),
+        rcptDelta: dLab(cyRc[n], lyRc[n]), rcptDeltaColor: dClr(cyRc[n], lyRc[n]),
+        cyAtv: fmtM(cyRc[n] ? cs / cyRc[n] : 0), lyAtv: fmtM(lyRc[n] ? ls / lyRc[n] : 0),
+        cumCy: fmtM(ccy), cumLy: fmtM(cly), cumDelta: dLab(ccy, cly), cumDeltaColor: dClr(ccy, cly),
+        rowBg: (!c || !l) ? 'var(--color-neutral-100)' : 'transparent'
+      });
+      chart.push({
+        label: String(n + 1),
+        cyH: Math.round((cs / maxSales) * 120) + 'px',
+        lyH: Math.round((ls / maxSales) * 120) + 'px',
+        tip: 'Day ' + (n + 1) + (c ? ' \u00b7 CY ' + c.label + ' ' + fmtM(cs) : '') + (l ? ' \u00b7 LY ' + l.label + ' ' + fmtM(ls) : '')
+      });
+    }
+    const footer = {
+      cySales: fmtM(tCy[0]), lySales: fmtM(tLy[0]),
+      diff: (tCy[0] - tLy[0] >= 0 ? '+' : '\u2212') + fmtM(Math.abs(tCy[0] - tLy[0])),
+      delta: dLab(tCy[0], tLy[0]), deltaColor: dClr(tCy[0], tLy[0]),
+      cyQty: fmtN(tCy[1]), lyQty: fmtN(tLy[1]), qtyDelta: dLab(tCy[1], tLy[1]), qtyDeltaColor: dClr(tCy[1], tLy[1]),
+      cyRcpt: fmtN(tCy[2]), lyRcpt: fmtN(tLy[2]), rcptDelta: dLab(tCy[2], tLy[2]), rcptDeltaColor: dClr(tCy[2], tLy[2]),
+      cyAtv: fmtM(tCy[2] ? tCy[0] / tCy[2] : 0), lyAtv: fmtM(tLy[2] ? tLy[0] / tLy[2] : 0)
+    };
+    const kpis = [
+      { label: 'Event net sales', value: fmtM(tCy[0]), ly: fmtM(tLy[0]), delta: dLab(tCy[0], tLy[0]), color: dClr(tCy[0], tLy[0]) },
+      { label: 'Units sold', value: fmtN(tCy[1]), ly: fmtN(tLy[1]), delta: dLab(tCy[1], tLy[1]), color: dClr(tCy[1], tLy[1]) },
+      ...(showRcpt ? [{ label: 'Receipts', value: fmtN(tCy[2]), ly: fmtN(tLy[2]), delta: dLab(tCy[2], tLy[2]), color: dClr(tCy[2], tLy[2]) }] : []),
+      ...(showRcpt ? [{
+        label: 'Avg. basket', value: fmtM(tCy[2] ? tCy[0] / tCy[2] : 0), ly: fmtM(tLy[2] ? tLy[0] / tLy[2] : 0),
+        delta: dLab(tCy[2] ? tCy[0] / tCy[2] : 0, tLy[2] ? tLy[0] / tLy[2] : 0), color: dClr(tCy[2] ? tCy[0] / tCy[2] : 0, tLy[2] ? tLy[0] / tLy[2] : 0)
+      }] : []),
+      { label: 'Avg. per day', value: fmtM(cyHave ? tCy[0] / cyHave : 0), ly: fmtM(lyHave ? tLy[0] / lyHave : 0), delta: dLab(cyHave ? tCy[0] / cyHave : 0, lyHave ? tLy[0] / lyHave : 0), color: dClr(cyHave ? tCy[0] / cyHave : 0, lyHave ? tLy[0] / lyHave : 0) }
+    ];
+
+    const breakRows = Object.entries(agg)
+      .sort((a, b) => b[1][0] - a[1][0])
+      .map(([name, a]) => ({
+        name,
+        cySales: fmtM(a[0]), lySales: fmtM(a[4]),
+        diff: (a[0] - a[4] >= 0 ? '+' : '\u2212') + fmtM(Math.abs(a[0] - a[4])),
+        delta: dLab(a[0], a[4]), deltaColor: dClr(a[0], a[4]),
+        cyQty: fmtN(a[1]), lyQty: fmtN(a[5]), qtyDelta: dLab(a[1], a[5]), qtyDeltaColor: dClr(a[1], a[5]),
+        share: tCy[0] ? ((a[0] / tCy[0]) * 100).toFixed(1) + '%' : '\u2014'
+      }));
+
+    const label = (w, tag) => w.length ? (w[0].label + ' \u2013 ' + w[w.length - 1].label + ' ' + w[0].year + ' (' + w.length + 'd)') : tag + ' window not set';
+    const windowLabel = 'CY ' + label(cyWin, 'CY') + '   \u00b7   LY ' + label(lyWin, 'LY');
+    const note = 'Day 1 = first day of each event window; days are matched by event position, not by calendar date.'
+      + (dimOn ? ' Receipt counts are hidden while a category, sub-category or brand filter is on \u2014 receipts cannot be split by item dimension.' : '');
+    const warn = (!cyHave && !lyHave)
+      ? 'None of these event days are in the comparison dataset yet (it currently covers ' + Y.days[0] + ' \u2013 ' + Y.days[Y.days.length - 1] + '). Import the CY and LY event-period transaction exports through the Data Importer \u2192 "Merge into yoy.json", then reload.'
+      : (cyHave < cyWin.length || lyHave < lyWin.length)
+        ? 'Partial coverage: ' + cyHave + ' of ' + cyWin.length + ' CY days and ' + lyHave + ' of ' + lyWin.length + ' LY days are in the dataset. Missing days read as zero.'
+        : '';
+
+    this._lastEvent = {
+      rows, footer, breakRows, view, showRcpt, windowLabel,
+      header: { stores: 'Store', region: 'Region', city: 'City', sub: 'Sub-Category', brand: 'Brand' }[view] || 'Category',
+      scope: [ef.region !== 'All' ? ef.region : '', ef.city !== 'All' ? ef.city : '', ef.store !== 'All' ? ef.store : '', ef.cat !== 'All' ? ef.cat : '', ef.sub !== 'All' ? ef.sub : '', ef.brand !== 'All' ? ef.brand : ''].filter(Boolean).join(' \u00b7 ') || 'All stores \u00b7 all categories'
+    };
+
+    return {
+      ...base,
+      evtReady: true,
+      evtRegionOptions: regionOptions, evtCityOptions: cityOptions, evtStoreOptions: storeOptions,
+      evtCatOptions: catOptions, evtSubOptions: subOptions, evtBrandOptions: brandOptions,
+      evtRows: rows, evtFooter: footer, evtChart: chart, evtKpis: kpis,
+      evtBreakRows: breakRows,
+      evtBreakHeader: { stores: 'Store', region: 'Region', city: 'City', sub: 'Sub-Category', brand: 'Brand' }[view] || 'Category',
+      evtBreakCountLabel: breakRows.length + ' row(s) \u00b7 whole event window',
+      evtShowRcpt: showRcpt, evtNote: note, evtWarn: warn, evtWindowLabel: windowLabel,
+      evtEmpty: !rows.length
+    };
+  }
+
+  exportEventPdf = async () => {
+    const d = this._lastEvent;
+    if (!d || !window.jspdf) return;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'landscape' });
+    doc.setFontSize(13);
+    doc.text('Event Comparison \u2014 ' + (d.view === 'day' ? 'day-wise LY vs CY' : 'by ' + d.header.toLowerCase()), 14, 14);
+    doc.setFontSize(9); doc.setTextColor(120);
+    doc.text(d.windowLabel, 14, 20);
+    doc.text(d.scope, 14, 25);
+    doc.setTextColor(0);
+    let head, body, foot;
+    if (d.view === 'day') {
+      head = ['Day', 'CY date', 'LY date', 'CY sales', 'LY sales', 'Diff', '\u0394%', 'CY units', 'LY units',
+        ...(d.showRcpt ? ['CY rcpt', 'LY rcpt'] : []), 'Cum. CY', 'Cum. LY', 'Cum. \u0394%'];
+      body = d.rows.map(r => [r.day, r.cyDate, r.lyDate, r.cySales, r.lySales, r.diff, r.delta, r.cyQty, r.lyQty,
+        ...(d.showRcpt ? [r.cyRcpt, r.lyRcpt] : []), r.cumCy, r.cumLy, r.cumDelta]);
+      const f = d.footer;
+      foot = ['Total', '', '', f.cySales, f.lySales, f.diff, f.delta, f.cyQty, f.lyQty,
+        ...(d.showRcpt ? [f.cyRcpt, f.lyRcpt] : []), '', '', ''];
+    } else {
+      head = [d.header, 'CY sales', 'LY sales', 'Diff', '\u0394%', 'CY units', 'LY units', 'Share of CY'];
+      body = d.breakRows.map(r => [r.name, r.cySales, r.lySales, r.diff, r.delta, r.cyQty, r.lyQty, r.share]);
+      const f = d.footer;
+      foot = ['Total', f.cySales, f.lySales, f.diff, f.delta, f.cyQty, f.lyQty, '100.0%'];
+    }
+    const deltaCols = d.view === 'day' ? [5, 6] : [3, 4];
+    doc.autoTable({
+      startY: 30,
+      head: [head], body, foot: [foot.map(v => v == null ? '' : String(v))], showFoot: 'lastPage',
+      styles: { fontSize: 8, valign: 'middle', minCellHeight: 7 },
+      headStyles: { fillColor: [45, 143, 129], fontStyle: 'bold', minCellHeight: 7 },
+      footStyles: { fillColor: [235, 240, 239], textColor: [26, 26, 26], fontStyle: 'bold', fontSize: 8, minCellHeight: 7 },
+      columnStyles: { 0: { halign: 'left', cellWidth: d.view === 'day' ? 18 : 60 } },
+      didParseCell: data => {
+        data.cell.styles.minCellHeight = 7;
+        if (data.cell.section === 'body' && deltaCols.includes(data.column.index)) {
+          const neg = /[-\u2212]/.test(String(data.cell.raw || ''));
+          data.cell.styles.textColor = neg ? [178, 34, 52] : [27, 118, 86];
+          data.cell.styles.fontStyle = 'bold';
+        }
+      }
+    });
+    doc.save('event-comparison-' + d.view + '.pdf');
   };
 
   async _ensureYoy() {
@@ -7469,9 +8009,10 @@ class Component extends DCLogic {
       if (L.drill) this._lastLinkDrill = L.drill;
       if (L.suggested) this._lastLinkSuggested = { rows: L.suggested.rows, subtitle: (st.linkMonth === 'All' ? 'All months' : st.linkMonth) + ' · ' + this.fmtNum(L.baskets) + ' multi-item invoices · min ' + st.linkMinCount + ' baskets · ranked by revenue headroom · basket counts are upper bounds (pairwise minimum)' };
     }
-    const titles = { snapshot: 'Daily Snapshot', overview: 'Executive Overview', stores: 'Branch Comparison', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', hourlySales: 'Hourly Sales', wholesale: 'Wholesale', daily: 'Daily Sales', regionDetail: 'Region Detail', stcQitaf: 'STC Qitaf', yoy: 'YOY Comparison', staffRank: 'Staff Ranking', linkSales: 'Link Sales', consumables: 'Consumables', shrinkage: 'Shrinkage Fund' };
-    const shortTitles = { snapshot: 'Snapshot', overview: 'Overview', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily', regionDetail: 'Region', hourlySales: 'Hourly', wholesale: 'Wholesale', stcQitaf: 'Qitaf', yoy: 'YOY', linkSales: 'Link', consumables: 'Bags', staffRank: 'Staff', shrinkage: 'Shrinkage' };
-    const navIcons = { snapshot: '☷', overview: '▣', categories: '▤', items: '◫', discounts: '%', invoices: '⌂', daily: '◷', regionDetail: '◈', hourlySales: '◔', wholesale: '◊', stcQitaf: '⊙', yoy: '⇄', linkSales: '⧉', consumables: '▧', staffRank: '★', shrinkage: '⛨' };
+    const EV = st.page === 'event' ? this.eventData() : null;
+    const titles = { snapshot: 'Daily Snapshot', overview: 'Executive Overview', stores: 'Branch Comparison', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', hourlySales: 'Hourly Sales', wholesale: 'Wholesale', daily: 'Daily Sales', regionDetail: 'Region Detail', stcQitaf: 'STC Qitaf', yoy: 'YOY Comparison', event: 'Event Comparison', staffRank: 'Staff Ranking', linkSales: 'Link Sales', consumables: 'Consumables', shrinkage: 'Shrinkage Fund' };
+    const shortTitles = { snapshot: 'Snapshot', overview: 'Overview', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily', regionDetail: 'Region', hourlySales: 'Hourly', wholesale: 'Wholesale', stcQitaf: 'Qitaf', yoy: 'YOY', event: 'Event', linkSales: 'Link', consumables: 'Bags', staffRank: 'Staff', shrinkage: 'Shrinkage' };
+    const navIcons = { snapshot: '☷', overview: '▣', categories: '▤', items: '◫', discounts: '%', invoices: '⌂', daily: '◷', regionDetail: '◈', hourlySales: '◔', wholesale: '◊', stcQitaf: '⊙', yoy: '⇄', event: '◉', linkSales: '⧉', consumables: '▧', staffRank: '★', shrinkage: '⛨' };
     const isSnapshotUser = !!(st.auth && (st.auth.id === 'admin' || st.auth.id === '31610' || st.auth.id === 'mathew'));
     const isAdminUser = !!(st.auth && (st.auth.id === 'admin' || st.auth.id === '31610'));
     const snapDates = [...new Set((st.buckets || []).map(r => r.date))].sort().reverse();
@@ -7508,7 +8049,7 @@ class Component extends DCLogic {
         });
       }
     }
-    const pageOrder = [...(isSnapshotUser ? ['snapshot'] : []), 'overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'hourlySales', 'yoy', 'linkSales', 'consumables', 'staffRank', ...(isAdminUser ? ['shrinkage'] : []), 'wholesale', 'stcQitaf'].filter(p => !(st.auth && st.auth.region !== 'All' && p === 'wholesale'));
+    const pageOrder = [...(isSnapshotUser ? ['snapshot'] : []), 'overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'hourlySales', 'yoy', 'event', 'linkSales', 'consumables', 'staffRank', ...(isAdminUser ? ['shrinkage'] : []), 'wholesale', 'stcQitaf'].filter(p => !(st.auth && st.auth.region !== 'All' && p === 'wholesale'));
     const isMobile = st.isMobile;
     const consView = st.consView || 'daily';
     const SR = st.page === 'staffRank' ? this.staffData() : { rows: [], totals: null, catOptions: ['All'], subOptions: ['All'], brandOptions: ['All'], sliceMode: false, drill: null, note: '', countLabel: '', kpis: [] };
@@ -7638,6 +8179,9 @@ class Component extends DCLogic {
       },
       isHourlySales: st.page === 'hourlySales',
       isYoy: st.page === 'yoy',
+      isEvent: st.page === 'event',
+      eventLoading: st.page === 'event' && st.yoyLoading,
+      ...(EV || {}),
       yoyLoading: st.page === 'yoy' && st.yoyLoading,
       yoyReady: st.page === 'yoy' && !!st.yoy,
       yoyFilters: yf,
@@ -7724,8 +8268,8 @@ class Component extends DCLogic {
       setYoyViewBrand: () => this.setState({ yoyView: 'brand', yoySearch: '' }),
       setYoyViewStores: () => this.setState({ yoyView: 'stores', yoySearch: '' }),
       isOverview: st.page === 'overview', isRegionDetail: st.page === 'regionDetail', isCategories: st.page === 'categories', isInvoices: st.page === 'invoices', isItems: st.page === 'items', isDiscounts: st.page === 'discounts', isDaily: st.page === 'daily', isWholesale: st.page === 'wholesale', isStcQitaf: st.page === 'stcQitaf',
-      globalFiltersDisplay: (st.page === 'wholesale' || st.page === 'yoy' || st.page === 'snapshot' || st.page === 'linkSales') ? 'none' : (isMobile && !st.filtersOpen ? 'none' : 'flex'),
-      showFilterToggle: isMobile && st.page !== 'wholesale' && st.page !== 'yoy' && st.page !== 'snapshot' && st.page !== 'linkSales',
+      globalFiltersDisplay: (st.page === 'wholesale' || st.page === 'yoy' || st.page === 'event' || st.page === 'snapshot' || st.page === 'linkSales') ? 'none' : (isMobile && !st.filtersOpen ? 'none' : 'flex'),
+      showFilterToggle: isMobile && st.page !== 'wholesale' && st.page !== 'yoy' && st.page !== 'event' && st.page !== 'snapshot' && st.page !== 'linkSales',
       isSnapshot: st.page === 'snapshot',
       snapDate: snapDate,
       snapDateLabel: snapDate ? new Date(snapDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : 'Select date',
