@@ -1685,7 +1685,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </sc-if>
 </div>
 <button class="btn btn-primary" onClick="{{exportSnapshotPdf}}">Export PDF</button>
-<div style="font-size:12px;color:var(--color-neutral-500);padding-bottom:10px">4 pages · regions, wholesale &amp; 3P, stores, STC Qitaf</div>
+<div style="font-size:12px;color:var(--color-neutral-500);padding-bottom:10px">Regions, wholesale &amp; 3P, stores, categories, sub-categories, brands, top items, STC Qitaf</div>
 </div>
 <sc-if value="{{snapPdfNote}}" hint-placeholder-val="{{false}}">
 <div style="font-size:13px;color:var(--color-accent-300);margin:-12px 0 var(--space-4)">{{snapPdfNote}}</div>
@@ -1755,7 +1755,55 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </table>
 </div>
 
-<h3 style="font-family:var(--font-heading);font-size:18px;margin:0 0 var(--space-3)">4 · STC Qitaf</h3>
+
+<h3 style="font-family:var(--font-heading);font-size:18px;margin:0 0 var(--space-3)">4 · Category performance</h3>
+<div style="overflow-x:auto;margin-bottom:var(--space-8)">
+<table class="table">
+<thead><tr><th>#</th><th style="text-align:left">Category</th><th>Net sales</th><th style="min-width:110px">Share</th><th>Sold qty</th><th>SKUs</th><th>ASP</th><th>Markup%</th></tr></thead>
+<tbody>
+<sc-for list="{{snapCatRows}}" as="r" hint-placeholder-count="6">
+<tr><td style="font-weight:600">{{r.rank}}</td><td style="font-weight:600;text-align:left;white-space:nowrap">{{r.name}}</td><td style="font-weight:600;white-space:nowrap">{{r.netSales}}</td><td><div style="display:flex;align-items:center;gap:8px;justify-content:flex-end"><div style="flex:1;min-width:50px;height:6px;background:var(--color-neutral-100);border-radius:3px;overflow:hidden"><div style="height:100%;width:{{r.barW}};background:var(--color-accent)"></div></div><span style="font-size:12px;min-width:42px">{{r.share}}</span></div></td><td>{{r.qty}}</td><td>{{r.skus}}</td><td style="white-space:nowrap">{{r.asp}}</td><td>{{r.markup}}</td></tr>
+</sc-for>
+</tbody>
+<tfoot><tr style="border-top:2px solid var(--color-divider)"><td></td><td style="font-weight:700;text-align:left">Total</td><td style="font-weight:700;white-space:nowrap">{{snapDimTotal.netSales}}</td><td style="font-weight:700">{{snapDimTotal.share}}</td><td style="font-weight:700">{{snapDimTotal.qty}}</td><td style="font-weight:700">{{snapDimTotal.skus}}</td><td style="font-weight:700;white-space:nowrap">{{snapDimTotal.asp}}</td><td style="font-weight:700">{{snapDimTotal.markup}}</td></tr></tfoot>
+</table>
+</div>
+<h3 style="font-family:var(--font-heading);font-size:18px;margin:0 0 var(--space-3)">5 · Sub-category performance <span style="font-size:13px;color:var(--color-neutral-500);font-weight:400">{{snapSubCountLabel}}</span></h3>
+<div style="overflow-x:auto;margin-bottom:var(--space-8)">
+<table class="table">
+<thead><tr><th>#</th><th style="text-align:left">Sub-category</th><th style="text-align:left">Category</th><th>Net sales</th><th style="min-width:110px">Share</th><th>Sold qty</th><th>SKUs</th><th>ASP</th><th>Markup%</th></tr></thead>
+<tbody>
+<sc-for list="{{snapSubRows}}" as="r" hint-placeholder-count="10">
+<tr><td style="font-weight:600">{{r.rank}}</td><td style="font-weight:600;text-align:left;white-space:nowrap">{{r.name}}</td><td style="text-align:left;color:var(--color-neutral-500);white-space:nowrap">{{r.parent}}</td><td style="font-weight:600;white-space:nowrap">{{r.netSales}}</td><td><div style="display:flex;align-items:center;gap:8px;justify-content:flex-end"><div style="flex:1;min-width:50px;height:6px;background:var(--color-neutral-100);border-radius:3px;overflow:hidden"><div style="height:100%;width:{{r.barW}};background:var(--color-accent)"></div></div><span style="font-size:12px;min-width:42px">{{r.share}}</span></div></td><td>{{r.qty}}</td><td>{{r.skus}}</td><td style="white-space:nowrap">{{r.asp}}</td><td>{{r.markup}}</td></tr>
+</sc-for>
+</tbody>
+<tfoot><tr style="border-top:2px solid var(--color-divider)"><td></td><td style="font-weight:700;text-align:left">Total</td><td></td><td style="font-weight:700;white-space:nowrap">{{snapDimTotal.netSales}}</td><td style="font-weight:700">{{snapDimTotal.share}}</td><td style="font-weight:700">{{snapDimTotal.qty}}</td><td style="font-weight:700">{{snapDimTotal.skus}}</td><td style="font-weight:700;white-space:nowrap">{{snapDimTotal.asp}}</td><td style="font-weight:700">{{snapDimTotal.markup}}</td></tr></tfoot>
+</table>
+</div>
+<h3 style="font-family:var(--font-heading);font-size:18px;margin:0 0 var(--space-3)">6 · Brand performance <span style="font-size:13px;color:var(--color-neutral-500);font-weight:400">{{snapBrandCountLabel}}</span></h3>
+<div style="overflow-x:auto;margin-bottom:var(--space-8)">
+<table class="table">
+<thead><tr><th>#</th><th style="text-align:left">Brand</th><th>Net sales</th><th style="min-width:110px">Share</th><th>Sold qty</th><th>SKUs</th><th>ASP</th><th>Markup%</th></tr></thead>
+<tbody>
+<sc-for list="{{snapBrandRows}}" as="r" hint-placeholder-count="10">
+<tr><td style="font-weight:600">{{r.rank}}</td><td style="font-weight:600;text-align:left;white-space:nowrap">{{r.name}}</td><td style="font-weight:600;white-space:nowrap">{{r.netSales}}</td><td><div style="display:flex;align-items:center;gap:8px;justify-content:flex-end"><div style="flex:1;min-width:50px;height:6px;background:var(--color-neutral-100);border-radius:3px;overflow:hidden"><div style="height:100%;width:{{r.barW}};background:var(--color-accent)"></div></div><span style="font-size:12px;min-width:42px">{{r.share}}</span></div></td><td>{{r.qty}}</td><td>{{r.skus}}</td><td style="white-space:nowrap">{{r.asp}}</td><td>{{r.markup}}</td></tr>
+</sc-for>
+</tbody>
+<tfoot><tr style="border-top:2px solid var(--color-divider)"><td></td><td style="font-weight:700;text-align:left">Total</td><td style="font-weight:700;white-space:nowrap">{{snapDimTotal.netSales}}</td><td style="font-weight:700">{{snapDimTotal.share}}</td><td style="font-weight:700">{{snapDimTotal.qty}}</td><td style="font-weight:700">{{snapDimTotal.skus}}</td><td style="font-weight:700;white-space:nowrap">{{snapDimTotal.asp}}</td><td style="font-weight:700">{{snapDimTotal.markup}}</td></tr></tfoot>
+</table>
+</div>
+<h3 style="font-family:var(--font-heading);font-size:18px;margin:0 0 var(--space-3)">7 · Top items <span style="font-size:13px;color:var(--color-neutral-500);font-weight:400">{{snapItemCountLabel}}</span></h3>
+<div style="overflow-x:auto;margin-bottom:var(--space-8)">
+<table class="table">
+<thead><tr><th>#</th><th style="text-align:left">Item</th><th style="text-align:left">Brand</th><th style="text-align:left">Sub-category</th><th>Net sales</th><th>Share</th><th>Sold qty</th><th>Stores</th><th>ASP</th><th>Markup%</th></tr></thead>
+<tbody>
+<sc-for list="{{snapItemRows}}" as="r" hint-placeholder-count="10">
+<tr><td style="font-weight:600">{{r.rank}}</td><td style="text-align:left"><div style="display:flex;align-items:center;gap:10px;min-width:240px"><sc-if value="{{r.image}}" hint-placeholder-val="{{false}}"><img src="{{r.image}}" alt="" loading="lazy" style="width:36px;height:36px;object-fit:contain;border-radius:6px;background:var(--color-neutral-100);flex:none"></sc-if><div><div style="font-weight:600">{{r.desc}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{r.name}}</div></div></div></td><td style="text-align:left;white-space:nowrap">{{r.brand}}</td><td style="text-align:left;white-space:nowrap;color:var(--color-neutral-500)">{{r.sub}}</td><td style="font-weight:600;white-space:nowrap">{{r.netSales}}</td><td>{{r.share}}</td><td>{{r.qty}}</td><td>{{r.stores}}</td><td style="white-space:nowrap">{{r.asp}}</td><td>{{r.markup}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<h3 style="font-family:var(--font-heading);font-size:18px;margin:0 0 var(--space-3)">8 · STC Qitaf</h3>
 <div style="display:flex;flex-wrap:wrap;gap:{{kpiGap}};margin-bottom:var(--space-4)">
 <sc-for list="{{snapQitafKpis}}" as="k" hint-placeholder-count="3">
 <div class="card elev-sm" style="flex:1 1 140px;min-width:140px">
@@ -4201,12 +4249,24 @@ class Component extends DCLogic {
     });
     (this.sReceiptDay()).forEach(r => { if (r.date === date && byStore[r.store]) byStore[r.store].single += r.singleItemInvoices || 0; });
     const skusSold = new Set();
+    const dims = { cat: {}, sub: {}, brand: {}, item: {} };
+    const addDim = (map, key, row, cost, extra) => {
+      const e = map[key] || (map[key] = { name: key, netSales: 0, qty: 0, lines: 0, cost: 0, skus: new Set(), stores: new Set(), ...extra });
+      e.netSales += row[3] || 0; e.qty += row[4] || 0; e.lines += row[5] || 0; e.cost += cost;
+      e.skus.add(row[2]); e.stores.add(row[0]);
+    };
     (this.sItems() || []).forEach(row => {
       if (row[1] !== date) return;
       const a = byStore[row[0]];
       if (!a) return;
       if (row[4]) skusSold.add(row[2]);
-      a.cost += ((this.itemMeta[row[2]] || {}).unitCost || 0) * row[4];
+      const m = this.itemMeta[row[2]] || {};
+      const cost = (m.unitCost || 0) * row[4];
+      a.cost += cost;
+      addDim(dims.cat, m.division || 'Unassigned', row, cost);
+      addDim(dims.sub, m.category || 'Unassigned', row, cost, { parent: m.division || '—' });
+      addDim(dims.brand, m.brand || 'Unknown', row, cost);
+      addDim(dims.item, row[2], row, cost, { desc: m.itemDesc || row[2], image: m.image || '', brand: m.brand || '—', sub: m.category || '—' });
     });
     const stores = Object.values(byStore).filter(s => s.netSales || s.invoices);
     const region = code => (this.storeIndex[code] || {}).region || 'Other';
@@ -4288,7 +4348,30 @@ class Component extends DCLogic {
     const snapQitafRegionRows = Object.values(qRegAgg).sort((a, b) => b.amount - a.amount)
       .map(g => ({ region: g.region, amount: money(g.amount), invoices: num(g.invoices), stores: num(g.stores.size) }));
 
+    const dimTotal = Object.values(dims.cat).reduce((t, e) => t + e.netSales, 0);
+    const dimRows = (map, limit) => Object.values(map).sort((a, b) => b.netSales - a.netSales).slice(0, limit || 9999).map((e, i) => ({
+      rank: i + 1, name: e.name, parent: e.parent || '', desc: e.desc || '', image: e.image || '', brand: e.brand || '', sub: e.sub || '',
+      netSales: money(e.netSales), qty: num(e.qty), lines: num(e.lines), skus: num(e.skus.size), stores: num(e.stores.size),
+      share: dimTotal ? (100 * e.netSales / dimTotal).toFixed(1) + '%' : '—',
+      barW: dimTotal ? Math.max(1, Math.round(100 * e.netSales / (Object.values(map).reduce((m, x) => Math.max(m, x.netSales), 0) || 1))) + '%' : '0%',
+      asp: money(e.qty ? e.netSales / e.qty : 0),
+      markup: e.cost ? pct(100 * (e.netSales - e.cost) / e.cost) : '—',
+      rawSales: e.netSales
+    }));
+    const snapCatRows = dimRows(dims.cat);
+    const snapSubRows = dimRows(dims.sub);
+    const snapBrandRows = dimRows(dims.brand);
+    const snapItemRows = dimRows(dims.item, 25);
+    const dimFoot = map => { const v = Object.values(map); const ns = v.reduce((t, e) => t + e.netSales, 0), q = v.reduce((t, e) => t + e.qty, 0), c = v.reduce((t, e) => t + e.cost, 0);
+      return { netSales: money(ns), qty: num(q), share: ns ? '100%' : '—', asp: money(q ? ns / q : 0), markup: c ? pct(100 * (ns - c) / c) : '—', skus: num(skusSold.size) }; };
+    const snapDimTotal = dimFoot(dims.cat);
+
     return {
+      snapCatRows, snapSubRows, snapBrandRows, snapItemRows, snapDimTotal,
+      snapCatEmpty: !snapCatRows.length,
+      snapSubCountLabel: snapSubRows.length + ' sub-categories',
+      snapBrandCountLabel: snapBrandRows.length + ' brands',
+      snapItemCountLabel: 'top ' + snapItemRows.length + ' of ' + num(Object.keys(dims.item).length) + ' SKUs',
       snapRegionRows, snapRegionTotal, snapStoreRows, snapStoreTotal,
       snapStoreCountLabel: snapStoreRows.length + ' stores trading',
       snapWholesaleRows, snapThreePRows,
@@ -4844,7 +4927,27 @@ class Component extends DCLogic {
       columnStyles: { 0: { halign: 'right', cellWidth: 9 }, 1: { halign: 'left', fontStyle: 'bold', cellWidth: 42 } }
     });
 
-    // ---- Page 4: STC Qitaf
+    const dimCols = { 0: { halign: 'right', cellWidth: 8 }, 1: { halign: 'left', fontStyle: 'bold' } };
+    const dimFoot = [['', 'Total', S.snapDimTotal.netSales, S.snapDimTotal.share, S.snapDimTotal.qty, S.snapDimTotal.skus, S.snapDimTotal.asp, S.snapDimTotal.markup]];
+    const dimBody = rows => rows.length ? rows.map(r => [r.rank, r.name, r.netSales, r.share, r.qty, r.skus, r.asp, r.markup]) : [['', 'No item data', '—', '', '', '', '', '']];
+    doc.addPage();
+    head('Category & sub-category', nice);
+    caption('Category', 38);
+    doc.autoTable({ ...base(9.5), startY: 42, head: [['#', 'Category', 'Net sales', 'Share', 'Qty', 'SKUs', 'ASP', 'Markup%']], body: dimBody(S.snapCatRows), foot: dimFoot, columnStyles: dimCols });
+    caption('Sub-category  ·  ' + S.snapSubCountLabel, doc.lastAutoTable.finalY + 10);
+    doc.autoTable({ ...base(9), startY: doc.lastAutoTable.finalY + 14, head: [['#', 'Sub-category', 'Category', 'Net sales', 'Share', 'Qty', 'SKUs', 'ASP', 'Markup%']],
+      body: S.snapSubRows.map(r => [r.rank, r.name, r.parent, r.netSales, r.share, r.qty, r.skus, r.asp, r.markup]),
+      columnStyles: { ...dimCols, 2: { halign: 'left', textColor: [107, 111, 128] } } });
+    doc.addPage();
+    head('Brand performance', nice + '   ·   ' + S.snapBrandCountLabel);
+    doc.autoTable({ ...base(9.5), startY: 38, head: [['#', 'Brand', 'Net sales', 'Share', 'Qty', 'SKUs', 'ASP', 'Markup%']], body: dimBody(S.snapBrandRows), foot: dimFoot, columnStyles: dimCols });
+    doc.addPage();
+    head('Top items', nice + '   ·   ' + S.snapItemCountLabel);
+    doc.autoTable({ ...base(8.5), startY: 38, head: [['#', 'Item', 'Brand', 'Sub-category', 'Net sales', 'Share', 'Qty', 'Stores', 'Markup%']],
+      body: S.snapItemRows.map(r => [r.rank, r.desc + '\n' + r.name, r.brand, r.sub, r.netSales, r.share, r.qty, r.stores, r.markup]),
+      columnStyles: { 0: { halign: 'right', cellWidth: 7 }, 1: { halign: 'left', fontStyle: 'bold', cellWidth: 58 }, 2: { halign: 'left' }, 3: { halign: 'left', textColor: [107, 111, 128] } } });
+
+    // ---- STC Qitaf
     doc.addPage();
     head('STC Qitaf', nice);
     const qy = 38;
