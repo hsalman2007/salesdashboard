@@ -2320,6 +2320,10 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <sc-if value="{{exhFiltersDirty}}" hint-placeholder-val="{{false}}">
 <button class="btn btn-ghost" onClick="{{clearExhFilters}}">Clear filters</button>
 </sc-if>
+<div style="margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+<button class="btn btn-primary" onClick="{{exportExhibitionPdf}}" style="white-space:nowrap">Export PDF</button>
+<sc-if value="{{exhPdfNote}}" hint-placeholder-val="{{false}}"><div style="font-size:12px;color:var(--color-neutral-500)">{{exhPdfNote}}</div></sc-if>
+</div>
 </div>
 
 <sc-if value="{{exhLoading}}" hint-placeholder-val="{{true}}">
@@ -2411,6 +2415,16 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 
 <sc-if value="{{exhIsTerm}}" hint-placeholder-val="{{false}}">
 <div style="font-size:13px;color:var(--color-neutral-500);margin-bottom:var(--space-3);text-wrap:pretty">Current-year terminals ranked by net sales. Average per terminal {{exhTermCyAvg}}.</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--space-4);margin-bottom:var(--space-5)">
+<sc-for list="{{exhTermCards}}" as="c" hint-placeholder-count="7">
+<div class="card elev-sm" style="min-width:0;display:flex;flex-direction:column;gap:4px">
+<div class="card-kicker" style="display:flex;justify-content:space-between;gap:8px"><span>{{c.name}}</span><span style="color:var(--color-neutral-500);font-weight:400">{{c.terms}}</span></div>
+<div class="card-title" style="font-size:24px;white-space:nowrap">{{c.net}}</div>
+<div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:6px;background:var(--color-neutral-100);border-radius:3px;overflow:hidden"><div style="height:100%;width:{{c.barW}};background:var(--color-accent)"></div></div><span style="font-size:12px;font-weight:600">{{c.share}}</span></div>
+<div class="card-meta">{{c.rc}} rcpts · {{c.qty}} units · ATV {{c.atv}}</div>
+</div>
+</sc-for>
+</div>
 <div style="display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-5)">
 <div class="card elev-sm" style="padding:0;overflow-x:auto">
 <div style="padding:12px 16px;font-weight:700;display:flex;justify-content:space-between;gap:8px"><span>Current year</span><span style="font-weight:400;font-size:13px;color:var(--color-neutral-500)">{{exhTermCyCount}}</span></div>
@@ -2456,14 +2470,14 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <button class="btn btn-ghost" onClick="{{exhItemLast}}" disabled="{{exhItemNextDisabled}}" style="font-size:12px;padding:4px 10px">Last »</button>
 </div>
 </sc-if></div>
-<table class="table">
-<thead><tr><th>#</th><th style="text-align:left">Item</th><th style="text-align:left">Brand · Sub-category</th><th>CY net</th><th>LY net</th><th>Diff</th><th>Δ%</th><th>CY qty</th><th>LY qty</th><th>CY ASP</th><th>LY ASP</th><th>CY margin</th></tr></thead>
+<div style="max-height:78vh;overflow:auto"><table class="table">
+<thead><tr><th style="position:sticky;top:0;z-index:2;background:var(--color-surface);box-shadow:inset 0 -1px 0 var(--color-divider)">#</th><th style="position:sticky;top:0;z-index:2;background:var(--color-surface);box-shadow:inset 0 -1px 0 var(--color-divider);text-align:left">Item</th><th style="position:sticky;top:0;z-index:2;background:var(--color-surface);box-shadow:inset 0 -1px 0 var(--color-divider);text-align:left">Brand · Sub-category</th><th style="position:sticky;top:0;z-index:2;background:var(--color-surface);box-shadow:inset 0 -1px 0 var(--color-divider)">CY net</th><th style="position:sticky;top:0;z-index:2;background:var(--color-surface);box-shadow:inset 0 -1px 0 var(--color-divider)">LY net</th><th style="position:sticky;top:0;z-index:2;background:var(--color-surface);box-shadow:inset 0 -1px 0 var(--color-divider)">Diff</th><th style="position:sticky;top:0;z-index:2;background:var(--color-surface);box-shadow:inset 0 -1px 0 var(--color-divider)">Δ%</th><th style="position:sticky;top:0;z-index:2;background:var(--color-surface);box-shadow:inset 0 -1px 0 var(--color-divider)">CY qty</th><th style="position:sticky;top:0;z-index:2;background:var(--color-surface);box-shadow:inset 0 -1px 0 var(--color-divider)">LY qty</th><th style="position:sticky;top:0;z-index:2;background:var(--color-surface);box-shadow:inset 0 -1px 0 var(--color-divider)">CY ASP</th><th style="position:sticky;top:0;z-index:2;background:var(--color-surface);box-shadow:inset 0 -1px 0 var(--color-divider)">LY ASP</th><th style="position:sticky;top:0;z-index:2;background:var(--color-surface);box-shadow:inset 0 -1px 0 var(--color-divider)">CY margin</th></tr></thead>
 <tbody>
 <sc-for list="{{exhItemRows}}" as="r" hint-placeholder-count="10">
-<tr><td>{{r.rank}}</td><td style="text-align:left"><div style="display:flex;align-items:center;gap:10px;min-width:260px"><div style="width:44px;height:44px;flex:none;border-radius:6px;background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{r.image}}" hint-placeholder-val="{{false}}"><img src="{{r.image}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></sc-if></div><div><div style="font-weight:600;text-wrap:pretty">{{r.desc}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{r.name}}</div></div></div></td><td style="text-align:left;white-space:nowrap"><div>{{r.brand}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{r.sub}}</div></td><td style="font-weight:600;white-space:nowrap">{{r.cyNet}}</td><td style="white-space:nowrap">{{r.lyNet}}</td><td style="white-space:nowrap;color:{{r.color}}">{{r.diff}}</td><td style="font-weight:700;color:{{r.color}}">{{r.delta}}</td><td>{{r.cyQty}}</td><td>{{r.lyQty}}</td><td style="white-space:nowrap">{{r.cyAsp}}</td><td style="white-space:nowrap">{{r.lyAsp}}</td><td>{{r.margin}}</td></tr>
+<tr><td>{{r.rank}}</td><td style="text-align:left"><div style="display:flex;align-items:center;gap:10px;min-width:260px"><div style="width:44px;height:44px;flex:none;border-radius:6px;background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{r.image}}" hint-placeholder-val="{{false}}"><img src="{{r.image}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></sc-if><sc-if value="{{r.noImage}}" hint-placeholder-val="{{false}}"><span style="font-size:9px;line-height:1.1;text-align:center;color:var(--color-neutral-500)">No image</span></sc-if></div><div><div style="font-weight:600;text-wrap:pretty">{{r.desc}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{r.name}}</div></div></div></td><td style="text-align:left;white-space:nowrap"><div>{{r.brand}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{r.sub}}</div></td><td style="font-weight:600;white-space:nowrap">{{r.cyNet}}</td><td style="white-space:nowrap">{{r.lyNet}}</td><td style="white-space:nowrap;color:{{r.color}}">{{r.diff}}</td><td style="font-weight:700;color:{{r.color}}">{{r.delta}}</td><td>{{r.cyQty}}</td><td>{{r.lyQty}}</td><td style="white-space:nowrap">{{r.cyAsp}}</td><td style="white-space:nowrap">{{r.lyAsp}}</td><td>{{r.margin}}</td></tr>
 </sc-for>
 </tbody>
-</table>
+</table></div>
 <sc-if value="{{exhItemMultiPage}}" hint-placeholder-val="{{false}}">
 <div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;padding:10px 16px;flex-wrap:wrap">
 <button class="btn btn-ghost" onClick="{{exhItemFirst}}" disabled="{{exhItemPrevDisabled}}" style="font-size:12px;padding:4px 10px">« First</button>
@@ -6071,6 +6085,146 @@ class Component extends DCLogic {
     } catch (e) { this.setState({ exhLoading: false }); }
   }
 
+  exportExhibitionPdf = () => {
+    if (!window.jspdf) { this.setState({ exhPdfNote: 'PDF library still loading — wait a moment and try again.' }); return; }
+    if (!this.state.exh) return;
+    this.setState({ exhPdfNote: 'Building PDF…' });
+    setTimeout(async () => { try { await this._buildExhPdf(); this.setState({ exhPdfNote: '' }); } catch (e) { this.setState({ exhPdfNote: 'PDF failed: ' + (e && e.message || e) }); } }, 30);
+  };
+
+  async _buildExhPdf() {
+    const V = v => this.exhibitionData({ exhView: v, exhAll: true, exhQ: '' });
+    const B = V('cmp');
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const ACC = [45, 143, 129], INK = [24, 34, 32], SOFT = [240, 247, 245], MUTE = [105, 118, 114], POS = [46, 140, 90], NEG = [196, 72, 56];
+    const W = 297, H = 210, M = 10;
+    const clean = v => String(v == null ? '' : v).replace(/[−–—]/g, '-').replace(/Δ%/g, 'Chg %').replace(/Δ/g, 'Chg').replace(/→/g, 'to').replace(/[^\x00-\xFF]/g, '');
+    const _text = doc.text.bind(doc);
+    doc.text = (t, ...a) => _text(Array.isArray(t) ? t.map(clean) : clean(t), ...a);
+    const f = B.exhF || {};
+    const filt = [f.cat !== 'All' ? 'Category: ' + f.cat : '', f.sub !== 'All' ? 'Sub-cat: ' + f.sub : '', f.brand !== 'All' ? 'Brand: ' + f.brand : ''].filter(Boolean).join('  ·  ');
+    const sub = B.exhWindowLabel.replace(/\s+/g, ' ') + (filt ? '   |   ' + filt : '');
+    const head = (title) => {
+      doc.setFillColor.apply(doc, ACC); doc.rect(0, 0, W, 24, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.text('Exhibition · ' + title, M, 11);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.text(sub, M, 18.5, { maxWidth: W - 2 * M });
+      doc.setTextColor.apply(doc, INK);
+    };
+    const tint = data => { if (data.section === 'head') return; const t = String(data.cell.raw == null ? '' : data.cell.raw);
+      if (data.column.raw && data.column.raw.delta || (data.table.__dcols || []).includes(data.column.index)) { if (/^\+/.test(t) || t === 'new') data.cell.styles.textColor = POS; else if (/^[−-]/.test(t)) data.cell.styles.textColor = NEG; } };
+    const T = (opts, dcols, size) => { const sz = size || 8;
+      doc.autoTable({ theme: 'striped',
+        styles: { fontSize: sz, cellPadding: { top: 1.8, bottom: 1.8, left: 1.6, right: 1.6 }, overflow: 'linebreak', textColor: INK, lineColor: [214, 231, 227], lineWidth: 0.1, halign: 'right' },
+        headStyles: { fillColor: ACC, textColor: 255, fontSize: sz - 0.5, fontStyle: 'bold', halign: 'right' },
+        alternateRowStyles: { fillColor: SOFT },
+        footStyles: { fillColor: [226, 239, 236], textColor: INK, fontStyle: 'bold', fontSize: sz, halign: 'right' },
+        margin: { left: M, right: M, top: 30, bottom: 14 },
+        didParseCell: d => { d.table.__dcols = dcols || []; d.cell.text = (d.cell.text || []).map(clean); tint(d); },
+        didDrawPage: d => { if (d.pageNumber > 1 || doc.getCurrentPageInfo().pageNumber !== (opts.__page || 0)) {} },
+        ...opts });
+    };
+    const caption = (text, y, x) => { doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5); doc.setTextColor.apply(doc, ACC); doc.text(text, x == null ? M : x, y); doc.setTextColor.apply(doc, INK); doc.setFont('helvetica', 'normal'); };
+    const repeatHead = title => ({ didDrawPage: () => head(title) });
+    const left = n => { const c = {}; for (let i = 0; i < n; i++) c[i] = { halign: 'left', fontStyle: i === n - 1 ? 'bold' : 'normal' }; return c; };
+
+    // 1 · Summary
+    head('Summary');
+    const k = B.exhKpis, cw = (W - 2 * M - 5 * 4) / 6;
+    k.forEach((x, i) => { const X = M + i * (cw + 4), Y = 30;
+      doc.setFillColor.apply(doc, SOFT); doc.roundedRect(X, Y, cw, 24, 2, 2, 'F');
+      doc.setFontSize(7); doc.setTextColor.apply(doc, ACC); doc.text(x.label.toUpperCase(), X + 3, Y + 6);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.setTextColor.apply(doc, INK); doc.text(String(x.value), X + 3, Y + 13.5);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor.apply(doc, MUTE); doc.text('LY ' + x.ly, X + 3, Y + 19);
+      const d = String(x.delta); doc.setFont('helvetica', 'bold'); doc.setTextColor.apply(doc, /^\+|new/.test(d) ? POS : /^[−-]/.test(d) ? NEG : MUTE); doc.text(d, X + cw - 3, Y + 19, { align: 'right' });
+      doc.setFont('helvetica', 'normal'); doc.setTextColor.apply(doc, INK); });
+    const gs = B.exhCmpGroups, colW = (W - 2 * M - 6) / 2;
+    let yL = 62, yR = 62;
+    gs.forEach((g, i) => { const isL = i % 2 === 0; const x = isL ? M : M + colW + 6; const y = isL ? yL : yR;
+      caption(g.title, y, x);
+      T({ startY: y + 2, head: [['Measure', 'Last year', 'Current year', 'Diff', 'Δ']], body: g.rows.map(r => [r.label, r.ly, r.cy, r.diff, r.delta]),
+        columnStyles: { 0: { halign: 'left', fontStyle: 'bold', cellWidth: 46 }, 2: { fontStyle: 'bold' } }, margin: { left: x, right: isL ? W - x - colW : M, top: 30 }, tableWidth: colW, pageBreak: 'avoid' }, [3, 4], 7.6);
+      if (isL) yL = doc.lastAutoTable.finalY + 8; else yR = doc.lastAutoTable.finalY + 8; });
+
+    // 2 · Day-wise
+    const D = this.exhibitionData({ exhView: 'day', exhAll: true, exhQ: '', exhMode: 'full' }); const kk = ['rcpt', 'qty', 'atv', 'upt', 'asp', 'mu'];
+    doc.addPage(); head('Day-wise  ·  full event (' + D.exhDayRows.length + ' days)');
+    T({ startY: 30, head: [['Day', 'CY date', 'LY date', 'LY net', 'CY net', 'Diff', 'Δ%', 'LY rcpt', 'CY rcpt', 'Δ', 'LY units', 'CY units', 'Δ', 'LY ATV', 'CY ATV', 'Δ', 'LY UPT', 'CY UPT', 'Δ', 'LY ASP', 'CY ASP', 'Δ', 'LY MU%', 'CY MU%', 'Δ']],
+      body: D.exhDayRows.map(r => [r.day, r.cyDate, r.lyDate, r.lyNet, r.cyNet, r.diff, r.delta, ...kk.flatMap(x => [r[x].ly, r[x].cy, r[x].d])]),
+      foot: [['Total', '', '', D.exhTot.lyNet, D.exhTot.cyNet, D.exhTot.diff, D.exhTot.delta, ...kk.flatMap(x => [D.exhDayTot[x].ly, D.exhDayTot[x].cy, D.exhDayTot[x].d])]],
+      columnStyles: { 0: { halign: 'left', fontStyle: 'bold' }, 1: { halign: 'left' }, 2: { halign: 'left', textColor: MUTE } }, ...repeatHead('Day-wise') }, [5, 6, 9, 12, 15, 18, 21, 24], 6.2);
+
+    // 3 · Hourly (chart + table)
+    const Hh = V('hour');
+    doc.addPage(); head('Hourly');
+    { const P = this._exhPrep(); const raw = this.exhibitionData({ exhView: 'hour', exhAll: true });
+      const rows = Hh.exhHourRows; const n = rows.length;
+      const num = t => +String(t).replace(/[^0-9.\-]/g, '') || 0;
+      const vals = rows.map(r => [num(r.cyNet), num(r.lyNet)]);
+      const mx = Math.max(1, ...vals.flat());
+      const cx = M + 14, cy = 34, cw = W - 2 * M - 18, ch = 92;
+      doc.setDrawColor(214, 231, 227); doc.setLineWidth(0.2);
+      doc.setFontSize(7); doc.setTextColor.apply(doc, MUTE);
+      for (let g = 0; g <= 4; g++) { const y = cy + ch - ch * g / 4; doc.line(cx, y, cx + cw, y); doc.text(Math.round(mx * g / 4).toLocaleString(), cx - 2, y + 1.2, { align: 'right' }); }
+      const slot = cw / Math.max(1, n), bw = Math.min(9, slot * 0.36);
+      rows.forEach((r, i) => { const x0 = cx + i * slot + slot / 2;
+        const [c, l] = vals[i]; const hl = ch * l / mx, hc = ch * c / mx;
+        doc.setFillColor(190, 205, 201); doc.rect(x0 - bw - 0.4, cy + ch - hl, bw, hl, 'F');
+        doc.setFillColor.apply(doc, ACC); doc.rect(x0 + 0.4, cy + ch - hc, bw, hc, 'F');
+        doc.setFontSize(6.5); doc.setTextColor.apply(doc, INK); doc.text(r.hour.slice(0, 5), x0, cy + ch + 4.5, { align: 'center' });
+        const d = String(r.delta); doc.setFont('helvetica', 'bold'); doc.setTextColor.apply(doc, /^\+|new/.test(d) ? POS : /^[−-]/.test(d) ? NEG : MUTE);
+        doc.text(d, x0, cy + ch - Math.max(hl, hc) - 1.5, { align: 'center' }); doc.setFont('helvetica', 'normal'); });
+      doc.setFillColor(190, 205, 201); doc.rect(cx, cy + ch + 8, 4, 3, 'F'); doc.setTextColor.apply(doc, INK); doc.setFontSize(7.5); doc.text('Last year', cx + 5.5, cy + ch + 10.5);
+      doc.setFillColor.apply(doc, ACC); doc.rect(cx + 26, cy + ch + 8, 4, 3, 'F'); doc.text('Current year', cx + 31.5, cy + ch + 10.5);
+      T({ startY: cy + ch + 16, head: [['Hour', ...rows.map(r => r.hour.slice(0, 5))]],
+        body: [['LY net', ...rows.map(r => r.lyNet)], ['CY net', ...rows.map(r => r.cyNet)], ['Chg %', ...rows.map(r => r.delta)], ['LY rcpts', ...rows.map(r => r.lyRc)], ['CY rcpts', ...rows.map(r => r.cyRc)]],
+        columnStyles: { 0: { halign: 'left', fontStyle: 'bold', cellWidth: 16 } },
+        didParseCell: d => { d.cell.text = (d.cell.text || []).map(clean); if (d.section === 'body' && d.row.index === 2 && d.column.index > 0) { const t = d.cell.text.join(''); if (/^\+|new/.test(t)) d.cell.styles.textColor = POS; else if (/^-/.test(t)) d.cell.styles.textColor = NEG; } } }, [], 6.3); }
+
+    // 4 · By terminal
+    const Tm = V('term');
+    doc.addPage(); head('By Terminal');
+    caption('By terminal name (duplicate names combined)', 32);
+    T({ startY: 34, head: [['Name', 'Terminals', 'Net sales', 'Share', 'Receipts', 'Units', 'ATV']], body: Tm.exhTermCards.map(c => [c.name, c.terms, c.net, c.share, c.rc, c.qty, c.atv]),
+      foot: [['Total', '', Tm.exhTot.cyNet, '100%', Tm.exhTot.cyRc, Tm.exhTot.cyQty, Tm.exhTot.cyAtv]],
+      columnStyles: { 0: { halign: 'left', fontStyle: 'bold' }, 1: { halign: 'left', textColor: MUTE } }, ...repeatHead('By Terminal') }, [], 8.5);
+
+    // 5–7, 9 · Category / Sub / Brand / Staff
+    const dimKeys = ['kRc', 'kQty', 'kAtv', 'kUpt', 'kAsp', 'kMu'];
+    const dimPage = (view, title, limit) => { const X = V(view);
+      const rowsAll = X.exhDimRows, rowsP = limit ? rowsAll.slice(0, limit) : rowsAll;
+      doc.addPage(); head((limit && rowsAll.length > limit ? 'Top ' + limit + ' ' : '') + title + '  ·  of ' + X.exhDimCount);
+      T({ startY: 30, head: [['#', X.exhDimLabel, 'LY net', 'CY net', 'Diff', 'Δ%', 'CY contrib', 'LY contrib', 'LY rcpt', 'CY rcpt', 'Δ', 'LY units', 'CY units', 'Δ', 'LY ATV', 'CY ATV', 'Δ', 'LY UPT', 'CY UPT', 'Δ', 'LY ASP', 'CY ASP', 'Δ', 'LY MU%', 'CY MU%', 'Δ']],
+        body: rowsP.map(r => [r.rank, r.name + (r.parent ? '\n' + r.parent : ''), r.lyNet, r.cyNet, r.diff, r.delta, r.cyShare, r.lyShare, ...dimKeys.flatMap(x => [r[x].ly, r[x].cy, r[x].d])]),
+        foot: [['', limit && rowsAll.length > limit ? 'Top ' + limit + ' total' : 'Total', ...(() => { const sum = k => rowsP.reduce((t, r) => t + (+String(r[k]).replace(/[^0-9.\-]/g, '') || 0), 0);
+          if (!(limit && rowsAll.length > limit)) return [X.exhTot.lyNet, X.exhTot.cyNet, X.exhTot.diff, X.exhTot.delta, '100%', '100%'];
+          const fm = v => this.fmtMoney(v), c = sum('cyNet'), l = sum('lyNet'), cs = sum('cyShare'), ls = sum('lyShare');
+          return [fm(l), fm(c), (c - l >= 0 ? '+' : '-') + fm(Math.abs(c - l)), l ? ((c - l) / l * 100 >= 0 ? '+' : '') + ((c - l) / l * 100).toFixed(1) + '%' : '-', cs.toFixed(1) + '%', ls.toFixed(1) + '%']; })(), ...dimKeys.flatMap(x => [X.exhDimTot[x].ly, X.exhDimTot[x].cy, X.exhDimTot[x].d])]],
+        columnStyles: { 0: { cellWidth: 6 }, 1: { halign: 'left', fontStyle: 'bold', cellWidth: 30 }, 6: { fontStyle: 'bold', textColor: ACC }, 7: { textColor: MUTE } }, ...repeatHead(title) }, [4, 5, 10, 13, 16, 19, 22, 25], 5.8); };
+    dimPage('cat', 'Categories', 50); dimPage('sub', 'Sub-Categories', 50); dimPage('brand', 'Brand');
+
+    // 8 · Items (top 50, pictures, share of total)
+    const It = V('items');
+    const top = It.exhItemRows.slice(0, 50);
+    const imgs = await Promise.all(top.map(r => r.image ? this.loadImageDataUrl(r.image).catch(() => null) : null));
+    doc.addPage(); head('Top 50 items  ·  of ' + It.exhItemRows.length + ' SKUs sold');
+    T({ startY: 30, head: [['#', 'Image', 'SKU', 'Item', 'Brand', 'Sub-category', 'LY net', 'CY net', 'Diff', 'Chg %', 'CY share', 'LY share', 'LY qty', 'CY qty', 'Qty diff', 'Qty chg %', 'LY ASP', 'CY ASP', 'CY margin']],
+      body: top.map(r => { const n = t => +String(t).replace(/[^0-9.\-]/g, '') || 0; const lq = n(r.lyQty), cq = n(r.cyQty), dq = cq - lq;
+        return [r.rank, '', r.name, r.desc, r.brand, r.sub, r.lyNet, r.cyNet, r.diff, r.delta, r.cyShare, r.lyShare, r.lyQty, r.cyQty, (dq >= 0 ? '+' : '-') + Math.abs(dq).toLocaleString(), r.kQty ? r.kQty.d : '', r.lyAsp, r.cyAsp, r.margin]; }),
+      styles: { fontSize: 6.8, cellPadding: { top: 1.6, bottom: 1.6, left: 1.5, right: 1.5 }, overflow: 'linebreak', textColor: INK, lineColor: [214, 231, 227], lineWidth: 0.1, halign: 'right', valign: 'middle', minCellHeight: 14 },
+      columnStyles: { 0: { cellWidth: 6 }, 1: { cellWidth: 15 }, 2: { halign: 'left', cellWidth: 15 }, 3: { halign: 'left', fontStyle: 'bold', cellWidth: 44 }, 4: { halign: 'left', cellWidth: 16 }, 5: { halign: 'left', textColor: MUTE, cellWidth: 20 }, 10: { fontStyle: 'bold' }, 13: { fontStyle: 'bold' } },
+      didDrawCell: d => { if (d.section === 'body' && d.column.index === 1) { const u = imgs[d.row.index]; if (u) { const dim = Math.min(d.cell.height - 2, 12); try { doc.addImage(u, 'JPEG', d.cell.x + (d.cell.width - dim) / 2, d.cell.y + (d.cell.height - dim) / 2, dim, dim); } catch (e) {} } } },
+      ...repeatHead('Top 50 items') }, [8, 9, 14, 15], 6.5);
+
+
+    const pages = doc.getNumberOfPages();
+    for (let p = 1; p <= pages; p++) { doc.setPage(p); doc.setFontSize(8); doc.setTextColor.apply(doc, MUTE);
+      doc.text('Retail Sales · Exhibition comparison · generated ' + new Date().toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }), M, H - 6);
+      doc.text('Page ' + p + ' of ' + pages, W - M, H - 6, { align: 'right' }); }
+    this._savePdf(doc, 'exhibition-comparison-' + new Date().toISOString().slice(0, 10) + '.pdf');
+  }
+
   _exhPrep() {
     const D = this.state.exh;
     if (this._exhPrepFor === D) return this._exhPrepped;
@@ -6084,8 +6238,8 @@ class Component extends DCLogic {
     return this._exhPrepped;
   }
 
-  exhibitionData() {
-    const st = this.state;
+  exhibitionData(o) {
+    const st = o ? { ...this.state, ...o } : this.state;
     const TERM_NAMES = { TM50: 'ARB', TM51: 'Stanley', TM52: 'Al Rimaya', TM53: 'Air Rifles', TM54: 'ARB', TM55: 'Nitecore', TM57: 'Wander', TM58: 'Al Rimaya', TM59: 'Knives' };
     if (!st.exh) return { exhReady: false, exhLoading: true };
     const P = this._exhPrep();
@@ -6187,6 +6341,9 @@ class Component extends DCLogic {
       const side = (rows, t) => { const m = agg(rows, r => r.term || '—'); const mx = Math.max(1, ...Object.values(m).map(e => e.net));
         return Object.entries(m).sort((a, b) => b[1].net - a[1].net).map(([k, e], i) => ({ rank: i + 1, term: k, termName: TERM_NAMES[k] || '', net: fmtM(e.net), share: t.net ? (100 * e.net / t.net).toFixed(1) + '%' : '—', barW: Math.max(1, Math.round(100 * e.net / mx)) + '%', rc: fmtN(e.rc.size), qty: fmtN(e.qty), atv: fmtM(e.rc.size ? e.net / e.rc.size : 0), upt: e.rc.size ? (e.qty / e.rc.size).toFixed(2) : '—', perDay: fmtM(e.net / Math.max(1, e.days.size)) })); };
       out.exhTermCy = side(CY, tc); out.exhTermLy = side(LY, tl);
+      const grp = {};
+      CY.forEach(r => { const t = r.term || '—'; const nm = TERM_NAMES[t] || t; const g = grp[nm] || (grp[nm] = { net: 0, qty: 0, rc: new Set(), terms: new Set() }); g.net += r.net; g.qty += r.qty; g.rc.add(r.rc); g.terms.add(t); });
+      out.exhTermCards = Object.entries(grp).sort((a, b) => b[1].net - a[1].net).map(([nm, g]) => ({ name: nm, net: fmtM(g.net), share: tc.net ? (100 * g.net / tc.net).toFixed(1) + '%' : '—', barW: tc.net ? Math.max(1, Math.round(100 * g.net / tc.net)) + '%' : '0%', terms: [...g.terms].sort().join(' + '), rc: fmtN(g.rc.size), qty: fmtN(g.qty), atv: fmtM(g.rc.size ? g.net / g.rc.size : 0) }));
       out.exhTermCyCount = out.exhTermCy.length + ' terminals'; out.exhTermLyCount = out.exhTermLy.length + ' terminals';
       out.exhTermCyAvg = fmtM(out.exhTermCy.length ? tc.net / out.exhTermCy.length : 0); out.exhTermLyAvg = fmtM(out.exhTermLy.length ? tl.net / out.exhTermLy.length : 0);
     }
@@ -6194,7 +6351,7 @@ class Component extends DCLogic {
     const pair = (cv, lv, fmt) => ({ cy: fmt(cv), ly: fmt(lv), d: dLab(cv, lv), c: dClr(cv, lv) });
     const muPair = (a, b) => ({ cy: a ? a.toFixed(1) + '%' : '—', ly: b ? b.toFixed(1) + '%' : '—', d: (a && b) ? ((a - b >= 0 ? '+' : '') + (a - b).toFixed(1) + ' pts') : '—', c: (a && b && a - b > 0) ? 'var(--color-positive, #4caf7d)' : (a && b && a - b < 0) ? 'var(--color-negative, #e2705f)' : 'var(--color-neutral-500)' });
     const kpiCols = (c, l) => { const a = kpiOf(c), b = kpiOf(l); const p2 = v => v ? v.toFixed(2) : '—';
-      return { kRc: pair(a.rc, b.rc, fmtN), kQty: pair(a.qty, b.qty, fmtN), kAtv: pair(a.atv, b.atv, fmtM), kUpt: pair(a.upt, b.upt, p2), kAsp: pair(a.asp, b.asp, fmtM), kMu: muPair(a.mu, b.mu) }; };
+      return { kRc: pair(a.rc, b.rc, fmtN), kQty: pair(a.qty, b.qty, fmtN), kAtv: pair(a.atv, b.atv, v => v ? fmtM(v) : '—'), kUpt: pair(a.upt, b.upt, p2), kAsp: pair(a.asp, b.asp, v => v ? fmtM(v) : '—'), kMu: muPair(a.mu, b.mu) }; };
     const compare = (keyFn, extra) => {
       const cm = agg(CY, keyFn), lm = agg(LY, keyFn);
       let keys = [...new Set([...Object.keys(cm), ...Object.keys(lm)])];
@@ -6203,7 +6360,7 @@ class Component extends DCLogic {
       keys.sort(sorters[sort] || sorters.cy);
       const mx = Math.max(1, ...keys.map(k => val(k).c.net));
       return keys.map((k, i) => { const { c, l } = val(k); const src = (cm[k] || lm[k]).r;
-        return { rank: i + 1, name: k, cyNet: fmtM(c.net), lyNet: fmtM(l.net), diff: diffLab(c.net - l.net), delta: dLab(c.net, l.net), color: dClr(c.net, l.net), cyShare: tc.net ? (100 * c.net / tc.net).toFixed(1) + '%' : '—', lyShare: tl.net ? (100 * l.net / tl.net).toFixed(1) + '%' : '—', barW: Math.max(0, Math.round(100 * c.net / mx)) + '%', cyQty: fmtN(c.qty), lyQty: fmtN(l.qty), cyRc: fmtN(c.rc.size), lyRc: fmtN(l.rc.size), margin: marg(c.net, c.cost), cyAsp: fmtM(c.qty ? c.net / c.qty : 0), lyAsp: fmtM(l.qty ? l.net / l.qty : 0), ...kpiCols(c, l), ...(extra ? extra(k, src) : {}) }; });
+        return { rank: i + 1, name: k, cyNet: fmtM(c.net), lyNet: fmtM(l.net), diff: diffLab(c.net - l.net), delta: dLab(c.net, l.net), color: dClr(c.net, l.net), cyShare: tc.net ? (100 * c.net / tc.net).toFixed(1) + '%' : '—', lyShare: tl.net ? (100 * l.net / tl.net).toFixed(1) + '%' : '—', barW: Math.max(0, Math.round(100 * c.net / mx)) + '%', cyQty: fmtN(c.qty), lyQty: fmtN(l.qty), cyRc: fmtN(c.rc.size), lyRc: fmtN(l.rc.size), margin: marg(c.net, c.cost), cyAsp: c.qty ? fmtM(c.net / c.qty) : '—', lyAsp: l.qty ? fmtM(l.net / l.qty) : '—', ...kpiCols(c, l), ...(extra ? extra(k, src) : {}) }; });
     };
     const names = st.exhNames || {};
     if (view === 'cat' || view === 'sub' || view === 'brand' || view === 'staff') {
@@ -6215,14 +6372,14 @@ class Component extends DCLogic {
       out.exhDimCount = out.exhDimRows.length + ' ' + { cat: 'categories', sub: 'sub-categories', brand: 'brands', staff: 'staff' }[view];
     }
     if (view === 'items') {
-      let rows = compare(r => r.sku, (k, r) => { const m = this.itemMeta[k] || {}; const d = (st.exh.descs || {})[k] || []; return { desc: m.itemDesc && m.itemDesc !== k ? m.itemDesc : (d[0] || k), image: m.image || '', brand: r.brand, sub: r.sub }; });
+      let rows = compare(r => r.sku, (k, r) => { const m = this.itemMeta[k] || {}; const d = (st.exh.descs || {})[k] || []; return { desc: m.itemDesc && m.itemDesc !== k ? m.itemDesc : (d[0] || k), image: m.image || '', noImage: !m.image, brand: r.brand, sub: r.sub }; });
       const all = rows.length;
       if (q) rows = rows.filter(r => (r.name + ' ' + r.desc + ' ' + r.brand + ' ' + r.sub).toLowerCase().includes(q));
       const PER = 100, pages = Math.max(1, Math.ceil(rows.length / PER));
       const pg = Math.min(Math.max(1, st.exhItemPage || 1), pages);
       const from = (pg - 1) * PER;
       out.exhItemCount = (q ? rows.length + ' matching of ' : '') + all + ' SKUs sold' + (rows.length ? ' · showing ' + (from + 1) + '–' + Math.min(from + PER, rows.length) : '');
-      out.exhItemRows = rows.slice(from, from + PER);
+      out.exhItemRows = st.exhAll ? rows : rows.slice(from, from + PER);
       out.exhItemPageLabel = 'Page ' + pg + ' of ' + pages;
       out.exhItemMultiPage = pages > 1;
       out.exhItemPrevDisabled = pg <= 1; out.exhItemNextDisabled = pg >= pages;
@@ -6236,6 +6393,7 @@ class Component extends DCLogic {
     const setF = p => this.setState({ exhF: { ...f, ...p }, exhItemPage: 1 });
     const lyLast = lyDays[lyDays.length - 1], cyLast = cyDays[cyDays.length - 1];
     return {
+      exportExhibitionPdf: this.exportExhibitionPdf, exhPdfNote: st.exhPdfNote || '',
       exhReady: true, exhLoading: false, exhF: f, exhKpis,
       exhCatOptions: catOptions, exhSubOptions: subOptions, exhBrandOptions: brandOptions,
       setExhCat: e => setF({ cat: e.target.value, sub: 'All', brand: 'All' }),
@@ -6256,7 +6414,7 @@ class Component extends DCLogic {
       exhIsCmp: view === 'cmp', exhCmpGroups: [], exhIsDay: view === 'day', exhIsHour: view === 'hour', exhIsTerm: view === 'term', exhIsDim: ['cat', 'sub', 'brand', 'staff'].includes(view), exhIsItems: view === 'items',
       exhQ: st.exhQ || '', setExhQ: e => this.setState({ exhQ: e.target.value, exhItemPage: 1 }),
       exhTot: { cyNet: fmtM(tc.net), lyNet: fmtM(tl.net), diff: diffLab(tc.net - tl.net), delta: dLab(tc.net, tl.net), color: dClr(tc.net, tl.net), cyRc: fmtN(tc.rc), lyRc: fmtN(tl.rc), cyQty: fmtN(tc.qty), lyQty: fmtN(tl.qty), margin: marg(tc.net, tc.cost), cyAtv: fmtM(tc.rc ? tc.net / tc.rc : 0), lyAtv: fmtM(tl.rc ? tl.net / tl.rc : 0) },
-      exhDayRows: [], exhDayTot: {}, exhDimTot: {}, exhHourRows: [], exhTermCy: [], exhTermLy: [], exhDimRows: [], exhItemRows: [],
+      exhDayRows: [], exhDayTot: {}, exhDimTot: {}, exhTermCards: [], exhHourRows: [], exhTermCy: [], exhTermLy: [], exhDimRows: [], exhItemRows: [],
       ...out
     };
   }
