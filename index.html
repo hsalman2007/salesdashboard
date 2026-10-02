@@ -2283,6 +2283,196 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </section>
 </sc-if>
 
+<sc-if value="{{isExh}}" hint-placeholder-val="{{false}}">
+<section>
+<div style="display:flex;flex-wrap:wrap;gap:var(--space-4);align-items:flex-end;margin-bottom:var(--space-5)">
+<div class="field">
+<label>Comparison</label>
+<div style="display:flex;gap:6px">
+<button class="btn {{exhModeLflClass}}" onClick="{{setExhLfl}}" style="white-space:nowrap">Like-for-like days</button>
+<button class="btn {{exhModeFullClass}}" onClick="{{setExhFull}}" style="white-space:nowrap">Full LY event</button>
+</div>
+</div>
+<div class="field" style="min-width:190px">
+<label>LY event starts</label>
+<select class="input" value="{{exhLyStart}}" onChange="{{setExhLyStart}}">
+<sc-for list="{{exhLyStartOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt.iso}}">{{opt.label}}</option></sc-for>
+</select>
+</div>
+<div class="field" style="min-width:170px">
+<label>Category</label>
+<select class="input" value="{{exhF.cat}}" onChange="{{setExhCat}}">
+<sc-for list="{{exhCatOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
+</select>
+</div>
+<div class="field" style="min-width:170px">
+<label>Sub-category</label>
+<select class="input" value="{{exhF.sub}}" onChange="{{setExhSub}}">
+<sc-for list="{{exhSubOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
+</select>
+</div>
+<div class="field" style="min-width:170px">
+<label>Brand</label>
+<select class="input" value="{{exhF.brand}}" onChange="{{setExhBrand}}">
+<sc-for list="{{exhBrandOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
+</select>
+</div>
+<sc-if value="{{exhFiltersDirty}}" hint-placeholder-val="{{false}}">
+<button class="btn btn-ghost" onClick="{{clearExhFilters}}">Clear filters</button>
+</sc-if>
+</div>
+
+<sc-if value="{{exhLoading}}" hint-placeholder-val="{{true}}">
+<div class="card elev-sm" style="text-align:center;color:var(--color-neutral-500);font-size:14px">Loading exhibition data…</div>
+</sc-if>
+
+<sc-if value="{{exhReady}}" hint-placeholder-val="{{false}}">
+<div style="font-size:13px;font-weight:600;color:var(--color-neutral-700);margin-bottom:var(--space-2);white-space:pre-wrap">{{exhWindowLabel}}</div>
+<sc-if value="{{exhNote}}" hint-placeholder-val="{{false}}">
+
+</sc-if>
+<sc-if value="{{exhSkipped}}" hint-placeholder-val="{{false}}">
+
+</sc-if>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:var(--space-4);margin-bottom:var(--space-5)">
+<sc-for list="{{exhKpis}}" as="k" hint-placeholder-count="6">
+<div class="card elev-sm" style="min-width:0">
+<div class="card-kicker">{{k.label}}</div>
+<div class="card-title" style="font-size:24px;margin-top:2px;white-space:nowrap">{{k.value}}</div>
+<div class="card-meta" style="margin-top:2px">LY {{k.ly}}</div>
+<div style="font-size:13px;font-weight:700;margin-top:2px;color:{{k.color}}">{{k.delta}}</div>
+</div>
+</sc-for>
+</div>
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:var(--space-4)">
+<sc-for list="{{exhTabs}}" as="t" hint-placeholder-count="8"><button class="btn {{t.cls}}" onClick="{{t.onClick}}">{{t.label}}</button></sc-for>
+</div>
+
+<sc-if value="{{exhShowSort}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:var(--space-4)">
+<span style="font-size:12px;color:var(--color-neutral-500);margin-right:4px">Sort by</span>
+<sc-for list="{{exhSorts}}" as="t" hint-placeholder-count="4"><button class="btn {{t.cls}}" onClick="{{t.onClick}}" style="font-size:12px;padding:4px 10px">{{t.label}}</button></sc-for>
+<sc-if value="{{exhIsItems}}" hint-placeholder-val="{{false}}">
+<input class="input" placeholder="Search SKU, item, brand…" value="{{exhQ}}" onChange="{{setExhQ}}" style="margin-left:auto;min-width:220px;max-width:320px">
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{exhIsCmp}}" hint-placeholder-val="{{false}}">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:var(--space-5)">
+<sc-for list="{{exhCmpGroups}}" as="g" hint-placeholder-count="4">
+<div class="card elev-sm" style="padding:0;overflow-x:auto">
+<div style="padding:12px 16px;font-weight:700">{{g.title}}</div>
+<table class="table">
+<thead><tr><th style="text-align:left">Measure</th><th>Last year</th><th>Current year</th><th>Diff</th><th>Δ</th></tr></thead>
+<tbody>
+<sc-for list="{{g.rows}}" as="r" hint-placeholder-count="5">
+<tr><td style="text-align:left;font-weight:600">{{r.label}}</td><td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.ly}}</td><td style="white-space:nowrap;font-weight:700">{{r.cy}}</td><td style="white-space:nowrap;color:{{r.color}}">{{r.diff}}</td><td style="white-space:nowrap;font-weight:700;color:{{r.color}}">{{r.delta}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{exhIsDay}}" hint-placeholder-val="{{false}}">
+<div class="card elev-sm" style="padding:0;overflow-x:auto">
+<table class="table">
+<thead><tr><th style="text-align:left">Event day</th><th style="text-align:left">CY date</th><th style="text-align:left">LY date</th><th>CY net</th><th>LY net</th><th>Diff</th><th>Δ%</th><th>CY rcpts</th><th>LY rcpts</th><th>CY units</th><th>LY units</th><th>CY cumulative</th><th>LY cumulative</th><th>Cum Δ%</th></tr></thead>
+<tbody>
+<sc-for list="{{exhDayRows}}" as="r" hint-placeholder-count="3">
+<tr><td style="font-weight:600;text-align:left">{{r.day}}</td><td style="text-align:left;white-space:nowrap">{{r.cyDate}}</td><td style="text-align:left;white-space:nowrap;color:var(--color-neutral-500)">{{r.lyDate}}</td><td style="font-weight:600;white-space:nowrap">{{r.cyNet}}</td><td style="white-space:nowrap">{{r.lyNet}}</td><td style="white-space:nowrap;color:{{r.color}}">{{r.diff}}</td><td style="font-weight:700;color:{{r.color}}">{{r.delta}}</td><td>{{r.cyRc}}</td><td>{{r.lyRc}}</td><td>{{r.cyQty}}</td><td>{{r.lyQty}}</td><td style="white-space:nowrap">{{r.cyCum}}</td><td style="white-space:nowrap">{{r.lyCum}}</td><td style="font-weight:700;color:{{r.cumColor}}">{{r.cumDelta}}</td></tr>
+</sc-for>
+</tbody>
+<tfoot><tr style="border-top:2px solid var(--color-divider)"><td style="font-weight:700;text-align:left">Total</td><td></td><td></td><td style="font-weight:700;white-space:nowrap">{{exhTot.cyNet}}</td><td style="font-weight:700;white-space:nowrap">{{exhTot.lyNet}}</td><td style="font-weight:700;white-space:nowrap;color:{{exhTot.color}}">{{exhTot.diff}}</td><td style="font-weight:700;color:{{exhTot.color}}">{{exhTot.delta}}</td><td style="font-weight:700">{{exhTot.cyRc}}</td><td style="font-weight:700">{{exhTot.lyRc}}</td><td style="font-weight:700">{{exhTot.cyQty}}</td><td style="font-weight:700">{{exhTot.lyQty}}</td><td></td><td></td><td></td></tr></tfoot>
+</table>
+</div>
+</sc-if>
+
+<sc-if value="{{exhIsHour}}" hint-placeholder-val="{{false}}">
+<div class="card elev-sm" style="padding:0;overflow-x:auto">
+<table class="table">
+<thead><tr><th style="text-align:left">Hour</th><th style="text-align:left">CY vs LY</th><th>CY net</th><th>LY net</th><th>Δ%</th><th>CY rcpts</th><th>LY rcpts</th></tr></thead>
+<tbody>
+<sc-for list="{{exhHourRows}}" as="r" hint-placeholder-count="10">
+<tr><td style="font-weight:600;text-align:left;white-space:nowrap">{{r.hour}}</td><td style="text-align:left"><div style="display:flex;flex-direction:column;gap:3px;min-width:180px"><div style="height:8px;border-radius:4px;background:var(--color-accent);width:{{r.cyW}}"></div><div style="height:8px;border-radius:4px;background:var(--color-neutral-300);width:{{r.lyW}}"></div></div></td><td style="font-weight:600;white-space:nowrap">{{r.cyNet}}</td><td style="white-space:nowrap">{{r.lyNet}}</td><td style="font-weight:700;color:{{r.color}}">{{r.delta}}</td><td>{{r.cyRc}}</td><td>{{r.lyRc}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+<div style="display:flex;gap:16px;padding:10px 16px;font-size:12px;color:var(--color-neutral-500)"><span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:8px;border-radius:2px;background:var(--color-accent)"></span>CY</span><span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:8px;border-radius:2px;background:var(--color-neutral-300)"></span>LY</span></div>
+</div>
+</sc-if>
+
+<sc-if value="{{exhIsTerm}}" hint-placeholder-val="{{false}}">
+<div style="font-size:13px;color:var(--color-neutral-500);margin-bottom:var(--space-3);text-wrap:pretty">Current-year terminals ranked by net sales. Average per terminal {{exhTermCyAvg}}.</div>
+<div style="display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-5)">
+<div class="card elev-sm" style="padding:0;overflow-x:auto">
+<div style="padding:12px 16px;font-weight:700;display:flex;justify-content:space-between;gap:8px"><span>Current year</span><span style="font-weight:400;font-size:13px;color:var(--color-neutral-500)">{{exhTermCyCount}}</span></div>
+<table class="table">
+<thead><tr><th>#</th><th style="text-align:left">Terminal</th><th>Net sales</th><th style="min-width:110px">Share</th><th>Rcpts</th><th>Units</th><th>ATV</th><th>UPT</th></tr></thead>
+<tbody>
+<sc-for list="{{exhTermCy}}" as="r" hint-placeholder-count="6">
+<tr><td>{{r.rank}}</td><td style="text-align:left;white-space:nowrap"><div style="font-weight:600">{{r.term}}</div><sc-if value="{{r.termName}}" hint-placeholder-val="{{false}}"><div style="font-size:11px;color:var(--color-neutral-500)">{{r.termName}}</div></sc-if></td><td style="font-weight:600;white-space:nowrap">{{r.net}}</td><td><div style="display:flex;align-items:center;gap:8px;justify-content:flex-end"><div style="flex:1;min-width:40px;height:6px;background:var(--color-neutral-100);border-radius:3px;overflow:hidden"><div style="height:100%;width:{{r.barW}};background:var(--color-accent)"></div></div><span style="font-size:12px;min-width:40px">{{r.share}}</span></div></td><td>{{r.rc}}</td><td>{{r.qty}}</td><td style="white-space:nowrap">{{r.atv}}</td><td>{{r.upt}}</td></tr>
+</sc-for>
+</tbody>
+<tfoot><tr style="border-top:2px solid var(--color-divider)"><td></td><td style="font-weight:700;text-align:left">Total</td><td style="font-weight:700;white-space:nowrap">{{exhTot.cyNet}}</td><td></td><td style="font-weight:700">{{exhTot.cyRc}}</td><td style="font-weight:700">{{exhTot.cyQty}}</td><td style="font-weight:700;white-space:nowrap">{{exhTot.cyAtv}}</td><td></td></tr></tfoot>
+</table>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{exhIsDim}}" hint-placeholder-val="{{false}}">
+<div class="card elev-sm" style="padding:0;overflow-x:auto">
+<div style="padding:12px 16px;font-size:13px;color:var(--color-neutral-500)">{{exhDimCount}}</div>
+<table class="table">
+<thead><tr><th>#</th><th style="text-align:left">{{exhDimLabel}}</th><th>CY net</th><th>LY net</th><th>Diff</th><th>Δ%</th><th style="min-width:110px">CY share</th><th>LY share</th><th>CY units</th><th>LY units</th><th>CY rcpts</th><th>LY rcpts</th><th>CY margin</th></tr></thead>
+<tbody>
+<sc-for list="{{exhDimRows}}" as="r" hint-placeholder-count="10">
+<tr><td>{{r.rank}}</td><td style="text-align:left;white-space:nowrap"><div style="font-weight:600">{{r.name}}</div><sc-if value="{{r.parent}}" hint-placeholder-val="{{false}}"><div style="font-size:11px;color:var(--color-neutral-500)">{{r.parent}}</div></sc-if></td><td style="font-weight:600;white-space:nowrap">{{r.cyNet}}</td><td style="white-space:nowrap">{{r.lyNet}}</td><td style="white-space:nowrap;color:{{r.color}}">{{r.diff}}</td><td style="font-weight:700;color:{{r.color}}">{{r.delta}}</td><td><div style="display:flex;align-items:center;gap:8px;justify-content:flex-end"><div style="flex:1;min-width:40px;height:6px;background:var(--color-neutral-100);border-radius:3px;overflow:hidden"><div style="height:100%;width:{{r.barW}};background:var(--color-accent)"></div></div><span style="font-size:12px;min-width:40px">{{r.cyShare}}</span></div></td><td>{{r.lyShare}}</td><td>{{r.cyQty}}</td><td>{{r.lyQty}}</td><td>{{r.cyRc}}</td><td>{{r.lyRc}}</td><td>{{r.margin}}</td></tr>
+</sc-for>
+</tbody>
+<tfoot><tr style="border-top:2px solid var(--color-divider)"><td></td><td style="font-weight:700;text-align:left">Total</td><td style="font-weight:700;white-space:nowrap">{{exhTot.cyNet}}</td><td style="font-weight:700;white-space:nowrap">{{exhTot.lyNet}}</td><td style="font-weight:700;white-space:nowrap;color:{{exhTot.color}}">{{exhTot.diff}}</td><td style="font-weight:700;color:{{exhTot.color}}">{{exhTot.delta}}</td><td></td><td></td><td style="font-weight:700">{{exhTot.cyQty}}</td><td style="font-weight:700">{{exhTot.lyQty}}</td><td style="font-weight:700">{{exhTot.cyRc}}</td><td style="font-weight:700">{{exhTot.lyRc}}</td><td style="font-weight:700">{{exhTot.margin}}</td></tr></tfoot>
+</table>
+</div>
+</sc-if>
+
+<sc-if value="{{exhIsItems}}" hint-placeholder-val="{{false}}">
+<div class="card elev-sm" style="padding:0;overflow-x:auto">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap"><div style="padding:12px 16px;font-size:13px;color:var(--color-neutral-500)">{{exhItemCount}}</div><sc-if value="{{exhItemMultiPage}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;padding:10px 16px;flex-wrap:wrap">
+<button class="btn btn-ghost" onClick="{{exhItemFirst}}" disabled="{{exhItemPrevDisabled}}" style="font-size:12px;padding:4px 10px">« First</button>
+<button class="btn btn-ghost" onClick="{{exhItemPrev}}" disabled="{{exhItemPrevDisabled}}" style="font-size:12px;padding:4px 10px">‹ Prev</button>
+<span style="font-size:13px;font-weight:600;padding:0 8px">{{exhItemPageLabel}}</span>
+<button class="btn btn-ghost" onClick="{{exhItemNext}}" disabled="{{exhItemNextDisabled}}" style="font-size:12px;padding:4px 10px">Next ›</button>
+<button class="btn btn-ghost" onClick="{{exhItemLast}}" disabled="{{exhItemNextDisabled}}" style="font-size:12px;padding:4px 10px">Last »</button>
+</div>
+</sc-if></div>
+<table class="table">
+<thead><tr><th>#</th><th style="text-align:left">Item</th><th style="text-align:left">Brand · Sub-category</th><th>CY net</th><th>LY net</th><th>Diff</th><th>Δ%</th><th>CY qty</th><th>LY qty</th><th>CY ASP</th><th>LY ASP</th><th>CY margin</th></tr></thead>
+<tbody>
+<sc-for list="{{exhItemRows}}" as="r" hint-placeholder-count="10">
+<tr><td>{{r.rank}}</td><td style="text-align:left"><div style="display:flex;align-items:center;gap:10px;min-width:260px"><div style="width:44px;height:44px;flex:none;border-radius:6px;background:var(--color-neutral-100);overflow:hidden;display:flex;align-items:center;justify-content:center"><sc-if value="{{r.image}}" hint-placeholder-val="{{false}}"><img src="{{r.image}}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></sc-if></div><div><div style="font-weight:600;text-wrap:pretty">{{r.desc}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{r.name}}</div></div></div></td><td style="text-align:left;white-space:nowrap"><div>{{r.brand}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{r.sub}}</div></td><td style="font-weight:600;white-space:nowrap">{{r.cyNet}}</td><td style="white-space:nowrap">{{r.lyNet}}</td><td style="white-space:nowrap;color:{{r.color}}">{{r.diff}}</td><td style="font-weight:700;color:{{r.color}}">{{r.delta}}</td><td>{{r.cyQty}}</td><td>{{r.lyQty}}</td><td style="white-space:nowrap">{{r.cyAsp}}</td><td style="white-space:nowrap">{{r.lyAsp}}</td><td>{{r.margin}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+<sc-if value="{{exhItemMultiPage}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;padding:10px 16px;flex-wrap:wrap">
+<button class="btn btn-ghost" onClick="{{exhItemFirst}}" disabled="{{exhItemPrevDisabled}}" style="font-size:12px;padding:4px 10px">« First</button>
+<button class="btn btn-ghost" onClick="{{exhItemPrev}}" disabled="{{exhItemPrevDisabled}}" style="font-size:12px;padding:4px 10px">‹ Prev</button>
+<span style="font-size:13px;font-weight:600;padding:0 8px">{{exhItemPageLabel}}</span>
+<button class="btn btn-ghost" onClick="{{exhItemNext}}" disabled="{{exhItemNextDisabled}}" style="font-size:12px;padding:4px 10px">Next ›</button>
+<button class="btn btn-ghost" onClick="{{exhItemLast}}" disabled="{{exhItemNextDisabled}}" style="font-size:12px;padding:4px 10px">Last »</button>
+</div>
+</sc-if>
+</div>
+</sc-if>
+</sc-if>
+</section>
+</sc-if>
+
 <sc-if value="{{isEvent}}" hint-placeholder-val="{{false}}">
 <section>
 <div style="display:flex;flex-wrap:wrap;gap:var(--space-4);align-items:flex-end;margin-bottom:var(--space-4)">
@@ -3633,6 +3823,7 @@ class Component extends DCLogic {
   componentDidUpdate() {
     this._scheduleLang();
     if (this.state.page === 'consumables' && !this.state.bagInvoices && !this.state.bagLoading && (this._bagTries || 0) < 4) this._ensureBagInvoices();
+    if (this.state.page === 'exhibition' && !this.state.exh && !this.state.exhLoading && (this._exhTries || 0) < 4) this._ensureExhibition();
     if (this.state.page === 'staffRank' && !this.state.staffSales && !this.state.staffLoading && (this._staffTries || 0) < 4) this._ensureStaffSales();
   }
 
@@ -5859,6 +6050,195 @@ class Component extends DCLogic {
     } catch (e) {
       this.setState({ bagFailed: this._bagTries >= 4, bagLoading: false });
     }
+  }
+
+  async _ensureExhibition() {
+    this._exhTries = (this._exhTries || 0) + 1;
+    this.setState({ exhLoading: true });
+    try {
+      const [a, b] = await Promise.all([fetch('data/exhibition.json'), fetch('data/staff-master.json')]);
+      const d = a.ok ? await a.json() : null;
+      const m = b.ok ? await b.json() : [];
+      const names = {};
+      (Array.isArray(m) ? m : []).forEach(x => { const id = String(x.id || x.staffId || x.code || ''); if (id) names[id] = x.name || x.nameEn || x.staffName || ''; });
+      this.setState({ exh: d, exhNames: names, exhLoading: false });
+    } catch (e) { this.setState({ exhLoading: false }); }
+  }
+
+  _exhPrep() {
+    const D = this.state.exh;
+    if (this._exhPrepFor === D) return this._exhPrepped;
+    const enrich = rows => rows.map(r => {
+      const m = this.itemMeta[r[4]] || {}, d = (D.descs || {})[r[4]] || [];
+      return { date: r[0], hour: r[1], term: r[2], rc: r[3], sku: r[4], qty: r[5], net: r[6], disc: r[7] || 0, cost: r[8], staff: String(r[9] || ''),
+        cat: m.division || d[1] || 'Unassigned', sub: m.category || d[2] || 'Unassigned', brand: m.brand || 'Unknown' };
+    });
+    this._exhPrepped = { cy: enrich(D.cy.rows), ly: enrich(D.ly.rows) };
+    this._exhPrepFor = D;
+    return this._exhPrepped;
+  }
+
+  exhibitionData() {
+    const st = this.state;
+    const TERM_NAMES = { TM50: 'ARB', TM51: 'Stanley', TM52: 'Al Rimaya', TM53: 'Air Rifles', TM54: 'ARB', TM55: 'Nitecore', TM57: 'Wander', TM58: 'Al Rimaya', TM59: 'Knives' };
+    if (!st.exh) return { exhReady: false, exhLoading: true };
+    const P = this._exhPrep();
+    const fmtD0 = iso => iso ? new Date(iso + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+    const f = st.exhF || { cat: 'All', sub: 'All', brand: 'All' };
+    const mode = st.exhMode || 'lfl', view = st.exhView || 'cmp', sort = st.exhSort || 'cy', q = (st.exhQ || '').trim().toLowerCase();
+    const fmtM = v => this.fmtMoney(v), fmtN = v => this.fmtNum(Math.round(v));
+    const dNum = (cy, ly) => ly ? ((cy - ly) / Math.abs(ly)) * 100 : (cy ? 100 : 0);
+    const dLab = (cy, ly) => (!ly && !cy) ? '—' : !ly ? 'new' : (dNum(cy, ly) >= 0 ? '+' : '') + dNum(cy, ly).toFixed(1) + '%';
+    const dClr = (cy, ly) => (!ly && !cy) ? 'var(--color-neutral-500)' : dNum(cy, ly) > 0 ? 'var(--color-positive, #4caf7d)' : dNum(cy, ly) < 0 ? 'var(--color-negative, #e2705f)' : 'var(--color-neutral-500)';
+    const diffLab = v => (v >= 0 ? '+' : '−') + fmtM(Math.abs(v));
+    const fmtD = fmtD0;
+    const trading = rows => { const m = {}; rows.forEach(r => { const e = m[r.date] || (m[r.date] = { net: 0, rc: new Set() }); e.net += r.net; e.rc.add(r.rc); });
+      const mx = Math.max(0, ...Object.values(m).map(e => e.net));
+      const all = Object.keys(m).sort();
+      return { days: all.filter(d => m[d].net >= mx * 0.02 && m[d].rc.size >= 20), skipped: all.filter(d => !(m[d].net >= mx * 0.02 && m[d].rc.size >= 20)) };
+    };
+    const tCy = trading(P.cy), tLy = trading(P.ly);
+    const cyDays = tCy.days.length ? tCy.days : [...new Set(P.cy.map(r => r.date))].sort();
+    const lyTrade = tLy.days.filter(d => !st.exhLyStart || d >= st.exhLyStart);
+    const lyAll = lyTrade.length ? lyTrade : tLy.days;
+    const lyDays = mode === 'lfl' ? lyAll.slice(0, Math.max(1, cyDays.length)) : lyAll;
+    const skippedNote = [...tCy.skipped.map(d => 'CY ' + fmtD(d)), ...tLy.skipped.map(d => 'LY ' + fmtD(d))];
+    const lyStartOptions = tLy.days.map(d => ({ iso: d, label: fmtD(d) }));
+    const lySet = new Set(lyDays);
+    const lyBase = P.ly.filter(r => lySet.has(r.date));
+    const both = P.cy.concat(lyBase);
+    const uniq = a => ['All', ...[...new Set(a)].sort()];
+    const catOptions = uniq(both.map(r => r.cat));
+    const subOptions = uniq(both.filter(r => f.cat === 'All' || r.cat === f.cat).map(r => r.sub));
+    const brandOptions = uniq(both.filter(r => (f.cat === 'All' || r.cat === f.cat) && (f.sub === 'All' || r.sub === f.sub)).map(r => r.brand));
+    const pass = r => (f.cat === 'All' || r.cat === f.cat) && (f.sub === 'All' || r.sub === f.sub) && (f.brand === 'All' || r.brand === f.brand);
+    const CY = P.cy.filter(pass), LY = lyBase.filter(pass);
+    const agg = (rows, key) => { const m = {}; rows.forEach(r => { const k = key(r); const e = m[k] || (m[k] = { net: 0, qty: 0, cost: 0, rc: new Set(), days: new Set(), r }); e.net += r.net; e.qty += r.qty; e.cost += r.cost; e.rc.add(r.rc); e.days.add(r.date); }); return m; };
+    const tot = rows => { const e = agg(rows, () => 'x').x || { net: 0, qty: 0, cost: 0, rc: new Set() }; return { net: e.net, qty: e.qty, cost: e.cost, rc: e.rc.size }; };
+    const tc = tot(CY), tl = tot(LY);
+    const marg = (n, c) => n ? ((n - c) / n * 100).toFixed(1) + '%' : '—';
+    const kp = (label, cy, ly, fmt) => ({ label, value: fmt(cy), ly: fmt(ly), delta: dLab(cy, ly), color: dClr(cy, ly) });
+    const exhKpis = [
+      kp('Net sales', tc.net, tl.net, fmtM),
+      kp('Receipts', tc.rc, tl.rc, fmtN),
+      kp('Units sold', tc.qty, tl.qty, fmtN),
+      kp('ATV', tc.rc ? tc.net / tc.rc : 0, tl.rc ? tl.net / tl.rc : 0, fmtM),
+      kp('UPT', tc.rc ? tc.qty / tc.rc : 0, tl.rc ? tl.qty / tl.rc : 0, v => v.toFixed(2)),
+      { label: 'Margin %', value: marg(tc.net, tc.cost), ly: marg(tl.net, tl.cost), delta: (tc.net && tl.net) ? (((tc.net - tc.cost) / tc.net - (tl.net - tl.cost) / tl.net) * 100 >= 0 ? '+' : '') + (((tc.net - tc.cost) / tc.net - (tl.net - tl.cost) / tl.net) * 100).toFixed(1) + ' pts' : '—', color: 'var(--color-neutral-500)' }
+    ];
+    const out = {};
+    if (view === 'day') {
+      const cm = agg(CY, r => r.date), lm = agg(LY, r => r.date);
+      const n = Math.max(cyDays.length, lyDays.length); let cc = 0, cl = 0; const rows = [];
+      for (let i = 0; i < n; i++) {
+        const c = cm[cyDays[i]] || { net: 0, qty: 0, rc: new Set() }, l = lm[lyDays[i]] || { net: 0, qty: 0, rc: new Set() };
+        cc += c.net; cl += l.net;
+        rows.push({ day: 'Day ' + (i + 1), cyDate: fmtD(cyDays[i]), lyDate: fmtD(lyDays[i]), cyNet: fmtM(c.net), lyNet: fmtM(l.net), diff: diffLab(c.net - l.net), delta: dLab(c.net, l.net), color: dClr(c.net, l.net), cyRc: fmtN(c.rc.size), lyRc: fmtN(l.rc.size), cyQty: fmtN(c.qty), lyQty: fmtN(l.qty), cyCum: fmtM(cc), lyCum: fmtM(cl), cumDelta: dLab(cc, cl), cumColor: dClr(cc, cl) });
+      }
+      out.exhDayRows = rows;
+    }
+    if (view === 'hour') {
+      const cm = agg(CY, r => r.hour), lm = agg(LY, r => r.hour);
+      const hrs = [...new Set([...Object.keys(cm), ...Object.keys(lm)].map(Number))].sort((a, b) => a - b);
+      const mx = Math.max(1, ...hrs.map(h => Math.max((cm[h] || {}).net || 0, (lm[h] || {}).net || 0)));
+      out.exhHourRows = hrs.map(h => { const c = cm[h] || { net: 0, rc: new Set(), qty: 0 }, l = lm[h] || { net: 0, rc: new Set(), qty: 0 };
+        return { hour: String(h).padStart(2, '0') + ':00–' + String((h + 1) % 24).padStart(2, '0') + ':00', cyNet: fmtM(c.net), lyNet: fmtM(l.net), delta: dLab(c.net, l.net), color: dClr(c.net, l.net), cyRc: fmtN(c.rc.size), lyRc: fmtN(l.rc.size), cyW: Math.max(0, Math.round(100 * c.net / mx)) + '%', lyW: Math.max(0, Math.round(100 * l.net / mx)) + '%' }; });
+    }
+    if (view === 'cmp') {
+      const m = rows => { const rc = {}, sk = new Set(), tm = new Set(), sf = new Set(), dy = new Set(), hr = {}, ln = rows.length; let net = 0, qty = 0, cost = 0, disc = 0, ret = 0, retQ = 0, discLines = 0;
+        rows.forEach(r => { net += r.net; qty += r.qty; cost += r.cost; disc += r.disc; if (r.disc) discLines++; if (r.qty < 0) { ret += -r.net; retQ += -r.qty; }
+          (rc[r.rc] = (rc[r.rc] || 0) + r.net); if (r.qty > 0) sk.add(r.sku); tm.add(r.term); if (r.staff) sf.add(r.staff); dy.add(r.date); hr[r.hour] = (hr[r.hour] || 0) + r.net; });
+        const nr = Object.keys(rc).length, nd = Math.max(1, dy.size);
+        const peak = Object.entries(hr).sort((a, b) => b[1] - a[1])[0];
+        return { net, gross: net + disc, disc, discPct: (net + disc) ? disc / (net + disc) * 100 : 0, discLines, ret, retQ, cost, gp: net - cost, gpPct: net ? (net - cost) / net * 100 : 0,
+          rc: nr, qty, lines: ln, atv: nr ? net / nr : 0, upt: nr ? qty / nr : 0, asp: qty ? net / qty : 0, lpr: nr ? ln / nr : 0,
+          skus: sk.size, terms: tm.size, staff: sf.size, days: dy.size, perDay: net / nd, rcPerDay: nr / nd, perTerm: tm.size ? net / tm.size : 0, perStaff: sf.size ? net / sf.size : 0,
+          peakH: peak ? String(peak[0]).padStart(2, '0') + ':00' : '—', peakV: peak ? peak[1] : 0 };
+      };
+      const c = m(CY), l = m(LY);
+      const p2 = v => v.toFixed(2), p1 = v => v.toFixed(1) + '%';
+      const row = (label, k, fmt, opts) => { const o = opts || {}; const cv = c[k], lv = l[k];
+        const isPts = o.pts; const d = isPts ? (cv - lv) : dNum(cv, lv); const good = o.inverse ? d < 0 : d > 0;
+        return { label, cy: fmt(cv), ly: fmt(lv), diff: o.noDiff ? '' : isPts ? '' : (cv - lv >= 0 ? '+' : '−') + fmt(Math.abs(cv - lv)),
+          delta: (!cv && !lv) ? '—' : isPts ? (d >= 0 ? '+' : '') + d.toFixed(1) + ' pts' : dLab(cv, lv),
+          color: (!cv && !lv) || d === 0 ? 'var(--color-neutral-500)' : good ? 'var(--color-positive, #4caf7d)' : 'var(--color-negative, #e2705f)' }; };
+      out.exhCmpGroups = [
+        { title: 'Sales', rows: [row('Net sales', 'net', fmtM), row('Gross sales (before discount)', 'gross', fmtM), row('Discount amount', 'disc', fmtM, { inverse: true }), row('Discount % of gross', 'discPct', p1, { pts: true, inverse: true }), row('Returns value', 'ret', fmtM, { inverse: true }), row('Returned units', 'retQ', fmtN, { inverse: true })] },
+        { title: 'Profitability', rows: [row('Cost of sales', 'cost', fmtM, { inverse: true }), row('Gross profit', 'gp', fmtM), row('Margin %', 'gpPct', p1, { pts: true })] },
+        { title: 'Traffic & basket', rows: [row('Receipts', 'rc', fmtN), row('Units sold', 'qty', fmtN), row('Sales lines', 'lines', fmtN), row('ATV (avg receipt)', 'atv', fmtM), row('UPT (units / receipt)', 'upt', p2), row('ASP (avg unit price)', 'asp', fmtM), row('Lines / receipt', 'lpr', p2)] },
+        { title: 'Range & productivity', rows: [row('SKUs sold', 'skus', fmtN), row('Event days', 'days', fmtN), row('Sales / day', 'perDay', fmtM), row('Receipts / day', 'rcPerDay', fmtN), row('Active terminals', 'terms', fmtN), row('Sales / terminal', 'perTerm', fmtM), row('Active staff', 'staff', fmtN), row('Sales / staff', 'perStaff', fmtM), { label: 'Peak hour', cy: c.peakH + ' · ' + fmtM(c.peakV), ly: l.peakH + ' · ' + fmtM(l.peakV), diff: '', delta: dLab(c.peakV, l.peakV), color: dClr(c.peakV, l.peakV) }] }
+      ];
+    }
+    if (view === 'term') {
+      const side = (rows, t) => { const m = agg(rows, r => r.term || '—'); const mx = Math.max(1, ...Object.values(m).map(e => e.net));
+        return Object.entries(m).sort((a, b) => b[1].net - a[1].net).map(([k, e], i) => ({ rank: i + 1, term: k, termName: TERM_NAMES[k] || '', net: fmtM(e.net), share: t.net ? (100 * e.net / t.net).toFixed(1) + '%' : '—', barW: Math.max(1, Math.round(100 * e.net / mx)) + '%', rc: fmtN(e.rc.size), qty: fmtN(e.qty), atv: fmtM(e.rc.size ? e.net / e.rc.size : 0), upt: e.rc.size ? (e.qty / e.rc.size).toFixed(2) : '—', perDay: fmtM(e.net / Math.max(1, e.days.size)) })); };
+      out.exhTermCy = side(CY, tc); out.exhTermLy = side(LY, tl);
+      out.exhTermCyCount = out.exhTermCy.length + ' terminals'; out.exhTermLyCount = out.exhTermLy.length + ' terminals';
+      out.exhTermCyAvg = fmtM(out.exhTermCy.length ? tc.net / out.exhTermCy.length : 0); out.exhTermLyAvg = fmtM(out.exhTermLy.length ? tl.net / out.exhTermLy.length : 0);
+    }
+    const compare = (keyFn, extra) => {
+      const cm = agg(CY, keyFn), lm = agg(LY, keyFn);
+      let keys = [...new Set([...Object.keys(cm), ...Object.keys(lm)])];
+      const val = k => ({ c: cm[k] || { net: 0, qty: 0, cost: 0, rc: new Set() }, l: lm[k] || { net: 0, qty: 0, cost: 0, rc: new Set() } });
+      const sorters = { cy: (a, b) => val(b).c.net - val(a).c.net || val(b).l.net - val(a).l.net, ly: (a, b) => val(b).l.net - val(a).l.net, gain: (a, b) => (val(b).c.net - val(b).l.net) - (val(a).c.net - val(a).l.net), loss: (a, b) => (val(a).c.net - val(a).l.net) - (val(b).c.net - val(b).l.net) };
+      keys.sort(sorters[sort] || sorters.cy);
+      const mx = Math.max(1, ...keys.map(k => val(k).c.net));
+      return keys.map((k, i) => { const { c, l } = val(k); const src = (cm[k] || lm[k]).r;
+        return { rank: i + 1, name: k, cyNet: fmtM(c.net), lyNet: fmtM(l.net), diff: diffLab(c.net - l.net), delta: dLab(c.net, l.net), color: dClr(c.net, l.net), cyShare: tc.net ? (100 * c.net / tc.net).toFixed(1) + '%' : '—', lyShare: tl.net ? (100 * l.net / tl.net).toFixed(1) + '%' : '—', barW: Math.max(0, Math.round(100 * c.net / mx)) + '%', cyQty: fmtN(c.qty), lyQty: fmtN(l.qty), cyRc: fmtN(c.rc.size), lyRc: fmtN(l.rc.size), margin: marg(c.net, c.cost), cyAsp: fmtM(c.qty ? c.net / c.qty : 0), lyAsp: fmtM(l.qty ? l.net / l.qty : 0), ...(extra ? extra(k, src) : {}) }; });
+    };
+    const names = st.exhNames || {};
+    if (view === 'cat' || view === 'sub' || view === 'brand' || view === 'staff') {
+      const kf = { cat: r => r.cat, sub: r => r.sub, brand: r => r.brand, staff: r => r.staff || '—' }[view];
+      const ex = { cat: null, sub: (k, r) => ({ parent: r.cat }), brand: null, staff: k => ({ parent: names[k] || '' }) }[view];
+      out.exhDimRows = compare(kf, ex);
+      out.exhDimLabel = { cat: 'Category', sub: 'Sub-category', brand: 'Brand', staff: 'Staff' }[view];
+      out.exhDimCount = out.exhDimRows.length + ' ' + { cat: 'categories', sub: 'sub-categories', brand: 'brands', staff: 'staff' }[view];
+    }
+    if (view === 'items') {
+      let rows = compare(r => r.sku, (k, r) => { const m = this.itemMeta[k] || {}; const d = (st.exh.descs || {})[k] || []; return { desc: m.itemDesc && m.itemDesc !== k ? m.itemDesc : (d[0] || k), image: m.image || '', brand: r.brand, sub: r.sub }; });
+      const all = rows.length;
+      if (q) rows = rows.filter(r => (r.name + ' ' + r.desc + ' ' + r.brand + ' ' + r.sub).toLowerCase().includes(q));
+      const PER = 100, pages = Math.max(1, Math.ceil(rows.length / PER));
+      const pg = Math.min(Math.max(1, st.exhItemPage || 1), pages);
+      const from = (pg - 1) * PER;
+      out.exhItemCount = (q ? rows.length + ' matching of ' : '') + all + ' SKUs sold' + (rows.length ? ' · showing ' + (from + 1) + '–' + Math.min(from + PER, rows.length) : '');
+      out.exhItemRows = rows.slice(from, from + PER);
+      out.exhItemPageLabel = 'Page ' + pg + ' of ' + pages;
+      out.exhItemMultiPage = pages > 1;
+      out.exhItemPrevDisabled = pg <= 1; out.exhItemNextDisabled = pg >= pages;
+      out.exhItemPrev = () => this.setState({ exhItemPage: pg - 1 });
+      out.exhItemNext = () => this.setState({ exhItemPage: pg + 1 });
+      out.exhItemFirst = () => this.setState({ exhItemPage: 1 });
+      out.exhItemLast = () => this.setState({ exhItemPage: pages });
+    }
+    const tabs = [['cmp', 'Comparison'], ['day', 'Day-wise'], ['hour', 'Hourly'], ['term', 'By Terminal'], ['cat', 'Category'], ['sub', 'Sub-Category'], ['brand', 'Brand'], ['items', 'Items'], ['staff', 'Staff']];
+    const sorts = [['cy', 'CY sales'], ['ly', 'LY sales'], ['gain', 'Biggest gain'], ['loss', 'Biggest drop']];
+    const setF = p => this.setState({ exhF: { ...f, ...p }, exhItemPage: 1 });
+    const lyLast = lyDays[lyDays.length - 1], cyLast = cyDays[cyDays.length - 1];
+    return {
+      exhReady: true, exhLoading: false, exhF: f, exhKpis,
+      exhCatOptions: catOptions, exhSubOptions: subOptions, exhBrandOptions: brandOptions,
+      setExhCat: e => setF({ cat: e.target.value, sub: 'All', brand: 'All' }),
+      setExhSub: e => setF({ sub: e.target.value, brand: 'All' }),
+      setExhBrand: e => setF({ brand: e.target.value }),
+      exhFiltersDirty: f.cat !== 'All' || f.sub !== 'All' || f.brand !== 'All',
+      clearExhFilters: () => this.setState({ exhF: { cat: 'All', sub: 'All', brand: 'All' } }),
+      exhModeLflClass: mode === 'lfl' ? 'btn-primary' : 'btn-ghost', exhModeFullClass: mode === 'full' ? 'btn-primary' : 'btn-ghost',
+      setExhLfl: () => this.setState({ exhMode: 'lfl' }), setExhFull: () => this.setState({ exhMode: 'full' }),
+      exhWindowLabel: 'CY ' + fmtD(cyDays[0]) + (cyDays.length > 1 ? ' → ' + fmtD(cyLast) : '') + ' (' + cyDays.length + ' day' + (cyDays.length === 1 ? '' : 's') + ')   vs   LY ' + fmtD(lyDays[0]) + (lyDays.length > 1 ? ' → ' + fmtD(lyLast) : '') + ' (' + lyDays.length + ' day' + (lyDays.length === 1 ? '' : 's') + ')',
+      exhLyStart: lyAll[0] || '', exhLyStartOptions: lyStartOptions,
+      setExhLyStart: e => this.setState({ exhLyStart: e.target.value }),
+      exhSkipped: skippedNote.length ? 'Non-trading day' + (skippedNote.length > 1 ? 's' : '') + ' excluded from event-day numbering: ' + skippedNote.join(', ') + '.' : '',
+      exhNote: mode === 'lfl' && lyAll.length > lyDays.length ? 'Like-for-like: LY is trimmed to the first ' + lyDays.length + ' event day' + (lyDays.length === 1 ? '' : 's') + ' to match CY. Switch to Full LY event to see all ' + lyAll.length + ' LY days.' : (mode === 'full' && cyDays.length < lyAll.length ? 'Full LY event (' + lyAll.length + ' days) against ' + cyDays.length + ' CY day' + (cyDays.length === 1 ? '' : 's') + ' so far — totals will not be like-for-like.' : ''),
+      exhTabs: tabs.map(([k, l]) => ({ label: l, cls: view === k ? 'btn-primary' : 'btn-ghost', onClick: () => this.setState({ exhView: k }) })),
+      exhSorts: sorts.map(([k, l]) => ({ label: l, cls: sort === k ? 'btn-primary' : 'btn-ghost', onClick: () => this.setState({ exhSort: k, exhItemPage: 1 }) })),
+      exhShowSort: ['cat', 'sub', 'brand', 'items', 'staff'].includes(view),
+      exhIsCmp: view === 'cmp', exhCmpGroups: [], exhIsDay: view === 'day', exhIsHour: view === 'hour', exhIsTerm: view === 'term', exhIsDim: ['cat', 'sub', 'brand', 'staff'].includes(view), exhIsItems: view === 'items',
+      exhQ: st.exhQ || '', setExhQ: e => this.setState({ exhQ: e.target.value, exhItemPage: 1 }),
+      exhTot: { cyNet: fmtM(tc.net), lyNet: fmtM(tl.net), diff: diffLab(tc.net - tl.net), delta: dLab(tc.net, tl.net), color: dClr(tc.net, tl.net), cyRc: fmtN(tc.rc), lyRc: fmtN(tl.rc), cyQty: fmtN(tc.qty), lyQty: fmtN(tl.qty), margin: marg(tc.net, tc.cost), cyAtv: fmtM(tc.rc ? tc.net / tc.rc : 0), lyAtv: fmtM(tl.rc ? tl.net / tl.rc : 0) },
+      exhDayRows: [], exhHourRows: [], exhTermCy: [], exhTermLy: [], exhDimRows: [], exhItemRows: [],
+      ...out
+    };
   }
 
   async _ensureStaffSales() {
@@ -8303,9 +8683,9 @@ class Component extends DCLogic {
       if (L.suggested) this._lastLinkSuggested = { rows: L.suggested.rows, subtitle: (st.linkMonth === 'All' ? 'All months' : st.linkMonth) + ' · ' + this.fmtNum(L.baskets) + ' multi-item invoices · min ' + st.linkMinCount + ' baskets · ranked by revenue headroom · basket counts are upper bounds (pairwise minimum)' };
     }
     const EV = st.page === 'event' ? this.eventData() : null;
-    const titles = { snapshot: 'Daily Snapshot', overview: 'Executive Overview', stores: 'Branch Comparison', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', hourlySales: 'Hourly Sales', wholesale: 'Wholesale', daily: 'Daily Sales', regionDetail: 'Region Detail', stcQitaf: 'STC Qitaf', yoy: 'YOY Comparison', event: 'Event Comparison', staffRank: 'Staff Ranking', linkSales: 'Link Sales', consumables: 'Consumables', shrinkage: 'Shrinkage Fund' };
-    const shortTitles = { snapshot: 'Snapshot', overview: 'Overview', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily', regionDetail: 'Region', hourlySales: 'Hourly', wholesale: 'Wholesale', stcQitaf: 'Qitaf', yoy: 'YOY', event: 'Event', linkSales: 'Link', consumables: 'Bags', staffRank: 'Staff', shrinkage: 'Shrinkage' };
-    const navIcons = { snapshot: '☷', overview: '▣', categories: '▤', items: '◫', discounts: '%', invoices: '⌂', daily: '◷', regionDetail: '◈', hourlySales: '◔', wholesale: '◊', stcQitaf: '⊙', yoy: '⇄', event: '◉', linkSales: '⧉', consumables: '▧', staffRank: '★', shrinkage: '⛨' };
+    const titles = { snapshot: 'Daily Snapshot', overview: 'Executive Overview', stores: 'Branch Comparison', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', hourlySales: 'Hourly Sales', wholesale: 'Wholesale', daily: 'Daily Sales', regionDetail: 'Region Detail', stcQitaf: 'STC Qitaf', yoy: 'YOY Comparison', event: 'Event Comparison', exhibition: 'Exhibition', staffRank: 'Staff Ranking', linkSales: 'Link Sales', consumables: 'Consumables', shrinkage: 'Shrinkage Fund' };
+    const shortTitles = { snapshot: 'Snapshot', overview: 'Overview', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily', regionDetail: 'Region', hourlySales: 'Hourly', wholesale: 'Wholesale', stcQitaf: 'Qitaf', yoy: 'YOY', event: 'Event', exhibition: 'Expo', linkSales: 'Link', consumables: 'Bags', staffRank: 'Staff', shrinkage: 'Shrinkage' };
+    const navIcons = { snapshot: '☷', overview: '▣', categories: '▤', items: '◫', discounts: '%', invoices: '⌂', daily: '◷', regionDetail: '◈', hourlySales: '◔', wholesale: '◊', stcQitaf: '⊙', yoy: '⇄', event: '◉', exhibition: '◇', linkSales: '⧉', consumables: '▧', staffRank: '★', shrinkage: '⛨' };
     const isSnapshotUser = !!(st.auth && (st.auth.id === 'admin' || st.auth.id === '31610' || st.auth.id === 'mathew'));
     const isAdminUser = !!(st.auth && (st.auth.id === 'admin' || st.auth.id === '31610'));
     const snapDates = [...new Set((st.buckets || []).map(r => r.date))].sort().reverse();
@@ -8342,7 +8722,7 @@ class Component extends DCLogic {
         });
       }
     }
-    const pageOrder = [...(isSnapshotUser ? ['snapshot'] : []), 'overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'hourlySales', 'yoy', 'event', 'linkSales', 'consumables', 'staffRank', ...(isAdminUser ? ['shrinkage'] : []), 'wholesale', 'stcQitaf'].filter(p => !(st.auth && st.auth.region !== 'All' && p === 'wholesale'));
+    const pageOrder = [...(isSnapshotUser ? ['snapshot'] : []), 'overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'hourlySales', 'yoy', 'event', ...(isSnapshotUser ? ['exhibition'] : []), 'linkSales', 'consumables', 'staffRank', ...(isAdminUser ? ['shrinkage'] : []), 'wholesale', 'stcQitaf'].filter(p => !(st.auth && st.auth.region !== 'All' && p === 'wholesale'));
     const isMobile = st.isMobile;
     const consView = st.consView || 'daily';
     const SR = st.page === 'staffRank' ? this.staffData() : { rows: [], totals: null, catOptions: ['All'], subOptions: ['All'], brandOptions: ['All'], sliceMode: false, drill: null, note: '', countLabel: '', kpis: [] };
@@ -8475,6 +8855,8 @@ class Component extends DCLogic {
       isHourlySales: st.page === 'hourlySales',
       isYoy: st.page === 'yoy',
       isEvent: st.page === 'event',
+      isExh: st.page === 'exhibition',
+      ...(st.page === 'exhibition' ? this.exhibitionData() : { exhReady: false, exhLoading: false }),
       eventLoading: st.page === 'event' && st.yoyLoading,
       ...(EV || {}),
       yoyLoading: st.page === 'yoy' && st.yoyLoading,
@@ -8563,8 +8945,8 @@ class Component extends DCLogic {
       setYoyViewBrand: () => this.setState({ yoyView: 'brand', yoySearch: '' }),
       setYoyViewStores: () => this.setState({ yoyView: 'stores', yoySearch: '' }),
       isOverview: st.page === 'overview', isRegionDetail: st.page === 'regionDetail', isCategories: st.page === 'categories', isInvoices: st.page === 'invoices', isItems: st.page === 'items', isDiscounts: st.page === 'discounts', isDaily: st.page === 'daily', isWholesale: st.page === 'wholesale', isStcQitaf: st.page === 'stcQitaf',
-      globalFiltersDisplay: (st.page === 'wholesale' || st.page === 'yoy' || st.page === 'event' || st.page === 'snapshot' || st.page === 'linkSales') ? 'none' : (isMobile && !st.filtersOpen ? 'none' : 'flex'),
-      showFilterToggle: isMobile && st.page !== 'wholesale' && st.page !== 'yoy' && st.page !== 'event' && st.page !== 'snapshot' && st.page !== 'linkSales',
+      globalFiltersDisplay: (st.page === 'wholesale' || st.page === 'yoy' || st.page === 'event' || st.page === 'exhibition' || st.page === 'snapshot' || st.page === 'linkSales') ? 'none' : (isMobile && !st.filtersOpen ? 'none' : 'flex'),
+      showFilterToggle: isMobile && st.page !== 'wholesale' && st.page !== 'yoy' && st.page !== 'event' && st.page !== 'exhibition' && st.page !== 'snapshot' && st.page !== 'linkSales',
       isSnapshot: st.page === 'snapshot',
       snapDate: snapDate,
       snapDateLabel: snapDate ? new Date(snapDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : 'Select date',
