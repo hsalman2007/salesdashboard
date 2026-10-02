@@ -2317,6 +2317,18 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <sc-for list="{{exhBrandOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
 </select>
 </div>
+<div class="field" style="min-width:150px">
+<label>Terminal</label>
+<select class="input" value="{{exhF.term}}" onChange="{{setExhTerm}}">
+<sc-for list="{{exhTermOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
+</select>
+</div>
+<div class="field" style="min-width:150px">
+<label>Day</label>
+<select class="input" value="{{exhF.day}}" onChange="{{setExhDay}}">
+<sc-for list="{{exhDayOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt.v}}">{{opt.l}}</option></sc-for>
+</select>
+</div>
 <sc-if value="{{exhFiltersDirty}}" hint-placeholder-val="{{false}}">
 <button class="btn btn-ghost" onClick="{{clearExhFilters}}">Clear filters</button>
 </sc-if>
@@ -2331,7 +2343,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </sc-if>
 
 <sc-if value="{{exhReady}}" hint-placeholder-val="{{false}}">
-<div style="font-size:13px;font-weight:600;color:var(--color-neutral-700);margin-bottom:var(--space-2);white-space:pre-wrap">{{exhWindowLabel}}</div>
+
 <sc-if value="{{exhNote}}" hint-placeholder-val="{{false}}">
 
 </sc-if>
@@ -2414,7 +2426,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </sc-if>
 
 <sc-if value="{{exhIsTerm}}" hint-placeholder-val="{{false}}">
-<div style="font-size:13px;color:var(--color-neutral-500);margin-bottom:var(--space-3);text-wrap:pretty">Current-year terminals ranked by net sales. Average per terminal {{exhTermCyAvg}}.</div>
+
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--space-4);margin-bottom:var(--space-5)">
 <sc-for list="{{exhTermCards}}" as="c" hint-placeholder-count="7">
 <div class="card elev-sm" style="min-width:0;display:flex;flex-direction:column;gap:4px">
@@ -6244,7 +6256,7 @@ class Component extends DCLogic {
     if (!st.exh) return { exhReady: false, exhLoading: true };
     const P = this._exhPrep();
     const fmtD0 = iso => iso ? new Date(iso + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : '—';
-    const f = st.exhF || { cat: 'All', sub: 'All', brand: 'All' };
+    const f = { cat: 'All', sub: 'All', brand: 'All', term: 'All', day: 'All', ...(st.exhF || {}) };
     const mode = st.exhMode || 'lfl', view = st.exhView || 'cmp', sort = st.exhSort || 'cy', q = (st.exhQ || '').trim().toLowerCase();
     const fmtM = v => this.fmtMoney(v), fmtN = v => this.fmtNum(Math.round(v));
     const dNum = (cy, ly) => ly ? ((cy - ly) / Math.abs(ly)) * 100 : (cy ? 100 : 0);
@@ -6271,8 +6283,14 @@ class Component extends DCLogic {
     const catOptions = uniq(both.map(r => r.cat));
     const subOptions = uniq(both.filter(r => f.cat === 'All' || r.cat === f.cat).map(r => r.sub));
     const brandOptions = uniq(both.filter(r => (f.cat === 'All' || r.cat === f.cat) && (f.sub === 'All' || r.sub === f.sub)).map(r => r.brand));
-    const pass = r => (f.cat === 'All' || r.cat === f.cat) && (f.sub === 'All' || r.sub === f.sub) && (f.brand === 'All' || r.brand === f.brand);
-    const CY = P.cy.filter(pass), LY = lyBase.filter(pass);
+    const tName = t => TERM_NAMES[t] || t || '—';
+    const termOptions = uniq(both.map(r => tName(r.term)));
+    const nDays = Math.max(cyDays.length, lyDays.length);
+    const dayOptions = [{ v: 'All', l: 'All days' }, ...Array.from({ length: nDays }, (_, i) => ({ v: String(i), l: 'Day ' + (i + 1) + (cyDays[i] ? ' · ' + new Date(cyDays[i] + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '') }))];
+    const dSel = f.day === 'All' || +f.day >= nDays ? null : +f.day;
+    const cyDay = dSel === null ? null : cyDays[dSel], lyDay = dSel === null ? null : lyDays[dSel];
+    const pass = r => (f.cat === 'All' || r.cat === f.cat) && (f.sub === 'All' || r.sub === f.sub) && (f.brand === 'All' || r.brand === f.brand) && (f.term === 'All' || tName(r.term) === f.term);
+    const CY = P.cy.filter(r => pass(r) && (dSel === null || r.date === cyDay)), LY = lyBase.filter(r => pass(r) && (dSel === null || r.date === lyDay));
     const agg = (rows, key) => { const m = {}; rows.forEach(r => { const k = key(r); const e = m[k] || (m[k] = { net: 0, qty: 0, cost: 0, rc: new Set(), days: new Set(), r }); e.net += r.net; e.qty += r.qty; e.cost += r.cost; e.rc.add(r.rc); e.days.add(r.date); }); return m; };
     const tot = rows => { const e = agg(rows, () => 'x').x || { net: 0, qty: 0, cost: 0, rc: new Set() }; return { net: e.net, qty: e.qty, cost: e.cost, rc: e.rc.size }; };
     const tc = tot(CY), tl = tot(LY);
@@ -6294,6 +6312,7 @@ class Component extends DCLogic {
       const mk = (lbl, cv, lv, fmt) => ({ cy: fmt(cv), ly: fmt(lv), d: dLab(cv, lv), c: dClr(cv, lv) });
       const p2 = v => v ? v.toFixed(2) : '—', pc = v => v ? v.toFixed(1) + '%' : '—';
       for (let i = 0; i < n; i++) {
+        if (dSel !== null && i !== dSel) continue;
         const z = { net: 0, qty: 0, cost: 0, rc: new Set() };
         const c = cm[cyDays[i]] || z, l = lm[lyDays[i]] || z; const kc = k(c), kl = k(l);
         rows.push({ day: 'Day ' + (i + 1), cyDate: fmtD(cyDays[i]), lyDate: fmtD(lyDays[i]), cyNet: fmtM(c.net), lyNet: fmtM(l.net), diff: diffLab(c.net - l.net), delta: dLab(c.net, l.net), color: dClr(c.net, l.net),
@@ -6399,8 +6418,10 @@ class Component extends DCLogic {
       setExhCat: e => setF({ cat: e.target.value, sub: 'All', brand: 'All' }),
       setExhSub: e => setF({ sub: e.target.value, brand: 'All' }),
       setExhBrand: e => setF({ brand: e.target.value }),
-      exhFiltersDirty: f.cat !== 'All' || f.sub !== 'All' || f.brand !== 'All',
-      clearExhFilters: () => this.setState({ exhF: { cat: 'All', sub: 'All', brand: 'All' } }),
+      exhTermOptions: termOptions, exhDayOptions: dayOptions,
+      setExhTerm: e => setF({ term: e.target.value }), setExhDay: e => setF({ day: e.target.value }),
+      exhFiltersDirty: f.cat !== 'All' || f.sub !== 'All' || f.brand !== 'All' || f.term !== 'All' || f.day !== 'All',
+      clearExhFilters: () => this.setState({ exhF: { cat: 'All', sub: 'All', brand: 'All', term: 'All', day: 'All' } }),
       exhModeLflClass: mode === 'lfl' ? 'btn-primary' : 'btn-ghost', exhModeFullClass: mode === 'full' ? 'btn-primary' : 'btn-ghost',
       setExhLfl: () => this.setState({ exhMode: 'lfl' }), setExhFull: () => this.setState({ exhMode: 'full' }),
       exhWindowLabel: 'CY ' + fmtD(cyDays[0]) + (cyDays.length > 1 ? ' → ' + fmtD(cyLast) : '') + ' (' + cyDays.length + ' day' + (cyDays.length === 1 ? '' : 's') + ')   vs   LY ' + fmtD(lyDays[0]) + (lyDays.length > 1 ? ' → ' + fmtD(lyLast) : '') + ' (' + lyDays.length + ' day' + (lyDays.length === 1 ? '' : 's') + ')',
