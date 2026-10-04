@@ -6280,7 +6280,7 @@ class Component extends DCLogic {
 
   exhibitionData(o) {
     const st = o ? { ...this.state, ...o } : this.state;
-    const TERM_NAMES = { TM50: 'ARB', TM51: 'Stanley', TM52: 'Al Rimaya', TM53: 'Air Rifles', TM54: 'ARB', TM55: 'Nitecore', TM56: 'Al Rimaya', TM57: 'Wander', TM58: 'Al Rimaya', TM59: 'Knives' };
+    const TERM_NAMES = { TM49: 'Air Rifles', TM50: 'ARB', TM51: 'Stanley', TM52: 'Al Rimaya', TM53: 'Air Rifles', TM54: 'ARB', TM55: 'Nitecore', TM56: 'Al Rimaya', TM57: 'Wander', TM58: 'Al Rimaya', TM59: 'Knives' };
     if (!st.exh) return { exhReady: false, exhLoading: true };
     const P = this._exhPrep();
     const fmtD0 = iso => iso ? new Date(iso + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : '—';
