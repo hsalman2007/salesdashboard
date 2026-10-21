@@ -3931,8 +3931,6 @@ class Component extends DCLogic {
     const v = String(u).trim();
     if (v.startsWith('data:image/')) return v;
     if (!/^https?:\/\//i.test(v)) return '';
-    if (v.indexOf('?') !== -1) return '';
-    if (!/\.(jpe?g|png|webp|gif)$/i.test(v)) return '';
     return v;
   }
 
