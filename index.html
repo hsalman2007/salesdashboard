@@ -1054,7 +1054,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <table class="table" style="transform:scale({{tableZoom}});transform-origin:top left;width:{{tableZoomPct}}">
 <thead>
 <tr>
-<th style="text-align:left;position:sticky;left:0;top:0;z-index:3;background:var(--color-surface)">Date</th>
+<th style="text-align:left;position:sticky;left:0;top:0;z-index:3;background:var(--color-surface)">Store</th>
 <sc-for list="{{dailyStoreCols}}" as="s" hint-placeholder-count="0"><th style="white-space:nowrap;position:sticky;top:0;background:var(--color-surface)">{{s}}</th></sc-for>
 <th style="white-space:nowrap;position:sticky;top:0;background:var(--color-surface)">Total</th>
 </tr>
@@ -8184,18 +8184,14 @@ class Component extends DCLogic {
         if (!pivot[b.date]) pivot[b.date] = {};
         pivot[b.date][name] = (pivot[b.date][name] || 0) + b.netSales;
       });
-      dailyStoreCols = Object.keys(netByStore).sort((a, b) => netByStore[b] - netByStore[a]);
-      const dates = Object.keys(pivot).sort();
-      dailyStoreRowsPivot = dates.map(date => {
-        const row = pivot[date];
-        const rowTotal = dailyStoreCols.reduce((a, s) => a + (row[s] || 0), 0);
-        return {
-          date, totalLabel: this.fmtMoney(rowTotal),
-          cells: dailyStoreCols.map(s => ({ label: row[s] ? this.fmtMoney(row[s]) : '\u2014' }))
-        };
-      });
+      const stores = Object.keys(netByStore).sort((a, b) => netByStore[b] - netByStore[a]);
+      dailyStoreCols = Object.keys(pivot).sort();
+      dailyStoreRowsPivot = stores.map(s => ({
+        date: s, totalLabel: this.fmtMoney(netByStore[s] || 0),
+        cells: dailyStoreCols.map(d => ({ label: pivot[d][s] ? this.fmtMoney(pivot[d][s]) : '\u2014' }))
+      }));
       dailyStoreFooter = {
-        cells: dailyStoreCols.map(s => ({ label: this.fmtMoney(netByStore[s] || 0) })),
+        cells: dailyStoreCols.map(d => ({ label: this.fmtMoney(Object.values(pivot[d]).reduce((a, v) => a + v, 0)) })),
         totalLabel: this.fmtMoney(Object.values(netByStore).reduce((a, v) => a + v, 0))
       };
     }
@@ -9367,7 +9363,7 @@ class Component extends DCLogic {
       setDailyViewByDay: () => this.setState({ dailyView: 'byDay' }),
       setDailyViewByStore: () => this.setState({ dailyView: 'byStore' }),
       dailyStoreCols, dailyStoreRowsPivot, dailyStoreFooter,
-      dailyStoreCountLabel: dailyStoreCols.length + ' store(s) \u00b7 ' + dailyStoreRowsPivot.length + ' day(s) \u00b7 net sales per store per day',
+      dailyStoreCountLabel: dailyStoreRowsPivot.length + ' store(s) \u00b7 ' + dailyStoreCols.length + ' day(s) \u00b7 net sales per store per day',
       kpiCards, dailyBars, dailyTrend, regionBars, topStores, topCategories, topStoresKpi,
       chartRangeLabel: f.dateRange ? (f.dateRange.start + ' \u2013 ' + f.dateRange.end) : (chartMonth ? new Date(chartMonth + '-02').toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'current month'),
       isShrinkage: st.page === 'shrinkage' && isAdminUser,
