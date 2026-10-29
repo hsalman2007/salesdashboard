@@ -2311,24 +2311,6 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <sc-for list="{{yfMonthOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt.v}}">{{opt.l}}</option></sc-for>
 </select>
 </div>
-<div class="field" style="min-width:160px">
-<label>Category</label>
-<select class="input" value="{{yfF.cat}}" onChange="{{setYfCat}}">
-<sc-for list="{{yfCatOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
-</select>
-</div>
-<div class="field" style="min-width:160px">
-<label>Sub-category</label>
-<select class="input" value="{{yfF.sub}}" onChange="{{setYfSub}}">
-<sc-for list="{{yfSubOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
-</select>
-</div>
-<div class="field" style="min-width:150px">
-<label>Brand</label>
-<select class="input" value="{{yfF.brand}}" onChange="{{setYfBrand}}">
-<sc-for list="{{yfBrandOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
-</select>
-</div>
 <sc-if value="{{yfFiltersDirty}}" hint-placeholder-val="{{false}}">
 <button class="btn btn-ghost" onClick="{{clearYfFilters}}">Clear filters</button>
 </sc-if>
@@ -6323,7 +6305,7 @@ class Component extends DCLogic {
     const f = { region: 'All', store: 'All', month: 'All', cat: 'All', sub: 'All', brand: 'All', ...(st.yfF || {}) };
     const lockedRegion = st.auth && st.auth.region !== 'All' ? st.auth.region : null, lockedStore = this.storeLock();
     const hideMu = !!lockedRegion;
-    const mode = st.yfMode || 'lfl', view = st.yfView || 'summary';
+    const mode = st.yfMode || 'lfl', view = ['cat', 'sub', 'brand', 'items'].includes(st.yfView) ? 'summary' : (st.yfView || 'summary');
     const fmtM = v => this.fmtMoney(v), fmtN = v => this.fmtNum(v);
     const dNum = (cy, ly) => ly ? ((cy - ly) / Math.abs(ly)) * 100 : (cy ? 100 : 0);
     const dLab = (cy, ly) => (!ly && !cy) ? '—' : !ly ? 'new' : (dNum(cy, ly) >= 0 ? '+' : '') + dNum(cy, ly).toFixed(1) + '%';
@@ -6344,7 +6326,7 @@ class Component extends DCLogic {
       return f.store === 'All' || code === f.store;
     };
     const keyOk = ki => { const p = P.keyParts[ki]; return (f.cat === 'All' || p[0] === f.cat) && (f.sub === 'All' || p[1] === f.sub) && (f.brand === 'All' || p[2] === f.brand); };
-    const hasCat = f.cat !== 'All' || f.sub !== 'All' || f.brand !== 'All';
+    const hasCat = false;
     const hasStore = f.store !== 'All' || f.region !== 'All';
     const splitViews = { summary: 1, monthly: 1, daily: 1, stores: 1, region: 1 };
     const useDim = hasCat && (view === 'summary' || view === 'monthly' || view === 'daily');
@@ -6483,7 +6465,7 @@ class Component extends DCLogic {
     const dimHead = { cat: 'Category', sub: 'Sub-category', brand: 'Brand', items: 'Item' }[view] || '';
     return {
       yfReady: true, yfPeriodLabel: periodLabel, yfKpis: kpis, yfNotes: notes.map(t => ({ t })), yfHasNotes: notes.length > 0,
-      yfTabs: [tab('summary', 'Summary'), tab('monthly', 'Monthly'), tab('daily', 'Daily'), tab('stores', 'By Store'), tab('region', 'By Region'), tab('cat', 'Category'), tab('sub', 'Sub-Category'), tab('brand', 'Brand'), tab('items', 'Items'), tab('customers', 'BO Customers')],
+      yfTabs: [tab('summary', 'Summary'), tab('monthly', 'Monthly'), tab('daily', 'Daily'), tab('stores', 'By Store'), tab('region', 'By Region'), tab('customers', 'BO Customers')],
       yfModeLflClass: mode === 'lfl' ? 'btn-primary' : 'btn-secondary', yfModeFullClass: mode === 'full' ? 'btn-primary' : 'btn-secondary',
       setYfLfl: () => this.setState({ yfMode: 'lfl' }), setYfFull: () => this.setState({ yfMode: 'full' }),
       yfF: f, yfRegionOptions: lockedRegion ? [lockedRegion] : ['All', ...regions], yfStoreOptions: [{ v: 'All', l: 'All' }, ...storeOpts],
