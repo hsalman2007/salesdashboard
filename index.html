@@ -2283,6 +2283,168 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </section>
 </sc-if>
 
+<sc-if value="{{isYf}}" hint-placeholder-val="{{false}}">
+<section>
+<div style="display:flex;flex-wrap:wrap;gap:var(--space-4);align-items:flex-end;margin-bottom:var(--space-3)">
+<div class="field">
+<label>Comparison</label>
+<div style="display:flex;gap:6px">
+<button class="btn {{yfModeLflClass}}" onClick="{{setYfLfl}}" style="white-space:nowrap">LY same period</button>
+<button class="btn {{yfModeFullClass}}" onClick="{{setYfFull}}" style="white-space:nowrap">LY full year</button>
+</div>
+</div>
+<div class="field" style="min-width:150px">
+<label>Region</label>
+<select class="input" value="{{yfF.region}}" onChange="{{setYfRegion}}">
+<sc-for list="{{yfRegionOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
+</select>
+</div>
+<div class="field" style="min-width:190px">
+<label>Store</label>
+<select class="input" value="{{yfF.store}}" onChange="{{setYfStore}}">
+<sc-for list="{{yfStoreOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt.v}}">{{opt.l}}</option></sc-for>
+</select>
+</div>
+<div class="field" style="min-width:130px">
+<label>Month</label>
+<select class="input" value="{{yfF.month}}" onChange="{{setYfMonth}}">
+<sc-for list="{{yfMonthOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt.v}}">{{opt.l}}</option></sc-for>
+</select>
+</div>
+<div class="field" style="min-width:160px">
+<label>Category</label>
+<select class="input" value="{{yfF.cat}}" onChange="{{setYfCat}}">
+<sc-for list="{{yfCatOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
+</select>
+</div>
+<div class="field" style="min-width:160px">
+<label>Sub-category</label>
+<select class="input" value="{{yfF.sub}}" onChange="{{setYfSub}}">
+<sc-for list="{{yfSubOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
+</select>
+</div>
+<div class="field" style="min-width:150px">
+<label>Brand</label>
+<select class="input" value="{{yfF.brand}}" onChange="{{setYfBrand}}">
+<sc-for list="{{yfBrandOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
+</select>
+</div>
+<sc-if value="{{yfFiltersDirty}}" hint-placeholder-val="{{false}}">
+<button class="btn btn-ghost" onClick="{{clearYfFilters}}">Clear filters</button>
+</sc-if>
+</div>
+
+<sc-if value="{{yfLoading}}" hint-placeholder-val="{{true}}">
+<div class="card elev-sm" style="text-align:center;color:var(--color-neutral-500);font-size:14px">Loading full-year data…</div>
+</sc-if>
+<sc-if value="{{yfMissing}}" hint-placeholder-val="{{false}}">
+<div class="card elev-sm" style="text-align:center;color:var(--color-neutral-500);font-size:14px;text-wrap:pretty">No full-year data yet. Open the Data Importer, use the “YOY Comp Full” card to upload retail and backoffice files for FY 2025-26 and 2026-27, then put <code>yoy-full.json</code> in <code>data/</code>.</div>
+</sc-if>
+
+<sc-if value="{{yfReady}}" hint-placeholder-val="{{false}}">
+<div style="font-size:13px;color:var(--color-neutral-500);margin-bottom:var(--space-4)">{{yfPeriodLabel}}</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:var(--space-4);margin-bottom:var(--space-5)">
+<sc-for list="{{yfKpis}}" as="k" hint-placeholder-count="6">
+<div class="card elev-sm" style="min-width:0">
+<div class="card-kicker">{{k.label}}</div>
+<div class="card-title" style="font-size:24px;margin-top:2px;white-space:nowrap">{{k.value}}</div>
+<div class="card-meta" style="margin-top:2px">LY {{k.ly}}</div>
+<div style="font-size:13px;font-weight:700;margin-top:2px;color:{{k.color}}">{{k.delta}}</div>
+</div>
+</sc-for>
+</div>
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:var(--space-4)">
+<sc-for list="{{yfTabs}}" as="t" hint-placeholder-count="10"><button class="btn {{t.cls}}" onClick="{{t.onClick}}">{{t.label}}</button></sc-for>
+</div>
+
+<sc-if value="{{yfHasNotes}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:var(--space-4)">
+<sc-for list="{{yfNotes}}" as="n" hint-placeholder-count="1"><div style="font-size:12px;color:var(--color-neutral-500);text-wrap:pretty">{{n.t}}</div></sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{yfIsSummary}}" hint-placeholder-val="{{false}}">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:var(--space-5)">
+<sc-for list="{{yfCmpGroups}}" as="g" hint-placeholder-count="3">
+<div class="card elev-sm" style="padding:0;overflow-x:auto">
+<div style="padding:12px 16px;font-weight:700">{{g.title}}</div>
+<table class="table">
+<thead><tr><th style="text-align:left">Measure</th><th>Last year</th><th>Current year</th><th>Diff</th><th>Δ</th></tr></thead>
+<tbody>
+<sc-for list="{{g.rows}}" as="r" hint-placeholder-count="5">
+<tr><td style="text-align:left;font-weight:600">{{r.label}}</td><td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.ly}}</td><td style="white-space:nowrap;font-weight:700">{{r.cy}}</td><td style="white-space:nowrap;color:{{r.color}}">{{r.diff}}</td><td style="white-space:nowrap;font-weight:700;color:{{r.color}}">{{r.delta}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{yfIsSplit}}" hint-placeholder-val="{{false}}">
+<div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:6px">{{yfSplitCount}}</div>
+<div class="card elev-sm" style="padding:0;overflow:auto;max-height:75vh">
+<table class="table">
+<thead>
+<tr><th rowspan="2" style="text-align:left;vertical-align:bottom;position:sticky;left:0;z-index:3;background:var(--color-surface)">{{yfSplitHead}}</th><th colspan="3" style="text-align:center;border-right:1px solid var(--color-divider)">Retail net</th><th colspan="3" style="text-align:center;border-right:1px solid var(--color-divider)">Backoffice net</th><th colspan="4" style="text-align:center;border-right:1px solid var(--color-divider)">Total net</th><th colspan="3" style="text-align:center;border-right:1px solid var(--color-divider)">Retail receipts</th><th colspan="2" style="text-align:center;border-right:1px solid var(--color-divider)">Retail ATV</th><sc-if value="{{yfShowMu}}" hint-placeholder-val="{{true}}"><th colspan="2" style="text-align:center">Retail markup %</th></sc-if></tr>
+<tr><th>LY</th><th>CY</th><th style="border-right:1px solid var(--color-divider)">Δ%</th><th>LY</th><th>CY</th><th style="border-right:1px solid var(--color-divider)">Δ%</th><th>LY</th><th>CY</th><th>Diff</th><th style="border-right:1px solid var(--color-divider)">Δ%</th><th>LY</th><th>CY</th><th style="border-right:1px solid var(--color-divider)">Δ%</th><th>LY</th><th style="border-right:1px solid var(--color-divider)">CY</th><sc-if value="{{yfShowMu}}" hint-placeholder-val="{{true}}"><th>LY</th><th>CY</th></sc-if></tr>
+</thead>
+<tbody>
+<sc-for list="{{yfSplitRows}}" as="r" hint-placeholder-count="6">
+<tr><td style="text-align:left;white-space:nowrap;position:sticky;left:0;background:var(--color-surface)"><div style="font-weight:600">{{r.name}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{r.sub}}</div></td><td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.rLy}}</td><td style="white-space:nowrap;font-weight:600">{{r.rCy}}</td><td style="white-space:nowrap;font-weight:700;color:{{r.rC}};border-right:1px solid var(--color-divider)">{{r.rD}}</td><td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.bLy}}</td><td style="white-space:nowrap;font-weight:600">{{r.bCy}}</td><td style="white-space:nowrap;font-weight:700;color:{{r.bC}};border-right:1px solid var(--color-divider)">{{r.bD}}</td><td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.tLy}}</td><td style="white-space:nowrap;font-weight:700">{{r.tCy}}</td><td style="white-space:nowrap;color:{{r.tC}}">{{r.tDiff}}</td><td style="white-space:nowrap;font-weight:700;color:{{r.tC}};border-right:1px solid var(--color-divider)">{{r.tD}}</td><td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.rcLy}}</td><td style="white-space:nowrap;font-weight:600">{{r.rcCy}}</td><td style="white-space:nowrap;font-weight:700;color:{{r.rcC}};border-right:1px solid var(--color-divider)">{{r.rcD}}</td><td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.atvLy}}</td><td style="white-space:nowrap;font-weight:600;border-right:1px solid var(--color-divider)">{{r.atvCy}}</td><sc-if value="{{yfShowMu}}" hint-placeholder-val="{{true}}"><td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.muLy}}</td><td style="white-space:nowrap;font-weight:600">{{r.muCy}}</td></sc-if></tr>
+</sc-for>
+</tbody>
+<tfoot><tr style="border-top:2px solid var(--color-divider)"><td style="font-weight:700;text-align:left;position:sticky;left:0;background:var(--color-surface)">Total</td><td style="white-space:nowrap;font-weight:700;color:var(--color-neutral-500)">{{yfSplitFoot.rLy}}</td><td style="white-space:nowrap;font-weight:700">{{yfSplitFoot.rCy}}</td><td style="white-space:nowrap;font-weight:700;color:{{yfSplitFoot.rC}};border-right:1px solid var(--color-divider)">{{yfSplitFoot.rD}}</td><td style="white-space:nowrap;font-weight:700;color:var(--color-neutral-500)">{{yfSplitFoot.bLy}}</td><td style="white-space:nowrap;font-weight:700">{{yfSplitFoot.bCy}}</td><td style="white-space:nowrap;font-weight:700;color:{{yfSplitFoot.bC}};border-right:1px solid var(--color-divider)">{{yfSplitFoot.bD}}</td><td style="white-space:nowrap;font-weight:700;color:var(--color-neutral-500)">{{yfSplitFoot.tLy}}</td><td style="white-space:nowrap;font-weight:700">{{yfSplitFoot.tCy}}</td><td style="white-space:nowrap;font-weight:700;color:{{yfSplitFoot.tC}}">{{yfSplitFoot.tDiff}}</td><td style="white-space:nowrap;font-weight:700;color:{{yfSplitFoot.tC}};border-right:1px solid var(--color-divider)">{{yfSplitFoot.tD}}</td><td style="white-space:nowrap;font-weight:700;color:var(--color-neutral-500)">{{yfSplitFoot.rcLy}}</td><td style="white-space:nowrap;font-weight:700">{{yfSplitFoot.rcCy}}</td><td style="white-space:nowrap;font-weight:700;color:{{yfSplitFoot.rcC}};border-right:1px solid var(--color-divider)">{{yfSplitFoot.rcD}}</td><td style="white-space:nowrap;font-weight:700;color:var(--color-neutral-500)">{{yfSplitFoot.atvLy}}</td><td style="white-space:nowrap;font-weight:700;border-right:1px solid var(--color-divider)">{{yfSplitFoot.atvCy}}</td><sc-if value="{{yfShowMu}}" hint-placeholder-val="{{true}}"><td style="white-space:nowrap;font-weight:700;color:var(--color-neutral-500)">{{yfSplitFoot.muLy}}</td><td style="white-space:nowrap;font-weight:700">{{yfSplitFoot.muCy}}</td></sc-if></tr></tfoot>
+</table>
+</div>
+</sc-if>
+
+<sc-if value="{{yfIsDim}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-wrap:wrap;gap:var(--space-3);align-items:center;margin-bottom:6px">
+<div style="font-size:12px;color:var(--color-neutral-500)">{{yfDimCount}}{{yfPageLabel}}</div>
+<sc-if value="{{yfIsItems}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;gap:6px;align-items:center;margin-left:auto">
+<input class="input" placeholder="Search SKU, item, brand…" value="{{yfQ}}" onChange="{{setYfQ}}" style="min-width:220px;max-width:320px">
+<button class="btn btn-secondary" onClick="{{yfPrev}}" disabled="{{yfPrevOff}}">‹ Prev</button>
+<button class="btn btn-secondary" onClick="{{yfNext}}" disabled="{{yfNextOff}}">Next ›</button>
+</div>
+</sc-if>
+</div>
+<div class="card elev-sm" style="padding:0;overflow:auto;max-height:75vh">
+<table class="table">
+<thead>
+<tr><th rowspan="2" style="vertical-align:bottom">#</th><th rowspan="2" style="text-align:left;vertical-align:bottom">{{yfDimHead}}</th><th colspan="4" style="text-align:center;border-right:1px solid var(--color-divider)">Retail net sales</th><th colspan="3" style="text-align:center;border-right:1px solid var(--color-divider)">Units</th><th colspan="2" style="text-align:center;border-right:1px solid var(--color-divider)">ASP</th><sc-if value="{{yfShowMu}}" hint-placeholder-val="{{true}}"><th colspan="2" style="text-align:center;border-right:1px solid var(--color-divider)">Markup %</th></sc-if><th rowspan="2" style="vertical-align:bottom">CY share</th></tr>
+<tr><th>LY</th><th>CY</th><th>Diff</th><th style="border-right:1px solid var(--color-divider)">Δ%</th><th>LY</th><th>CY</th><th style="border-right:1px solid var(--color-divider)">Δ%</th><th>LY</th><th style="border-right:1px solid var(--color-divider)">CY</th><sc-if value="{{yfShowMu}}" hint-placeholder-val="{{true}}"><th>LY</th><th style="border-right:1px solid var(--color-divider)">CY</th></sc-if></tr>
+</thead>
+<tbody>
+<sc-for list="{{yfDimRows}}" as="r" hint-placeholder-count="8">
+<tr><td style="color:var(--color-neutral-500)">{{r.rank}}</td><td style="text-align:left"><div style="display:flex;align-items:center;gap:10px;min-width:200px"><sc-if value="{{r.isItem}}" hint-placeholder-val="{{false}}"><img src="{{r.img}}" alt="" style="width:40px;height:40px;object-fit:contain;border-radius:6px;background:#252b3a;flex:none"></sc-if><div><div style="font-weight:600">{{r.name}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{r.sub}}</div></div></div></td><td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.ly}}</td><td style="white-space:nowrap;font-weight:700">{{r.cy}}</td><td style="white-space:nowrap;color:{{r.c}}">{{r.diff}}</td><td style="white-space:nowrap;font-weight:700;color:{{r.c}};border-right:1px solid var(--color-divider)">{{r.d}}</td><td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.qLy}}</td><td style="white-space:nowrap;font-weight:600">{{r.qCy}}</td><td style="white-space:nowrap;font-weight:700;color:{{r.qC}};border-right:1px solid var(--color-divider)">{{r.qD}}</td><td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.aspLy}}</td><td style="white-space:nowrap;font-weight:600;border-right:1px solid var(--color-divider)">{{r.aspCy}}</td><sc-if value="{{yfShowMu}}" hint-placeholder-val="{{true}}"><td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.muLy}}</td><td style="white-space:nowrap;font-weight:600;border-right:1px solid var(--color-divider)">{{r.muCy}}</td></sc-if><td style="white-space:nowrap">{{r.share}}</td></tr>
+</sc-for>
+</tbody>
+<tfoot><tr style="border-top:2px solid var(--color-divider)"><td></td><td style="font-weight:700;text-align:left">Total</td><td style="white-space:nowrap;font-weight:700;color:var(--color-neutral-500)">{{yfDimFoot.ly}}</td><td style="white-space:nowrap;font-weight:700">{{yfDimFoot.cy}}</td><td style="white-space:nowrap;font-weight:700;color:{{yfDimFoot.c}}">{{yfDimFoot.diff}}</td><td style="white-space:nowrap;font-weight:700;color:{{yfDimFoot.c}};border-right:1px solid var(--color-divider)">{{yfDimFoot.d}}</td><td style="white-space:nowrap;font-weight:700;color:var(--color-neutral-500)">{{yfDimFoot.qLy}}</td><td style="white-space:nowrap;font-weight:700">{{yfDimFoot.qCy}}</td><td style="white-space:nowrap;font-weight:700;color:{{yfDimFoot.qC}};border-right:1px solid var(--color-divider)">{{yfDimFoot.qD}}</td><td style="white-space:nowrap;font-weight:700;color:var(--color-neutral-500)">{{yfDimFoot.aspLy}}</td><td style="white-space:nowrap;font-weight:700;border-right:1px solid var(--color-divider)">{{yfDimFoot.aspCy}}</td><sc-if value="{{yfShowMu}}" hint-placeholder-val="{{true}}"><td style="white-space:nowrap;font-weight:700;color:var(--color-neutral-500)">{{yfDimFoot.muLy}}</td><td style="white-space:nowrap;font-weight:700;border-right:1px solid var(--color-divider)">{{yfDimFoot.muCy}}</td></sc-if><td style="font-weight:700">100%</td></tr></tfoot>
+</table>
+</div>
+</sc-if>
+
+<sc-if value="{{yfIsCust}}" hint-placeholder-val="{{false}}">
+<div class="card elev-sm" style="padding:0;overflow:auto;max-height:75vh">
+<table class="table">
+<thead><tr><th>#</th><th style="text-align:left">Customer</th><th style="text-align:left">Type</th><th>LY net</th><th>CY net</th><th>Diff</th><th>Δ%</th><th>LY invoices</th><th>CY invoices</th><th>CY share</th></tr></thead>
+<tbody>
+<sc-for list="{{yfCustRows}}" as="r" hint-placeholder-count="8">
+<tr><td style="color:var(--color-neutral-500)">{{r.rank}}</td><td style="text-align:left;font-weight:600;min-width:200px">{{r.name}}</td><td style="text-align:left;white-space:nowrap">{{r.type}}</td><td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.ly}}</td><td style="white-space:nowrap;font-weight:700">{{r.cy}}</td><td style="white-space:nowrap;color:{{r.c}}">{{r.diff}}</td><td style="white-space:nowrap;font-weight:700;color:{{r.c}}">{{r.d}}</td><td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.invLy}}</td><td style="white-space:nowrap;font-weight:600">{{r.invCy}}</td><td style="white-space:nowrap">{{r.share}}</td></tr>
+</sc-for>
+</tbody>
+<tfoot><tr style="border-top:2px solid var(--color-divider)"><td></td><td style="font-weight:700;text-align:left">Total</td><td></td><td style="white-space:nowrap;font-weight:700;color:var(--color-neutral-500)">{{yfCustFoot.ly}}</td><td style="white-space:nowrap;font-weight:700">{{yfCustFoot.cy}}</td><td style="white-space:nowrap;font-weight:700;color:{{yfCustFoot.c}}">{{yfCustFoot.diff}}</td><td style="white-space:nowrap;font-weight:700;color:{{yfCustFoot.c}}">{{yfCustFoot.d}}</td><td style="white-space:nowrap;font-weight:700;color:var(--color-neutral-500)">{{yfCustFoot.invLy}}</td><td style="white-space:nowrap;font-weight:700">{{yfCustFoot.invCy}}</td><td style="font-weight:700">100%</td></tr></tfoot>
+</table>
+</div>
+</sc-if>
+</sc-if>
+</section>
+</sc-if>
+
 <sc-if value="{{isExh}}" hint-placeholder-val="{{false}}">
 <section>
 <div style="display:flex;flex-wrap:wrap;gap:var(--space-4);align-items:flex-end;margin-bottom:var(--space-5)">
@@ -3728,7 +3890,7 @@ class Component extends DCLogic {
     'Gallery': 'غاليري', 'B&Q': 'بي آند كيو', 'Fordeal': 'فورديل', 'Fadfad': 'فدفد', 'FadFad Store': 'فرع فدفد',
     'Manarah': 'المنارة', 'Jahez': 'جاهز', 'JAHEZ': 'جاهز', 'JAHEZWH': 'مستودع جاهز', 'Trendyol': 'ترينديول',
     'E-Market': 'المتجر الإلكتروني', 'Dark Store': 'المتجر المعتم',
-    'Baljuraishi': 'بلجرشي', 'Beljarshi': 'بلجرشي', 'Al Jouf': 'الجوف', 'Jouf': 'الجوف', 'Buraidah': 'بريدة',
+    'Baljuraishi': 'بلجرشي', 'Beljarshi': 'بلجرشي', 'Baljurashi': 'بلجرشي', 'Al Jouf': 'الجوف', 'Jouf': 'الجوف', 'Buraidah': 'بريدة',
     'Al Ula': 'العلا', 'Unayzah': 'عنيزة', 'Unaiza': 'عنيزة', 'Uniza': 'عنيزة', 'Sebia': 'صبيا', 'Sabya': 'صبيا',
     'Gazan': 'جيزان', 'Nagran': 'نجران', 'Khamis Mushait': 'خميس مشيط', 'Khamis Mushayt': 'خميس مشيط',
     'Prince Sultan': 'الأمير سلطان', 'King Fahad': 'الملك فهد', 'Zahran': 'الظهران', 'Ihsa': 'الأحساء',
@@ -3885,6 +4047,7 @@ class Component extends DCLogic {
     if (this.state.page === 'consumables' && !this.state.bagInvoices && !this.state.bagLoading && (this._bagTries || 0) < 4) this._ensureBagInvoices();
     if (this.state.page === 'exhibition' && !this.state.exh && !this.state.exhLoading && (this._exhTries || 0) < 4) this._ensureExhibition();
     if (this.state.page === 'staffRank' && !this.state.staffSales && !this.state.staffLoading && (this._staffTries || 0) < 4) this._ensureStaffSales();
+    if (this.state.page === 'yoyFull' && !this.state.yf && !this.state.yfLoading && !this.state.yfMissing && (this._yfTries || 0) < 4) this._ensureYoyFull();
   }
 
   componentDidMount() {
@@ -4480,7 +4643,7 @@ class Component extends DCLogic {
     return name;
   }
 
-  goTo(page) { return () => { if (page === 'linkSales' && !this.state.auth) return; if (page === 'yoy' || page === 'event') this._ensureYoy(); if (page === 'linkSales') this._ensureLinkPairs(); if (page === 'staffRank') this._ensureStaffSales(); if (page === 'consumables') this._ensureBagInvoices(); this.setState({ page }); }; }
+  goTo(page) { return () => { if (page === 'linkSales' && !this.state.auth) return; if (page === 'yoy' || page === 'event') this._ensureYoy(); if (page === 'linkSales') this._ensureLinkPairs(); if (page === 'staffRank') this._ensureStaffSales(); if (page === 'consumables') this._ensureBagInvoices(); if (page === 'yoyFull') this._ensureYoyFull(); this.setState({ page }); }; }
 
   // ===== Daily snapshot (admin / mathew only) =====
   snapshotData(date) {
@@ -6121,6 +6284,222 @@ class Component extends DCLogic {
       (Array.isArray(m) ? m : []).forEach(x => { const id = String(x.id || x.staffId || x.code || ''); if (id) names[id] = x.name || x.nameEn || x.staffName || ''; });
       this.setState({ exh: d, exhNames: names, exhLoading: false });
     } catch (e) { this.setState({ exhLoading: false }); }
+  }
+
+  async _ensureYoyFull() {
+    if (this.state.yf || this.state.yfLoading) return;
+    this._yfTries = (this._yfTries || 0) + 1;
+    this.setState({ yfLoading: true });
+    try {
+      const r = await fetch('data/yoy-full.json', { cache: 'no-store' });
+      this.setState({ yf: r.ok ? await r.json() : null, yfMissing: !r.ok, yfLoading: false });
+    } catch (e) { this.setState({ yfLoading: false, yfMissing: true }); }
+  }
+
+  _yfPrepare() {
+    const Y = this.state.yf;
+    if (this._yfP && this._yfP.src === Y) return this._yfP;
+    const cyY = +Y.cyStart.slice(0, 4);
+    const fyOf = iso => { const y = +iso.slice(0, 4), m = +iso.slice(5, 7); return m >= 5 ? y : y - 1; };
+    const days = Y.days.map(iso => ({ iso, cy: fyOf(iso) === cyY, fm: (+iso.slice(5, 7) + 7) % 12, mmdd: iso.slice(5) }));
+    let cut = '';
+    Y.sd.forEach(r => { const d = days[r[0]]; if (d.cy && d.iso > cut) cut = d.iso; });
+    Y.bo.forEach(r => { const d = days[r[0]]; if (d.cy && d.iso > cut) cut = d.iso; });
+    const lyCut = cut ? (+cut.slice(0, 4) - 1) + cut.slice(4) : '';
+    const months = (Y.months || []).map(m => ({ m, cy: fyOf(m + '-01') === cyY, fm: (+m.slice(5, 7) + 7) % 12 }));
+    const keyParts = Y.keys.map(k => k.split('|'));
+    // LY item rows for the cut month get scaled by the category-key's day-level LY share up to the cut
+    const cutM = lyCut.slice(0, 7), kTo = {}, kAll = {};
+    Y.dim.forEach(r => { const d = days[r[0]]; if (d.cy || d.iso.slice(0, 7) !== cutM) return; kAll[r[1]] = (kAll[r[1]] || 0) + r[2]; if (d.iso <= lyCut) kTo[r[1]] = (kTo[r[1]] || 0) + r[2]; });
+    const keyIdx = {}; Y.keys.forEach((k, i) => keyIdx[k] = i);
+    this._yfP = { src: Y, cyY, days, cut, lyCut, cutM, months, keyParts, kTo, kAll, keyIdx };
+    return this._yfP;
+  }
+
+  yoyFullData() {
+    const st = this.state, Y = st.yf;
+    if (!Y) return { yfReady: false };
+    const P = this._yfPrepare();
+    const f = { region: 'All', store: 'All', month: 'All', cat: 'All', sub: 'All', brand: 'All', ...(st.yfF || {}) };
+    const lockedRegion = st.auth && st.auth.region !== 'All' ? st.auth.region : null, lockedStore = this.storeLock();
+    const hideMu = !!lockedRegion;
+    const mode = st.yfMode || 'lfl', view = st.yfView || 'summary';
+    const fmtM = v => this.fmtMoney(v), fmtN = v => this.fmtNum(v);
+    const dNum = (cy, ly) => ly ? ((cy - ly) / Math.abs(ly)) * 100 : (cy ? 100 : 0);
+    const dLab = (cy, ly) => (!ly && !cy) ? '—' : !ly ? 'new' : (dNum(cy, ly) >= 0 ? '+' : '') + dNum(cy, ly).toFixed(1) + '%';
+    const dClr = (cy, ly) => (!ly && !cy) ? 'var(--color-neutral-500)' : dNum(cy, ly) > 0 ? 'var(--color-positive, #4caf7d)' : dNum(cy, ly) < 0 ? 'var(--color-negative, #e2705f)' : 'var(--color-neutral-500)';
+    const diffLab = v => (v >= 0 ? '+' : '−') + fmtM(Math.abs(v));
+    const mu = (n, c) => c ? (100 * (n - c) / c).toFixed(1) + '%' : '—';
+    const monthName = fm => ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr'][fm];
+    const fmtD = iso => new Date(iso + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+    const sMeta = code => { const s = this.storeIndex && this.storeIndex[code] || {}; return { name: s.shortName || s.nameEn || code || '—', region: s.region || 'Other' }; };
+
+    const monthOk = fm => f.month === 'All' || +f.month === fm;
+    const dayOk = di => { const d = P.days[di]; if (!monthOk(d.fm)) return false; return d.cy || mode === 'full' || d.iso <= P.lyCut; };
+    const storeOk = code => {
+      if (lockedStore && code !== lockedStore) return false;
+      const reg = sMeta(code).region;
+      if (lockedRegion && reg !== lockedRegion) return false;
+      if (f.region !== 'All' && reg !== f.region) return false;
+      return f.store === 'All' || code === f.store;
+    };
+    const keyOk = ki => { const p = P.keyParts[ki]; return (f.cat === 'All' || p[0] === f.cat) && (f.sub === 'All' || p[1] === f.sub) && (f.brand === 'All' || p[2] === f.brand); };
+    const hasCat = f.cat !== 'All' || f.sub !== 'All' || f.brand !== 'All';
+    const hasStore = f.store !== 'All' || f.region !== 'All';
+    const splitViews = { summary: 1, monthly: 1, daily: 1, stores: 1, region: 1 };
+    const useDim = hasCat && (view === 'summary' || view === 'monthly' || view === 'daily');
+
+    const z = () => ({ net: 0, qty: 0, cost: 0, rc: 0, bo: 0, boGross: 0, boRet: 0, boInv: 0, boCust: new Set() });
+    const groups = new Map();
+    const G = k => { let g = groups.get(k); if (!g) groups.set(k, g = { cy: z(), ly: z() }); return g; };
+    const tot = { cy: z(), ly: z() };
+    const gKey = (di, code) => view === 'monthly' ? P.days[di].fm : view === 'daily' ? P.days[di].mmdd : view === 'stores' ? code : view === 'region' ? sMeta(code).region : 'all';
+
+    if (splitViews[view]) {
+      if (useDim) {
+        Y.dim.forEach(r => { if (!dayOk(r[0]) || !keyOk(r[1])) return; const y = P.days[r[0]].cy ? 'cy' : 'ly'; [G(gKey(r[0], ''))[y], tot[y]].forEach(a => { a.net += r[2]; a.qty += r[3]; a.cost += r[4]; }); });
+      } else {
+        Y.sd.forEach(r => { const code = Y.stores[r[1]]; if (!dayOk(r[0]) || !storeOk(code)) return; const y = P.days[r[0]].cy ? 'cy' : 'ly'; [G(gKey(r[0], code))[y], tot[y]].forEach(a => { a.net += r[2]; a.qty += r[3]; a.cost += r[4]; a.rc += r[5]; }); });
+      }
+      if (!useDim) Y.bo.forEach(r => { const code = Y.stores[r[1]]; if (!dayOk(r[0]) || !storeOk(code)) return; const y = P.days[r[0]].cy ? 'cy' : 'ly'; [G(gKey(r[0], code))[y], tot[y]].forEach(a => { a.bo += r[5]; if (r[5] >= 0) { a.boGross += r[5]; a.boInv++; } else a.boRet -= r[5]; a.boCust.add(r[2]); }); });
+    }
+
+    const splitRow = (name, sub, g) => {
+      const c = g.cy, l = g.ly, tc = c.net + c.bo, tl = l.net + l.bo;
+      return { name, sub,
+        rLy: fmtM(l.net), rCy: fmtM(c.net), rD: dLab(c.net, l.net), rC: dClr(c.net, l.net),
+        bLy: useDim ? '—' : fmtM(l.bo), bCy: useDim ? '—' : fmtM(c.bo), bD: useDim ? '—' : dLab(c.bo, l.bo), bC: dClr(c.bo, l.bo),
+        tLy: fmtM(tl), tCy: fmtM(tc), tDiff: diffLab(tc - tl), tD: dLab(tc, tl), tC: dClr(tc, tl),
+        rcLy: useDim ? '—' : fmtN(l.rc), rcCy: useDim ? '—' : fmtN(c.rc), rcD: useDim ? '—' : dLab(c.rc, l.rc), rcC: dClr(c.rc, l.rc),
+        atvLy: !useDim && l.rc ? fmtM(l.net / l.rc) : '—', atvCy: !useDim && c.rc ? fmtM(c.net / c.rc) : '—',
+        muLy: mu(l.net, l.cost), muCy: mu(c.net, c.cost), sortV: tc };
+    };
+
+    let splitRows = [], dimRows = [], custRows = [], cmpGroups = [], notes = [], dimFoot = null, custFoot = null, pageInfo = null;
+    const yrs = { cy: P.cyY, ly: P.cyY - 1 };
+    if (view === 'monthly') {
+      splitRows = [...groups.keys()].sort((a, b) => a - b).map(fm => splitRow(monthName(fm), (fm >= 8 ? yrs.cy + 1 : yrs.cy) + ' vs ' + (fm >= 8 ? yrs.ly + 1 : yrs.ly) + (mode === 'lfl' && P.lyCut && fm === (+P.lyCut.slice(5, 7) + 7) % 12 ? ' · to ' + +P.lyCut.slice(8) + ' ' + monthName(fm) : ''), groups.get(fm)));
+    } else if (view === 'daily') {
+      const order = mm => (+mm.slice(0, 2) + 7) % 12 * 100 + +mm.slice(3);
+      splitRows = [...groups.keys()].sort((a, b) => order(a) - order(b)).map(mm => { const fm = (+mm.slice(0, 2) + 7) % 12, yc = fm >= 8 ? yrs.cy + 1 : yrs.cy; return splitRow(fmtD(yc + '-' + mm), 'LY ' + fmtD((yc - 1) + '-' + mm), groups.get(mm)); });
+    } else if (view === 'stores') {
+      splitRows = [...groups.keys()].map(code => ({ ...splitRow(sMeta(code).name, code + ' · ' + sMeta(code).region, groups.get(code)) })).sort((a, b) => b.sortV - a.sortV);
+    } else if (view === 'region') {
+      splitRows = [...groups.keys()].map(k => splitRow(k, '', groups.get(k))).sort((a, b) => b.sortV - a.sortV);
+    }
+    const splitFoot = splitRow('Total', '', tot);
+
+    if (view === 'summary') {
+      const c = tot.cy, l = tot.ly;
+      const row = (label, cy, ly, fmt, money) => ({ label, cy: fmt(cy), ly: fmt(ly), diff: money ? diffLab(cy - ly) : (cy - ly >= 0 ? '+' : '−') + fmt(Math.abs(cy - ly)), delta: dLab(cy, ly), color: dClr(cy, ly) });
+      const ratio = (a, b) => b ? a / b : 0;
+      const f2 = v => v.toFixed(2), pctF = v => v.toFixed(1) + '%';
+      const retail = [row('Net sales', c.net, l.net, fmtM, true), row('Units', c.qty, l.qty, fmtN)];
+      if (!useDim) retail.push(row('Receipts', c.rc, l.rc, fmtN), row('ATV', ratio(c.net, c.rc), ratio(l.net, l.rc), fmtM, true), row('UPT', ratio(c.qty, c.rc), ratio(l.qty, l.rc), f2));
+      retail.push(row('ASP', ratio(c.net, c.qty), ratio(l.net, l.qty), f2));
+      if (!hideMu) retail.push(row('Cost', c.cost, l.cost, fmtM, true), { label: 'Markup %', cy: mu(c.net, c.cost), ly: mu(l.net, l.cost), diff: c.cost && l.cost ? ((100 * (c.net - c.cost) / c.cost - 100 * (l.net - l.cost) / l.cost) >= 0 ? '+' : '') + (100 * (c.net - c.cost) / c.cost - 100 * (l.net - l.cost) / l.cost).toFixed(1) + ' pts' : '—', delta: '', color: 'var(--color-neutral-500)' });
+      cmpGroups.push({ title: 'Retail', rows: retail });
+      if (!useDim) {
+        cmpGroups.push({ title: 'Backoffice / wholesale', rows: [row('Net sales', c.bo, l.bo, fmtM, true), row('Invoiced', c.boGross, l.boGross, fmtM, true), row('Returns (credit memos)', c.boRet, l.boRet, fmtM, true), row('Invoices', c.boInv, l.boInv, fmtN), row('Customers', c.boCust.size, l.boCust.size, fmtN), row('Avg. invoice', ratio(c.boGross, c.boInv), ratio(l.boGross, l.boInv), fmtM, true)] });
+        const tc = c.net + c.bo, tl = l.net + l.bo;
+        cmpGroups.push({ title: 'Total (retail + backoffice)', rows: [row('Net sales', tc, tl, fmtM, true), { label: 'Retail share', cy: tc ? pctF(100 * c.net / tc) : '—', ly: tl ? pctF(100 * l.net / tl) : '—', diff: '', delta: '', color: 'var(--color-neutral-500)' }, { label: 'Backoffice share', cy: tc ? pctF(100 * c.bo / tc) : '—', ly: tl ? pctF(100 * l.bo / tl) : '—', diff: '', delta: '', color: 'var(--color-neutral-500)' }] });
+      }
+    }
+
+    if (view === 'cat' || view === 'sub' || view === 'brand' || view === 'items') {
+      const part = view === 'cat' ? 0 : view === 'sub' ? 1 : 2;
+      const agg = new Map(); const T = { cy: { net: 0, qty: 0, cost: 0 }, ly: { net: 0, qty: 0, cost: 0 } };
+      const add = (k, y, n, q, c) => { let a = agg.get(k); if (!a) agg.set(k, a = { cy: { net: 0, qty: 0, cost: 0 }, ly: { net: 0, qty: 0, cost: 0 } }); a[y].net += n; a[y].qty += q; a[y].cost += c; T[y].net += n; T[y].qty += q; T[y].cost += c; };
+      if (view !== 'items') {
+        Y.dim.forEach(r => { if (!dayOk(r[0]) || !keyOk(r[1])) return; add(P.keyParts[r[1]][part], P.days[r[0]].cy ? 'cy' : 'ly', r[2], r[3], r[4]); });
+      } else {
+        const q = (st.yfQ || '').trim().toLowerCase();
+        Y.it.forEach(r => {
+          const m = P.months[r[0]]; if (!monthOk(m.fm)) return;
+          const sku = Y.skus[r[1]], im = this.itemMeta && this.itemMeta[sku] || {};
+          const ki = Y.skuKey ? Y.skuKey[r[1]] : P.keyIdx[(im.division || '—') + '|' + (im.category || '—') + '|' + (im.brand || '—')];
+          if (hasCat && (ki === undefined || !keyOk(ki))) return;
+          if (q && !(sku.toLowerCase().includes(q) || String(im.itemDesc || '').toLowerCase().includes(q) || String(im.brand || '').toLowerCase().includes(q))) return;
+          let s = 1;
+          if (!m.cy && mode === 'lfl') { if (m.m > P.cutM) return; if (m.m === P.cutM) s = ki !== undefined && P.kAll[ki] ? (P.kTo[ki] || 0) / P.kAll[ki] : 1; }
+          add(sku, m.cy ? 'cy' : 'ly', r[2] * s, r[3] * s, r[4] * s);
+        });
+        if (mode === 'lfl' && P.cutM && P.lyCut.slice(8) !== String(new Date(+P.lyCut.slice(0, 4), +P.lyCut.slice(5, 7), 0).getDate())) notes.push('Items are stored by month — LY ' + monthName((+P.lyCut.slice(5, 7) + 7) % 12) + ' is pro-rated to ' + +P.lyCut.slice(8) + ' ' + monthName((+P.lyCut.slice(5, 7) + 7) % 12) + ' using its category’s daily LY sales.');
+      }
+      const blank = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect width="40" height="40" fill="%23252b3a"/%3E%3C/svg%3E';
+      let rows = [...agg.entries()].map(([k, a]) => ({ k, a })).sort((x, y) => (y.a.cy.net - x.a.cy.net) || (y.a.ly.net - x.a.ly.net));
+      const PER = 100, pages = Math.max(1, Math.ceil(rows.length / PER)), page = Math.min(st.yfPage || 0, pages - 1);
+      if (view === 'items') { pageInfo = { label: 'Page ' + (page + 1) + ' of ' + pages + ' · ' + fmtN(rows.length) + ' SKUs', prevOff: page <= 0, nextOff: page >= pages - 1 }; rows = rows.slice(page * PER, page * PER + PER); }
+      dimRows = rows.map(({ k, a }, i) => { const c = a.cy, l = a.ly, im = view === 'items' ? (this.itemMeta && this.itemMeta[k] || {}) : null;
+        return { rank: (view === 'items' ? page * PER : 0) + i + 1, name: im ? (im.itemDesc || k) : k, sub: im ? k + ' · ' + (im.brand || '—') : '', img: im ? (im.image || blank) : '', isItem: !!im,
+          ly: fmtM(l.net), cy: fmtM(c.net), diff: diffLab(c.net - l.net), d: dLab(c.net, l.net), c: dClr(c.net, l.net),
+          qLy: fmtN(l.qty), qCy: fmtN(c.qty), qD: dLab(c.qty, l.qty), qC: dClr(c.qty, l.qty),
+          aspLy: l.qty ? (l.net / l.qty).toFixed(2) : '—', aspCy: c.qty ? (c.net / c.qty).toFixed(2) : '—',
+          muLy: mu(l.net, l.cost), muCy: mu(c.net, c.cost), share: T.cy.net ? (100 * c.net / T.cy.net).toFixed(1) + '%' : '—' }; });
+      dimFoot = { ly: fmtM(T.ly.net), cy: fmtM(T.cy.net), diff: diffLab(T.cy.net - T.ly.net), d: dLab(T.cy.net, T.ly.net), c: dClr(T.cy.net, T.ly.net), qLy: fmtN(T.ly.qty), qCy: fmtN(T.cy.qty), qD: dLab(T.cy.qty, T.ly.qty), qC: dClr(T.cy.qty, T.ly.qty), aspLy: T.ly.qty ? (T.ly.net / T.ly.qty).toFixed(2) : '—', aspCy: T.cy.qty ? (T.cy.net / T.cy.qty).toFixed(2) : '—', muLy: mu(T.ly.net, T.ly.cost), muCy: mu(T.cy.net, T.cy.cost) };
+      if (hasStore) notes.push('Category, brand and item figures are network-wide retail — the region/store filter does not apply here. Backoffice has no item detail.');
+      else notes.push('Retail only — backoffice invoices carry no item detail.');
+    }
+
+    if (view === 'customers') {
+      const agg = new Map(); const T = { cy: { net: 0, inv: 0 }, ly: { net: 0, inv: 0 } };
+      Y.bo.forEach(r => { const code = Y.stores[r[1]]; if (!dayOk(r[0]) || !storeOk(code)) return; const y = P.days[r[0]].cy ? 'cy' : 'ly'; const k = r[2]; let a = agg.get(k); if (!a) agg.set(k, a = { type: Y.types[r[3]], cy: { net: 0, inv: 0 }, ly: { net: 0, inv: 0 } }); a[y].net += r[5]; T[y].net += r[5]; if (r[5] >= 0) { a[y].inv++; T[y].inv++; } });
+      custRows = [...agg.entries()].sort((x, y) => (y[1].cy.net - x[1].cy.net) || (y[1].ly.net - x[1].ly.net)).map(([k, a], i) => ({ rank: i + 1, name: k || '—', type: a.type || '—', ly: fmtM(a.ly.net), cy: fmtM(a.cy.net), diff: diffLab(a.cy.net - a.ly.net), d: dLab(a.cy.net, a.ly.net), c: dClr(a.cy.net, a.ly.net), invLy: fmtN(a.ly.inv), invCy: fmtN(a.cy.inv), share: T.cy.net ? (100 * a.cy.net / T.cy.net).toFixed(1) + '%' : '—' }));
+      custFoot = { ly: fmtM(T.ly.net), cy: fmtM(T.cy.net), diff: diffLab(T.cy.net - T.ly.net), d: dLab(T.cy.net, T.ly.net), c: dClr(T.cy.net, T.ly.net), invLy: fmtN(T.ly.inv), invCy: fmtN(T.cy.inv) };
+      if (hasCat) notes.push('Category filters do not apply to backoffice customers.');
+    }
+    if (Y.sample) notes.unshift('SAMPLE DATA — built from the existing YOY (May–Sep) and wholesale files for preview only, LY backoffice is simulated. Replace with the importer’s yoy-full.json.');
+    if (useDim) notes.unshift('Category filter on: retail figures come from item lines — receipts, ATV and backoffice are not split by category, so they are left out.');
+    if ((view === 'stores' || view === 'region') && hasCat) notes.push('Store and region views ignore the category filters.');
+
+    // KPI strip — always store/region aware, never category-filtered except retail when hasCat
+    const K = { cy: z(), ly: z() };
+    if (useDim || (hasCat && !splitViews[view])) Y.dim.forEach(r => { if (!dayOk(r[0]) || !keyOk(r[1])) return; const a = K[P.days[r[0]].cy ? 'cy' : 'ly']; a.net += r[2]; a.qty += r[3]; a.cost += r[4]; });
+    else Y.sd.forEach(r => { if (!dayOk(r[0]) || !storeOk(Y.stores[r[1]])) return; const a = K[P.days[r[0]].cy ? 'cy' : 'ly']; a.net += r[2]; a.qty += r[3]; a.cost += r[4]; a.rc += r[5]; });
+    const kNoBo = hasCat;
+    if (!kNoBo) Y.bo.forEach(r => { if (!dayOk(r[0]) || !storeOk(Y.stores[r[1]])) return; K[P.days[r[0]].cy ? 'cy' : 'ly'].bo += r[5]; });
+    const kp = (label, cy, ly, fmt) => ({ label, value: fmt(cy), ly: fmt(ly), delta: dLab(cy, ly), color: dClr(cy, ly) });
+    const kpis = [kp('Retail net sales', K.cy.net, K.ly.net, fmtM)];
+    if (!kNoBo) kpis.push(kp('Backoffice net sales', K.cy.bo, K.ly.bo, fmtM), kp('Total net sales', K.cy.net + K.cy.bo, K.ly.net + K.ly.bo, fmtM));
+    if (K.cy.rc || K.ly.rc) kpis.push(kp('Retail receipts', K.cy.rc, K.ly.rc, fmtN), kp('Retail ATV', K.cy.rc ? K.cy.net / K.cy.rc : 0, K.ly.rc ? K.ly.net / K.ly.rc : 0, fmtM));
+    kpis.push(kp('Retail units', K.cy.qty, K.ly.qty, fmtN));
+    if (!hideMu) kpis.push({ label: 'Retail markup %', value: mu(K.cy.net, K.cy.cost), ly: mu(K.ly.net, K.ly.cost), delta: K.cy.cost && K.ly.cost ? ((100 * (K.cy.net - K.cy.cost) / K.cy.cost - 100 * (K.ly.net - K.ly.cost) / K.ly.cost) >= 0 ? '+' : '') + (100 * (K.cy.net - K.cy.cost) / K.cy.cost - 100 * (K.ly.net - K.ly.cost) / K.ly.cost).toFixed(1) + ' pts' : '—', color: 'var(--color-neutral-500)' });
+
+    // filter options
+    const codes = new Set(); Y.sd.forEach(r => codes.add(Y.stores[r[1]])); Y.bo.forEach(r => codes.add(Y.stores[r[1]]));
+    const regions = [...new Set([...codes].map(c => sMeta(c).region))].filter(r => !lockedRegion || r === lockedRegion).sort();
+    const storeOpts = [...codes].filter(c => (!lockedStore || c === lockedStore) && (!lockedRegion || sMeta(c).region === lockedRegion) && (f.region === 'All' || sMeta(c).region === f.region)).map(c => ({ v: c, l: sMeta(c).name + ' (' + c + ')' })).sort((a, b) => a.l.localeCompare(b.l));
+    const kp0 = P.keyParts;
+    const cats = [...new Set(kp0.map(p => p[0]))].sort();
+    const subs = [...new Set(kp0.filter(p => f.cat === 'All' || p[0] === f.cat).map(p => p[1]))].sort();
+    const brands = [...new Set(kp0.filter(p => (f.cat === 'All' || p[0] === f.cat) && (f.sub === 'All' || p[1] === f.sub)).map(p => p[2]))].sort();
+    const fyMonths = [...new Set(P.days.map(d => d.fm))].sort((a, b) => a - b);
+    const cyStart = Y.cyStart, lyStart = Y.lyStart;
+    const lyEnd = mode === 'full' ? (P.cyY) + '-04-30' : P.lyCut;
+    const periodLabel = P.cut ? 'FY ' + Y.cyFy + ' to ' + fmtD(P.cut) + '  vs  FY ' + Y.lyFy + (mode === 'full' ? ' full year' : ' to ' + fmtD(P.lyCut)) : 'No current-year data yet';
+    const tab = (id, label) => ({ label, cls: view === id ? 'btn-primary' : 'btn-secondary', onClick: () => this.setState({ yfView: id, yfPage: 0 }) });
+    const setF = (k, reset) => e => { const v = e.target.value; this.setState(s => ({ yfF: { ...(s.yfF || {}), [k]: v, ...(reset || {}) }, yfPage: 0 })); };
+    const splitHead = { monthly: 'Month', daily: 'Date', stores: 'Store', region: 'Region' }[view] || '';
+    const dimHead = { cat: 'Category', sub: 'Sub-category', brand: 'Brand', items: 'Item' }[view] || '';
+    return {
+      yfReady: true, yfPeriodLabel: periodLabel, yfKpis: kpis, yfNotes: notes.map(t => ({ t })), yfHasNotes: notes.length > 0,
+      yfTabs: [tab('summary', 'Summary'), tab('monthly', 'Monthly'), tab('daily', 'Daily'), tab('stores', 'By Store'), tab('region', 'By Region'), tab('cat', 'Category'), tab('sub', 'Sub-Category'), tab('brand', 'Brand'), tab('items', 'Items'), tab('customers', 'BO Customers')],
+      yfModeLflClass: mode === 'lfl' ? 'btn-primary' : 'btn-secondary', yfModeFullClass: mode === 'full' ? 'btn-primary' : 'btn-secondary',
+      setYfLfl: () => this.setState({ yfMode: 'lfl' }), setYfFull: () => this.setState({ yfMode: 'full' }),
+      yfF: f, yfRegionOptions: lockedRegion ? [lockedRegion] : ['All', ...regions], yfStoreOptions: [{ v: 'All', l: 'All' }, ...storeOpts],
+      yfMonthOptions: [{ v: 'All', l: 'All months' }, ...fyMonths.map(fm => ({ v: String(fm), l: monthName(fm) }))],
+      yfCatOptions: ['All', ...cats], yfSubOptions: ['All', ...subs], yfBrandOptions: ['All', ...brands],
+      setYfRegion: setF('region', { store: 'All' }), setYfStore: setF('store'), setYfMonth: setF('month'), setYfCat: setF('cat', { sub: 'All', brand: 'All' }), setYfSub: setF('sub', { brand: 'All' }), setYfBrand: setF('brand'),
+      yfFiltersDirty: f.region !== 'All' || f.store !== 'All' || f.month !== 'All' || hasCat, clearYfFilters: () => this.setState({ yfF: {}, yfPage: 0 }),
+      yfIsSummary: view === 'summary', yfCmpGroups: cmpGroups,
+      yfIsSplit: !!splitHead, yfSplitHead: splitHead, yfSplitRows: splitRows, yfSplitFoot: splitFoot, yfSplitCount: splitRows.length + ' row(s)',
+      yfIsDim: !!dimHead, yfDimHead: dimHead, yfDimRows: dimRows, yfDimFoot: dimFoot || {}, yfIsItems: view === 'items', yfDimCount: view === 'items' ? '' : dimRows.length + ' row(s)',
+      yfQ: st.yfQ || '', setYfQ: e => this.setState({ yfQ: e.target.value, yfPage: 0 }),
+      yfPageLabel: pageInfo ? pageInfo.label : '', yfPrevOff: pageInfo ? pageInfo.prevOff : true, yfNextOff: pageInfo ? pageInfo.nextOff : true,
+      yfPrev: () => this.setState(s => ({ yfPage: Math.max(0, (s.yfPage || 0) - 1) })), yfNext: () => this.setState(s => ({ yfPage: (s.yfPage || 0) + 1 })),
+      yfIsCust: view === 'customers', yfCustRows: custRows, yfCustFoot: custFoot || {},
+      yfShowMu: !hideMu
+    };
   }
 
   exportExhibitionPdf = () => {
@@ -8916,9 +9295,9 @@ class Component extends DCLogic {
       if (L.suggested) this._lastLinkSuggested = { rows: L.suggested.rows, subtitle: (st.linkMonth === 'All' ? 'All months' : st.linkMonth) + ' · ' + this.fmtNum(L.baskets) + ' multi-item invoices · min ' + st.linkMinCount + ' baskets · ranked by revenue headroom · basket counts are upper bounds (pairwise minimum)' };
     }
     const EV = st.page === 'event' ? this.eventData() : null;
-    const titles = { snapshot: 'Daily Snapshot', overview: 'Executive Overview', stores: 'Branch Comparison', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', hourlySales: 'Hourly Sales', wholesale: 'Wholesale', daily: 'Daily Sales', regionDetail: 'Region Detail', stcQitaf: 'STC Qitaf', yoy: 'YOY Comparison', event: 'Event Comparison', exhibition: 'Exhibition', staffRank: 'Staff Ranking', linkSales: 'Link Sales', consumables: 'Consumables', shrinkage: 'Shrinkage Fund' };
-    const shortTitles = { snapshot: 'Snapshot', overview: 'Overview', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily', regionDetail: 'Region', hourlySales: 'Hourly', wholesale: 'Wholesale', stcQitaf: 'Qitaf', yoy: 'YOY', event: 'Event', exhibition: 'Expo', linkSales: 'Link', consumables: 'Bags', staffRank: 'Staff', shrinkage: 'Shrinkage' };
-    const navIcons = { snapshot: '☷', overview: '▣', categories: '▤', items: '◫', discounts: '%', invoices: '⌂', daily: '◷', regionDetail: '◈', hourlySales: '◔', wholesale: '◊', stcQitaf: '⊙', yoy: '⇄', event: '◉', exhibition: '◇', linkSales: '⧉', consumables: '▧', staffRank: '★', shrinkage: '⛨' };
+    const titles = { snapshot: 'Daily Snapshot', overview: 'Executive Overview', stores: 'Branch Comparison', categories: 'Category Performance', invoices: 'Store Detail', items: 'Item Detail', discounts: 'Discount Detail', hourlySales: 'Hourly Sales', wholesale: 'Wholesale', daily: 'Daily Sales', regionDetail: 'Region Detail', stcQitaf: 'STC Qitaf', yoy: 'YOY Comparison', yoyFull: 'YOY Comp Full', event: 'Event Comparison', exhibition: 'Exhibition', staffRank: 'Staff Ranking', linkSales: 'Link Sales', consumables: 'Consumables', shrinkage: 'Shrinkage Fund' };
+    const shortTitles = { snapshot: 'Snapshot', overview: 'Overview', categories: 'Category', items: 'Items', discounts: 'Discount', invoices: 'Stores', daily: 'Daily', regionDetail: 'Region', hourlySales: 'Hourly', wholesale: 'Wholesale', stcQitaf: 'Qitaf', yoy: 'YOY', yoyFull: 'YOY Full', event: 'Event', exhibition: 'Expo', linkSales: 'Link', consumables: 'Bags', staffRank: 'Staff', shrinkage: 'Shrinkage' };
+    const navIcons = { snapshot: '☷', overview: '▣', categories: '▤', items: '◫', discounts: '%', invoices: '⌂', daily: '◷', regionDetail: '◈', hourlySales: '◔', wholesale: '◊', stcQitaf: '⊙', yoy: '⇄', yoyFull: '⇆', event: '◉', exhibition: '◇', linkSales: '⧉', consumables: '▧', staffRank: '★', shrinkage: '⛨' };
     const isSnapshotUser = !!(st.auth && (st.auth.id === 'admin' || st.auth.id === '31610' || st.auth.id === 'mathew'));
     const isAdminUser = !!(st.auth && (st.auth.id === 'admin' || st.auth.id === '31610'));
     const snapDates = [...new Set((st.buckets || []).map(r => r.date))].sort().reverse();
@@ -8955,7 +9334,7 @@ class Component extends DCLogic {
         });
       }
     }
-    const pageOrder = [...(isSnapshotUser ? ['snapshot'] : []), 'overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'hourlySales', 'yoy', 'event', ...(isSnapshotUser ? ['exhibition'] : []), 'linkSales', 'consumables', 'staffRank', ...(isAdminUser ? ['shrinkage'] : []), 'wholesale', 'stcQitaf'].filter(p => !(st.auth && st.auth.region !== 'All' && p === 'wholesale'));
+    const pageOrder = [...(isSnapshotUser ? ['snapshot'] : []), 'overview', 'regionDetail', 'categories', 'items', 'discounts', 'invoices', 'daily', 'hourlySales', 'yoy', 'yoyFull', 'event', ...(isSnapshotUser ? ['exhibition'] : []), 'linkSales', 'consumables', 'staffRank', ...(isAdminUser ? ['shrinkage'] : []), 'wholesale', 'stcQitaf'].filter(p => !(st.auth && st.auth.region !== 'All' && p === 'wholesale'));
     const isMobile = st.isMobile;
     const consView = st.consView || 'daily';
     const SR = st.page === 'staffRank' ? this.staffData() : { rows: [], totals: null, catOptions: ['All'], subOptions: ['All'], brandOptions: ['All'], sliceMode: false, drill: null, note: '', countLabel: '', kpis: [] };
@@ -9089,6 +9468,8 @@ class Component extends DCLogic {
       isYoy: st.page === 'yoy',
       isEvent: st.page === 'event',
       isExh: st.page === 'exhibition',
+      isYf: st.page === 'yoyFull', yfLoading: st.page === 'yoyFull' && !!st.yfLoading, yfMissing: st.page === 'yoyFull' && !st.yf && !!st.yfMissing,
+      ...(st.page === 'yoyFull' ? this.yoyFullData() : { yfReady: false }),
       ...(st.page === 'exhibition' ? this.exhibitionData() : { exhReady: false, exhLoading: false }),
       eventLoading: st.page === 'event' && st.yoyLoading,
       ...(EV || {}),
@@ -9178,8 +9559,8 @@ class Component extends DCLogic {
       setYoyViewBrand: () => this.setState({ yoyView: 'brand', yoySearch: '' }),
       setYoyViewStores: () => this.setState({ yoyView: 'stores', yoySearch: '' }),
       isOverview: st.page === 'overview', isRegionDetail: st.page === 'regionDetail', isCategories: st.page === 'categories', isInvoices: st.page === 'invoices', isItems: st.page === 'items', isDiscounts: st.page === 'discounts', isDaily: st.page === 'daily', isWholesale: st.page === 'wholesale', isStcQitaf: st.page === 'stcQitaf',
-      globalFiltersDisplay: (st.page === 'wholesale' || st.page === 'yoy' || st.page === 'event' || st.page === 'exhibition' || st.page === 'snapshot' || st.page === 'linkSales') ? 'none' : (isMobile && !st.filtersOpen ? 'none' : 'flex'),
-      showFilterToggle: isMobile && st.page !== 'wholesale' && st.page !== 'yoy' && st.page !== 'event' && st.page !== 'exhibition' && st.page !== 'snapshot' && st.page !== 'linkSales',
+      globalFiltersDisplay: (st.page === 'wholesale' || st.page === 'yoyFull' || st.page === 'yoy' || st.page === 'event' || st.page === 'exhibition' || st.page === 'snapshot' || st.page === 'linkSales') ? 'none' : (isMobile && !st.filtersOpen ? 'none' : 'flex'),
+      showFilterToggle: isMobile && st.page !== 'wholesale' && st.page !== 'yoyFull' && st.page !== 'yoy' && st.page !== 'event' && st.page !== 'exhibition' && st.page !== 'snapshot' && st.page !== 'linkSales',
       isSnapshot: st.page === 'snapshot',
       snapDate: snapDate,
       snapDateLabel: snapDate ? new Date(snapDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : 'Select date',
