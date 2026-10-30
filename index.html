@@ -1757,10 +1757,10 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <thead><tr><th>#</th><th style="text-align:left">Store</th><th>Net sales</th><th>Sold qty</th><th>Invoices</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Single Inv</th><th>Single Inv%</th></tr></thead>
 <tbody>
 <sc-for list="{{snapStoreRows}}" as="s" hint-placeholder-count="12">
-<tr style="background:{{s.rowBg}}"><td style="font-weight:600">{{s.rank}}</td><td style="font-weight:600;text-align:left;white-space:nowrap">{{s.name}}</td><td style="font-weight:600;white-space:nowrap">{{s.netSales}}</td><td>{{s.qty}}</td><td>{{s.invoices}}</td><td style="white-space:nowrap">{{s.atv}}</td><td>{{s.upt}}</td><td style="white-space:nowrap">{{s.asp}}</td><td>{{s.singleInv}}</td><td>{{s.singleInvPct}}</td></tr>
+<tr style="background:{{s.rowBg}}"><td style="font-weight:600">{{s.rank}}</td><td style="font-weight:600;text-align:left;white-space:nowrap">{{s.name}}<sc-if value="{{s.hasBo}}" hint-placeholder-val="{{false}}"> <span style="font-size:11px;font-weight:400;color:var(--color-neutral-500)">{{s.boNote}}</span></sc-if></td><td style="font-weight:600;white-space:nowrap">{{s.netSales}}</td><td>{{s.qty}}</td><td>{{s.invoices}}</td><td style="white-space:nowrap">{{s.atv}}</td><td>{{s.upt}}</td><td style="white-space:nowrap">{{s.asp}}</td><td>{{s.singleInv}}</td><td>{{s.singleInvPct}}</td></tr>
 </sc-for>
 </tbody>
-<tfoot><tr style="border-top:2px solid var(--color-divider)"><td></td><td style="font-weight:700;text-align:left">Retail total</td><td style="font-weight:700;white-space:nowrap">{{snapStoreTotal.netSales}}</td><td style="font-weight:700">{{snapStoreTotal.qty}}</td><td style="font-weight:700">{{snapStoreTotal.invoices}}</td><td style="font-weight:700;white-space:nowrap">{{snapStoreTotal.atv}}</td><td style="font-weight:700">{{snapStoreTotal.upt}}</td><td style="font-weight:700;white-space:nowrap">{{snapStoreTotal.asp}}</td><td style="font-weight:700">{{snapStoreTotal.singleInv}}</td><td style="font-weight:700">{{snapStoreTotal.singleInvPct}}</td></tr>
+<tfoot><tr style="border-top:2px solid var(--color-divider)"><td></td><td style="font-weight:700;text-align:left">Stores total</td><td style="font-weight:700;white-space:nowrap">{{snapStoreTotal.netSales}}</td><td style="font-weight:700">{{snapStoreTotal.qty}}</td><td style="font-weight:700">{{snapStoreTotal.invoices}}</td><td style="font-weight:700;white-space:nowrap">{{snapStoreTotal.atv}}</td><td style="font-weight:700">{{snapStoreTotal.upt}}</td><td style="font-weight:700;white-space:nowrap">{{snapStoreTotal.asp}}</td><td style="font-weight:700">{{snapStoreTotal.singleInv}}</td><td style="font-weight:700">{{snapStoreTotal.singleInvPct}}</td></tr>
 <sc-for list="{{snapAccountRows}}" as="a" hint-placeholder-count="0">
 <tr><td style="color:var(--color-neutral-500)">{{a.tag}}</td><td style="font-weight:600;text-align:left;white-space:nowrap">{{a.name}} <span style="font-size:11px;font-weight:400;color:var(--color-neutral-500)">{{a.type}}</span></td><td style="font-weight:600;white-space:nowrap">{{a.amount}}</td><td colspan="7" style="color:var(--color-neutral-500);text-align:left">—</td></tr>
 </sc-for>
@@ -3689,7 +3689,7 @@ class Component extends DCLogic {
     'YOY Comparison': 'المقارنة السنوية', 'YoY Comparison': 'المقارنة السنوية',
     'Wholesale Detail': 'تفاصيل الجملة', 'Link Sales Detail': 'تفاصيل المبيعات المرتبطة',
     'Log out': 'تسجيل الخروج', 'branches tracked': 'فرعاً مشمولاً',
-    'Net Sales': 'صافي المبيعات', 'Net sales': 'صافي المبيعات', 'Total net sales': 'إجمالي صافي المبيعات', 'Retail total': 'إجمالي التجزئة', 'Grand total — all accounts': 'الإجمالي العام — كل الحسابات', 'Total sales — all accounts': 'إجمالي المبيعات — كل الحسابات', 'Retail net sales': 'صافي مبيعات التجزئة',
+    'Net Sales': 'صافي المبيعات', 'Net sales': 'صافي المبيعات', 'Total net sales': 'إجمالي صافي المبيعات', 'Retail total': 'إجمالي التجزئة', 'Stores total': 'إجمالي الفروع', 'Grand total — all accounts': 'الإجمالي العام — كل الحسابات', 'Total sales — all accounts': 'إجمالي المبيعات — كل الحسابات', 'Retail net sales': 'صافي مبيعات التجزئة',
     'Total sales': 'إجمالي المبيعات', 'Retail Sales ': 'مبيعات التجزئة', 'Retail sales': 'مبيعات التجزئة',
     'Sold Qty': 'الكمية المباعة', 'Sold qty': 'الكمية المباعة', 'Qty': 'الكمية', 'Units': 'الوحدات',
     'Units Sold': 'الوحدات المباعة', 'Units sold': 'الوحدات المباعة', 'Returned': 'المرتجع',
@@ -4709,20 +4709,31 @@ class Component extends DCLogic {
     }, { netSales: 0, qty: 0, invoices: 0, discountedQty: 0, returnQty: 0, cost: 0, single: 0, discount: 0, returnValue: 0 });
     const snapRegionTotal = fmtRow(totalRaw);
 
-    const ranked = stores.slice().sort((a, b) => b.netSales - a.netSales);
+    // BO sales posted on a retail store code are folded into that store's row
+    const storeBo = {};
+    (st.wholesale || []).forEach(w => {
+      if (w.date !== date) return;
+      const sm = this.storeIndex[w.storeCode];
+      if (sm && sm.type === 'Store' && !['Wholesale', 'ADES', 'SASCO'].includes(w.type)) storeBo[w.storeCode] = (storeBo[w.storeCode] || 0) + w.amount;
+    });
+    const retailCodes = new Set(stores.map(s => s.code));
+    Object.keys(storeBo).forEach(c => { if (!retailCodes.has(c)) delete storeBo[c]; });
+    const storeBoCodes = new Set(Object.keys(storeBo));
+    const tot = s => s.netSales + (storeBo[s.code] || 0);
+    const ranked = stores.slice().sort((a, b) => tot(b) - tot(a));
     const topStore = ranked[0] || null;
-    const maxSales = ranked.length ? ranked[0].netSales : 0;
+    const maxSales = ranked.length ? tot(ranked[0]) : 0;
     const snapStoreRows = ranked.map((s, i) => {
       const d = derive(s);
-      const share = maxSales ? s.netSales / maxSales : 0;
+      const share = maxSales ? tot(s) / maxSales : 0;
       return {
-        rank: i + 1, name: label(s.code), netSales: money(s.netSales), qty: num(s.qty), invoices: num(s.invoices),
+        rank: i + 1, name: label(s.code), netSales: money(tot(s)), boNote: storeBo[s.code] ? 'incl. BO ' + money(storeBo[s.code]) : '', hasBo: !!storeBo[s.code], qty: num(s.qty), invoices: num(s.invoices),
         atv: money(d.atv), upt: Math.abs(d.upt).toFixed(2), asp: money(d.asp),
         singleInv: num(s.single), singleInvPct: d.singlePct === null ? '—' : pct(d.singlePct),
         rowBg: share > 0.5 ? 'rgba(76,175,125,0.14)' : share > 0.2 ? 'rgba(76,175,125,0.07)' : share > 0.08 ? 'transparent' : 'rgba(226,112,95,0.07)'
       };
     });
-    const snapStoreTotal = { ...fmtRow(totalRaw), singleInv: num(totalRaw.single), singleInvPct: totalRaw.invoices ? pct(100 * totalRaw.single / totalRaw.invoices) : '—' };
+    const snapStoreTotal = { ...fmtRow(totalRaw), netSales: money(totalRaw.netSales + Object.values(storeBo).reduce((t, v) => t + v, 0)), singleInv: num(totalRaw.single), singleInvPct: totalRaw.invoices ? pct(100 * totalRaw.single / totalRaw.invoices) : '—' };
 
     const threePNames = ['Amazon E-Market', 'Noon E-Market'];
     const wMap = {}, tMap = {};
@@ -4731,10 +4742,10 @@ class Component extends DCLogic {
       // store BO sales are included here too, so the snapshot total matches Net Sales on Daily Sales / Overview
       const name = this.wholesaleName(w);
       const bucket = threePNames.includes(name) ? tMap : wMap;
-      const e = bucket[name] || (bucket[name] = { name, type: this.wholesaleEffType(w), amount: 0 });
+      const e = bucket[name] || (bucket[name] = { name, type: this.wholesaleEffType(w), amount: 0, store: storeBoCodes.has(w.storeCode) && bucket === wMap });
       e.amount += w.amount;
     });
-    const toRows = m => Object.values(m).sort((a, b) => b.amount - a.amount).map(e => ({ name: e.name, type: e.type, amount: money(e.amount), raw: e.amount }));
+    const toRows = m => Object.values(m).sort((a, b) => b.amount - a.amount).map(e => ({ name: e.name, type: e.type, amount: money(e.amount), raw: e.amount, store: e.store }));
     const snapWholesaleRows = toRows(wMap), snapThreePRows = toRows(tMap);
     const sum = rows => rows.reduce((a, r) => a + r.raw, 0);
 
@@ -4789,7 +4800,7 @@ class Component extends DCLogic {
         { label: 'Invoices', value: num(qInvoices) },
         { label: 'Stores', value: num(snapQitafStoreRows.length) }
       ],
-      snapAccountRows: [...snapWholesaleRows.map(r => ({ ...r, tag: 'BO' })), ...snapThreePRows.map(r => ({ ...r, tag: '3P' }))],
+      snapAccountRows: [...snapWholesaleRows.filter(r => !r.store).map(r => ({ ...r, tag: 'BO' })), ...snapThreePRows.map(r => ({ ...r, tag: '3P' }))],
       snapGrandTotal: money(totalRaw.netSales + sum(snapWholesaleRows) + sum(snapThreePRows)),
       snapKpis: [
         { hero: true, label: 'Total sales — all accounts', value: money(totalRaw.netSales + sum(snapWholesaleRows) + sum(snapThreePRows)), sub: 'retail ' + money(totalRaw.netSales) + ' \u00b7 wholesale & BO ' + money(sum(snapWholesaleRows)) + ' \u00b7 3P ' + money(sum(snapThreePRows)) },
@@ -5332,7 +5343,7 @@ class Component extends DCLogic {
       ...base(10), startY: 38,
       head: [['#', 'Store', 'Net sales', 'Qty', 'Inv', 'ATV', 'UPT', 'Single Inv%']],
       body: S.snapStoreRows.map(s => [s.rank, s.name, s.netSales, s.qty, s.invoices, s.atv, s.upt, s.singleInvPct]),
-      foot: [['', 'Retail total', S.snapStoreTotal.netSales, S.snapStoreTotal.qty, S.snapStoreTotal.invoices, S.snapStoreTotal.atv, S.snapStoreTotal.upt, S.snapStoreTotal.singleInvPct],
+      foot: [['', 'Stores total', S.snapStoreTotal.netSales, S.snapStoreTotal.qty, S.snapStoreTotal.invoices, S.snapStoreTotal.atv, S.snapStoreTotal.upt, S.snapStoreTotal.singleInvPct],
         ...(S.snapAccountRows || []).map(a => [a.tag, a.name, a.amount, '', '', '', '', '']),
         ['', 'Grand total — all accounts', S.snapGrandTotal, '', '', '', '', '']],
       columnStyles: { 0: { halign: 'right', cellWidth: 9 }, 1: { halign: 'left', fontStyle: 'bold', cellWidth: 42 } }
