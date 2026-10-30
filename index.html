@@ -2356,7 +2356,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 
 <sc-if value="{{yfHasNotes}}" hint-placeholder-val="{{false}}">
 <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:var(--space-4)">
-<sc-for list="{{yfNotes}}" as="n" hint-placeholder-count="1"><div style="font-size:12px;color:var(--color-neutral-500);text-wrap:pretty">{{n.t}}</div></sc-for>
+<sc-for list="{{yfNotes}}" as="n" hint-placeholder-count="1"></sc-for>
 </div>
 </sc-if>
 
@@ -2429,7 +2429,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <thead><tr><th>#</th><th style="text-align:left">Customer</th><th style="text-align:left">Type</th><th>LY net</th><th>CY net</th><th>Diff</th><th>Δ%</th><th>LY invoices</th><th>CY invoices</th><th>CY share</th></tr></thead>
 <tbody>
 <sc-for list="{{yfCustRows}}" as="r" hint-placeholder-count="8">
-<tr><td style="color:var(--color-neutral-500)">{{r.rank}}</td><td style="text-align:left;font-weight:600;min-width:200px">{{r.name}}</td><td style="text-align:left;white-space:nowrap">{{r.type}}</td><td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.ly}}</td><td style="white-space:nowrap;font-weight:700">{{r.cy}}</td><td style="white-space:nowrap;color:{{r.c}}">{{r.diff}}</td><td style="white-space:nowrap;font-weight:700;color:{{r.c}}">{{r.d}}</td><td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.invLy}}</td><td style="white-space:nowrap;font-weight:600">{{r.invCy}}</td><td style="white-space:nowrap">{{r.share}}</td></tr>
+<tr><td style="color:var(--color-neutral-500)">{{r.rank}}</td><td style="text-align:left;min-width:200px"><div style="font-weight:600">{{r.name}}</div><sc-if value="{{r.nameAr}}" hint-placeholder-val="{{false}}"><div dir="rtl" style="font-size:12px;color:var(--color-neutral-500);text-align:left">{{r.nameAr}}</div></sc-if></td><td style="text-align:left;white-space:nowrap">{{r.type}}</td><td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.ly}}</td><td style="white-space:nowrap;font-weight:700">{{r.cy}}</td><td style="white-space:nowrap;color:{{r.c}}">{{r.diff}}</td><td style="white-space:nowrap;font-weight:700;color:{{r.c}}">{{r.d}}</td><td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.invLy}}</td><td style="white-space:nowrap;font-weight:600">{{r.invCy}}</td><td style="white-space:nowrap">{{r.share}}</td></tr>
 </sc-for>
 </tbody>
 <tfoot><tr style="border-top:2px solid var(--color-divider)"><td></td><td style="font-weight:700;text-align:left">Total</td><td></td><td style="white-space:nowrap;font-weight:700;color:var(--color-neutral-500)">{{yfCustFoot.ly}}</td><td style="white-space:nowrap;font-weight:700">{{yfCustFoot.cy}}</td><td style="white-space:nowrap;font-weight:700;color:{{yfCustFoot.c}}">{{yfCustFoot.diff}}</td><td style="white-space:nowrap;font-weight:700;color:{{yfCustFoot.c}}">{{yfCustFoot.d}}</td><td style="white-space:nowrap;font-weight:700;color:var(--color-neutral-500)">{{yfCustFoot.invLy}}</td><td style="white-space:nowrap;font-weight:700">{{yfCustFoot.invCy}}</td><td style="font-weight:700">100%</td></tr></tfoot>
@@ -4046,6 +4046,7 @@ class Component extends DCLogic {
   }
 
   componentDidMount() {
+    fetch('data/customer-names-en.json').then(r => r.ok ? r.json() : {}).then(m => this.setState({ custEn: m || {} })).catch(() => {});
     try {
       const l = localStorage.getItem('rsdLang');
       if (l === 'ar') this.setState({ lang: 'ar' });
@@ -6502,7 +6503,7 @@ class Component extends DCLogic {
     if (view === 'customers') {
       const agg = new Map(); const T = { cy: { net: 0, inv: 0 }, ly: { net: 0, inv: 0 } };
       Y.bo.forEach(r => { const code = Y.stores[r[1]]; if (!dayOk(r[0]) || !storeOk(code)) return; const y = P.days[r[0]].cy ? 'cy' : 'ly'; const k = r[2]; let a = agg.get(k); if (!a) agg.set(k, a = { type: Y.types[r[3]], cy: { net: 0, inv: 0 }, ly: { net: 0, inv: 0 } }); a[y].net += r[5]; T[y].net += r[5]; if (r[5] >= 0) { a[y].inv++; T[y].inv++; } });
-      custRows = [...agg.entries()].sort((x, y) => (y[1].cy.net - x[1].cy.net) || (y[1].ly.net - x[1].ly.net)).map(([k, a], i) => ({ rank: i + 1, name: (typeof k === 'number' ? (Y.custs || [])[k] : k) || (typeof k === 'number' ? String(k) : '—'), type: a.type || '—', ly: fmtM(a.ly.net), cy: fmtM(a.cy.net), diff: diffLab(a.cy.net - a.ly.net), d: dLab(a.cy.net, a.ly.net), c: dClr(a.cy.net, a.ly.net), invLy: fmtN(a.ly.inv), invCy: fmtN(a.cy.inv), share: T.cy.net ? (100 * a.cy.net / T.cy.net).toFixed(1) + '%' : '—' }));
+      custRows = [...agg.entries()].sort((x, y) => (y[1].cy.net - x[1].cy.net) || (y[1].ly.net - x[1].ly.net)).map(([k, a], i) => { const ar = String((typeof k === 'number' ? (Y.custs || [])[k] : k) || (typeof k === 'number' ? k : '—')).trim(); const enN = (this.state.custEn || {})[ar] || (/[\u0600-\u06FF]/.test(ar) ? '' : ar); return { rank: i + 1, name: enN || ar, nameAr: enN && enN !== ar ? ar : '', type: a.type || '—', ly: fmtM(a.ly.net), cy: fmtM(a.cy.net), diff: diffLab(a.cy.net - a.ly.net), d: dLab(a.cy.net, a.ly.net), c: dClr(a.cy.net, a.ly.net), invLy: fmtN(a.ly.inv), invCy: fmtN(a.cy.inv), share: T.cy.net ? (100 * a.cy.net / T.cy.net).toFixed(1) + '%' : '—' }; });
       custFoot = { ly: fmtM(T.ly.net), cy: fmtM(T.cy.net), diff: diffLab(T.cy.net - T.ly.net), d: dLab(T.cy.net, T.ly.net), c: dClr(T.cy.net, T.ly.net), invLy: fmtN(T.ly.inv), invCy: fmtN(T.cy.inv) };
       if (hasCat) notes.push('Category filters do not apply to backoffice customers.');
     }
