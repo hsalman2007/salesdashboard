@@ -4626,7 +4626,7 @@ class Component extends DCLogic {
       HQST01: 'Ahmed Al Zan - 8923', RYVS01: 'Ahmed Al Zan - 8923', RYVS02: 'Aydaros - 11841', RYVS03: 'Shareif - 27133',
       RYVS04: 'Yasir - 20813', RYVS05: 'Ahmed - 27451', RYVS06: 'Mamdouh - 28682', RYVS07: 'Adnan - 28866',
       RYVS08: 'Mohammed - 29818', RYVS09: 'Fadil - 29840', RYVS10: 'Shaban - 39839', RYVS11: 'Mutawalli - 39838',
-      RYVS12: 'Zuhair - 38850', RYVS13: 'Mahmoud - 40607', WDEC: 'Wander App'
+      RYVS12: 'Zuhair - 38850', RYVS13: 'Mahmoud - 40607', WDEC: 'Wander App', WDEC01: 'Wander App'
     };
     const sm = this.storeIndex[w.storeCode];
     let name = codeOverride[w.storeCode] || codeOverride[String(w.storeName || '').trim()] || nameMerge[w.storeName] || w.storeName;
@@ -4809,7 +4809,7 @@ class Component extends DCLogic {
         { label: 'Returns value', value: money(totalRaw.returnValue), sub: num(totalRaw.returnQty) + ' units returned' },
         { label: 'Discounts given', value: money(totalRaw.discount), sub: pct(totalRaw.qty ? 100 * totalRaw.discountedQty / totalRaw.qty : 0) + ' of qty on promo' },
         { label: 'SKUs sold', value: num(skusSold.size), sub: 'distinct items' },
-        { label: 'Top store sales', value: money(topStore ? topStore.netSales : 0), sub: topStore ? label(topStore.code) : '—' },
+        { label: 'Top store sales', value: money(topStore ? tot(topStore) : 0), sub: topStore ? label(topStore.code) : '—' },
         { label: 'Retail net sales', value: money(totalRaw.netSales), sub: num(snapStoreRows.length) + ' stores' },
         { label: 'Wholesale + 3P', value: money(sum(snapWholesaleRows) + sum(snapThreePRows)), sub: 'wholesale & BO ' + money(sum(snapWholesaleRows)) + ' \u00b7 3P ' + money(sum(snapThreePRows)) },
         { label: 'STC Qitaf', value: money(qAmount), sub: num(qInvoices) + ' invoices' }
@@ -5271,7 +5271,9 @@ class Component extends DCLogic {
       headStyles: { fillColor: ACC, textColor: 255, fontSize: size - 0.5, fontStyle: 'bold', halign: 'right' },
       alternateRowStyles: { fillColor: SOFT },
       footStyles: { fillColor: [226, 239, 236], textColor: INK, fontStyle: 'bold', fontSize: size, halign: 'right' },
-      margin: { left: M, right: M }
+      margin: { left: M, right: M },
+      // footer labels (Total, account names, tags) read left; numbers stay right
+      didParseCell: data => { if (data.section === 'head') { const cs = data.table.settings && data.table.settings.columnStyles; if (cs && cs[data.column.index] && cs[data.column.index].halign === 'left') data.cell.styles.halign = 'left'; return; } if (data.section !== 'foot') return; const t = String(data.cell.raw == null ? '' : data.cell.raw).trim(); if (t && !/^[-−+]?[\d.,]+%?$/.test(t)) data.cell.styles.halign = 'left'; }
     });
     const nameCol = width => ({ 0: { halign: 'left', fontStyle: 'bold', cellWidth: width } });
     const caption = (text, y) => {
@@ -5282,26 +5284,27 @@ class Component extends DCLogic {
 
     // ---- Page 1: region performance, split into two readable blocks
     head('Region performance', nice);
-    const kpiY = 38;
-    const cardW = (W - 2 * M - 3 * 4) / 4;
-    const kpis = S.snapKpis.filter(k => k.label !== 'STC Qitaf').slice(0, 8);
+    const kpiY = 36;
+    const cardW = (W - 2 * M - 3 * 4) / 4, cardH = 25, rowStep = 28;
+    const kpis = S.snapKpis;
     kpis.forEach((k, i) => {
       const x = M + (i % 4) * (cardW + 4);
-      const y = kpiY + Math.floor(i / 4) * 24;
+      const y = kpiY + Math.floor(i / 4) * rowStep;
       doc.setFillColor.apply(doc, k.hero ? ACC : SOFT);
-      doc.roundedRect(x, y, cardW, 20, 2, 2, 'F');
-      doc.setFontSize(6.8); doc.setTextColor.apply(doc, k.hero ? [255, 255, 255] : ACC);
-      doc.text(k.label.toUpperCase(), x + 3, y + 6);
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(12); if (k.hero) doc.setTextColor(255, 255, 255); else doc.setTextColor.apply(doc, INK);
-      doc.text(String(k.value), x + 3, y + 13);
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5); if (k.hero) doc.setTextColor(255, 255, 255); else doc.setTextColor(105, 118, 114);
-      doc.text(String(k.sub || ''), x + 3, y + 17.5, { maxWidth: cardW - 6 });
+      doc.roundedRect(x, y, cardW, cardH, 2, 2, 'F');
+      const ink = k.hero ? [255, 255, 255] : null;
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(6.4); doc.setTextColor.apply(doc, ink || ACC);
+      doc.text(doc.splitTextToSize(k.label.toUpperCase(), cardW - 6)[0], x + 3, y + 5.5);
+      doc.setFontSize(12.5); doc.setTextColor.apply(doc, ink || INK);
+      doc.text(String(k.value), x + 3, y + 12.5);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(6.2); doc.setTextColor.apply(doc, ink || [105, 118, 114]);
+      doc.splitTextToSize(String(k.sub || ''), cardW - 6).slice(0, 3).forEach((ln, j) => doc.text(ln, x + 3, y + 16.8 + j * 2.7));
       doc.setTextColor.apply(doc, INK);
     });
-    const afterKpis = kpiY + Math.ceil(kpis.length / 4) * 24 + 8;
+    const afterKpis = kpiY + Math.ceil(kpis.length / 4) * rowStep + 6;
     caption('Sales', afterKpis);
     doc.autoTable({
-      ...base(11), startY: afterKpis + 4,
+      ...base(10), startY: afterKpis + 4,
       head: [['Region', 'Net sales', 'Sold qty', 'Invoices', 'ATV', 'ASP']],
       body: S.snapRegionRows.map(r => [r.region, r.netSales, r.qty, r.invoices, r.atv, r.asp]),
       foot: [['Total', S.snapRegionTotal.netSales, S.snapRegionTotal.qty, S.snapRegionTotal.invoices, S.snapRegionTotal.atv, S.snapRegionTotal.asp]],
@@ -5309,7 +5312,7 @@ class Component extends DCLogic {
     });
     caption('Quality of sale', doc.lastAutoTable.finalY + 10);
     doc.autoTable({
-      ...base(11), startY: doc.lastAutoTable.finalY + 14,
+      ...base(10), startY: doc.lastAutoTable.finalY + 14,
       head: [['Region', 'UPT', 'Promo%', 'Single Inv%', 'Return Qty', 'Return%', 'Markup%']],
       body: S.snapRegionRows.map(r => [r.region, r.upt, r.promo, r.singleInv, r.returnQty, r.returnPct, r.markup]),
       foot: [['Total', S.snapRegionTotal.upt, S.snapRegionTotal.promo, S.snapRegionTotal.singleInv, S.snapRegionTotal.returnQty, S.snapRegionTotal.returnPct, S.snapRegionTotal.markup]],
@@ -5339,14 +5342,31 @@ class Component extends DCLogic {
     // ---- Page 3: store ranking
     doc.addPage();
     head('Store ranking', nice + '   ·   ' + S.snapStoreCountLabel);
+    const acctRows = S.snapAccountRows || [];
     doc.autoTable({
-      ...base(10), startY: 38,
+      ...base(9.5), startY: 38,
       head: [['#', 'Store', 'Net sales', 'Qty', 'Inv', 'ATV', 'UPT', 'Single Inv%']],
-      body: S.snapStoreRows.map(s => [s.rank, s.name, s.netSales, s.qty, s.invoices, s.atv, s.upt, s.singleInvPct]),
-      foot: [['', 'Stores total', S.snapStoreTotal.netSales, S.snapStoreTotal.qty, S.snapStoreTotal.invoices, S.snapStoreTotal.atv, S.snapStoreTotal.upt, S.snapStoreTotal.singleInvPct],
-        ...(S.snapAccountRows || []).map(a => [a.tag, a.name, a.amount, '', '', '', '', '']),
-        ['', 'Grand total — all accounts', S.snapGrandTotal, '', '', '', '', '']],
-      columnStyles: { 0: { halign: 'right', cellWidth: 9 }, 1: { halign: 'left', fontStyle: 'bold', cellWidth: 42 } }
+      body: S.snapStoreRows.map(s => [s.rank, s.name + (s.hasBo ? '\n' + s.boNote : ''), s.netSales, s.qty, s.invoices, s.atv, s.upt, s.singleInvPct]),
+      foot: [['', 'Stores total', S.snapStoreTotal.netSales, S.snapStoreTotal.qty, S.snapStoreTotal.invoices, S.snapStoreTotal.atv, S.snapStoreTotal.upt, S.snapStoreTotal.singleInvPct]],
+      columnStyles: { 0: { halign: 'right', cellWidth: 10 }, 1: { halign: 'left', fontStyle: 'bold', cellWidth: 62 } },
+      showFoot: 'lastPage', showHead: 'everyPage', margin: { left: M, right: M, top: 14 }
+    });
+    let ry = doc.lastAutoTable.finalY + 8;
+    if (ry + (acctRows.length + 4) * 8 > 275) { doc.addPage(); head('Store ranking — other accounts', nice); ry = 38; }
+    caption('Other accounts — wholesale, BO & 3P', ry);
+    doc.autoTable({
+      ...base(9.5), startY: ry + 4,
+      head: [['Channel', 'Account', 'Type', 'Net sales']],
+      body: acctRows.length ? acctRows.map(a => [a.tag, a.name, a.type, a.amount]) : [['', 'No other accounts', '', '—']],
+      foot: [['', 'Stores total', '', S.snapStoreTotal.netSales], ['', 'Grand total — all accounts', '', S.snapGrandTotal]],
+      columnStyles: { 0: { halign: 'left', cellWidth: 20 }, 1: { halign: 'left', fontStyle: 'bold' }, 2: { halign: 'left', textColor: [107, 111, 128], cellWidth: 40 }, 3: { cellWidth: 32 } },
+      showFoot: 'lastPage', margin: { left: M, right: M, top: 14 },
+      didParseCell: data => {
+        if (data.section === 'head') { if (data.column.index < 3) data.cell.styles.halign = 'left'; return; }
+        if (data.section !== 'foot') return;
+        if (data.column.index === 1) data.cell.styles.halign = 'left';
+        if (data.row.index === 1) { data.cell.styles.fillColor = ACC; data.cell.styles.textColor = 255; }
+      }
     });
 
     const dimCols = { 0: { halign: 'right', cellWidth: 8 }, 1: { halign: 'left', fontStyle: 'bold' } };
