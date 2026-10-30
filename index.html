@@ -4046,7 +4046,15 @@ class Component extends DCLogic {
   }
 
   componentDidMount() {
-    fetch('data/customer-names-en.json').then(r => r.ok ? r.json() : {}).then(m => this.setState({ custEn: m || {} })).catch(() => {});
+    Promise.all([
+      fetch('data/customer-master.json').then(r => r.ok ? r.json() : []).catch(() => []),
+      fetch('data/customer-names-en.json').then(r => r.ok ? r.json() : {}).catch(() => ({}))
+    ]).then(([cm, extra]) => {
+      const m = {};
+      (Array.isArray(cm) ? cm : []).forEach(x => { if (x && x.name && x.englishName) m[String(x.name).trim()] = x.englishName; });
+      Object.entries(extra || {}).forEach(([k, v]) => { if (!m[k.trim()]) m[k.trim()] = v; });
+      this.setState({ custEn: m });
+    });
     try {
       const l = localStorage.getItem('rsdLang');
       if (l === 'ar') this.setState({ lang: 'ar' });
@@ -4611,6 +4619,27 @@ class Component extends DCLogic {
     if (a >= 1e6) return sign + (a / 1e6).toFixed(1) + 'M';
     if (a >= 1e3) return sign + Math.round(a / 1e3) + 'K';
     return sign + Math.round(a).toLocaleString('en-US');
+  }
+
+  custEnName(ar) {
+    ar = String(ar || '').trim();
+    if (!ar || !/[\u0600-\u06FF]/.test(ar)) return ar;
+    const map = this.state.custEn || {};
+    const norm = s => s.replace(/[\u064B-\u065F\u0640]/g, '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/\s+/g, ' ').trim();
+    if (map[ar]) return map[ar];
+    if (!this._custNorm || this._custNormSrc !== map) { this._custNormSrc = map; this._custNorm = {}; Object.entries(map).forEach(([k, v]) => { this._custNorm[norm(k)] = v; }); }
+    const hit = this._custNorm[norm(ar)];
+    if (hit) return hit;
+    const latin = ar.match(/[A-Za-z][A-Za-z0-9 .&\-]{2,}/);
+    if (latin) return latin[0].trim();
+    const W = { 'شركة': 'Co.', 'شركه': 'Co.', 'مؤسسة': 'Est.', 'مؤسسه': 'Est.', 'موسسة': 'Est.', 'موسسه': 'Est.', 'محل': 'Shop', 'ورشة': 'Workshop', 'ورشه': 'Workshop', 'مركز': 'Center', 'مصنع': 'Factory', 'أسواق': 'Markets', 'اسواق': 'Markets', 'للتجارة': 'Trading', 'للتجاره': 'Trading', 'التجارية': 'Trading', 'التجاريه': 'Trading', 'التجاري': 'Trading', 'تجارة': 'Trading', 'للمقاولات': 'Contracting', 'والمقاولات': '& Contracting', 'المحدودة': 'Ltd.', 'المحدوده': 'Ltd.', 'لخدمات': 'Services', 'السيارات': 'Auto', 'للسيارات': 'Auto', 'لصيانة': 'Maintenance', 'الرحلات': 'Trips', 'للرحلات': 'Trips', 'لوازم': 'Supplies', 'للوازم': 'Supplies', 'العامة': 'General', 'الدولية': 'International', 'العالمية': 'International', 'السعودية': 'Saudi', 'العربية': 'Arabian', 'العربي': 'Arab', 'الغذائية': 'Foodstuff', 'للمواد': '', 'شخص': '', 'واحد': '', 'و': '&', 'بن': 'bin', 'عبدالله': 'Abdullah', 'محمد': 'Mohammed', 'أحمد': 'Ahmed', 'احمد': 'Ahmed', 'عبدالعزيز': 'Abdulaziz', 'عبدالرحمن': 'Abdulrahman', 'فهد': 'Fahad', 'سالم': 'Salem', 'صالح': 'Saleh', 'علي': 'Ali', 'ناصر': 'Nasser', 'خالد': 'Khalid', 'سعد': 'Saad', 'ابراهيم': 'Ibrahim', 'إبراهيم': 'Ibrahim' };
+    const L = { 'ا': 'a', 'أ': 'a', 'إ': 'i', 'آ': 'a', 'ب': 'b', 'ت': 't', 'ث': 'th', 'ج': 'j', 'ح': 'h', 'خ': 'kh', 'د': 'd', 'ذ': 'dh', 'ر': 'r', 'ز': 'z', 'س': 's', 'ش': 'sh', 'ص': 's', 'ض': 'd', 'ط': 't', 'ظ': 'z', 'ع': 'a', 'غ': 'gh', 'ف': 'f', 'ق': 'q', 'ك': 'k', 'ل': 'l', 'م': 'm', 'ن': 'n', 'ه': 'h', 'و': 'w', 'ي': 'y', 'ى': 'a', 'ة': 'a', 'ء': '', 'ئ': 'e', 'ؤ': 'o', 'ی': 'y', 'ک': 'k' };
+    const tr = w => { let p = ''; if (/^(ال|لل)/.test(w) && w.length > 3) { p = 'Al '; w = w.replace(/^(ال|لل)/, ''); } const s = [...w].map(ch => L[ch] ?? (/[\u064B-\u065F]/.test(ch) ? '' : ch)).join(''); return p + (s.charAt(0).toUpperCase() + s.slice(1)); };
+    const words = norm(ar).replace(/[()\-–/]/g, ' ').split(' ').filter(Boolean);
+    let lead = '', out = [];
+    words.forEach(w => { const raw = ar.split(/\s+/).find(x => norm(x) === w) || w; const t = W[raw] ?? W[w]; if (t === undefined) out.push(tr(raw)); else if (['Co.', 'Est.', 'Shop', 'Workshop', 'Center', 'Factory', 'Markets'].includes(t) && !out.length && !lead) lead = t; else if (t) out.push(t); });
+    if (lead) out.push(lead);
+    return out.join(' ').replace(/\s+/g, ' ').trim() + ' *';
   }
 
   wholesaleEffType(w) {
@@ -6503,7 +6532,7 @@ class Component extends DCLogic {
     if (view === 'customers') {
       const agg = new Map(); const T = { cy: { net: 0, inv: 0 }, ly: { net: 0, inv: 0 } };
       Y.bo.forEach(r => { const code = Y.stores[r[1]]; if (!dayOk(r[0]) || !storeOk(code)) return; const y = P.days[r[0]].cy ? 'cy' : 'ly'; const k = r[2]; let a = agg.get(k); if (!a) agg.set(k, a = { type: Y.types[r[3]], cy: { net: 0, inv: 0 }, ly: { net: 0, inv: 0 } }); a[y].net += r[5]; T[y].net += r[5]; if (r[5] >= 0) { a[y].inv++; T[y].inv++; } });
-      custRows = [...agg.entries()].sort((x, y) => (y[1].cy.net - x[1].cy.net) || (y[1].ly.net - x[1].ly.net)).map(([k, a], i) => { const ar = String((typeof k === 'number' ? (Y.custs || [])[k] : k) || (typeof k === 'number' ? k : '—')).trim(); const enN = (this.state.custEn || {})[ar] || (/[\u0600-\u06FF]/.test(ar) ? '' : ar); return { rank: i + 1, name: enN || ar, nameAr: enN && enN !== ar ? ar : '', type: a.type || '—', ly: fmtM(a.ly.net), cy: fmtM(a.cy.net), diff: diffLab(a.cy.net - a.ly.net), d: dLab(a.cy.net, a.ly.net), c: dClr(a.cy.net, a.ly.net), invLy: fmtN(a.ly.inv), invCy: fmtN(a.cy.inv), share: T.cy.net ? (100 * a.cy.net / T.cy.net).toFixed(1) + '%' : '—' }; });
+      custRows = [...agg.entries()].sort((x, y) => (y[1].cy.net - x[1].cy.net) || (y[1].ly.net - x[1].ly.net)).map(([k, a], i) => { const ar = String((typeof k === 'number' ? (Y.custs || [])[k] : k) || (typeof k === 'number' ? k : '—')).trim(); const enN = this.custEnName(ar); return { rank: i + 1, name: enN || ar, nameAr: enN && enN !== ar ? ar : '', type: a.type || '—', ly: fmtM(a.ly.net), cy: fmtM(a.cy.net), diff: diffLab(a.cy.net - a.ly.net), d: dLab(a.cy.net, a.ly.net), c: dClr(a.cy.net, a.ly.net), invLy: fmtN(a.ly.inv), invCy: fmtN(a.cy.inv), share: T.cy.net ? (100 * a.cy.net / T.cy.net).toFixed(1) + '%' : '—' }; });
       custFoot = { ly: fmtM(T.ly.net), cy: fmtM(T.cy.net), diff: diffLab(T.cy.net - T.ly.net), d: dLab(T.cy.net, T.ly.net), c: dClr(T.cy.net, T.ly.net), invLy: fmtN(T.ly.inv), invCy: fmtN(T.cy.inv) };
       if (hasCat) notes.push('Category filters do not apply to backoffice customers.');
     }
