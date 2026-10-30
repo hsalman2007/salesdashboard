@@ -4724,8 +4724,7 @@ class Component extends DCLogic {
     const wMap = {}, tMap = {};
     (st.wholesale || []).forEach(w => {
       if (w.date !== date) return;
-      const sm = this.storeIndex[w.storeCode];
-      if (sm && sm.type === 'Store' && !['Wholesale', 'ADES', 'SASCO'].includes(w.type)) return;
+      // store BO sales are included here too, so the snapshot total matches Net Sales on Daily Sales / Overview
       const name = this.wholesaleName(w);
       const bucket = threePNames.includes(name) ? tMap : wMap;
       const e = bucket[name] || (bucket[name] = { name, type: this.wholesaleEffType(w), amount: 0 });
@@ -4787,7 +4786,7 @@ class Component extends DCLogic {
         { label: 'Stores', value: num(snapQitafStoreRows.length) }
       ],
       snapKpis: [
-        { hero: true, label: 'Total sales — all accounts', value: money(totalRaw.netSales + sum(snapWholesaleRows) + sum(snapThreePRows)), sub: 'retail ' + money(totalRaw.netSales) + ' \u00b7 wholesale ' + money(sum(snapWholesaleRows)) + ' \u00b7 3P ' + money(sum(snapThreePRows)) },
+        { hero: true, label: 'Total sales — all accounts', value: money(totalRaw.netSales + sum(snapWholesaleRows) + sum(snapThreePRows)), sub: 'retail ' + money(totalRaw.netSales) + ' \u00b7 wholesale & BO ' + money(sum(snapWholesaleRows)) + ' \u00b7 3P ' + money(sum(snapThreePRows)) },
         { label: 'Invoices', value: num(totalRaw.invoices), sub: money(totalRaw.invoices ? totalRaw.netSales / totalRaw.invoices : 0) + ' ATV' },
         { label: 'Sold qty', value: num(totalRaw.qty), sub: Math.abs(totalRaw.invoices ? totalRaw.qty / totalRaw.invoices : 0).toFixed(2) + ' UPT' },
         { label: 'Returns value', value: money(totalRaw.returnValue), sub: num(totalRaw.returnQty) + ' units returned' },
@@ -4795,7 +4794,7 @@ class Component extends DCLogic {
         { label: 'SKUs sold', value: num(skusSold.size), sub: 'distinct items' },
         { label: 'Top store sales', value: money(topStore ? topStore.netSales : 0), sub: topStore ? label(topStore.code) : '—' },
         { label: 'Retail net sales', value: money(totalRaw.netSales), sub: num(snapStoreRows.length) + ' stores' },
-        { label: 'Wholesale + 3P', value: money(sum(snapWholesaleRows) + sum(snapThreePRows)), sub: 'wholesale ' + money(sum(snapWholesaleRows)) + ' \u00b7 3P ' + money(sum(snapThreePRows)) },
+        { label: 'Wholesale + 3P', value: money(sum(snapWholesaleRows) + sum(snapThreePRows)), sub: 'wholesale & BO ' + money(sum(snapWholesaleRows)) + ' \u00b7 3P ' + money(sum(snapThreePRows)) },
         { label: 'STC Qitaf', value: money(qAmount), sub: num(qInvoices) + ' invoices' }
       ].map(k => ({ ...k, plain: !k.hero }))
     };
