@@ -1808,10 +1808,10 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <h3 style="font-family:var(--font-heading);font-size:18px;margin:0 0 var(--space-3)">7 · Top items <span style="font-size:13px;color:var(--color-neutral-500);font-weight:400">{{snapItemCountLabel}}</span></h3>
 <div style="overflow-x:auto;margin-bottom:var(--space-8)">
 <table class="table">
-<thead><tr><th>#</th><th style="text-align:left">Item</th><th style="text-align:left">Brand</th><th style="text-align:left">Sub-category</th><th>Net sales</th><th>Share</th><th>Sold qty</th><th>Stores</th><th>ASP</th><th>Markup%</th></tr></thead>
+<thead><tr><th>#</th><th style="text-align:left">Item</th><th style="text-align:left">Brand</th><th>Net sales</th><th>Share</th><th>Sold qty</th><th>Stores</th><th>ASP</th><th>Markup%</th></tr></thead>
 <tbody>
 <sc-for list="{{snapItemRows}}" as="r" hint-placeholder-count="10">
-<tr><td style="font-weight:600">{{r.rank}}</td><td style="text-align:left"><div style="display:flex;align-items:center;gap:10px;min-width:240px"><sc-if value="{{r.image}}" hint-placeholder-val="{{false}}"><img src="{{r.image}}" alt="" loading="lazy" style="width:36px;height:36px;object-fit:contain;border-radius:6px;background:var(--color-neutral-100);flex:none"></sc-if><div><div style="font-weight:600">{{r.desc}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{r.name}}</div></div></div></td><td style="text-align:left;white-space:nowrap">{{r.brand}}</td><td style="text-align:left;white-space:nowrap;color:var(--color-neutral-500)">{{r.sub}}</td><td style="font-weight:600;white-space:nowrap">{{r.netSales}}</td><td>{{r.share}}</td><td>{{r.qty}}</td><td>{{r.stores}}</td><td style="white-space:nowrap">{{r.asp}}</td><td>{{r.markup}}</td></tr>
+<tr><td style="font-weight:600">{{r.rank}}</td><td style="text-align:left"><div style="display:flex;align-items:center;gap:10px;min-width:240px"><sc-if value="{{r.image}}" hint-placeholder-val="{{false}}"><img src="{{r.image}}" alt="" loading="lazy" style="width:36px;height:36px;object-fit:contain;border-radius:6px;background:var(--color-neutral-100);flex:none"></sc-if><div><div style="font-weight:600">{{r.desc}}</div><div style="font-size:11px;color:var(--color-neutral-500)">{{r.name}}</div></div></div></td><td style="text-align:left;white-space:nowrap">{{r.brand}}</td><td style="font-weight:600;white-space:nowrap">{{r.netSales}}</td><td>{{r.share}}</td><td>{{r.qty}}</td><td>{{r.stores}}</td><td style="white-space:nowrap">{{r.asp}}</td><td>{{r.markup}}</td></tr>
 </sc-for>
 </tbody>
 </table>
@@ -5246,12 +5246,33 @@ class Component extends DCLogic {
     this.setState({ itemShareBusy: false });
   }
 
-  exportSnapshotPdf(shownDate) {
+  async exportSnapshotPdf(shownDate) {
+    try { await this._exportSnapshotPdf(shownDate); }
+    catch (e) { console.error('Snapshot PDF failed', e); this.setState({ snapPdfNote: 'PDF export failed — please try again.' }); }
+  }
+
+  async _exportSnapshotPdf(shownDate) {
     const st = this.state;
     const date = shownDate || st.snapDate;
     if (!date) { this.setState({ snapPdfNote: 'Pick a date first.' }); return; }
     if (!window.jspdf) { this.setState({ snapPdfNote: 'PDF library still loading — wait a moment and tap Export again.' }); return; }
     const S = this.snapshotData(date);
+    this.setState({ snapPdfNote: 'Preparing PDF — loading item images…' });
+    const toData = async src => {
+      try {
+        // proxy first (product host sends no CORS headers), then the full fallback chain
+        const timeout = ms => new Promise(r => setTimeout(() => r(null), ms));
+        let im = null;
+        if (/^https?:\/\//.test(src)) im = await Promise.race([this._loadImg('https://images.weserv.nl/?url=' + encodeURIComponent(src.replace(/^https?:\/\//, '')) + '&w=320', true), timeout(15000)]);
+        if (!im || !im.naturalWidth) im = await Promise.race([this._loadExportImg(src), timeout(15000)]);
+        if (!im || !im.naturalWidth) return null;
+        const cv = document.createElement('canvas'), s = Math.min(1, 160 / Math.max(im.naturalWidth, im.naturalHeight));
+        cv.width = Math.round(im.naturalWidth * s); cv.height = Math.round(im.naturalHeight * s);
+        const cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cv.width, cv.height); cx.drawImage(im, 0, 0, cv.width, cv.height);
+        return { url: cv.toDataURL('image/jpeg', 0.85), w: cv.width, h: cv.height };
+      } catch (e) { return null; }
+    };
+    const itemImgs = await Promise.all(S.snapItemRows.map(r => r.image ? toData(r.image) : null));
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
     const ACC = [45, 143, 129], INK = [24, 34, 32], SOFT = [240, 247, 245];
@@ -5273,7 +5294,8 @@ class Component extends DCLogic {
       footStyles: { fillColor: [226, 239, 236], textColor: INK, fontStyle: 'bold', fontSize: size, halign: 'right' },
       margin: { left: M, right: M },
       // footer labels (Total, account names, tags) read left; numbers stay right
-      didParseCell: data => { if (data.section === 'head') { const cs = data.table.settings && data.table.settings.columnStyles; if (cs && cs[data.column.index] && cs[data.column.index].halign === 'left') data.cell.styles.halign = 'left'; return; } if (data.section !== 'foot') return; const t = String(data.cell.raw == null ? '' : data.cell.raw).trim(); if (t && !/^[-−+]?[\d.,]+%?$/.test(t)) data.cell.styles.halign = 'left'; }
+      willDrawCell: data => { if (data.section !== 'head') return; const b = data.table.body && data.table.body[0]; const bc = b && b.cells[data.column.index]; if (bc && bc.styles.halign === 'left') data.cell.styles.halign = 'left'; },
+      didParseCell: data => { if (data.section !== 'foot') return; const t = String(data.cell.raw == null ? '' : data.cell.raw).trim(); if (t && !/^[-−+]?[\d.,]+%?$/.test(t)) data.cell.styles.halign = 'left'; }
     });
     const nameCol = width => ({ 0: { halign: 'left', fontStyle: 'bold', cellWidth: width } });
     const caption = (text, y) => {
@@ -5385,9 +5407,15 @@ class Component extends DCLogic {
     doc.autoTable({ ...base(9.5), startY: 38, head: [['#', 'Brand', 'Net sales', 'Share', 'Qty', 'SKUs', 'ASP', 'Markup%']], body: dimBody(S.snapBrandRows), foot: dimFoot, columnStyles: dimCols });
     doc.addPage();
     head('Top items', nice + '   ·   ' + S.snapItemCountLabel);
-    doc.autoTable({ ...base(8.5), startY: 38, head: [['#', 'Item', 'Brand', 'Sub-category', 'Net sales', 'Share', 'Qty', 'Stores', 'Markup%']],
-      body: S.snapItemRows.map(r => [r.rank, r.desc + '\n' + r.name, r.brand, r.sub, r.netSales, r.share, r.qty, r.stores, r.markup]),
-      columnStyles: { 0: { halign: 'right', cellWidth: 7 }, 1: { halign: 'left', fontStyle: 'bold', cellWidth: 58 }, 2: { halign: 'left' }, 3: { halign: 'left', textColor: [107, 111, 128] } } });
+    doc.autoTable({ ...base(8.5), startY: 38, head: [['#', '', 'Item', 'Brand', 'Net sales', 'Share', 'Qty', 'Stores', 'Markup%']],
+      body: S.snapItemRows.map(r => [r.rank, '', r.desc + '\n' + r.name, r.brand, r.netSales, r.share, r.qty, r.stores, r.markup]),
+      columnStyles: { 0: { halign: 'right', cellWidth: 9 }, 1: { cellWidth: 15, minCellHeight: 14 }, 2: { halign: 'left', fontStyle: 'bold', cellWidth: 66 }, 3: { halign: 'left', cellWidth: 26 } },
+      didDrawCell: data => {
+        if (data.section !== 'body' || data.column.index !== 1) return;
+        const im = itemImgs[data.row.index]; if (!im) return;
+        const box = Math.min(data.cell.width, data.cell.height) - 2, s = box / Math.max(im.w, im.h), w = im.w * s, h = im.h * s;
+        try { doc.addImage(im.url, 'JPEG', data.cell.x + (data.cell.width - w) / 2, data.cell.y + (data.cell.height - h) / 2, w, h); } catch (e) {}
+      } });
 
     // ---- STC Qitaf
     doc.addPage();
