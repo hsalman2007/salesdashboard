@@ -1760,7 +1760,11 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <tr style="background:{{s.rowBg}}"><td style="font-weight:600">{{s.rank}}</td><td style="font-weight:600;text-align:left;white-space:nowrap">{{s.name}}</td><td style="font-weight:600;white-space:nowrap">{{s.netSales}}</td><td>{{s.qty}}</td><td>{{s.invoices}}</td><td style="white-space:nowrap">{{s.atv}}</td><td>{{s.upt}}</td><td style="white-space:nowrap">{{s.asp}}</td><td>{{s.singleInv}}</td><td>{{s.singleInvPct}}</td></tr>
 </sc-for>
 </tbody>
-<tfoot><tr style="border-top:2px solid var(--color-divider)"><td></td><td style="font-weight:700;text-align:left">Total</td><td style="font-weight:700;white-space:nowrap">{{snapStoreTotal.netSales}}</td><td style="font-weight:700">{{snapStoreTotal.qty}}</td><td style="font-weight:700">{{snapStoreTotal.invoices}}</td><td style="font-weight:700;white-space:nowrap">{{snapStoreTotal.atv}}</td><td style="font-weight:700">{{snapStoreTotal.upt}}</td><td style="font-weight:700;white-space:nowrap">{{snapStoreTotal.asp}}</td><td style="font-weight:700">{{snapStoreTotal.singleInv}}</td><td style="font-weight:700">{{snapStoreTotal.singleInvPct}}</td></tr></tfoot>
+<tfoot><tr style="border-top:2px solid var(--color-divider)"><td></td><td style="font-weight:700;text-align:left">Retail total</td><td style="font-weight:700;white-space:nowrap">{{snapStoreTotal.netSales}}</td><td style="font-weight:700">{{snapStoreTotal.qty}}</td><td style="font-weight:700">{{snapStoreTotal.invoices}}</td><td style="font-weight:700;white-space:nowrap">{{snapStoreTotal.atv}}</td><td style="font-weight:700">{{snapStoreTotal.upt}}</td><td style="font-weight:700;white-space:nowrap">{{snapStoreTotal.asp}}</td><td style="font-weight:700">{{snapStoreTotal.singleInv}}</td><td style="font-weight:700">{{snapStoreTotal.singleInvPct}}</td></tr>
+<sc-for list="{{snapAccountRows}}" as="a" hint-placeholder-count="0">
+<tr><td style="color:var(--color-neutral-500)">{{a.tag}}</td><td style="font-weight:600;text-align:left;white-space:nowrap">{{a.name}} <span style="font-size:11px;font-weight:400;color:var(--color-neutral-500)">{{a.type}}</span></td><td style="font-weight:600;white-space:nowrap">{{a.amount}}</td><td colspan="7" style="color:var(--color-neutral-500);text-align:left">—</td></tr>
+</sc-for>
+<tr style="border-top:2px solid var(--color-divider);background:var(--color-accent-500);color:#fff"><td></td><td style="font-weight:700;text-align:left;color:#fff">Grand total — all accounts</td><td style="font-weight:700;white-space:nowrap;color:#fff">{{snapGrandTotal}}</td><td colspan="7"></td></tr></tfoot>
 </table>
 </div>
 
@@ -3685,7 +3689,7 @@ class Component extends DCLogic {
     'YOY Comparison': 'المقارنة السنوية', 'YoY Comparison': 'المقارنة السنوية',
     'Wholesale Detail': 'تفاصيل الجملة', 'Link Sales Detail': 'تفاصيل المبيعات المرتبطة',
     'Log out': 'تسجيل الخروج', 'branches tracked': 'فرعاً مشمولاً',
-    'Net Sales': 'صافي المبيعات', 'Net sales': 'صافي المبيعات', 'Total net sales': 'إجمالي صافي المبيعات', 'Total sales — all accounts': 'إجمالي المبيعات — كل الحسابات', 'Retail net sales': 'صافي مبيعات التجزئة',
+    'Net Sales': 'صافي المبيعات', 'Net sales': 'صافي المبيعات', 'Total net sales': 'إجمالي صافي المبيعات', 'Retail total': 'إجمالي التجزئة', 'Grand total — all accounts': 'الإجمالي العام — كل الحسابات', 'Total sales — all accounts': 'إجمالي المبيعات — كل الحسابات', 'Retail net sales': 'صافي مبيعات التجزئة',
     'Total sales': 'إجمالي المبيعات', 'Retail Sales ': 'مبيعات التجزئة', 'Retail sales': 'مبيعات التجزئة',
     'Sold Qty': 'الكمية المباعة', 'Sold qty': 'الكمية المباعة', 'Qty': 'الكمية', 'Units': 'الوحدات',
     'Units Sold': 'الوحدات المباعة', 'Units sold': 'الوحدات المباعة', 'Returned': 'المرتجع',
@@ -4622,10 +4626,10 @@ class Component extends DCLogic {
       HQST01: 'Ahmed Al Zan - 8923', RYVS01: 'Ahmed Al Zan - 8923', RYVS02: 'Aydaros - 11841', RYVS03: 'Shareif - 27133',
       RYVS04: 'Yasir - 20813', RYVS05: 'Ahmed - 27451', RYVS06: 'Mamdouh - 28682', RYVS07: 'Adnan - 28866',
       RYVS08: 'Mohammed - 29818', RYVS09: 'Fadil - 29840', RYVS10: 'Shaban - 39839', RYVS11: 'Mutawalli - 39838',
-      RYVS12: 'Zuhair - 38850', RYVS13: 'Mahmoud - 40607'
+      RYVS12: 'Zuhair - 38850', RYVS13: 'Mahmoud - 40607', WDEC: 'Wander App'
     };
     const sm = this.storeIndex[w.storeCode];
-    let name = codeOverride[w.storeCode] || nameMerge[w.storeName] || w.storeName;
+    let name = codeOverride[w.storeCode] || codeOverride[String(w.storeName || '').trim()] || nameMerge[w.storeName] || w.storeName;
     if (w.storeCode === 'RYWS05') name = 'Zuhair - 38850';
     if (w.storeCode === 'HOEST') name = 'HO Sales - Intercompany';
     if (w.storeName === 'Whole Sales Transfers') name = this.wholesaleEffType(w);
@@ -4785,6 +4789,8 @@ class Component extends DCLogic {
         { label: 'Invoices', value: num(qInvoices) },
         { label: 'Stores', value: num(snapQitafStoreRows.length) }
       ],
+      snapAccountRows: [...snapWholesaleRows.map(r => ({ ...r, tag: 'BO' })), ...snapThreePRows.map(r => ({ ...r, tag: '3P' }))],
+      snapGrandTotal: money(totalRaw.netSales + sum(snapWholesaleRows) + sum(snapThreePRows)),
       snapKpis: [
         { hero: true, label: 'Total sales — all accounts', value: money(totalRaw.netSales + sum(snapWholesaleRows) + sum(snapThreePRows)), sub: 'retail ' + money(totalRaw.netSales) + ' \u00b7 wholesale & BO ' + money(sum(snapWholesaleRows)) + ' \u00b7 3P ' + money(sum(snapThreePRows)) },
         { label: 'Invoices', value: num(totalRaw.invoices), sub: money(totalRaw.invoices ? totalRaw.netSales / totalRaw.invoices : 0) + ' ATV' },
@@ -5326,7 +5332,9 @@ class Component extends DCLogic {
       ...base(10), startY: 38,
       head: [['#', 'Store', 'Net sales', 'Qty', 'Inv', 'ATV', 'UPT', 'Single Inv%']],
       body: S.snapStoreRows.map(s => [s.rank, s.name, s.netSales, s.qty, s.invoices, s.atv, s.upt, s.singleInvPct]),
-      foot: [['', 'Total', S.snapStoreTotal.netSales, S.snapStoreTotal.qty, S.snapStoreTotal.invoices, S.snapStoreTotal.atv, S.snapStoreTotal.upt, S.snapStoreTotal.singleInvPct]],
+      foot: [['', 'Retail total', S.snapStoreTotal.netSales, S.snapStoreTotal.qty, S.snapStoreTotal.invoices, S.snapStoreTotal.atv, S.snapStoreTotal.upt, S.snapStoreTotal.singleInvPct],
+        ...(S.snapAccountRows || []).map(a => [a.tag, a.name, a.amount, '', '', '', '', '']),
+        ['', 'Grand total — all accounts', S.snapGrandTotal, '', '', '', '', '']],
       columnStyles: { 0: { halign: 'right', cellWidth: 9 }, 1: { halign: 'left', fontStyle: 'bold', cellWidth: 42 } }
     });
 
