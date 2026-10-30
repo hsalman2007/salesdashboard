@@ -6502,7 +6502,7 @@ class Component extends DCLogic {
     if (view === 'customers') {
       const agg = new Map(); const T = { cy: { net: 0, inv: 0 }, ly: { net: 0, inv: 0 } };
       Y.bo.forEach(r => { const code = Y.stores[r[1]]; if (!dayOk(r[0]) || !storeOk(code)) return; const y = P.days[r[0]].cy ? 'cy' : 'ly'; const k = r[2]; let a = agg.get(k); if (!a) agg.set(k, a = { type: Y.types[r[3]], cy: { net: 0, inv: 0 }, ly: { net: 0, inv: 0 } }); a[y].net += r[5]; T[y].net += r[5]; if (r[5] >= 0) { a[y].inv++; T[y].inv++; } });
-      custRows = [...agg.entries()].sort((x, y) => (y[1].cy.net - x[1].cy.net) || (y[1].ly.net - x[1].ly.net)).map(([k, a], i) => ({ rank: i + 1, name: k || '—', type: a.type || '—', ly: fmtM(a.ly.net), cy: fmtM(a.cy.net), diff: diffLab(a.cy.net - a.ly.net), d: dLab(a.cy.net, a.ly.net), c: dClr(a.cy.net, a.ly.net), invLy: fmtN(a.ly.inv), invCy: fmtN(a.cy.inv), share: T.cy.net ? (100 * a.cy.net / T.cy.net).toFixed(1) + '%' : '—' }));
+      custRows = [...agg.entries()].sort((x, y) => (y[1].cy.net - x[1].cy.net) || (y[1].ly.net - x[1].ly.net)).map(([k, a], i) => ({ rank: i + 1, name: (typeof k === 'number' ? (Y.custs || [])[k] : k) || (typeof k === 'number' ? String(k) : '—'), type: a.type || '—', ly: fmtM(a.ly.net), cy: fmtM(a.cy.net), diff: diffLab(a.cy.net - a.ly.net), d: dLab(a.cy.net, a.ly.net), c: dClr(a.cy.net, a.ly.net), invLy: fmtN(a.ly.inv), invCy: fmtN(a.cy.inv), share: T.cy.net ? (100 * a.cy.net / T.cy.net).toFixed(1) + '%' : '—' }));
       custFoot = { ly: fmtM(T.ly.net), cy: fmtM(T.cy.net), diff: diffLab(T.cy.net - T.ly.net), d: dLab(T.cy.net, T.ly.net), c: dClr(T.cy.net, T.ly.net), invLy: fmtN(T.ly.inv), invCy: fmtN(T.cy.inv) };
       if (hasCat) notes.push('Category filters do not apply to backoffice customers.');
     }
