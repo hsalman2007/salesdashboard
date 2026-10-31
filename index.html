@@ -292,9 +292,9 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <thead><tr><th style="text-align:left">Region</th><th>Net sales</th><th>Contribution</th><th>Sold qty</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Promo%</th><th>Invoices</th><th>Single Inv%</th><th>Return Qty</th><th>Return%</th><th>Markup%</th></tr></thead>
 <tbody>
 <sc-for list="{{regionSorted}}" as="r" hint-placeholder-count="5">
-<tr onClick="{{r.onToggle}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;padding-right:32px;text-align:left">{{r.regionLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.contribLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.promoLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.singleItemPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.returnQtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.returnPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.markupLabel}}</td></tr>
+<tr data-grp="{{r.regionLabel}}" onClick="{{r.onToggle}}" style="cursor:pointer"><td style="font-weight:600;white-space:nowrap;padding-right:32px;text-align:left">{{r.regionLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.netSalesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.contribLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.qtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.atvLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.uptLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.aspLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.promoLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.invoicesLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.singleItemPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.returnQtyLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.returnPctLabel}}</td><td style="font-weight:600;white-space:nowrap">{{r.markupLabel}}</td></tr>
 <sc-if value="{{r.expanded}}" hint-placeholder-val="{{false}}">
-<tr><td colspan="13" style="padding:0 0 var(--space-4) 0">
+<tr data-grp-detail="{{r.regionLabel}}"><td colspan="13" style="padding:0 0 var(--space-4) 0">
 <table class="table">
 <thead><tr><th style="text-align:left">Store</th><th>Net sales</th><th>Contribution</th><th>Sold qty</th><th>ATV</th><th>UPT</th><th>ASP</th><th>Promo%</th><th>Invoices</th><th>Single Inv%</th><th>Return Qty</th><th>Return%</th><th>Markup%</th></tr></thead>
 <tbody>
@@ -2383,8 +2383,8 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <div class="card elev-sm" style="padding:0;overflow:auto;max-height:75vh">
 <table class="table">
 <thead>
-<tr><th rowspan="2" style="text-align:left;vertical-align:bottom;position:sticky;left:0;z-index:3;background:var(--color-surface)">{{yfSplitHead}}</th><th colspan="3" style="text-align:center;border-right:1px solid var(--color-divider)">Retail net</th><th colspan="3" style="text-align:center;border-right:1px solid var(--color-divider)">Backoffice net</th><th colspan="4" style="text-align:center;border-right:1px solid var(--color-divider)">Total net</th><th colspan="3" style="text-align:center;border-right:1px solid var(--color-divider)">Retail receipts</th><th colspan="2" style="text-align:center;border-right:1px solid var(--color-divider)">Retail ATV</th><sc-if value="{{yfShowMu}}" hint-placeholder-val="{{true}}"><th colspan="2" style="text-align:center">Retail markup %</th></sc-if></tr>
-<tr><th>LY</th><th>CY</th><th style="border-right:1px solid var(--color-divider)">Δ%</th><th>LY</th><th>CY</th><th style="border-right:1px solid var(--color-divider)">Δ%</th><th>LY</th><th>CY</th><th>Diff</th><th style="border-right:1px solid var(--color-divider)">Δ%</th><th>LY</th><th>CY</th><th style="border-right:1px solid var(--color-divider)">Δ%</th><th>LY</th><th style="border-right:1px solid var(--color-divider)">CY</th><sc-if value="{{yfShowMu}}" hint-placeholder-val="{{true}}"><th>LY</th><th>CY</th></sc-if></tr>
+<tr><th rowspan="2" onClick="{{yfSortH.name}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap;text-align:left;vertical-align:bottom;position:sticky;left:0;z-index:3;background:var(--color-surface)">{{yfSplitHead}}{{yfArr.name}}</th><th colspan="3" style="text-align:center;border-right:1px solid var(--color-divider)">Retail net</th><th colspan="3" style="text-align:center;border-right:1px solid var(--color-divider)">Backoffice net</th><th colspan="4" style="text-align:center;border-right:1px solid var(--color-divider)">Total net</th><th colspan="3" style="text-align:center;border-right:1px solid var(--color-divider)">Retail receipts</th><th colspan="2" style="text-align:center;border-right:1px solid var(--color-divider)">Retail ATV</th><sc-if value="{{yfShowMu}}" hint-placeholder-val="{{true}}"><th colspan="2" style="text-align:center">Retail markup %</th></sc-if></tr>
+<tr><th onClick="{{yfSortH.rLy}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap">LY{{yfArr.rLy}}</th><th onClick="{{yfSortH.rCy}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap">CY{{yfArr.rCy}}</th><th onClick="{{yfSortH.rD}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap;border-right:1px solid var(--color-divider)">Δ%{{yfArr.rD}}</th><th onClick="{{yfSortH.bLy}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap">LY{{yfArr.bLy}}</th><th onClick="{{yfSortH.bCy}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap">CY{{yfArr.bCy}}</th><th onClick="{{yfSortH.bD}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap;border-right:1px solid var(--color-divider)">Δ%{{yfArr.bD}}</th><th onClick="{{yfSortH.tLy}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap">LY{{yfArr.tLy}}</th><th onClick="{{yfSortH.tCy}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap">CY{{yfArr.tCy}}</th><th onClick="{{yfSortH.tDiff}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap">Diff{{yfArr.tDiff}}</th><th onClick="{{yfSortH.tD}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap;border-right:1px solid var(--color-divider)">Δ%{{yfArr.tD}}</th><th onClick="{{yfSortH.rcLy}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap">LY{{yfArr.rcLy}}</th><th onClick="{{yfSortH.rcCy}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap">CY{{yfArr.rcCy}}</th><th onClick="{{yfSortH.rcD}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap;border-right:1px solid var(--color-divider)">Δ%{{yfArr.rcD}}</th><th onClick="{{yfSortH.atvLy}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap">LY{{yfArr.atvLy}}</th><th onClick="{{yfSortH.atvCy}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap;border-right:1px solid var(--color-divider)">CY{{yfArr.atvCy}}</th><sc-if value="{{yfShowMu}}" hint-placeholder-val="{{true}}"><th onClick="{{yfSortH.muLy}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap">LY{{yfArr.muLy}}</th><th onClick="{{yfSortH.muCy}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap">CY{{yfArr.muCy}}</th></sc-if></tr>
 </thead>
 <tbody>
 <sc-for list="{{yfSplitRows}}" as="r" hint-placeholder-count="6">
@@ -2410,8 +2410,8 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <div class="card elev-sm" style="padding:0;overflow:auto;max-height:75vh">
 <table class="table">
 <thead>
-<tr><th rowspan="2" style="vertical-align:bottom">#</th><th rowspan="2" style="text-align:left;vertical-align:bottom">{{yfDimHead}}</th><th colspan="4" style="text-align:center;border-right:1px solid var(--color-divider)">Retail net sales</th><th colspan="3" style="text-align:center;border-right:1px solid var(--color-divider)">Units</th><th colspan="2" style="text-align:center;border-right:1px solid var(--color-divider)">ASP</th><sc-if value="{{yfShowMu}}" hint-placeholder-val="{{true}}"><th colspan="2" style="text-align:center;border-right:1px solid var(--color-divider)">Markup %</th></sc-if><th rowspan="2" style="vertical-align:bottom">CY share</th></tr>
-<tr><th>LY</th><th>CY</th><th>Diff</th><th style="border-right:1px solid var(--color-divider)">Δ%</th><th>LY</th><th>CY</th><th style="border-right:1px solid var(--color-divider)">Δ%</th><th>LY</th><th style="border-right:1px solid var(--color-divider)">CY</th><sc-if value="{{yfShowMu}}" hint-placeholder-val="{{true}}"><th>LY</th><th style="border-right:1px solid var(--color-divider)">CY</th></sc-if></tr>
+<tr><th rowspan="2" style="vertical-align:bottom">#</th><th rowspan="2" onClick="{{yfSortH.name}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap;text-align:left;vertical-align:bottom">{{yfDimHead}}{{yfArr.name}}</th><th colspan="4" style="text-align:center;border-right:1px solid var(--color-divider)">Retail net sales</th><th colspan="3" style="text-align:center;border-right:1px solid var(--color-divider)">Units</th><th colspan="2" style="text-align:center;border-right:1px solid var(--color-divider)">ASP</th><sc-if value="{{yfShowMu}}" hint-placeholder-val="{{true}}"><th colspan="2" style="text-align:center;border-right:1px solid var(--color-divider)">Markup %</th></sc-if><th rowspan="2" onClick="{{yfSortH.share}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap;vertical-align:bottom">CY share{{yfArr.share}}</th></tr>
+<tr><th onClick="{{yfSortH.ly}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap">LY{{yfArr.ly}}</th><th onClick="{{yfSortH.cy}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap">CY{{yfArr.cy}}</th><th onClick="{{yfSortH.diff}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap">Diff{{yfArr.diff}}</th><th onClick="{{yfSortH.d}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap;border-right:1px solid var(--color-divider)">Δ%{{yfArr.d}}</th><th onClick="{{yfSortH.qLy}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap">LY{{yfArr.qLy}}</th><th onClick="{{yfSortH.qCy}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap">CY{{yfArr.qCy}}</th><th onClick="{{yfSortH.qD}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap;border-right:1px solid var(--color-divider)">Δ%{{yfArr.qD}}</th><th onClick="{{yfSortH.aspLy}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap">LY{{yfArr.aspLy}}</th><th onClick="{{yfSortH.aspCy}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap;border-right:1px solid var(--color-divider)">CY{{yfArr.aspCy}}</th><sc-if value="{{yfShowMu}}" hint-placeholder-val="{{true}}"><th onClick="{{yfSortH.muLy}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap">LY{{yfArr.muLy}}</th><th onClick="{{yfSortH.muCy}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap;border-right:1px solid var(--color-divider)">CY{{yfArr.muCy}}</th></sc-if></tr>
 </thead>
 <tbody>
 <sc-for list="{{yfDimRows}}" as="r" hint-placeholder-count="8">
@@ -2426,7 +2426,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <sc-if value="{{yfIsCust}}" hint-placeholder-val="{{false}}">
 <div class="card elev-sm" style="padding:0;overflow:auto;max-height:75vh">
 <table class="table">
-<thead><tr><th>#</th><th style="text-align:left">Customer</th><th style="text-align:left">Type</th><th>LY net</th><th>CY net</th><th>Diff</th><th>Δ%</th><th>LY invoices</th><th>CY invoices</th><th>CY share</th></tr></thead>
+<thead><tr><th>#</th><th onClick="{{yfSortH.name}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap;text-align:left">Customer{{yfArr.name}}</th><th onClick="{{yfSortH.type}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap;text-align:left">Type{{yfArr.type}}</th><th onClick="{{yfSortH.ly}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap">LY net{{yfArr.ly}}</th><th onClick="{{yfSortH.cy}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap">CY net{{yfArr.cy}}</th><th onClick="{{yfSortH.diff}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap">Diff{{yfArr.diff}}</th><th onClick="{{yfSortH.d}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap">Δ%{{yfArr.d}}</th><th onClick="{{yfSortH.invLy}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap">LY invoices{{yfArr.invLy}}</th><th onClick="{{yfSortH.invCy}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap">CY invoices{{yfArr.invCy}}</th><th onClick="{{yfSortH.share}}" title="Sort" style="cursor:pointer;user-select:none;white-space:nowrap">CY share{{yfArr.share}}</th></tr></thead>
 <tbody>
 <sc-for list="{{yfCustRows}}" as="r" hint-placeholder-count="8">
 <tr><td style="color:var(--color-neutral-500)">{{r.rank}}</td><td style="text-align:left;min-width:200px"><div style="font-weight:600">{{r.name}}</div><sc-if value="{{r.nameAr}}" hint-placeholder-val="{{false}}"><div dir="rtl" style="font-size:12px;color:var(--color-neutral-500);text-align:left">{{r.nameAr}}</div></sc-if></td><td style="text-align:left;white-space:nowrap">{{r.type}}</td><td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.ly}}</td><td style="white-space:nowrap;font-weight:700">{{r.cy}}</td><td style="white-space:nowrap;color:{{r.c}}">{{r.diff}}</td><td style="white-space:nowrap;font-weight:700;color:{{r.c}}">{{r.d}}</td><td style="white-space:nowrap;color:var(--color-neutral-500)">{{r.invLy}}</td><td style="white-space:nowrap;font-weight:600">{{r.invCy}}</td><td style="white-space:nowrap">{{r.share}}</td></tr>
@@ -4037,8 +4037,55 @@ class Component extends DCLogic {
     this.setState({ lang });
   };
 
+  _ownThs(t) { return t.tHead ? [...t.tHead.rows].flatMap(r => [...r.cells]) : []; }
+  _tblSig(t) { return this._ownThs(t).map(x => (x.firstChild && x.firstChild.nodeValue || x.textContent || '').trim()).join('|'); }
+  _thCol(th) {
+    const thead = th.closest('thead'); if (!thead) return -1;
+    const grid = [];
+    [...thead.rows].forEach((tr, ri) => { grid[ri] = grid[ri] || []; let c = 0; [...tr.cells].forEach(cell => { while (grid[ri][c]) c++; const cs = cell.colSpan || 1, rs = cell.rowSpan || 1; for (let r = 0; r < rs; r++) for (let k = 0; k < cs; k++) { grid[ri + r] = grid[ri + r] || []; grid[ri + r][c + k] = cell; } if (cell === th) th._col = cs === 1 ? c : -1; c += cs; }); });
+    return th._col ?? -1;
+  }
+  _cellVal(td) {
+    const s = (td ? td.textContent : '').trim();
+    if (!s || s === '—' || s === '-') return null;
+    if (/^new$/i.test(s)) return 1e15;
+    const t = s.replace(/[−–]/g, '-').replace(/,/g, '');
+    const m = t.match(/(-?)\s*(?:[A-Za-z]{0,4}\s*)?(\d+(?:\.\d+)?)\s*([KMB])?\b/);
+    if (m && /^[\s+\-−–A-Za-z.]{0,6}\d/.test(t) && !/[\u0600-\u06FF]/.test(t.slice(0, 3))) { const v = parseFloat(m[2]) * ({ K: 1e3, M: 1e6, B: 1e9 }[m[3]] || 1); return (m[1] || /^-/.test(t) ? -v : v); }
+    return s.toLowerCase();
+  }
+  _applyDomSort() {
+    const all = this._domSorts || {}; if (!Object.keys(all).length) return;
+    document.querySelectorAll('table').forEach(t => {
+      const cfg = all[this._tblSig(t)]; if (!cfg) return;
+      this._ownThs(t).forEach(x => { this._thCol(x); x._sortable = true; });
+      [...t.tBodies].forEach(tb => {
+        const rows = [...tb.rows]; if (rows.length < 2) return;
+        if (!rows[0]._o0) rows.forEach((r, i) => { r._o0 = i + 1; });
+        const groups = [], byKey = new Map();
+        rows.forEach(r => { if (!r.hasAttribute('data-grp-detail')) { const g = [r]; groups.push(g); if (r.hasAttribute('data-grp')) byKey.set(r.getAttribute('data-grp'), g); } });
+        rows.forEach(r => { if (r.hasAttribute('data-grp-detail')) { const g = byKey.get(r.getAttribute('data-grp-detail')); if (g) g.push(r); else groups.push([r]); } });
+        const vals = new Map(groups.map(g => [g, this._cellVal(g[0].cells[cfg.col])]));
+        const sorted = groups.slice().sort((a, b) => { const x = vals.get(a), y = vals.get(b); if (x == null && y == null) return 0; if (x == null) return 1; if (y == null) return -1; return (typeof x === 'string' || typeof y === 'string') ? cfg.dir * String(x).localeCompare(String(y)) : cfg.dir * (x - y); }).flat();
+        if (sorted.some((r, i) => r !== rows[i])) sorted.forEach(r => tb.appendChild(r));
+      });
+      this._ownThs(t).forEach(x => { let a = x.querySelector('[data-sort-arrow]'); if (!a) { a = document.createElement('span'); a.setAttribute('data-sort-arrow', ''); x.appendChild(a); } a.textContent = x._col === cfg.col && x._sortable ? (cfg.dir > 0 ? ' ▲' : ' ▼') : ''; });
+    });
+  }
+  _onThClick = e => {
+    const th = e.target.closest && e.target.closest('thead th'); if (!th || th.title === 'Sort' || th.closest('[data-no-sort]')) return;
+    const t = th.closest('table'); const col = this._thCol(th); if (col < 0 || !t.tBodies.length) return;
+    this._ownThs(t).forEach(x => { this._thCol(x); x._sortable = true; x.style.cursor = 'pointer'; });
+    const sig = this._tblSig(t); this._domSorts = this._domSorts || {};
+    const cur = this._domSorts[sig];
+    const first = [...t.tBodies[0].rows].map(r => this._cellVal(r.cells[col])).find(v => v != null);
+    this._domSorts[sig] = { col, dir: cur && cur.col === col ? -cur.dir : (typeof first === 'string' ? 1 : -1) };
+    this._applyDomSort();
+  };
+
   componentDidUpdate() {
     this._scheduleLang();
+    if (this._domSorts) requestAnimationFrame(() => this._applyDomSort());
     if (this.state.page === 'consumables' && !this.state.bagInvoices && !this.state.bagLoading && (this._bagTries || 0) < 4) this._ensureBagInvoices();
     if (this.state.page === 'exhibition' && !this.state.exh && !this.state.exhLoading && (this._exhTries || 0) < 4) this._ensureExhibition();
     if (this.state.page === 'staffRank' && !this.state.staffSales && !this.state.staffLoading && (this._staffTries || 0) < 4) this._ensureStaffSales();
@@ -4046,12 +4093,13 @@ class Component extends DCLogic {
   }
 
   componentDidMount() {
+    document.addEventListener('click', this._onThClick);
     Promise.all([
       fetch('data/customer-master.json').then(r => r.ok ? r.json() : []).catch(() => []),
       fetch('data/customer-names-en.json').then(r => r.ok ? r.json() : {}).catch(() => ({}))
     ]).then(([cm, extra]) => {
       const m = {};
-      (Array.isArray(cm) ? cm : []).forEach(x => { if (x && x.name && x.englishName) m[String(x.name).trim()] = x.englishName; });
+      (Array.isArray(cm) ? cm : []).forEach(x => { if (x && x.name && x.englishName && !/^#/.test(String(x.englishName).trim())) m[String(x.name).trim()] = x.englishName; });
       Object.entries(extra || {}).forEach(([k, v]) => { if (!m[k.trim()]) m[k.trim()] = v; });
       this.setState({ custEn: m });
     });
@@ -4087,6 +4135,7 @@ class Component extends DCLogic {
   }
 
   componentWillUnmount() {
+    document.removeEventListener('click', this._onThClick);
     if (this._mql) {
       if (this._mql.removeEventListener) this._mql.removeEventListener('change', this._onResize);
       else this._mql.removeListener(this._onResize);
@@ -6452,9 +6501,13 @@ class Component extends DCLogic {
       if (!useDim) Y.bo.forEach(r => { const code = Y.stores[r[1]]; if (!dayOk(r[0]) || !storeOk(code)) return; const y = P.days[r[0]].cy ? 'cy' : 'ly'; [G(gKey(r[0], code))[y], tot[y]].forEach(a => { a.bo += r[5]; if (r[5] >= 0) { a.boGross += r[5]; a.boInv++; } else a.boRet -= r[5]; a.boCust.add(r[2]); }); });
     }
 
+    const ys = st.yfSort && st.yfSort.view === view ? st.yfSort : null;
+    const pR = (cy, ly) => ly ? ((cy - ly) / Math.abs(ly)) * 100 : (cy ? 1e9 : null);
+    const muR = (n, c) => c ? 100 * (n - c) / c : null;
+    const sortRows = (arr, val) => { if (!ys) return arr; const d = ys.dir; return arr.slice().sort((a, b) => { const x = val(a, ys.key), y = val(b, ys.key); if (x == null && y == null) return 0; if (x == null) return 1; if (y == null) return -1; return typeof x === 'string' || typeof y === 'string' ? d * String(x).localeCompare(String(y)) : d * (x - y); }); };
     const splitRow = (name, sub, g) => {
       const c = g.cy, l = g.ly, tc = c.net + c.bo, tl = l.net + l.bo;
-      return { name, sub,
+      return { name, sub, _v: { name, rLy: l.net, rCy: c.net, rD: pR(c.net, l.net), bLy: useDim ? null : l.bo, bCy: useDim ? null : c.bo, bD: useDim ? null : pR(c.bo, l.bo), tLy: tl, tCy: tc, tDiff: tc - tl, tD: pR(tc, tl), rcLy: useDim ? null : l.rc, rcCy: useDim ? null : c.rc, rcD: useDim ? null : pR(c.rc, l.rc), atvLy: !useDim && l.rc ? l.net / l.rc : null, atvCy: !useDim && c.rc ? c.net / c.rc : null, muLy: muR(l.net, l.cost), muCy: muR(c.net, c.cost) },
         rLy: fmtM(l.net), rCy: fmtM(c.net), rD: dLab(c.net, l.net), rC: dClr(c.net, l.net),
         bLy: useDim ? '—' : fmtM(l.bo), bCy: useDim ? '—' : fmtM(c.bo), bD: useDim ? '—' : dLab(c.bo, l.bo), bC: dClr(c.bo, l.bo),
         tLy: fmtM(tl), tCy: fmtM(tc), tDiff: diffLab(tc - tl), tD: dLab(tc, tl), tC: dClr(tc, tl),
@@ -6475,6 +6528,8 @@ class Component extends DCLogic {
     } else if (view === 'region') {
       splitRows = [...groups.keys()].map(k => splitRow(k, '', groups.get(k))).sort((a, b) => b.sortV - a.sortV);
     }
+    if (view === 'monthly' || view === 'daily') splitRows.forEach((r, i) => { r._v.name = i; });
+    splitRows = sortRows(splitRows, (r, k) => r._v[k]);
     const splitFoot = splitRow('Total', '', tot);
 
     if (view === 'summary') {
@@ -6516,6 +6571,7 @@ class Component extends DCLogic {
       }
       const blank = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect width="40" height="40" fill="%23252b3a"/%3E%3C/svg%3E';
       let rows = [...agg.entries()].map(([k, a]) => ({ k, a })).sort((x, y) => (y.a.cy.net - x.a.cy.net) || (y.a.ly.net - x.a.ly.net));
+      rows = sortRows(rows, ({ k: key, a }, s) => { const c = a.cy, l = a.ly; switch (s) { case 'name': { const im = view === 'items' ? (this.itemMeta && this.itemMeta[key] || {}) : null; return String(im ? (im.itemDesc || key) : key).toLowerCase(); } case 'ly': return l.net; case 'cy': case 'share': return c.net; case 'diff': return c.net - l.net; case 'd': return pR(c.net, l.net); case 'qLy': return l.qty; case 'qCy': return c.qty; case 'qD': return pR(c.qty, l.qty); case 'aspLy': return l.qty ? l.net / l.qty : null; case 'aspCy': return c.qty ? c.net / c.qty : null; case 'muLy': return muR(l.net, l.cost); case 'muCy': return muR(c.net, c.cost); } return null; });
       const PER = 100, pages = Math.max(1, Math.ceil(rows.length / PER)), page = Math.min(st.yfPage || 0, pages - 1);
       if (view === 'items') { pageInfo = { label: 'Page ' + (page + 1) + ' of ' + pages + ' · ' + fmtN(rows.length) + ' SKUs', prevOff: page <= 0, nextOff: page >= pages - 1 }; rows = rows.slice(page * PER, page * PER + PER); }
       dimRows = rows.map(({ k, a }, i) => { const c = a.cy, l = a.ly, im = view === 'items' ? (this.itemMeta && this.itemMeta[k] || {}) : null;
@@ -6532,7 +6588,7 @@ class Component extends DCLogic {
     if (view === 'customers') {
       const agg = new Map(); const T = { cy: { net: 0, inv: 0 }, ly: { net: 0, inv: 0 } };
       Y.bo.forEach(r => { const code = Y.stores[r[1]]; if (!dayOk(r[0]) || !storeOk(code)) return; const y = P.days[r[0]].cy ? 'cy' : 'ly'; const k = r[2]; let a = agg.get(k); if (!a) agg.set(k, a = { type: Y.types[r[3]], cy: { net: 0, inv: 0 }, ly: { net: 0, inv: 0 } }); a[y].net += r[5]; T[y].net += r[5]; if (r[5] >= 0) { a[y].inv++; T[y].inv++; } });
-      custRows = [...agg.entries()].sort((x, y) => (y[1].cy.net - x[1].cy.net) || (y[1].ly.net - x[1].ly.net)).map(([k, a], i) => { const ar = String((typeof k === 'number' ? (Y.custs || [])[k] : k) || (typeof k === 'number' ? k : '—')).trim(); const enN = this.custEnName(ar); return { rank: i + 1, name: enN || ar, nameAr: enN && enN !== ar ? ar : '', type: a.type || '—', ly: fmtM(a.ly.net), cy: fmtM(a.cy.net), diff: diffLab(a.cy.net - a.ly.net), d: dLab(a.cy.net, a.ly.net), c: dClr(a.cy.net, a.ly.net), invLy: fmtN(a.ly.inv), invCy: fmtN(a.cy.inv), share: T.cy.net ? (100 * a.cy.net / T.cy.net).toFixed(1) + '%' : '—' }; });
+      custRows = sortRows([...agg.entries()].sort((x, y) => (y[1].cy.net - x[1].cy.net) || (y[1].ly.net - x[1].ly.net)).map((e, i) => [...e, i + 1]), ([k, a], s) => { const c = a.cy, l = a.ly; switch (s) { case 'name': { const ar = String((typeof k === 'number' ? (Y.custs || [])[k] : k) ?? '').trim(); return (this.custEnName(ar) || ar).replace(/ \*$/, '').toLowerCase(); } case 'type': return String(a.type || ''); case 'ly': return l.net; case 'cy': case 'share': return c.net; case 'diff': return c.net - l.net; case 'd': return pR(c.net, l.net); case 'invLy': return l.inv; case 'invCy': return c.inv; } return null; }).map(([k, a, rk], i) => { const ar = String((typeof k === 'number' ? (Y.custs || [])[k] : k) || (typeof k === 'number' ? k : '—')).trim(); const enN = this.custEnName(ar); return { rank: rk, name: enN || ar, nameAr: enN && enN !== ar ? ar : '', type: a.type || '—', ly: fmtM(a.ly.net), cy: fmtM(a.cy.net), diff: diffLab(a.cy.net - a.ly.net), d: dLab(a.cy.net, a.ly.net), c: dClr(a.cy.net, a.ly.net), invLy: fmtN(a.ly.inv), invCy: fmtN(a.cy.inv), share: T.cy.net ? (100 * a.cy.net / T.cy.net).toFixed(1) + '%' : '—' }; });
       custFoot = { ly: fmtM(T.ly.net), cy: fmtM(T.cy.net), diff: diffLab(T.cy.net - T.ly.net), d: dLab(T.cy.net, T.ly.net), c: dClr(T.cy.net, T.ly.net), invLy: fmtN(T.ly.inv), invCy: fmtN(T.cy.inv) };
       if (hasCat) notes.push('Category filters do not apply to backoffice customers.');
     }
@@ -6585,6 +6641,8 @@ class Component extends DCLogic {
       yfQ: st.yfQ || '', setYfQ: e => this.setState({ yfQ: e.target.value, yfPage: 0 }),
       yfPageLabel: pageInfo ? pageInfo.label : '', yfPrevOff: pageInfo ? pageInfo.prevOff : true, yfNextOff: pageInfo ? pageInfo.nextOff : true,
       yfPrev: () => this.setState(s => ({ yfPage: Math.max(0, (s.yfPage || 0) - 1) })), yfNext: () => this.setState(s => ({ yfPage: (s.yfPage || 0) + 1 })),
+      yfSortH: Object.fromEntries(["name","type","rLy","rCy","rD","bLy","bCy","bD","tLy","tCy","tDiff","tD","rcLy","rcCy","rcD","atvLy","atvCy","muLy","muCy","ly","cy","diff","d","qLy","qCy","qD","aspLy","aspCy","share","invLy","invCy"].map(key => [key, () => this.setState(s => { const cur = s.yfSort && s.yfSort.view === view ? s.yfSort : null; return { yfSort: { view, key, dir: cur && cur.key === key ? -cur.dir : (key === 'name' || key === 'type' ? 1 : -1) }, yfPage: 0 }; })])),
+      yfArr: Object.fromEntries(["name","type","rLy","rCy","rD","bLy","bCy","bD","tLy","tCy","tDiff","tD","rcLy","rcCy","rcD","atvLy","atvCy","muLy","muCy","ly","cy","diff","d","qLy","qCy","qD","aspLy","aspCy","share","invLy","invCy"].map(key => [key, ys && ys.key === key ? (ys.dir > 0 ? ' ▲' : ' ▼') : ''])),
       yfIsCust: view === 'customers', yfCustRows: custRows, yfCustFoot: custFoot || {},
       yfShowMu: !hideMu
     };
