@@ -2352,7 +2352,9 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 
 <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:var(--space-4)">
 <sc-for list="{{yfTabs}}" as="t" hint-placeholder-count="10"><button class="btn {{t.cls}}" onClick="{{t.onClick}}">{{t.label}}</button></sc-for>
+<button class="btn btn-secondary" onClick="{{exportYfPdf}}" style="white-space:nowrap;margin-left:auto">Export PDF</button>
 </div>
+<div ref="{{yfBodyRef}}">
 
 <sc-if value="{{yfHasNotes}}" hint-placeholder-val="{{false}}">
 <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:var(--space-4)">
@@ -2436,6 +2438,7 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 </table>
 </div>
 </sc-if>
+</div>
 </sc-if>
 </section>
 </sc-if>
@@ -4366,6 +4369,46 @@ class Component extends DCLogic {
       }
     });
     this._savePdf(doc, 'yoy-' + (d.slug || 'drill') + '.pdf');
+  };
+
+  // YOY Comp Full: export whatever tables the active tab shows (current sort/filters)
+  exportYfPdf = (tabLabel, period) => {
+    const root = this._yfBodyRef && this._yfBodyRef.current;
+    if (!root || !window.jspdf) return;
+    const tables = [...root.querySelectorAll('table')];
+    if (!tables.length) return;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'landscape' });
+    const clean = t => String(t || '').replace(/[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]+/g, '').replace(/[▲▼]/g, '').replace(/\s+/g, ' ').trim();
+    doc.setFontSize(13); doc.text('YOY Comp Full — ' + tabLabel, 14, 14);
+    doc.setFontSize(9); doc.setTextColor(120); doc.text(clean(period), 14, 20); doc.setTextColor(0);
+    let y = 25;
+    tables.forEach(tbl => {
+      const card = tbl.closest('.card');
+      const ttl = card && card.firstElementChild && card.firstElementChild.tagName === 'DIV' ? clean(card.firstElementChild.textContent) : '';
+      if (ttl) { if (y > 180) { doc.addPage(); y = 14; } doc.setFontSize(10); doc.setFont(undefined, 'bold'); doc.text(ttl, 14, y + 2); doc.setFont(undefined, 'normal'); y += 5; }
+      const hdrRow = tbl.tHead ? tbl.tHead.rows[tbl.tHead.rows.length - 1] : null;
+      doc.autoTable({
+        html: tbl, startY: y, useCss: false, showFoot: 'lastPage',
+        styles: { fontSize: 7, valign: 'middle', cellPadding: 1.5, overflow: 'linebreak' },
+        headStyles: { fillColor: [45, 143, 129], textColor: 255, fontStyle: 'bold', halign: 'center' },
+        footStyles: { fillColor: [235, 240, 239], textColor: [26, 26, 26], fontStyle: 'bold' },
+        didParseCell: data => {
+          const raw = data.cell.raw;
+          const txt = clean(raw && raw.innerText != null ? raw.innerText : data.cell.text.join(' '));
+          data.cell.text = [txt];
+          if (data.section === 'body' || data.section === 'foot') {
+            data.cell.styles.halign = data.column.index <= 1 && /[A-Za-z]/.test(txt) ? 'left' : 'right';
+            if (/^[+\-−]?\d[\d,.]*\s*(%|pts)$/.test(txt) && /[+\-−]/.test(txt[0])) {
+              data.cell.styles.textColor = /^[-−]/.test(txt) ? [178, 34, 52] : [27, 118, 86];
+              data.cell.styles.fontStyle = 'bold';
+            }
+          }
+        }
+      });
+      y = doc.lastAutoTable.finalY + 8;
+    });
+    doc.save('YOY Comp Full - ' + tabLabel + '.pdf');
   };
 
   // Main YoY comparison table -> PDF (landscape; items view carries thumbnails)
@@ -6627,6 +6670,8 @@ class Component extends DCLogic {
     const dimHead = { cat: 'Category', sub: 'Sub-category', brand: 'Brand', items: 'Item' }[view] || '';
     return {
       yfReady: true, yfPeriodLabel: periodLabel, yfKpis: kpis, yfNotes: notes.map(t => ({ t })), yfHasNotes: notes.length > 0,
+      yfBodyRef: this._yfBodyRef || (this._yfBodyRef = React.createRef()),
+      exportYfPdf: () => this.exportYfPdf(({ summary: 'Summary', monthly: 'Monthly', daily: 'Daily', stores: 'By Store', region: 'By Region', customers: 'BO Customers', cat: 'Category', sub: 'Sub-category', brand: 'Brand', items: 'Items' })[view] || view, periodLabel),
       yfTabs: [tab('summary', 'Summary'), tab('monthly', 'Monthly'), tab('daily', 'Daily'), tab('stores', 'By Store'), tab('region', 'By Region'), tab('customers', 'BO Customers')],
       yfModeLflClass: mode === 'lfl' ? 'btn-primary' : 'btn-secondary', yfModeFullClass: mode === 'full' ? 'btn-primary' : 'btn-secondary',
       setYfLfl: () => this.setState({ yfMode: 'lfl' }), setYfFull: () => this.setState({ yfMode: 'full' }),
