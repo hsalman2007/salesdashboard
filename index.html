@@ -4379,8 +4379,8 @@ class Component extends DCLogic {
     if (!tables.length) return;
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'landscape' });
-    const clean = t => String(t || '').replace(/[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]+/g, '').replace(/[▲▼]/g, '').replace(/\s+/g, ' ').trim();
-    doc.setFontSize(13); doc.text('YOY Comp Full — ' + tabLabel, 14, 14);
+    const clean = t => String(t || '').replace(/[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]+/g, '').replace(/[▲▼]/g, '').replace(/[\u2212\u2013\u2012]/g, '-').replace(/\u2014/g, '-').replace(/[\u00a0\u202f\u2009]/g, ' ').replace(/[^\x20-\x7E\u00A0-\u00FF]/g, '').replace(/\s+/g, ' ').trim();
+    doc.setFontSize(13); doc.text('YOY Comp Full - ' + tabLabel, 14, 14);
     doc.setFontSize(9); doc.setTextColor(120); doc.text(clean(period), 14, 20); doc.setTextColor(0);
     let y = 25;
     tables.forEach(tbl => {
