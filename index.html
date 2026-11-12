@@ -1179,6 +1179,14 @@ body[data-lang="ar"], body[data-lang="ar"] h1, body[data-lang="ar"] h2, body[dat
 <sc-for list="{{staffBrandOptions}}" as="opt" hint-placeholder-count="3"><option value="{{opt}}">{{opt}}</option></sc-for>
 </select>
 </div>
+<div class="field" style="min-width:120px">
+<label>Nationality</label>
+<select class="input" value="{{staffNat}}" onChange="{{setStaffNat}}">
+<option value="All">All</option>
+<option value="E">E</option>
+<option value="N">N</option>
+</select>
+</div>
 <div class="field" style="min-width:180px;flex:1 1 180px">
 <label>Search</label>
 <input class="input" value="{{staffSearch}}" onChange="{{setStaffSearch}}" placeholder="Name, ID or store">
@@ -7153,7 +7161,9 @@ class Component extends DCLogic {
     }
 
     const search = (st.staffSearch || '').trim().toLowerCase();
-    let rows = Object.values(agg).map(a => {
+    const natF = st.staffNat || 'All';
+    const natById = {}; (st.staffMaster || []).forEach(s => natById[String(s.id).trim()] = String(s.nat || '').toUpperCase());
+    let rows = Object.values(agg).filter(a => natF === 'All' || natById[String(a.staff).trim()] === natF).map(a => {
       // home store = where this staff booked the most net sales inside the current filter
       let home = null, best = -Infinity;
       Object.keys(a.stores).forEach(code => {
@@ -9808,6 +9818,8 @@ class Component extends DCLogic {
       setStaffCat: e => this.setState({ staffFilters: { cat: e.target.value, sub: 'All', brand: 'All' }, staffPage: 0 }),
       setStaffSub: e => this.setState({ staffFilters: { ...st.staffFilters, sub: e.target.value, brand: 'All' }, staffPage: 0 }),
       setStaffBrand: e => this.setState({ staffFilters: { ...st.staffFilters, brand: e.target.value }, staffPage: 0 }),
+      staffNat: st.staffNat || 'All',
+      setStaffNat: e => this.setState({ staffNat: e.target.value, staffPage: 0 }),
       staffSearch: st.staffSearch,
       setStaffSearch: e => this.setState({ staffSearch: e.target.value, staffPage: 0 }),
       clearStaffSlice: () => this.setState({ staffFilters: { cat: 'All', sub: 'All', brand: 'All' }, staffPage: 0 }),
